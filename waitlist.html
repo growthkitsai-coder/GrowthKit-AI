@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Join the Waitlist — GrowthKit AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Noto+Serif:wght@600;700&amp;family=Space+Grotesk:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-secondary-fixed": "#002201", "on-secondary": "#003a01", "surface-bright": "#333b37", "primary-fixed-dim": "#4edea3", "inverse-primary": "#006c49", "secondary-fixed": "#76ff65", "on-primary-fixed": "#002113", "on-primary-container": "#00422b", "surface-container-low": "#161d1a", "on-surface": "#dde4df", "surface-container": "#1a211e", "tertiary-fixed": "#e2e2e2", primary: "#4edea3", "tertiary-fixed-dim": "#c6c6c7", "on-tertiary": "#2f3131", "on-error-container": "#ffdad6", "on-tertiary-fixed-variant": "#454747", "on-primary-fixed-variant": "#005236", "on-background": "#dde4df", "inverse-surface": "#dde4df", background: "#0e1512", outline: "#86948a", "outline-variant": "#3c4a42", surface: "#0e1512", error: "#ffb4ab", "primary-container": "#10b981", "on-error": "#690005", "secondary-fixed-dim": "#00e619", "on-secondary-fixed-variant": "#005303", "secondary-container": "#04f61d", "surface-variant": "#2f3633", "surface-tint": "#4edea3", "surface-dim": "#0e1512", "error-container": "#93000a", "surface-container-high": "#242c28", "inverse-on-surface": "#2b322e", "on-primary": "#003824", tertiary: "#c6c6c7", "primary-fixed": "#6ffbbe", "on-secondary-container": "#006b05", "on-tertiary-container": "#37393a", "tertiary-container": "#a2a3a3", secondary: "#caffba", "surface-container-lowest": "#09100d", "surface-container-highest": "#2f3633", "on-surface-variant": "#bbcabf", "on-tertiary-fixed": "#1a1c1c"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}, fontFamily: {"headline-md": ["Manrope"], "body-md": ["Manrope"], "headline-lg": ["Noto Serif"], caption: ["Manrope"], "body-lg": ["Manrope"], "display-lg": ["Noto Serif"], "label-mono": ["Space Grotesk"]}, fontSize: {"headline-md": ["24px", {lineHeight: "1.3", fontWeight: "600"}], "body-md": ["16px", {lineHeight: "1.5", fontWeight: "400"}], "headline-lg": ["40px", {lineHeight: "1.2", fontWeight: "600"}], caption: ["12px", {lineHeight: "1.4", fontWeight: "500"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}], "display-lg": ["56px", {lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700"}], "label-mono": ["14px", {lineHeight: "1", letterSpacing: "0.05em", fontWeight: "500"}]}}}};</script>
+<style>
+    body {
+        background-color: #0e1512;
+        color: #dde4df;
+        font-family: 'Manrope', sans-serif;
+    }
+    .glass-card {
+        background: rgba(22, 29, 26, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* === Animated background === */
+    .bg-fx { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-fx .orb { position: absolute; border-radius: 9999px; filter: blur(80px); opacity: 0.55; will-change: transform; }
+    .bg-fx .orb-1 {
+        width: 520px; height: 520px; top: -120px; left: -100px;
+        background: radial-gradient(circle, rgba(78,222,163,0.45), rgba(78,222,163,0));
+        animation: orbDrift1 22s ease-in-out infinite;
+    }
+    .bg-fx .orb-2 {
+        width: 620px; height: 620px; top: 30%; right: -200px;
+        background: radial-gradient(circle, rgba(16,185,129,0.35), rgba(16,185,129,0));
+        animation: orbDrift2 28s ease-in-out infinite;
+    }
+    .bg-fx .orb-3 {
+        width: 480px; height: 480px; bottom: -150px; left: 30%;
+        background: radial-gradient(circle, rgba(110,251,190,0.30), rgba(110,251,190,0));
+        animation: orbDrift3 26s ease-in-out infinite;
+    }
+    @keyframes orbDrift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(120px, 80px) scale(1.15); } }
+    @keyframes orbDrift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-160px, -60px) scale(1.1); } }
+    @keyframes orbDrift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px, -120px) scale(1.2); } }
+    .dot-grid {
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(78,222,163,0.10) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+        -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+        animation: gridDrift 60s linear infinite;
+    }
+    @keyframes gridDrift { from { background-position: 0 0; } to { background-position: 280px 280px; } }
+    main, nav { position: relative; z-index: 1; }
+
+    /* === Reveal === */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-100 { animation-delay: 100ms; }
+    .delay-200 { animation-delay: 200ms; }
+    .delay-300 { animation-delay: 300ms; }
+    .delay-400 { animation-delay: 400ms; }
+    .delay-500 { animation-delay: 500ms; }
+
+    /* === Form fields === */
+    .field {
+        width: 100%;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 0.5rem;
+        padding: 0.95rem 1.1rem;
+        color: #dde4df;
+        font-size: 1rem;
+        transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+        outline: none;
+    }
+    .field::placeholder { color: rgba(187,202,191,0.45); }
+    .field:hover { border-color: rgba(78,222,163,0.25); }
+    .field:focus {
+        border-color: rgba(78,222,163,0.7);
+        background: rgba(255,255,255,0.05);
+        box-shadow: 0 0 0 4px rgba(78,222,163,0.12);
+    }
+    .field-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #bbcabf;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.01em;
+    }
+
+    /* === Custom checkbox === */
+    .check-wrap { display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; user-select: none; }
+    .check-wrap input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .check-box {
+        flex-shrink: 0;
+        width: 22px; height: 22px;
+        border-radius: 6px;
+        border: 1.5px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.03);
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: all 0.2s ease;
+        margin-top: 1px;
+    }
+    .check-wrap:hover .check-box { border-color: rgba(78,222,163,0.5); }
+    .check-box svg { width: 14px; height: 14px; color: #003824; opacity: 0; transform: scale(0.5); transition: opacity 0.2s ease, transform 0.2s ease; }
+    .check-wrap input:checked + .check-box {
+        background: linear-gradient(135deg, #6ffbbe, #4edea3);
+        border-color: #4edea3;
+        box-shadow: 0 0 18px rgba(78,222,163,0.35);
+    }
+    .check-wrap input:checked + .check-box svg { opacity: 1; transform: scale(1); }
+    .check-wrap input:focus-visible + .check-box { box-shadow: 0 0 0 4px rgba(78,222,163,0.25); }
+
+    /* === Submit button === */
+    .submit-cta {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        width: 100%;
+        padding: 1.05rem 1.5rem;
+        border-radius: 0.6rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #003824;
+        background: linear-gradient(135deg, #6ffbbe 0%, #4edea3 50%, #10b981 100%);
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,0.18) inset,
+            0 0 30px rgba(78,222,163,0.35);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    .submit-cta:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset, 0 0 50px rgba(78,222,163,0.55); }
+    .submit-cta:active { transform: translateY(0) scale(0.99); }
+    .submit-cta:disabled { opacity: 0.65; cursor: not-allowed; }
+    .submit-cta::after {
+        content: ""; position: absolute; top: 0; left: -150%;
+        width: 60%; height: 100%;
+        background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+        transform: skewX(-20deg);
+        animation: shineSweep 4s ease-in-out infinite;
+        pointer-events: none;
+    }
+    @keyframes shineSweep { 0% { left: -150%; } 55% { left: 150%; } 100% { left: 150%; } }
+
+    /* === Success state === */
+    .success-icon {
+        width: 72px; height: 72px;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, #6ffbbe, #4edea3);
+        display: inline-flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 40px rgba(78,222,163,0.5);
+        animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        transform: scale(0.5); opacity: 0;
+    }
+    @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+
+    /* === Custom cursor (Wealor-style) === */
+    @media (pointer: fine) {
+        html, body, *, *::before, *::after { cursor: none !important; }
+        .cursor-ring, .cursor-dot {
+            position: fixed; top: 0; left: 0; pointer-events: none;
+            border-radius: 9999px;
+            transform: translate3d(-100px, -100px, 0);
+            will-change: transform, width, height; opacity: 0;
+        }
+        .cursor-ring {
+            width: 28px; height: 28px; margin-left: -14px; margin-top: -14px;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: width 0.3s ease, height 0.3s ease, margin 0.3s ease, background-color 0.3s ease, border 0.3s ease, opacity 0.3s ease;
+            z-index: 9999;
+        }
+        .cursor-dot {
+            width: 4px; height: 4px; margin-left: -2px; margin-top: -2px;
+            background-color: rgba(255,255,255,0.9);
+            transition: width 0.2s ease, height 0.2s ease, margin 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+            z-index: 10000;
+        }
+        .cursor-active .cursor-ring, .cursor-active .cursor-dot { opacity: 1; }
+        .cursor-ring.is-hover {
+            width: 48px; height: 48px; margin-left: -24px; margin-top: -24px;
+            background-color: rgba(34,197,94,0.08);
+            border: 1.5px solid rgba(34,197,94,0.7);
+        }
+        .cursor-dot.is-hover {
+            width: 6px; height: 6px; margin-left: -3px; margin-top: -3px;
+            background-color: rgba(34,197,94,1);
+        }
+    }
+    @media (pointer: coarse), (hover: none) {
+        .cursor-ring, .cursor-dot { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .bg-fx .orb, .dot-grid, .submit-cta::after { animation: none !important; }
+        .animate-fade-in-up { animation: none; opacity: 1; }
+    }
+</style>
+</head>
+<body class="antialiased font-sans">
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div aria-hidden="true" class="bg-fx">
+    <div class="dot-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<nav class="fixed top-0 w-full z-50 bg-emerald-950/20 backdrop-blur-xl border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="landing page.html" class="flex items-center gap-2 text-2xl font-black tracking-tighter text-white">
+            <span class="material-symbols-outlined text-primary text-xl">arrow_back</span>
+            GrowthKit AI
+        </a>
+        <a href="landing page.html" class="text-sm font-medium text-gray-400 hover:text-emerald-300 transition-colors">Back to home</a>
+    </div>
+</nav>
+
+<main class="min-h-screen flex items-center justify-center px-6 pt-32 pb-16">
+    <div class="w-full max-w-lg">
+        <!-- Form -->
+        <div id="formCard" class="glass-card rounded-xl p-8 md:p-10 animate-fade-in-up delay-100">
+            <div class="text-center mb-8">
+                <span class="font-label-mono text-caption text-primary uppercase tracking-[0.25em] animate-fade-in-up delay-200">You're early</span>
+                <h1 class="font-headline-lg text-3xl md:text-4xl text-white mt-3 leading-tight animate-fade-in-up delay-300">
+                    Join the waitlist
+                </h1>
+                <p class="text-on-surface-variant mt-3 animate-fade-in-up delay-400">
+                    Be the first to turn one sentence into a full growth system.
+                </p>
+            </div>
+
+            <form id="waitlistForm" class="space-y-5 animate-fade-in-up delay-500" novalidate>
+                <div>
+                    <label for="name" class="field-label">Full name</label>
+                    <input id="name" name="name" type="text" autocomplete="name" required class="field" placeholder="Ada Lovelace" />
+                </div>
+
+                <div>
+                    <label for="email" class="field-label">Work email</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="field" placeholder="ada@yourstartup.com" />
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="submit-cta">
+                        <span>Join the waitlist</span>
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+
+                <!-- Email-updates consent at the bottom -->
+                <div class="pt-4 border-t border-white/5 mt-6">
+                    <label class="check-wrap">
+                        <input id="updates" name="updates" type="checkbox" />
+                        <span class="check-box" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </span>
+                        <span class="text-sm text-on-surface-variant leading-relaxed">
+                            I'm fine with receiving regular product updates and growth tips from GrowthKit AI by email. You can unsubscribe at any time.
+                        </span>
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success state -->
+        <div id="successCard" class="glass-card rounded-xl p-10 text-center hidden">
+            <div class="success-icon mx-auto mb-6">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#003824" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 class="font-headline-lg text-3xl text-white mb-3">You're on the list</h2>
+            <p class="text-on-surface-variant mb-2">Thanks, <span id="successName" class="text-white font-medium">friend</span> — we'll be in touch.</p>
+            <p class="text-on-surface-variant text-sm" id="successUpdatesNote"></p>
+            <a href="landing page.html" class="inline-flex items-center gap-2 mt-8 text-primary hover:text-primary-fixed transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-base">arrow_back</span>
+                Back to home
+            </a>
+        </div>
+    </div>
+</main>
+
+<script>
+(function () {
+    'use strict';
+
+    // --- Form submit ---
+    var form = document.getElementById('waitlistForm');
+    var formCard = document.getElementById('formCard');
+    var successCard = document.getElementById('successCard');
+    var successName = document.getElementById('successName');
+    var successUpdatesNote = document.getElementById('successUpdatesNote');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = form.name.value.trim();
+        var email = form.email.value.trim();
+        var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!name || !emailOk) {
+            if (!name) form.name.focus();
+            else form.email.focus();
+            return;
+        }
+        successName.textContent = name.split(' ')[0] || 'friend';
+        successUpdatesNote.textContent = form.updates.checked
+            ? "We'll send updates and growth tips to " + email + "."
+            : "We'll only email you when there's news about your spot.";
+        formCard.classList.add('hidden');
+        successCard.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // --- Custom cursor (Wealor-style) ---
+    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var finePointer = window.matchMedia('(pointer: fine)').matches;
+    if (!isTouch && finePointer) {
+        var ring = document.getElementById('cursorRing');
+        var dot  = document.getElementById('cursorDot');
+        if (ring && dot) {
+            var visible = false;
+            var hoverSelector = 'a, button, [role="button"], input, textarea, select, label, summary, [data-cursor="hover"]';
+            document.addEventListener('pointermove', function (e) {
+                var x = e.clientX, y = e.clientY;
+                ring.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+                dot.style.transform  = 'translate3d(' + x + 'px,' + y + 'px,0)';
+                if (!visible) {
+                    document.documentElement.classList.add('cursor-active');
+                    visible = true;
+                }
+                var hovering = e.target && e.target.closest && e.target.closest(hoverSelector);
+                ring.classList.toggle('is-hover', !!hovering);
+                dot.classList.toggle('is-hover', !!hovering);
+            }, { passive: true });
+            document.addEventListener('pointerleave', function () {
+                document.documentElement.classList.remove('cursor-active');
+                visible = false;
+            });
+        }
+    }
+})();
+</script>
+</body></html>
