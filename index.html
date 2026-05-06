@@ -127,15 +127,15 @@
   /* === Hero specimen plate (upper-right) === */
   .spec-plate {
     position: absolute;
-    top: 96px;
+    top: 100px;
     right: 32px;
-    width: 268px;
+    width: 388px;
     background: var(--paper);
     border: 1px solid var(--line-2);
     border-radius: 6px;
     box-shadow:
       0 1px 0 rgba(20,19,15,0.04),
-      0 28px 56px -36px rgba(20,19,15,0.22);
+      0 32px 60px -36px rgba(20,19,15,0.22);
     overflow: hidden;
     color: var(--ink-2);
     z-index: 1;
@@ -145,7 +145,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 9px 14px;
+    padding: 9px 16px;
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10.5px;
     letter-spacing: 0.1em;
@@ -156,16 +156,56 @@
   .spec-plate .plate-head { border-bottom: 1px solid var(--line); }
   .spec-plate .plate-foot { border-top: 1px solid var(--line); }
   .spec-plate .plate-head .num { color: var(--accent); margin-right: 1px; }
-  .spec-plate .plate-body { padding: 4px 14px; }
+
+  .spec-plate .plate-title {
+    position: relative;
+    padding: 18px 18px 16px;
+  }
+  .spec-plate .plate-title h4 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .spec-plate .plate-title h4 em { font-style: italic; color: var(--accent); }
+  .spec-plate .plate-title .sub {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .spec-plate .plate-title::after {
+    content: "";
+    position: absolute;
+    left: 18px; right: 18px; bottom: 0;
+    height: 1px;
+    background: var(--line);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 1.1s cubic-bezier(.16,1,.3,1);
+    transition-delay: 700ms;
+  }
+  .spec-plate.in .plate-title::after { transform: scaleX(1); }
+
+  .spec-plate .plate-body { padding: 0 18px; }
   .spec-plate .row {
     display: grid;
     grid-template-columns: 22px 1fr auto;
-    gap: 12px;
+    gap: 14px;
     align-items: baseline;
     padding: 13px 0;
     border-bottom: 1px dashed var(--line);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+    transition-delay: var(--row-delay, 0ms);
   }
   .spec-plate .row:last-child { border-bottom: 0; }
+  .spec-plate.in .row { opacity: 1; transform: none; }
   .spec-plate .r-num {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10.5px;
@@ -174,7 +214,7 @@
   }
   .spec-plate .r-label {
     font-family: 'Instrument Serif', serif;
-    font-size: 18px;
+    font-size: 19px;
     line-height: 1;
     letter-spacing: -0.005em;
     color: var(--ink);
@@ -184,6 +224,7 @@
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10.5px;
     color: var(--muted);
+    letter-spacing: 0.04em;
   }
   .spec-plate .plate-foot .status { display: inline-flex; align-items: center; gap: 7px; }
   .spec-plate .plate-foot .dot {
@@ -194,7 +235,11 @@
     animation: pulseDot 3.2s ease-in-out infinite;
   }
 
-  @media (max-width: 1080px) { .spec-plate { display: none; } }
+  @media (max-width: 1100px) { .spec-plate { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .spec-plate .row { opacity: 1; transform: none; transition: none; }
+    .spec-plate .plate-title::after { transform: scaleX(1); transition: none; }
+  }
   .hero-top {
     display: flex;
     align-items: center;
@@ -850,26 +895,35 @@
         </span>
       </div>
 
-      <aside class="spec-plate reveal" style="--reveal-delay: 480ms;" aria-hidden="true">
+      <aside class="spec-plate reveal" style="--reveal-delay: 420ms;" aria-hidden="true">
         <div class="plate-head">
           <span><span class="num">/</span>system</span>
           <span>v0.4 · beta</span>
         </div>
+        <div class="plate-title">
+          <h4>Specimen <em>№01</em></h4>
+          <div class="sub">Growth plan, engineered</div>
+        </div>
         <div class="plate-body">
-          <div class="row">
+          <div class="row" style="--row-delay: 800ms;">
             <span class="r-num">i.</span>
-            <span class="r-label">Brief</span>
-            <span class="r-meta">~ 5 min</span>
+            <span class="r-label">ICP &amp; positioning</span>
+            <span class="r-meta">2 pp</span>
           </div>
-          <div class="row">
+          <div class="row" style="--row-delay: 920ms;">
             <span class="r-num">ii.</span>
-            <span class="r-label"><em>Synthesis</em></span>
-            <span class="r-meta">~ 90 sec</span>
+            <span class="r-label">Demand &amp; channels</span>
+            <span class="r-meta">28</span>
           </div>
-          <div class="row">
+          <div class="row" style="--row-delay: 1040ms;">
             <span class="r-num">iii.</span>
-            <span class="r-label">Plan</span>
-            <span class="r-meta">4 docs</span>
+            <span class="r-label"><em>Launch</em> sequence</span>
+            <span class="r-meta">90 d</span>
+          </div>
+          <div class="row" style="--row-delay: 1160ms;">
+            <span class="r-num">iv.</span>
+            <span class="r-label">Operating cadence</span>
+            <span class="r-meta">wkly</span>
           </div>
         </div>
         <div class="plate-foot">
