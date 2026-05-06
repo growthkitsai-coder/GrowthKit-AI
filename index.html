@@ -122,6 +122,79 @@
 
   /* === Hero === */
   .hero { padding: 80px 0 0; }
+  .hero .wrap { position: relative; }
+
+  /* === Hero specimen plate (upper-right) === */
+  .spec-plate {
+    position: absolute;
+    top: 96px;
+    right: 32px;
+    width: 268px;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 28px 56px -36px rgba(20,19,15,0.22);
+    overflow: hidden;
+    color: var(--ink-2);
+    z-index: 1;
+  }
+  .spec-plate .plate-head,
+  .spec-plate .plate-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    background: var(--bg-2);
+  }
+  .spec-plate .plate-head { border-bottom: 1px solid var(--line); }
+  .spec-plate .plate-foot { border-top: 1px solid var(--line); }
+  .spec-plate .plate-head .num { color: var(--accent); margin-right: 1px; }
+  .spec-plate .plate-body { padding: 4px 14px; }
+  .spec-plate .row {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 13px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .spec-plate .row:last-child { border-bottom: 0; }
+  .spec-plate .r-num {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .spec-plate .r-label {
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .spec-plate .r-label em { font-style: italic; color: var(--accent); }
+  .spec-plate .r-meta {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+  .spec-plate .plate-foot .status { display: inline-flex; align-items: center; gap: 7px; }
+  .spec-plate .plate-foot .dot {
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 2px rgba(31,71,50,0.12);
+    animation: pulseDot 3.2s ease-in-out infinite;
+  }
+
+  @media (max-width: 1080px) { .spec-plate { display: none; } }
   .hero-top {
     display: flex;
     align-items: center;
@@ -776,6 +849,34 @@
           <span class="meta">Join the community of founders working to accelerate their progress</span>
         </span>
       </div>
+
+      <aside class="spec-plate reveal" style="--reveal-delay: 480ms;" aria-hidden="true">
+        <div class="plate-head">
+          <span><span class="num">/</span>system</span>
+          <span>v0.4 · beta</span>
+        </div>
+        <div class="plate-body">
+          <div class="row">
+            <span class="r-num">i.</span>
+            <span class="r-label">Brief</span>
+            <span class="r-meta">~ 5 min</span>
+          </div>
+          <div class="row">
+            <span class="r-num">ii.</span>
+            <span class="r-label"><em>Synthesis</em></span>
+            <span class="r-meta">~ 90 sec</span>
+          </div>
+          <div class="row">
+            <span class="r-num">iii.</span>
+            <span class="r-label">Plan</span>
+            <span class="r-meta">4 docs</span>
+          </div>
+        </div>
+        <div class="plate-foot">
+          <span class="status"><span class="dot"></span>system online</span>
+          <span>2026 · ldn</span>
+        </div>
+      </aside>
 
       <h1 class="headline reveal in">
         <span class="word">Growth,</span>
