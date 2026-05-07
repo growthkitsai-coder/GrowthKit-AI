@@ -307,6 +307,16 @@
     line-height: 1.5;
   }
 
+  .form-error {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: #B0341C;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+  .form-error:empty { display: none; }
+
   /* === Success === */
   .success-body {
     text-align: center;
@@ -448,8 +458,10 @@
           </div>
 
           <button type="submit" class="submit">
-            Submit application <span class="arr">→</span>
+            <span class="submit-label">Submit application</span> <span class="arr">→</span>
           </button>
+
+          <div id="formError" class="form-error" role="alert" aria-live="polite"></div>
 
           <div class="consent">
             <label class="check-wrap">
@@ -501,6 +513,10 @@
 (function () {
   'use strict';
 
+  // Paste the Web app URL from your Apps Script deployment here.
+  // See waitlist-apps-script.gs in this repo for setup instructions.
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6lsQZyFB0lKdJKHD8usk2WYRjd1KJnaxf1F8dNZER8X6JeAnIx-t2quMNx-dAuyMn/exec';
+
   // Reveal on view (matches index.html behavior)
   var els = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
@@ -538,8 +554,11 @@
   var successCard = document.getElementById('successCard');
   var successName = document.getElementById('successName');
   var successUpdatesNote = document.getElementById('successUpdatesNote');
+  var formError = document.getElementById('formError');
+  var submitBtn = form.querySelector('.submit');
+  var submitLabel = submitBtn.querySelector('.submit-label');
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
     var name = form.name.value.trim();
     var email = form.email.value.trim();
@@ -549,6 +568,35 @@
       else form.email.focus();
       return;
     }
+
+    if (!SCRIPT_URL) {
+      formError.textContent = 'Form is not configured yet — set SCRIPT_URL in waitlist.html.';
+      return;
+    }
+
+    formError.textContent = '';
+    var originalLabel = submitLabel.textContent;
+    submitBtn.disabled = true;
+    submitLabel.textContent = 'Sending…';
+
+    try {
+      var body = new URLSearchParams({
+        name: name,
+        email: email,
+        updates: form.updates.checked ? 'true' : 'false'
+      });
+      var res = await fetch(SCRIPT_URL, { method: 'POST', body: body });
+      if (!res.ok) throw new Error('Request failed (' + res.status + ').');
+      var data = null;
+      try { data = await res.json(); } catch (_) { /* non-JSON response is OK */ }
+      if (data && data.ok === false) throw new Error(data.error || 'Submission failed.');
+    } catch (err) {
+      submitBtn.disabled = false;
+      submitLabel.textContent = originalLabel;
+      formError.textContent = "Couldn't submit — " + (err && err.message ? err.message : 'please try again.');
+      return;
+    }
+
     successName.textContent = name.split(' ')[0] || 'friend';
     successUpdatesNote.textContent = form.updates.checked
       ? "We'll send updates and growth notes to " + email + "."
