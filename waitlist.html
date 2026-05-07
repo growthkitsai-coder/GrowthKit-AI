@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waitlist — GrowthKit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F2EFE8;
+    --ink: #14130F;
+    --ink-2: #2A2823;
+    --muted: #6B6760;
+    --line: #E2DDD3;
+    --line-2: #D4CEC1;
+    --accent: #1F4732;
+    --accent-soft: #2E6249;
+    --paper: #FFFFFF;
+    --maxw: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    font-feature-settings: "ss01", "cv11";
+    min-height: 100vh;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .eyebrow .num { color: var(--accent); margin-right: 10px; }
+
+  /* === Top bar (mirrors index) === */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .topbar.scrolled {
+    background: rgba(250, 248, 244, 0.78);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    backdrop-filter: saturate(140%) blur(12px);
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04);
+  }
+  .topbar-inner {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .brand .logo-mark {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-size: 18px;
+    font-style: italic;
+    transform: translateY(-1px);
+    overflow: hidden;
+  }
+  .brand .logo-mark svg { display: block; }
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--ink-2);
+    transition: color .2s ease;
+  }
+  .nav-back:hover { color: var(--accent); }
+  .nav-back .arr {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    transition: transform .25s ease;
+  }
+  .nav-back:hover .arr { transform: translateX(-3px); }
+
+  /* === Page === */
+  main { padding: 88px 0 120px; }
+
+  .intro {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 48px;
+  }
+  .intro .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 28px;
+  }
+  .intro .pill .dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.12);
+    animation: pulseDot 3.2s ease-in-out infinite;
+  }
+  .intro h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(44px, 6vw, 72px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0 0 20px;
+  }
+  .intro h1 em { font-style: italic; color: var(--accent); }
+  .intro p {
+    font-size: 17px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    max-width: 44ch;
+    margin: 0 auto;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(31,71,50,0.10); }
+    50%      { box-shadow: 0 0 0 6px rgba(31,71,50,0.04); }
+  }
+
+  /* === Form / success card (modeled on the hero spec-plate) === */
+  .card {
+    max-width: 540px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 32px 60px -36px rgba(20,19,15,0.18);
+    overflow: hidden;
+  }
+  .card-head, .card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 18px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    background: var(--bg-2);
+  }
+  .card-head { border-bottom: 1px solid var(--line); }
+  .card-foot { border-top: 1px solid var(--line); }
+  .card-head .num { color: var(--accent); margin-right: 1px; }
+
+  .card-body { padding: 32px 36px 28px; }
+  @media (max-width: 560px) { .card-body { padding: 26px 22px 22px; } }
+
+  .field-group { margin-bottom: 20px; }
+  .field-label {
+    display: block;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .field {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 13px 16px;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
+    outline: none;
+  }
+  .field::placeholder { color: var(--muted); opacity: 0.55; }
+  .field:hover { border-color: var(--line-2); }
+  .field:focus {
+    border-color: var(--accent);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.10);
+  }
+
+  .submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--accent);
+    color: var(--bg);
+    border: 0;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease, transform .15s ease;
+    margin-top: 8px;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 14px 32px -16px rgba(31,71,50,0.55);
+  }
+  .submit:hover { background: var(--ink); }
+  .submit:active { transform: translateY(1px); }
+  .submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .submit .arr {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    transform: translateY(-1px);
+    transition: transform .25s ease;
+  }
+  .submit:hover .arr { transform: translate(3px, -1px); }
+
+  .consent {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
+  }
+  .check-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .check-wrap input {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+    pointer-events: none;
+  }
+  .check-box {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 1px solid var(--line-2);
+    background: var(--paper);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+    margin-top: 2px;
+  }
+  .check-wrap:hover .check-box { border-color: var(--accent); }
+  .check-box svg {
+    width: 11px; height: 11px;
+    color: var(--bg);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .check-wrap input:checked + .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-wrap input:checked + .check-box svg { opacity: 1; transform: scale(1); }
+  .check-wrap input:focus-visible + .check-box {
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.15);
+  }
+  .check-wrap .text {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* === Success === */
+  .success-body {
+    text-align: center;
+    padding: 56px 36px 48px;
+  }
+  @media (max-width: 560px) { .success-body { padding: 44px 22px 36px; } }
+  .success-stamp {
+    margin: 0 auto 28px;
+    width: 72px; height: 72px;
+    border-radius: 999px;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 6px rgba(31,71,50,0.10);
+    animation: stampIn 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  .success-stamp svg { color: var(--bg); width: 30px; height: 30px; }
+  @keyframes stampIn { to { transform: scale(1); opacity: 1; } }
+
+  .success-body h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    color: var(--ink);
+  }
+  .success-body h2 em { font-style: italic; color: var(--accent); }
+  .success-body .lede {
+    font-size: 16px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 38ch;
+  }
+  .success-body .note {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin: 18px auto 0;
+    max-width: 38ch;
+    line-height: 1.6;
+  }
+  .success-body .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 36px;
+    font-size: 14px;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .success-body .back:hover { color: var(--accent); border-color: var(--accent); }
+  .success-body .back .arr {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    transition: transform .25s ease;
+  }
+  .success-body .back:hover .arr { transform: translateX(-3px); }
+
+  .hidden { display: none !important; }
+
+  /* === Reveal === */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .topbar { transition: none; }
+    .pill .dot { animation: none; }
+    .success-stamp { transform: none; opacity: 1; animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="index.html" class="brand">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 80 80">
+          <rect width="80" height="80" rx="14" fill="#1F4732"/>
+          <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square">
+            <path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/>
+            <path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/>
+          </g>
+          <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+          <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+        </svg>
+      </span>
+      <span>GrowthKit</span>
+    </a>
+    <a href="index.html" class="nav-back">
+      <span class="arr">←</span> Back to home
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="intro reveal">
+      <span class="pill">
+        <span class="dot"></span>
+        <span>Waitlist is open now</span>
+      </span>
+      <h1>Join the <em>waitlist</em>.</h1>
+      <p>Be among the first to experience acceleration like none other.</p>
+    </div>
+
+    <div id="formCard" class="card reveal" style="--reveal-delay: 200ms;">
+      <div class="card-head">
+        <span><span class="num">/</span>application</span>
+        <span>waitlist · 2026</span>
+      </div>
+      <div class="card-body">
+        <form id="waitlistForm" novalidate>
+          <div class="field-group">
+            <label for="name" class="field-label">Full name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required class="field" placeholder="Ada Lovelace">
+          </div>
+
+          <div class="field-group">
+            <label for="email" class="field-label">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required class="field" placeholder="ada@yourstartup.com">
+          </div>
+
+          <button type="submit" class="submit">
+            Submit application <span class="arr">→</span>
+          </button>
+
+          <div class="consent">
+            <label class="check-wrap">
+              <input id="updates" name="updates" type="checkbox">
+              <span class="check-box" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <span class="text">
+                I'm fine with receiving regular product updates and growth notes from GrowthKit by email. You can unsubscribe at any time.
+              </span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="card-foot">
+        <span>One reply per inbox</span>
+        <span>2026 · ldn</span>
+      </div>
+    </div>
+
+    <div id="successCard" class="card hidden">
+      <div class="card-head">
+        <span><span class="num">/</span>application</span>
+        <span>received · 2026</span>
+      </div>
+      <div class="success-body">
+        <div class="success-stamp" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2>You're <em>on the list</em>.</h2>
+        <p class="lede">Thanks, <span id="successName">friend</span> — a founder, not a form, will reply once your spot opens.</p>
+        <p class="note" id="successUpdatesNote"></p>
+        <a href="index.html" class="back"><span class="arr">←</span> Back to home</a>
+      </div>
+      <div class="card-foot">
+        <span>Logged · awaiting review</span>
+        <span>2026 · ldn</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // Reveal on view (matches index.html behavior)
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  } else {
+    els.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // Topbar elevation on scroll
+  var topbar = document.querySelector('.topbar');
+  if (topbar) {
+    var lastState = false;
+    function onScroll() {
+      var scrolled = window.scrollY > 8;
+      if (scrolled !== lastState) {
+        topbar.classList.toggle('scrolled', scrolled);
+        lastState = scrolled;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // Form submit (preserves original behavior)
+  var form = document.getElementById('waitlistForm');
+  var formCard = document.getElementById('formCard');
+  var successCard = document.getElementById('successCard');
+  var successName = document.getElementById('successName');
+  var successUpdatesNote = document.getElementById('successUpdatesNote');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = form.name.value.trim();
+    var email = form.email.value.trim();
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!name || !emailOk) {
+      if (!name) form.name.focus();
+      else form.email.focus();
+      return;
+    }
+    successName.textContent = name.split(' ')[0] || 'friend';
+    successUpdatesNote.textContent = form.updates.checked
+      ? "We'll send updates and growth notes to " + email + "."
+      : "We'll only email you when there's news about your spot.";
+    formCard.classList.add('hidden');
+    successCard.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+
+</body>
+</html>

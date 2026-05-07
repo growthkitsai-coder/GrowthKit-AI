@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Noto+Serif:wght@600;700&amp;family=Space+Grotesk:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-secondary-fixed": "#002201", "on-secondary": "#003a01", "surface-bright": "#333b37", "primary-fixed-dim": "#4edea3", "inverse-primary": "#006c49", "secondary-fixed": "#76ff65", "on-primary-fixed": "#002113", "on-primary-container": "#00422b", "surface-container-low": "#161d1a", "on-surface": "#dde4df", "surface-container": "#1a211e", "tertiary-fixed": "#e2e2e2", primary: "#4edea3", "tertiary-fixed-dim": "#c6c6c7", "on-tertiary": "#2f3131", "on-error-container": "#ffdad6", "on-tertiary-fixed-variant": "#454747", "on-primary-fixed-variant": "#005236", "on-background": "#dde4df", "inverse-surface": "#dde4df", background: "#0e1512", outline: "#86948a", "outline-variant": "#3c4a42", surface: "#0e1512", error: "#ffb4ab", "primary-container": "#10b981", "on-error": "#690005", "secondary-fixed-dim": "#00e619", "on-secondary-fixed-variant": "#005303", "secondary-container": "#04f61d", "surface-variant": "#2f3633", "surface-tint": "#4edea3", "surface-dim": "#0e1512", "error-container": "#93000a", "surface-container-high": "#242c28", "inverse-on-surface": "#2b322e", "on-primary": "#003824", tertiary: "#c6c6c7", "primary-fixed": "#6ffbbe", "on-secondary-container": "#006b05", "on-tertiary-container": "#37393a", "tertiary-container": "#a2a3a3", secondary: "#caffba", "surface-container-lowest": "#09100d", "surface-container-highest": "#2f3633", "on-surface-variant": "#bbcabf", "on-tertiary-fixed": "#1a1c1c"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}, spacing: {xs: "4px", lg: "24px", sm: "8px", md: "16px", xl: "40px", "container-max": "1280px", unit: "4px", gutter: "24px"}, fontFamily: {"headline-md": ["Manrope"], "body-md": ["Manrope"], "headline-lg": ["Noto Serif"], caption: ["Manrope"], "body-lg": ["Manrope"], "display-lg": ["Noto Serif"], "label-mono": ["Space Grotesk"]}, fontSize: {"headline-md": ["24px", {lineHeight: "1.3", fontWeight: "600"}], "body-md": ["16px", {lineHeight: "1.5", fontWeight: "400"}], "headline-lg": ["40px", {lineHeight: "1.2", fontWeight: "600"}], caption: ["12px", {lineHeight: "1.4", fontWeight: "500"}], "body-lg": ["18px", {lineHeight: "1.6", fontWeight: "400"}], "display-lg": ["64px", {lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700"}], "label-mono": ["14px", {lineHeight: "1", letterSpacing: "0.05em", fontWeight: "500"}]}}}};</script>
+<style>
+        body {
+            background-color: #0e1512;
+            color: #dde4df;
+            font-family: 'Manrope', sans-serif;
+        }
+        .glass-card {
+            background: rgba(22, 29, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .premium-border {
+            border: 1px solid;
+            border-image-source: linear-gradient(135deg, rgba(78, 222, 163, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-image-slice: 1;
+        }
+        .radial-glow {
+            background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at 50% -20%, rgba(16, 185, 129, 0.1) 0%, rgba(14, 21, 18, 0) 50%);
+        }
+    
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+
+        /* === Animated background layer === */
+        .bg-fx {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-fx .orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(80px);
+            opacity: 0.55;
+            will-change: transform;
+        }
+        .bg-fx .orb-1 {
+            width: 520px; height: 520px;
+            top: -120px; left: -100px;
+            background: radial-gradient(circle, rgba(78,222,163,0.45), rgba(78,222,163,0));
+            animation: orbDrift1 22s ease-in-out infinite;
+        }
+        .bg-fx .orb-2 {
+            width: 620px; height: 620px;
+            top: 30%; right: -200px;
+            background: radial-gradient(circle, rgba(16,185,129,0.35), rgba(16,185,129,0));
+            animation: orbDrift2 28s ease-in-out infinite;
+        }
+        .bg-fx .orb-3 {
+            width: 480px; height: 480px;
+            bottom: -150px; left: 30%;
+            background: radial-gradient(circle, rgba(110,251,190,0.30), rgba(110,251,190,0));
+            animation: orbDrift3 26s ease-in-out infinite;
+        }
+        @keyframes orbDrift1 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(120px, 80px) scale(1.15); }
+        }
+        @keyframes orbDrift2 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(-160px, -60px) scale(1.1); }
+        }
+        @keyframes orbDrift3 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(80px, -120px) scale(1.2); }
+        }
+        .dot-grid {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(78,222,163,0.10) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+            animation: gridDrift 60s linear infinite;
+        }
+        @keyframes gridDrift {
+            from { background-position: 0 0; }
+            to   { background-position: 280px 280px; }
+        }
+        main, nav, footer { position: relative; z-index: 1; }
+
+        /* === Scroll reveal === */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+            transition-delay: var(--reveal-delay, 0ms);
+            will-change: opacity, transform;
+        }
+        [data-reveal].is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            [data-reveal] { opacity: 1; transform: none; transition: none; }
+            .bg-fx .orb, .dot-grid, .animate-float, .grad-text, .shine::after { animation: none !important; }
+        }
+
+        /* === Word stagger for the headline === */
+        .word-reveal { display: inline-block; overflow: hidden; vertical-align: bottom; }
+        .word-reveal > span {
+            display: inline-block;
+            transform: translateY(110%);
+            opacity: 0;
+            animation: wordRise 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+            animation-delay: var(--word-delay, 0ms);
+        }
+        @keyframes wordRise {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* === Animated gradient text === */
+        .grad-text {
+            background: linear-gradient(120deg, #4ede a3 0%, #6ffbbe 25%, #10b981 50%, #6ffbbe 75%, #4ede a3 100%);
+            background: linear-gradient(120deg, #4edea3 0%, #6ffbbe 25%, #10b981 50%, #6ffbbe 75%, #4edea3 100%);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradPan 8s linear infinite;
+        }
+        @keyframes gradPan {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        /* === Shine sweep on primary CTA === */
+        .shine { position: relative; overflow: hidden; }
+        .shine::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -150%;
+            width: 60%; height: 100%;
+            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+            transform: skewX(-20deg);
+            animation: shineSweep 4.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes shineSweep {
+            0%   { left: -150%; }
+            55%  { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* === Tilt-lift card === */
+        .tilt-card {
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease, border-color 0.4s ease;
+            will-change: transform;
+        }
+        .tilt-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px -20px rgba(78,222,163,0.25);
+            border-color: rgba(78,222,163,0.35);
+        }
+
+        /* === Mouse-tracked spotlight on hero card === */
+        .spotlight {
+            position: relative;
+            isolation: isolate;
+        }
+        .spotlight::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(78,222,163,0.18), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .spotlight:hover::before { opacity: 1; }
+
+        /* === Pulse for step circles === */
+        @keyframes ringPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(78,222,163,0.45), 0 0 30px rgba(16,185,129,0.3); }
+            70%  { box-shadow: 0 0 0 18px rgba(78,222,163,0), 0 0 30px rgba(16,185,129,0.3); }
+            100% { box-shadow: 0 0 0 0 rgba(78,222,163,0), 0 0 30px rgba(16,185,129,0.3); }
+        }
+        .ring-pulse { animation: ringPulse 2.6s ease-out infinite; }
+
+        /* === Marquee === */
+        .marquee {
+            position: relative;
+            overflow: hidden;
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+        }
+        .marquee-track {
+            display: flex;
+            gap: 4rem;
+            width: max-content;
+            animation: marquee 32s linear infinite;
+        }
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        /* === Sticky nav shrink === */
+        nav.shrunk {
+            background-color: rgba(14, 21, 18, 0.85);
+            border-bottom-color: rgba(78,222,163,0.12);
+        }
+        nav.shrunk .nav-inner { height: 56px; }
+        .nav-inner { transition: height 0.3s ease; }
+
+        /* === Bar grow === */
+        @keyframes barGrow {
+            from { transform: scaleY(0); }
+            to   { transform: scaleY(1); }
+        }
+        .bar-grow { transform-origin: bottom; animation: barGrow 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+        /* === Progress fill === */
+        @keyframes fillBar {
+            from { width: 0%; }
+            to   { width: var(--fill, 70%); }
+        }
+        .fill-bar.is-visible { animation: fillBar 1.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+        /* === Hero CTA — front-and-center === */
+        .hero-cta {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 1.5rem 3rem;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+            letter-spacing: -0.01em;
+            color: #003824;
+            background: linear-gradient(135deg, #6ffbbe 0%, #4edea3 50%, #10b981 100%);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.18) inset,
+                0 0 40px rgba(78,222,163,0.45),
+                0 0 90px rgba(16,185,129,0.35);
+            transition: transform 0.25s ease, box-shadow 0.35s ease;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .hero-cta:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.25) inset,
+                0 0 60px rgba(78,222,163,0.65),
+                0 0 130px rgba(16,185,129,0.5);
+        }
+        .hero-cta:active { transform: translateY(0) scale(0.98); }
+
+        /* Halo behind the CTA */
+        .hero-cta-halo {
+            position: absolute;
+            inset: -60px;
+            border-radius: 9999px;
+            background: radial-gradient(circle, rgba(78,222,163,0.45), rgba(16,185,129,0) 65%);
+            filter: blur(40px);
+            opacity: 0.9;
+            animation: heroHalo 3.6s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes heroHalo {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50%      { transform: scale(1.12); opacity: 1; }
+        }
+
+        /* Pulse ring */
+        .hero-cta-ring {
+            position: absolute;
+            inset: -8px;
+            border-radius: 9999px;
+            border: 2px solid rgba(78,222,163,0.55);
+            animation: heroRing 2.4s cubic-bezier(0.16,1,0.3,1) infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .hero-cta-ring.delay { animation-delay: 1.2s; }
+        @keyframes heroRing {
+            0%   { transform: scale(0.95); opacity: 0.7; }
+            100% { transform: scale(1.55); opacity: 0; }
+        }
+
+        /* Scroll cue */
+        .scroll-cue {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(221,228,223,0.55);
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            animation: scrollBob 2.4s ease-in-out infinite;
+        }
+        @keyframes scrollBob {
+            0%, 100% { transform: translate(-50%, 0); opacity: 0.55; }
+            50%      { transform: translate(-50%, 8px); opacity: 1; }
+        }
+
+        /* === Custom cursor (Wealor-style) === */
+        @media (pointer: fine) {
+            html, body, *, *::before, *::after { cursor: none !important; }
+            .cursor-ring, .cursor-dot {
+                position: fixed;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                border-radius: 9999px;
+                transform: translate3d(-100px, -100px, 0);
+                will-change: transform, width, height;
+                opacity: 0;
+            }
+            .cursor-ring {
+                width: 28px;
+                height: 28px;
+                margin-left: -14px;
+                margin-top: -14px;
+                background-color: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                transition:
+                    width 0.3s ease,
+                    height 0.3s ease,
+                    margin 0.3s ease,
+                    background-color 0.3s ease,
+                    border 0.3s ease,
+                    opacity 0.3s ease;
+                z-index: 9999;
+            }
+            .cursor-dot {
+                width: 4px;
+                height: 4px;
+                margin-left: -2px;
+                margin-top: -2px;
+                background-color: rgba(255, 255, 255, 0.9);
+                transition:
+                    width 0.2s ease,
+                    height 0.2s ease,
+                    margin 0.2s ease,
+                    background-color 0.2s ease,
+                    opacity 0.3s ease;
+                z-index: 10000;
+            }
+            .cursor-active .cursor-ring,
+            .cursor-active .cursor-dot { opacity: 1; }
+            .cursor-ring.is-hover {
+                width: 48px;
+                height: 48px;
+                margin-left: -24px;
+                margin-top: -24px;
+                background-color: rgba(34, 197, 94, 0.08);
+                border: 1.5px solid rgba(34, 197, 94, 0.7);
+            }
+            .cursor-dot.is-hover {
+                width: 6px;
+                height: 6px;
+                margin-left: -3px;
+                margin-top: -3px;
+                background-color: rgba(34, 197, 94, 1);
+            }
+        }
+        @media (pointer: coarse), (hover: none) {
+            .cursor-ring, .cursor-dot { display: none; }
+        }
+    </style>
+</head>
+<body class="antialiased font-body-md bg-surface-dim">
+<!-- Custom cursor (Wealor-style) -->
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<!-- Animated background -->
+<div aria-hidden="true" class="bg-fx">
+<div class="dot-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+</div>
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-emerald-950/20 backdrop-blur-xl border-b border-white/10 transition-colors duration-300">
+<div class="nav-inner max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tighter text-white">GrowthKit AI</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-sm font-semibold tracking-tight text-emerald-400 hover:text-emerald-300 transition-colors duration-300" href="#">Product</a>
+<a class="text-sm font-medium tracking-tight text-gray-400 hover:text-emerald-300 transition-colors duration-300" href="#">Solutions</a>
+<a class="text-sm font-medium tracking-tight text-gray-400 hover:text-emerald-300 transition-colors duration-300" href="#">Engineers</a>
+<a class="text-sm font-medium tracking-tight text-gray-400 hover:text-emerald-300 transition-colors duration-300" href="#">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a href="forestgreen vibe-coded waitlist.html" class="hidden sm:inline-block bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded font-medium text-sm border border-white/10 transition-all active:scale-95">Join Waitlist</a>
+<button class="text-sm font-medium text-gray-400 hover:text-emerald-300 px-3 py-2 active:scale-95 duration-200 transition-all">Sign In</button>
+<a href="forestgreen vibe-coded waitlist.html" class="inline-block bg-primary hover:bg-primary/90 text-on-primary px-5 py-2.5 rounded font-bold text-sm shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] active:scale-95 duration-200 transition-all">Get Started</a>
+</div>
+</div>
+</nav>
+<main class="hero-gradient">
+<!-- Hero Section — full viewport, button front-and-center -->
+<section class="relative min-h-screen flex items-center justify-center px-6 pt-32 pb-24 text-center">
+<div class="max-w-4xl mx-auto flex flex-col items-center gap-8">
+<span class="font-label-mono text-caption text-primary uppercase tracking-[0.25em] animate-fade-in-up delay-100">Now in private beta</span>
+<h1 class="font-headline-lg text-display-lg text-white max-w-3xl leading-[1.05]">
+<span class="word-reveal"><span style="--word-delay: 80ms">Stop&nbsp;</span></span><span class="word-reveal"><span style="--word-delay: 200ms">Guessing&nbsp;</span></span><span class="word-reveal"><span style="--word-delay: 320ms">How&nbsp;</span></span><span class="word-reveal"><span style="--word-delay: 440ms">to&nbsp;</span></span><span class="word-reveal"><span class="grad-text" style="--word-delay: 600ms">Grow</span></span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl animate-fade-in-up delay-300">
+                One sentence about your product becomes a precision-engineered growth system. Validation, ICP targeting, and a go-to-market plan — in seconds.
+            </p>
+<div class="relative pt-4 animate-fade-in-up delay-400">
+<a href="forestgreen vibe-coded waitlist.html" class="hero-cta shine group">
+<span class="hero-cta-halo" aria-hidden="true"></span>
+<span class="hero-cta-ring" aria-hidden="true"></span>
+<span class="hero-cta-ring delay" aria-hidden="true"></span>
+<span class="relative z-10">Join the Exclusive Waitlist</span>
+<span class="material-symbols-outlined text-2xl relative z-10 transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-6 pt-2 text-sm text-on-surface-variant animate-fade-in-up delay-400">
+<span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>Accelerate in minutes</span>
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">bolt</span>System ready in &lt; 2 mins</span>
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">credit_card_off</span>No credit card</span>
+</div>
+</div>
+<a href="#engine" class="scroll-cue" aria-label="Scroll to learn more">
+<span>See how it works</span>
+<span class="material-symbols-outlined text-xl">expand_more</span>
+</a>
+</section>
+<!-- Visualization Section -->
+<section class="max-w-5xl mx-auto px-6 pb-xl">
+<div class="relative group animate-float mx-auto max-w-2xl" data-reveal>
+<div class="absolute -inset-4 bg-primary/10 blur-3xl rounded-full opacity-30 group-hover:opacity-50 transition-opacity duration-1000"></div>
+<div class="spotlight relative glass-card rounded-xl p-4 border-white/10 overflow-hidden">
+<div class="bg-surface-container-lowest/50 rounded-lg aspect-square flex items-center justify-center border border-white/5 relative">
+<img alt="Abstract AI Visualization" class="w-full h-full object-cover opacity-70 mix-blend-screen transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhsa1gqI0PR_ZyVV3lgu8PmH7qv71eUfoGuF3sAmDUuUpXi9EoVZOS5-g3crkbfYaHzylbBUzA9TWHMmEQH4UzrFubm4TW-9aAnqhk2oBtu9IQ9kqwN9DyRxmMhzTYCcUoB2W_-bcHLEQJ--a8rk27sQxqds-UjNGthQdbfln4xZlbvObpmbrjaOEDqkG5KNaFjyGaJzSJqK0h8fgcOoeWQyA-gNJQJAOg2gb2K3phhT_MvBcXVr3k9Etset5TM3OR34AuanAOMa4"/>
+<div class="absolute bottom-6 left-6 right-6 glass-card p-5 rounded-lg border-primary/20">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label-mono text-caption text-primary mb-1 uppercase">GROWTH VELOCITY</p>
+<p class="font-headline-lg text-headline-lg text-white" data-count="14.2" data-suffix="x">0x</p>
+</div>
+<div class="w-32 h-12 flex items-end gap-1">
+<div class="w-2 bg-primary/20 h-1/4 rounded-t-sm bar-grow" style="animation-delay: 200ms"></div>
+<div class="w-2 bg-primary/40 h-2/4 rounded-t-sm bar-grow" style="animation-delay: 350ms"></div>
+<div class="w-2 bg-primary/60 h-3/4 rounded-t-sm bar-grow" style="animation-delay: 500ms"></div>
+<div class="w-2 bg-primary h-full rounded-t-sm bar-grow" style="animation-delay: 650ms"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Problem Section -->
+<section class="max-w-7xl mx-auto px-6 py-xl">
+<div class="text-center mb-xl" data-reveal>
+<span class="font-label-mono text-caption text-primary uppercase">THE GROWTH GAP</span>
+<h2 class="font-headline-lg text-headline-lg text-white mt-4">Why most founders stall</h2>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="tilt-card glass-card p-md rounded-lg hover:border-primary/40 transition-all group" data-reveal style="--reveal-delay: 0ms">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4 inline-block transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">analytics</span>
+<h3 class="font-headline-md text-headline-md text-white mb-2">No clear strategy</h3>
+<p class="text-on-surface-variant text-sm">Flying blind without a defined path to acquisition or retention.</p>
+</div>
+<div class="tilt-card glass-card p-md rounded-lg hover:border-primary/40 transition-all group" data-reveal style="--reveal-delay: 120ms">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4 inline-block transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">sync_problem</span>
+<h3 class="font-headline-md text-headline-md text-white mb-2">No repeatable system</h3>
+<p class="text-on-surface-variant text-sm">Relying on "random acts of marketing" instead of a scalable engine.</p>
+</div>
+<div class="tilt-card glass-card p-md rounded-lg hover:border-primary/40 transition-all group" data-reveal style="--reveal-delay: 240ms">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4 inline-block transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">speed</span>
+<h3 class="font-headline-md text-headline-md text-white mb-2">Slow traction</h3>
+<p class="text-on-surface-variant text-sm">Months wasted on manual experiments that don't move the needle.</p>
+</div>
+<div class="tilt-card glass-card p-md rounded-lg hover:border-primary/40 transition-all group" data-reveal style="--reveal-delay: 360ms">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4 inline-block transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">layers_clear</span>
+<h3 class="font-headline-md text-headline-md text-white mb-2">Tool hopping</h3>
+<p class="text-on-surface-variant text-sm">Managing 10 different growth tools that don't talk to each other.</p>
+</div>
+</div>
+</section>
+<!-- Solution Section: Bento Grid -->
+<section id="engine" class="max-w-7xl mx-auto px-6 py-xl scroll-mt-24">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-8" data-reveal>
+<div class="max-w-2xl">
+<span class="font-label-mono text-caption text-primary uppercase">THE ENGINE</span>
+<h2 class="font-headline-lg text-headline-lg text-white mt-4">Turn one sentence into a complete growth engine</h2>
+</div>
+<p class="text-on-surface-variant max-w-sm mb-2">Our AI analyzes your product DNA to output a ready-to-execute growth roadmap.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Large Feature -->
+<div class="tilt-card md:col-span-2 glass-card rounded-lg p-xl overflow-hidden relative group" data-reveal style="--reveal-delay: 0ms">
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-lg text-white mb-4">Market Validation</h3>
+<p class="text-on-surface-variant max-w-md mb-8">Stop guessing product-market fit. We analyze search volume, sentiment, and latent demand to find your winning angle.</p>
+<div class="flex gap-4">
+<span class="px-3 py-1 rounded bg-primary/10 border border-primary/20 text-primary text-xs uppercase tracking-wider">Search Intent</span>
+<span class="px-3 py-1 rounded bg-primary/10 border border-primary/20 text-primary text-xs uppercase tracking-wider">Latent Demand</span>
+</div>
+</div>
+<div class="absolute right-0 bottom-0 w-1/2 h-full opacity-20 group-hover:opacity-40 transition-opacity">
+<img alt="Market Data Visualization" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlPXmJj0fJP5m1T1JN6GFqiSzS6I8SzogE5YsEyrCyqEC8zef0IqVdMHbIVeCgTP1qjJjxCW86JipyEe49YTI6bT3fllrIR2s3lIbdMCPl-iODuoMVTxZ-0kQ09MZh2RGZ2eLNIMdZl4A0EfMt_EAdSnA-g516HD1WUFtm-W_x_ccLLqa8xlAip8uK4Q5eYjHCmTVC2ZybSAReTu3lrJftoYiL9gsHVLmZDxIrms3TUj6BuB6gGeeQbS86HPMdSAMgoO4vxKSS96A"/>
+</div>
+</div>
+<!-- Feature -->
+<div class="tilt-card glass-card rounded-lg p-md flex flex-col justify-between" data-reveal style="--reveal-delay: 120ms">
+<div>
+<span class="material-symbols-outlined text-primary text-[24px] mb-4">groups</span>
+<h3 class="font-headline-md text-headline-md text-white mb-2">Audience Targeting</h3>
+<p class="text-on-surface-variant text-sm">Identify your ICP down to their specific pain points and digital haunts.</p>
+</div>
+<div class="mt-8 border-t border-white/5 pt-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface-container bg-surface-variant transition-transform duration-300 hover:-translate-y-1"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container bg-primary transition-transform duration-300 hover:-translate-y-1"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container bg-secondary-container transition-transform duration-300 hover:-translate-y-1"></div>
+</div>
+</div>
+</div>
+<!-- Feature -->
+<div class="tilt-card glass-card rounded-lg p-md flex flex-col justify-between" data-reveal style="--reveal-delay: 240ms">
+<div>
+<span class="material-symbols-outlined text-primary text-[24px] mb-4">campaign</span>
+<h3 class="font-headline-md text-headline-md text-white mb-2">Competitor Analysis</h3>
+<p class="text-on-surface-variant text-sm">Make sure you know the ins and outs of your market, staying on top of what your competitors are up to.</p>
+</div>
+<div class="mt-8 h-2 bg-white/5 rounded-full overflow-hidden">
+<div class="fill-bar h-full bg-primary" style="--fill: 70%; width: 0"></div>
+</div>
+</div>
+<!-- Large Feature -->
+<div class="tilt-card md:col-span-2 glass-card rounded-lg p-xl overflow-hidden relative group" data-reveal style="--reveal-delay: 120ms">
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div>
+<h3 class="font-headline-md text-headline-lg text-white mb-4">Outreach &amp; Launch</h3>
+<p class="text-on-surface-variant max-w-md">Automated launch planning across Product Hunt, Hacker News, and social channels with custom scripts.</p>
+</div>
+<div class="mt-8 grid grid-cols-3 gap-4">
+<div class="p-4 rounded bg-white/5 border border-white/10 text-center">
+<p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Cold Email</p>
+<p class="text-white font-bold">24% CR</p>
+</div>
+<div class="p-4 rounded bg-white/5 border border-white/10 text-center">
+<p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Social</p>
+<p class="text-white font-bold">12k Reach</p>
+</div>
+<div class="p-4 rounded bg-white/5 border border-white/10 text-center">
+<p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Waitlist</p>
+<p class="text-white font-bold">1.2k</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="bg-surface-container-lowest/30 py-xl border-y border-white/5 relative overflow-hidden">
+<div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);"></div>
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-xl" data-reveal>
+<span class="font-label-mono text-caption text-primary uppercase">WORKFLOW</span>
+<h2 class="font-headline-lg text-headline-lg text-white mt-4">From zero to system in minutes</h2>
+</div>
+<div class="grid md:grid-cols-3 gap-12 relative">
+<div class="hidden md:block absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+<div class="relative text-center" data-reveal style="--reveal-delay: 0ms">
+<div class="ring-pulse w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-lg text-headline-md mx-auto mb-6 relative z-10">1</div>
+<h3 class="font-headline-md text-headline-md text-white mb-4">Describe product</h3>
+<p class="text-on-surface-variant text-sm">Input your product URL or a simple description of what you're building.</p>
+</div>
+<div class="relative text-center" data-reveal style="--reveal-delay: 180ms">
+<div class="ring-pulse w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-lg text-headline-md mx-auto mb-6 relative z-10" style="animation-delay: 0.6s">2</div>
+<h3 class="font-headline-md text-headline-md text-white mb-4">AI builds system</h3>
+<p class="text-on-surface-variant text-sm">Our engine runs 1,000+ simulations to find the optimal growth path.</p>
+</div>
+<div class="relative text-center" data-reveal style="--reveal-delay: 360ms">
+<div class="ring-pulse w-16 h-16 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-lg text-headline-md mx-auto mb-6 relative z-10" style="animation-delay: 1.2s">3</div>
+<h3 class="font-headline-md text-headline-md text-white mb-4">Launch and get users</h3>
+<p class="text-on-surface-variant text-sm">Follow the step-by-step roadmap and watch your metrics climb.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof / Marquee -->
+<section class="max-w-7xl mx-auto px-6 py-xl">
+<p class="font-label-mono text-caption text-on-surface-variant uppercase text-center mb-8" data-reveal>Trusted by founders shipping at</p>
+<div class="marquee" data-reveal style="--reveal-delay: 100ms">
+<div class="marquee-track opacity-60">
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Y Combinator</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Techstars</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Sequoia</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Andreessen</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Stripe</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Notion</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Linear</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap">Vercel</span>
+<!-- duplicate for seamless loop -->
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Y Combinator</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Techstars</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Sequoia</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Andreessen</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Stripe</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Notion</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Linear</span>
+<span class="font-headline-lg text-headline-md text-white whitespace-nowrap" aria-hidden="true">Vercel</span>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="max-w-7xl mx-auto px-6 py-xl">
+<div class="relative glass-card rounded-xl p-xl overflow-hidden border-primary/20" data-reveal>
+<div class="absolute inset-0 radial-glow pointer-events-none"></div>
+<div class="relative z-10 text-center space-y-lg py-xl">
+<h2 class="font-headline-lg text-display-lg text-white">Ready for venture-scale growth?</h2>
+<p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                    Stop burning hours on trial and error. Join 2,000+ founders using GrowthKit AI to scale their impact.
+                </p>
+<div class="flex flex-col sm:flex-row justify-center items-center gap-6 pt-4">
+<a href="forestgreen vibe-coded waitlist.html" class="shine relative inline-flex items-center group px-12 py-5 rounded font-headline-md text-headline-md text-on-primary transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.7)] overflow-hidden">
+<div class="absolute inset-0 bg-primary"></div>
+<span class="relative z-10">Get Early Access</span>
+</a>
+<p class="text-on-surface-variant text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bolt</span>
+                        System ready in &lt; 2 mins
+                    </p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-emerald-950 dark:bg-black w-full border-t border-white/5 mt-xl">
+<div class="max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="space-y-4 text-center md:text-left">
+<span class="text-lg font-bold text-white uppercase tracking-widest">GrowthKit AI</span>
+<p class="font-body-md text-xs text-gray-500 max-w-xs">© 2024 GrowthKit AI. Precision growth for high-performance teams. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="text-sm text-gray-500 hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="text-sm text-gray-500 hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="text-sm text-gray-500 hover:text-white transition-colors" href="#">Security</a>
+<a class="text-sm text-gray-500 hover:text-white transition-colors" href="#">Status</a>
+<a class="text-sm text-gray-500 hover:text-white transition-colors" href="#">Contact</a>
+</div>
+<div class="flex gap-4">
+<a class="text-gray-500 hover:text-white transition-opacity opacity-80 hover:opacity-100" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</a>
+<a class="text-gray-500 hover:text-white transition-opacity opacity-80 hover:opacity-100" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</a>
+</div>
+</div>
+</footer>
+<script>
+(function () {
+    'use strict';
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // --- Scroll reveal ---
+    var revealEls = document.querySelectorAll('[data-reveal]');
+    if ('IntersectionObserver' in window && !reduced) {
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('is-visible');
+                    // animate any fill-bars inside this element
+                    e.target.querySelectorAll('.fill-bar').forEach(function (b) { b.classList.add('is-visible'); });
+                    // count-up if this element (or descendant) has data-count
+                    e.target.querySelectorAll('[data-count]').forEach(runCount);
+                    if (e.target.hasAttribute('data-count')) runCount(e.target);
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(function (el) { io.observe(el); });
+        document.querySelectorAll('[data-count]').forEach(function (el) {
+            // ensure standalone counters get observed
+            if (!el.closest('[data-reveal]')) io.observe(el);
+        });
+    } else {
+        revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+        document.querySelectorAll('.fill-bar').forEach(function (b) { b.classList.add('is-visible'); });
+        document.querySelectorAll('[data-count]').forEach(function (el) {
+            el.textContent = el.getAttribute('data-count') + (el.getAttribute('data-suffix') || '');
+        });
+    }
+
+    function runCount(el) {
+        if (el.dataset.counted) return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.getAttribute('data-count'));
+        var suffix = el.getAttribute('data-suffix') || '';
+        var decimals = (el.getAttribute('data-count').split('.')[1] || '').length;
+        var dur = 1600, start = performance.now();
+        function step(now) {
+            var p = Math.min(1, (now - start) / dur);
+            var eased = 1 - Math.pow(1 - p, 3);
+            var v = (target * eased).toFixed(decimals);
+            el.textContent = v + suffix;
+            if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    // --- Mouse-tracked spotlight ---
+    document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+            var r = card.getBoundingClientRect();
+            card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+            card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+    });
+
+    // --- Sticky nav shrink ---
+    var nav = document.querySelector('nav');
+    if (nav) {
+        var onScroll = function () {
+            if (window.scrollY > 24) nav.classList.add('shrunk');
+            else nav.classList.remove('shrunk');
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
+
+    // --- Custom cursor (Wealor-style) ---
+    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var finePointer = window.matchMedia('(pointer: fine)').matches;
+    if (!isTouch && finePointer) {
+        var ring = document.getElementById('cursorRing');
+        var dot  = document.getElementById('cursorDot');
+        if (ring && dot) {
+            var visible = false;
+            var hoverSelector = 'a, button, [role="button"], input, textarea, select, label, summary, [data-cursor="hover"]';
+            document.addEventListener('pointermove', function (e) {
+                var x = e.clientX, y = e.clientY;
+                ring.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+                dot.style.transform  = 'translate3d(' + x + 'px,' + y + 'px,0)';
+                if (!visible) {
+                    document.documentElement.classList.add('cursor-active');
+                    visible = true;
+                }
+                var hovering = e.target && e.target.closest && e.target.closest(hoverSelector);
+                ring.classList.toggle('is-hover', !!hovering);
+                dot.classList.toggle('is-hover', !!hovering);
+            }, { passive: true });
+            document.addEventListener('pointerleave', function () {
+                document.documentElement.classList.remove('cursor-active');
+                visible = false;
+            });
+            document.addEventListener('pointerdown', function () {
+                ring.classList.add('is-hover');
+                dot.classList.add('is-hover');
+            });
+        }
+    }
+})();
+</script>
+</body></html>
