@@ -1,0 +1,134 @@
+/* ─────────────────────────────────────────────────────────────
+   GrowthKit AI — dark mode + theme toggle
+   ───────────────────────────────────────────────────────────── */
+
+/* Right-side topbar cluster.
+   Wrapping nav-cta (or nav-back) + the theme toggle in one div lets the
+   existing topbar `space-between` layout remain visually unchanged —
+   the cluster sits where the single right-hand element used to be. */
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ── Toggle button ──────────────────────────────────────────── */
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  font: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    border-color .25s ease,
+    color .25s ease,
+    background-color .25s ease,
+    transform .12s ease;
+}
+.theme-toggle:hover  { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:active { transform: scale(0.95); }
+.theme-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(31, 71, 50, 0.18);
+}
+.theme-toggle .theme-icon {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transition:
+    opacity .35s cubic-bezier(.16, 1, .3, 1),
+    transform .45s cubic-bezier(.16, 1, .3, 1);
+}
+.theme-toggle .icon-sun  { opacity: 0; transform: rotate(-40deg) scale(0.65); }
+.theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg)   scale(1);    }
+:root[data-theme="dark"] .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0deg)  scale(1);    }
+:root[data-theme="dark"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(40deg) scale(0.65); }
+
+/* ── Dark-mode color tokens ─────────────────────────────────── */
+:root[data-theme="dark"] {
+  --bg:          #0B0E0C;
+  --bg-2:        #15191B;
+  --ink:         #ECEAE3;
+  --ink-2:       #C7C2B7;
+  --muted:       #807C73;
+  --line:        #232520;
+  --line-2:      #353833;
+  --accent:      #4F9C73;
+  --accent-soft: #3A7457;
+  --paper:       #13171A;
+}
+
+/* Matte black backdrop with deep-forest-green ambient glows.
+   Asymmetric right-side bias mirrors the weld.studio aesthetic:
+   one large hotspot in the top-right, a second near the right
+   edge mid-page, a softer one bottom-right, and a faint counter
+   bottom-left for balance. Fixed attachment keeps the glows in
+   the same viewport position while the page scrolls. */
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse 900px 720px at  95% -8%,   rgba(64, 134, 96, 0.32), transparent 62%),
+    radial-gradient(ellipse 620px 740px at 110% 45%,   rgba(46, 98,  73, 0.24), transparent 65%),
+    radial-gradient(ellipse 720px 520px at 100% 108%,  rgba(46, 98,  73, 0.18), transparent 60%),
+    radial-gradient(ellipse 520px 420px at  -5% 100%,  rgba(31, 71,  50, 0.12), transparent 55%),
+    #050708;
+  background-attachment: fixed;
+}
+
+/* The inline rule for `.topbar.scrolled` hard-codes a light rgba —
+   override it with a dark glass equivalent. */
+:root[data-theme="dark"] .topbar.scrolled {
+  background: rgba(11, 14, 12, 0.74);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Drop shadows tuned for a dark canvas */
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .spec-plate {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03),
+    0 32px 60px -36px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="dark"] .submit {
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 14px 32px -16px rgba(79, 156, 115, 0.45);
+}
+
+/* ── Smooth cross-fade while toggling ──────────────────────────
+   The .theme-anim class is added to <html> for ~500ms during a
+   user-initiated toggle, so the transition doesn't fire on first
+   page paint or when navigating between pages. */
+.theme-anim,
+.theme-anim *,
+.theme-anim *::before,
+.theme-anim *::after {
+  transition:
+    background-color .35s ease,
+    background-image .35s ease,
+    color            .35s ease,
+    border-color     .35s ease,
+    fill             .35s ease,
+    stroke           .35s ease,
+    box-shadow       .35s ease !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle .theme-icon,
+  .theme-anim, .theme-anim *,
+  .theme-anim *::before, .theme-anim *::after {
+    transition: none !important;
+  }
+}

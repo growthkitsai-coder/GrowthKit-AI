@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var t=localStorage.getItem('gk-theme');if(!t)t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
 <link rel="icon" type="image/png" href="logo-mark-128.png">
 <title>Waitlist — GrowthKit AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -404,6 +405,8 @@
     .success-stamp { transform: none; opacity: 1; animation: none; }
   }
 </style>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -423,9 +426,15 @@
       </span>
       <span>GrowthKit AI</span>
     </a>
-    <a href="index.html" class="nav-back">
-      <span class="arr">←</span> Back to home
-    </a>
+    <div class="topbar-end">
+      <a href="index.html" class="nav-back">
+        <span class="arr">←</span> Back to home
+      </a>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
+        <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
   </div>
 </header>
 
