@@ -22,7 +22,7 @@
   }
   syncAria();
 
-  btn.addEventListener('click', function () {
+  function toggle() {
     var next = isDark() ? 'light' : 'dark';
     root.classList.add('theme-anim');
     if (next === 'dark') root.setAttribute('data-theme', 'dark');
@@ -30,23 +30,12 @@
     syncAria();
     try { localStorage.setItem(STORAGE_KEY, next); } catch (e) { /* private mode */ }
     setTimeout(function () { root.classList.remove('theme-anim'); }, 500);
-  });
-
-  // If the user hasn't picked a theme explicitly and the OS preference
-  // changes (e.g. macOS auto night-shift), follow it.
-  if (window.matchMedia) {
-    var mq = window.matchMedia('(prefers-color-scheme: dark)');
-    var listener = function (e) {
-      var saved;
-      try { saved = localStorage.getItem(STORAGE_KEY); } catch (_) {}
-      if (saved) return; // user has an explicit choice — don't override
-      root.classList.add('theme-anim');
-      if (e.matches) root.setAttribute('data-theme', 'dark');
-      else root.removeAttribute('data-theme');
-      syncAria();
-      setTimeout(function () { root.classList.remove('theme-anim'); }, 500);
-    };
-    if (mq.addEventListener) mq.addEventListener('change', listener);
-    else if (mq.addListener) mq.addListener(listener); // older Safari
   }
+
+  btn.addEventListener('click', toggle);
+
+  // The "try dark mode →" prompt next to the toggle is also clickable
+  // for users who target the text rather than the icon.
+  var prompt = document.querySelector('.theme-prompt');
+  if (prompt) prompt.addEventListener('click', toggle);
 })();

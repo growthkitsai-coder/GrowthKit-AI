@@ -12,6 +12,48 @@
   gap: 14px;
 }
 
+/* "try dark mode →" prompt sitting next to the toggle. Hidden once
+   the user has actually switched to dark mode. */
+.theme-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color .25s ease, opacity .35s ease, transform .35s ease;
+}
+.theme-prompt:hover { color: var(--accent); }
+.theme-prompt .arr {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  transform: translateY(-1px);
+  transition: transform .25s ease;
+}
+.theme-prompt:hover .arr { transform: translate(3px, -1px); }
+
+:root[data-theme="dark"] .theme-prompt {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(8px);
+}
+
+@media (max-width: 820px) {
+  .theme-prompt { display: none; }
+}
+
 /* ── Toggle button ──────────────────────────────────────────── */
 .theme-toggle {
   position: relative;
@@ -57,15 +99,15 @@
 
 /* ── Dark-mode color tokens ─────────────────────────────────── */
 :root[data-theme="dark"] {
-  --bg:          #050708;
+  --bg:          #050708;        /* matte black, very slight green tint */
   --bg-2:        #0E1113;
-  --ink:         #ECEAE3;
-  --ink-2:       #C7C2B7;
-  --muted:       #807C73;
+  --ink:         #FFFFFF;        /* pure white body text */
+  --ink-2:       #DDD9D0;        /* secondary copy, still bright */
+  --muted:       #8A867C;        /* tertiary / labels */
   --line:        #1F2220;
   --line-2:      #2E322F;
-  --accent:      #4F9C73;
-  --accent-soft: #3A7457;
+  --accent:      #3D7C5C;        /* darker forest green — readable on black */
+  --accent-soft: #2A5A40;
   --paper:       #13171A;
 }
 
@@ -74,15 +116,18 @@
    one large hotspot in the top-right, a second near the right
    edge mid-page, a softer one bottom-right, and a faint counter
    bottom-left for balance. Fixed attachment keeps the glows in
-   the same viewport position while the page scrolls. */
+   the same viewport position while the page scrolls.
+   `!important` is here because the inline `<style>` blocks in each
+   page declare `body { background: var(--bg); }`, and a few
+   browser/cache combinations were ignoring the cascade order. */
 :root[data-theme="dark"] body {
   background:
-    radial-gradient(ellipse 900px 720px at  95% -8%,   rgba(64, 134, 96, 0.32), transparent 62%),
-    radial-gradient(ellipse 620px 740px at 110% 45%,   rgba(46, 98,  73, 0.24), transparent 65%),
-    radial-gradient(ellipse 720px 520px at 100% 108%,  rgba(46, 98,  73, 0.18), transparent 60%),
-    radial-gradient(ellipse 520px 420px at  -5% 100%,  rgba(31, 71,  50, 0.12), transparent 55%),
-    #050708;
-  background-attachment: fixed;
+    radial-gradient(ellipse 900px 720px at  95% -8%,   rgba(80, 152, 110, 0.34), transparent 62%),
+    radial-gradient(ellipse 620px 740px at 110% 45%,   rgba(58, 116,  87, 0.26), transparent 65%),
+    radial-gradient(ellipse 720px 520px at 100% 108%,  rgba(46,  98,  73, 0.20), transparent 60%),
+    radial-gradient(ellipse 520px 420px at  -5% 100%,  rgba(31,  71,  50, 0.14), transparent 55%),
+    #050708 !important;
+  background-attachment: fixed !important;
 }
 
 /* The inline rule for `.topbar.scrolled` hard-codes a light rgba —
