@@ -57,13 +57,13 @@
 
 /* ── Dark-mode color tokens ─────────────────────────────────── */
 :root[data-theme="dark"] {
-  --bg:          #0B0E0C;
-  --bg-2:        #15191B;
+  --bg:          #050708;
+  --bg-2:        #0E1113;
   --ink:         #ECEAE3;
   --ink-2:       #C7C2B7;
   --muted:       #807C73;
-  --line:        #232520;
-  --line-2:      #353833;
+  --line:        #1F2220;
+  --line-2:      #2E322F;
   --accent:      #4F9C73;
   --accent-soft: #3A7457;
   --paper:       #13171A;
@@ -86,9 +86,10 @@
 }
 
 /* The inline rule for `.topbar.scrolled` hard-codes a light rgba —
-   override it with a dark glass equivalent. */
+   override it with a dark glass equivalent that lets the upper-right
+   glow bleed through the topbar. */
 :root[data-theme="dark"] .topbar.scrolled {
-  background: rgba(11, 14, 12, 0.74);
+  background: rgba(5, 7, 8, 0.72);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 }
 
