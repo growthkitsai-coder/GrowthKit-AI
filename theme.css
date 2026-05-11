@@ -1,0 +1,199 @@
+/* ─────────────────────────────────────────────────────────────
+   GrowthKit AI — dark mode + theme toggle
+   ───────────────────────────────────────────────────────────── */
+
+/* Right-side topbar cluster.
+   Wrapping nav-cta (or nav-back) + the theme toggle in one div lets the
+   existing topbar `space-between` layout remain visually unchanged —
+   the cluster sits where the single right-hand element used to be. */
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ── Toggle button ──────────────────────────────────────────── */
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  font: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    border-color .25s ease,
+    color .25s ease,
+    background-color .25s ease,
+    transform .12s ease;
+}
+.theme-toggle:hover  { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:active { transform: scale(0.95); }
+.theme-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(31, 71, 50, 0.18);
+}
+.theme-toggle .theme-icon {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transition:
+    opacity .35s cubic-bezier(.16, 1, .3, 1),
+    transform .45s cubic-bezier(.16, 1, .3, 1);
+}
+.theme-toggle .icon-sun  { opacity: 0; transform: rotate(-40deg) scale(0.65); }
+.theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg)   scale(1);    }
+:root[data-theme="dark"] .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0deg)  scale(1);    }
+:root[data-theme="dark"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(40deg) scale(0.65); }
+
+/* ── Dark-mode color tokens ─────────────────────────────────── */
+:root[data-theme="dark"] {
+  --bg:          #050708;        /* matte black, very slight green tint */
+  --bg-2:        #0E1113;
+  --ink:         #FFFFFF;        /* pure white body text */
+  --ink-2:       #DDD9D0;        /* secondary copy, still bright */
+  --muted:       #8A867C;        /* tertiary / labels */
+  --line:        #1F2220;
+  --line-2:      #2E322F;
+  --accent:      #3D7C5C;        /* darker forest green — readable on black */
+  --accent-soft: #2A5A40;
+  --paper:       #13171A;
+}
+
+/* Matte black backdrop with deep-forest-green ambient glows.
+   Asymmetric right-side bias mirrors the weld.studio aesthetic:
+   one large hotspot in the top-right, a second near the right
+   edge mid-page, a softer one bottom-right, and a faint counter
+   bottom-left for balance. Fixed attachment keeps the glows in
+   the same viewport position while the page scrolls.
+   `!important` is here because the inline `<style>` blocks in each
+   page declare `body { background: var(--bg); }`, and a few
+   browser/cache combinations were ignoring the cascade order. */
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse 900px 720px at  95% -8%,   rgba(80, 152, 110, 0.34), transparent 62%),
+    radial-gradient(ellipse 620px 740px at 110% 45%,   rgba(58, 116,  87, 0.26), transparent 65%),
+    radial-gradient(ellipse 720px 520px at 100% 108%,  rgba(46,  98,  73, 0.20), transparent 60%),
+    radial-gradient(ellipse 520px 420px at  -5% 100%,  rgba(31,  71,  50, 0.14), transparent 55%),
+    #050708 !important;
+  background-attachment: fixed !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Topbar morphs into a floating pill once the user scrolls
+   ──────────────────────────────────────────────────────────── */
+.topbar {
+  margin: 0 auto;
+  max-width: 100%;
+  border-radius: 0;
+  transition:
+    background .45s cubic-bezier(.16, 1, .3, 1),
+    border-color .35s ease,
+    border-radius .5s cubic-bezier(.16, 1, .3, 1),
+    box-shadow .45s ease,
+    max-width .55s cubic-bezier(.16, 1, .3, 1),
+    top .5s cubic-bezier(.16, 1, .3, 1),
+    -webkit-backdrop-filter .45s ease,
+    backdrop-filter .45s ease;
+  will-change: max-width, top;
+}
+.topbar-inner {
+  transition:
+    height .45s cubic-bezier(.16, 1, .3, 1),
+    padding .45s cubic-bezier(.16, 1, .3, 1);
+}
+
+.topbar.scrolled {
+  background: rgba(250, 248, 244, 0.78);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  backdrop-filter: saturate(160%) blur(14px);
+  border-bottom-color: transparent;
+  border-radius: 999px;
+  max-width: min(960px, calc(100% - 32px));
+  top: 14px;
+  box-shadow:
+    inset 0 0 0 1px rgba(20, 19, 15, 0.07),
+    0 1px 0 rgba(20, 19, 15, 0.03),
+    0 18px 38px -22px rgba(20, 19, 15, 0.22);
+}
+.topbar.scrolled .topbar-inner {
+  height: 54px;
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+@media (max-width: 820px) {
+  .topbar.scrolled {
+    max-width: calc(100% - 16px);
+    top: 8px;
+  }
+  .topbar.scrolled .topbar-inner {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* The inline rule for `.topbar.scrolled` hard-codes a light rgba —
+   override it with a dark glass equivalent that lets the upper-right
+   glow bleed through the topbar. */
+:root[data-theme="dark"] .topbar.scrolled {
+  background: rgba(5, 7, 8, 0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 1px 0 rgba(0, 0, 0, 0.45),
+    0 22px 44px -24px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar, .topbar-inner { transition: none !important; }
+}
+
+/* Drop shadows tuned for a dark canvas */
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .spec-plate {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03),
+    0 32px 60px -36px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="dark"] .submit {
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 14px 32px -16px rgba(79, 156, 115, 0.45);
+}
+
+/* ── Smooth cross-fade while toggling ──────────────────────────
+   The .theme-anim class is added to <html> for ~500ms during a
+   user-initiated toggle, so the transition doesn't fire on first
+   page paint or when navigating between pages. */
+.theme-anim,
+.theme-anim *,
+.theme-anim *::before,
+.theme-anim *::after {
+  transition:
+    background-color .35s ease,
+    background-image .35s ease,
+    color            .35s ease,
+    border-color     .35s ease,
+    fill             .35s ease,
+    stroke           .35s ease,
+    box-shadow       .35s ease !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle .theme-icon,
+  .theme-anim, .theme-anim *,
+  .theme-anim *::before, .theme-anim *::after {
+    transition: none !important;
+  }
+}

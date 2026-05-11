@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Waitlist — GrowthKit</title>
+<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<link rel="icon" type="image/png" href="logo-mark-128.png">
+<title>Waitlist — GrowthKit AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -307,6 +309,16 @@
     line-height: 1.5;
   }
 
+  .form-error {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: #B0341C;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+  .form-error:empty { display: none; }
+
   /* === Success === */
   .success-body {
     text-align: center;
@@ -393,6 +405,8 @@
     .success-stamp { transform: none; opacity: 1; animation: none; }
   }
 </style>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js" defer></script>
 </head>
 <body>
 
@@ -410,11 +424,17 @@
           <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
         </svg>
       </span>
-      <span>GrowthKit</span>
+      <span>GrowthKit AI</span>
     </a>
-    <a href="index.html" class="nav-back">
-      <span class="arr">←</span> Back to home
-    </a>
+    <div class="topbar-end">
+      <a href="index.html" class="nav-back">
+        <span class="arr">←</span> Back to home
+      </a>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
+        <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -427,7 +447,7 @@
         <span>Waitlist is open now</span>
       </span>
       <h1>Join the <em>waitlist</em>.</h1>
-      <p>Be among the first to experience acceleration like none other.</p>
+      <p>Be among the first founders to map their market — and dissect their competitors — with GrowthKit AI.</p>
     </div>
 
     <div id="formCard" class="card reveal" style="--reveal-delay: 200ms;">
@@ -448,8 +468,10 @@
           </div>
 
           <button type="submit" class="submit">
-            Submit application <span class="arr">→</span>
+            <span class="submit-label">Submit application</span> <span class="arr">→</span>
           </button>
+
+          <div id="formError" class="form-error" role="alert" aria-live="polite"></div>
 
           <div class="consent">
             <label class="check-wrap">
@@ -460,7 +482,7 @@
                 </svg>
               </span>
               <span class="text">
-                I'm fine with receiving regular product updates and growth notes from GrowthKit by email. You can unsubscribe at any time.
+                I'm fine with receiving regular product updates and market‑intel notes from GrowthKit AI by email. You can unsubscribe at any time.
               </span>
             </label>
           </div>
@@ -501,6 +523,10 @@
 (function () {
   'use strict';
 
+  // Paste the Web app URL from your Apps Script deployment here.
+  // See waitlist-apps-script.gs in this repo for setup instructions.
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8gtRNxarPNMGBHv--loUee1pYwkhQESrpI7dN1RGII2v-C-neZfDzXH8LUwYJFDoq/exec';
+
   // Reveal on view (matches index.html behavior)
   var els = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
@@ -522,7 +548,7 @@
   if (topbar) {
     var lastState = false;
     function onScroll() {
-      var scrolled = window.scrollY > 8;
+      var scrolled = window.scrollY > 24;
       if (scrolled !== lastState) {
         topbar.classList.toggle('scrolled', scrolled);
         lastState = scrolled;
@@ -538,8 +564,11 @@
   var successCard = document.getElementById('successCard');
   var successName = document.getElementById('successName');
   var successUpdatesNote = document.getElementById('successUpdatesNote');
+  var formError = document.getElementById('formError');
+  var submitBtn = form.querySelector('.submit');
+  var submitLabel = submitBtn.querySelector('.submit-label');
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
     var name = form.name.value.trim();
     var email = form.email.value.trim();
@@ -549,9 +578,38 @@
       else form.email.focus();
       return;
     }
+
+    if (!SCRIPT_URL) {
+      formError.textContent = 'Form is not configured yet — set SCRIPT_URL in waitlist.html.';
+      return;
+    }
+
+    formError.textContent = '';
+    var originalLabel = submitLabel.textContent;
+    submitBtn.disabled = true;
+    submitLabel.textContent = 'Sending…';
+
+    try {
+      var body = new URLSearchParams({
+        name: name,
+        email: email,
+        updates: form.updates.checked ? 'true' : 'false'
+      });
+      var res = await fetch(SCRIPT_URL, { method: 'POST', body: body });
+      if (!res.ok) throw new Error('Request failed (' + res.status + ').');
+      var data = null;
+      try { data = await res.json(); } catch (_) { /* non-JSON response is OK */ }
+      if (data && data.ok === false) throw new Error(data.error || 'Submission failed.');
+    } catch (err) {
+      submitBtn.disabled = false;
+      submitLabel.textContent = originalLabel;
+      formError.textContent = "Couldn't submit — " + (err && err.message ? err.message : 'please try again.');
+      return;
+    }
+
     successName.textContent = name.split(' ')[0] || 'friend';
     successUpdatesNote.textContent = form.updates.checked
-      ? "We'll send updates and growth notes to " + email + "."
+      ? "We'll send updates and market‑intel notes to " + email + "."
       : "We'll only email you when there's news about your spot.";
     formCard.classList.add('hidden');
     successCard.classList.remove('hidden');
