@@ -947,7 +947,6 @@
       <a href="waitlist.html" class="nav-cta">
         Join waitlist <span class="arr">↗</span>
       </a>
-      <span class="theme-prompt" role="button" tabindex="0">try dark mode <span class="arr">→</span></span>
       <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
         <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
         <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1433,7 +1432,7 @@
   if (topbar) {
     var lastState = false;
     function onScroll() {
-      var scrolled = window.scrollY > 8;
+      var scrolled = window.scrollY > 24;
       if (scrolled !== lastState) {
         topbar.classList.toggle('scrolled', scrolled);
         lastState = scrolled;
@@ -1481,8 +1480,10 @@
     var mm = gsap.matchMedia();
 
     mm.add('(min-width: 821px) and (prefers-reduced-motion: no-preference)', function(){
-      // Initial states — wrappers stay visible, cells handle the morph
+      // Initial states — hide later stages entirely so their grid borders
+      // don't cut through the intro text while stacked at the same grid cell
       gsap.set('.stage-0 .eyebrow, .stage-0 h2, .stage-0 .lede', { filter: 'blur(0px)' });
+      gsap.set('.stage-1, .stage-2', { autoAlpha: 0 });
       gsap.set('.stage-1 .cell', { autoAlpha: 0, y: 64, scale: 0.97, filter: 'blur(0px)' });
       gsap.set('.stage-2 .cell', { autoAlpha: 0, xPercent: 14, scale: 0.97, filter: 'blur(0px)' });
 
@@ -1503,6 +1504,7 @@
       tl.to('.stage-0 .eyebrow', { autoAlpha: 0, y: -18, duration: 0.32 }, 0)
         .to('.stage-0 h2',       { autoAlpha: 0, y: -40, scale: 0.94, filter: 'blur(6px)', duration: 0.45 }, 0)
         .to('.stage-0 .lede',    { autoAlpha: 0, y: -30, filter: 'blur(4px)', duration: 0.42 }, 0.03)
+        .set('.stage-1',         { autoAlpha: 1 }, 0.16)
         .to('.stage-1 .cell',    { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.09 }, 0.18);
 
       // Hold — let the first pair breathe before the swap
@@ -1510,7 +1512,8 @@
 
       // Phase 2 — first pair drifts left + blurs out; second pair glides in from the right
       tl.to('.stage-1 .cell', { autoAlpha: 0, xPercent: -16, filter: 'blur(5px)', duration: 0.45, stagger: 0.05 }, 0.85)
-        .to('.stage-2 .cell', { autoAlpha: 1, xPercent: 0, scale: 1, duration: 0.6, stagger: 0.09 }, 0.9);
+        .set('.stage-2',        { autoAlpha: 1 }, 0.88)
+        .to('.stage-2 .cell',   { autoAlpha: 1, xPercent: 0, scale: 1, duration: 0.6, stagger: 0.09 }, 0.9);
     });
   }
 })();

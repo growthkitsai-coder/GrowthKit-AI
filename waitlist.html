@@ -430,7 +430,6 @@
       <a href="index.html" class="nav-back">
         <span class="arr">←</span> Back to home
       </a>
-      <span class="theme-prompt" role="button" tabindex="0">try dark mode <span class="arr">→</span></span>
       <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
         <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
         <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -549,7 +548,7 @@
   if (topbar) {
     var lastState = false;
     function onScroll() {
-      var scrolled = window.scrollY > 8;
+      var scrolled = window.scrollY > 24;
       if (scrolled !== lastState) {
         topbar.classList.toggle('scrolled', scrolled);
         lastState = scrolled;

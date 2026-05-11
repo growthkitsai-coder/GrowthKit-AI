@@ -33,9 +33,4 @@
   }
 
   btn.addEventListener('click', toggle);
-
-  // The "try dark mode →" prompt next to the toggle is also clickable
-  // for users who target the text rather than the icon.
-  var prompt = document.querySelector('.theme-prompt');
-  if (prompt) prompt.addEventListener('click', toggle);
 })();
