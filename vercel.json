@@ -1,7 +1,20 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
+    { "source": "/waitlist.html", "destination": "/waitlist", "permanent": true },
+    { "source": "/contact.html", "destination": "/contact", "permanent": true },
+    { "source": "/careers.html", "destination": "/careers", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/waitlist", "destination": "/waitlist.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/careers", "destination": "/careers.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.(?:css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?)",
