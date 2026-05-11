@@ -1,0 +1,18 @@
+{
+  "name": "GrowthKit AI",
+  "short_name": "GrowthKit",
+  "description": "Market intelligence and competitive strategy for founders.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F4",
+  "theme_color": "#1F4732",
+  "icons": [
+    { "src": "/logo-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/logo-mark-64.png", "sizes": "64x64", "type": "image/png" },
+    { "src": "/logo-mark-128.png", "sizes": "128x128", "type": "image/png" },
+    { "src": "/logo-mark-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "/logo-mark-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/logo-mark-1024.png", "sizes": "1024x1024", "type": "image/png" }
+  ]
+}
