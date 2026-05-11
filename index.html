@@ -58,8 +58,10 @@
 
   /* === Top bar === */
   .topbar {
-    border-bottom: 1px solid var(--line);
-    background: var(--bg);
+    border-bottom: 1px solid rgba(226, 221, 211, 0.45);
+    background: rgba(250, 248, 244, 0.55);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(160%) blur(14px);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -986,10 +988,11 @@
   /* === Topbar lifts subtly once page scrolls === */
   .topbar { transition: background .35s ease, border-color .35s ease, box-shadow .35s ease; }
   .topbar.scrolled {
-    background: rgba(250, 248, 244, 0.78);
-    -webkit-backdrop-filter: saturate(140%) blur(12px);
-    backdrop-filter: saturate(140%) blur(12px);
-    box-shadow: 0 1px 0 rgba(20,19,15,0.04);
+    background: rgba(250, 248, 244, 0.7);
+    -webkit-backdrop-filter: saturate(170%) blur(18px);
+    backdrop-filter: saturate(170%) blur(18px);
+    border-bottom-color: rgba(226, 221, 211, 0.7);
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04), 0 8px 24px -18px rgba(20,19,15,0.18);
   }
 
   /* === Headline word-by-word reveal === */
