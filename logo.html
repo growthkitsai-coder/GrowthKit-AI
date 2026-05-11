@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GrowthKit — Logo v2 (techy)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F2EFE8;
+    --ink: #14130F;
+    --ink-2: #2A2823;
+    --muted: #6B6760;
+    --line: #E2DDD3;
+    --accent: #1F4732;
+    --accent-pale: #B7E4CC;
+    --paper: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 32px 120px; }
+  .nav-back { display: inline-flex; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+  .nav-back:hover { color: var(--accent); }
+  a { text-decoration: none; color: inherit; }
+
+  .head { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 48px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
+  .eyebrow .num { color: var(--accent); margin-right: 10px; }
+  h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 52px; line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 16px; max-width: 22ch; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede { font-size: 16px; color: var(--ink-2); max-width: 62ch; line-height: 1.6; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .card.full { grid-column: 1 / -1; }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--bg-2);
+  }
+  .card-head .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+  .card-head .name { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 15px; color: var(--ink-2); }
+  .card-body { padding: 56px 36px; display: flex; align-items: center; justify-content: center; min-height: 200px; }
+
+  .swatch-row { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--line); }
+  .swatch { padding: 28px 18px; border-right: 1px solid var(--line); display: flex; align-items: center; justify-content: center; min-height: 120px; }
+  .swatch:last-child { border-right: 0; }
+  .swatch.dark { background: var(--ink); }
+  .swatch.cream { background: var(--bg); }
+  .swatch.green { background: var(--accent); }
+
+  .specs { padding: 14px 24px; border-top: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+  .specs strong { color: var(--ink); font-weight: 500; }
+
+  .lockup { display: inline-flex; align-items: center; gap: 14px; }
+  .word { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 44px; line-height: 1; letter-spacing: -0.025em; color: var(--ink); }
+  .word em { font-style: italic; color: var(--accent); }
+  .swatch.dark .word, .swatch.green .word { color: var(--bg); }
+  .swatch.dark .word em, .swatch.green .word em { color: var(--accent-pale); }
+
+  .word.big { font-size: 64px; }
+  .word.med { font-size: 32px; }
+
+  /* Default mark colors are inherited via .mark .fg / .mark .bg classes on SVG.
+     We use currentColor + accent var so swatches can recolor. */
+  .mark { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* Recommendation block */
+  .pick {
+    margin-top: 56px; background: var(--ink); color: var(--bg);
+    border-radius: 8px; padding: 44px;
+  }
+  .pick .eyebrow { color: rgba(250,248,244,0.55); }
+  .pick .eyebrow .num { color: var(--accent-pale); }
+  .pick h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 30px; letter-spacing: -0.02em; margin: 0 0 12px; }
+  .pick h3 em { font-style: italic; color: var(--accent-pale); }
+  .pick p { font-size: 15px; color: rgba(250,248,244,0.7); max-width: 60ch; margin: 0 0 8px; line-height: 1.65; }
+
+  .scale-row { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); }
+  .scale-row .step { padding: 24px 16px; border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .scale-row .step:last-child { border-right: 0; }
+  .scale-row .lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a href="logo.html" class="nav-back">← Back to first round</a>
+
+  <div class="head">
+    <div class="eyebrow"><span class="num">v.02</span>Logo · italic G, with teeth</div>
+    <h1>Same italic <em>G</em> — but with a techy seam.</h1>
+    <p class="lede">Five takes on Option 02. Each one keeps the editorial serif G and the single accent dot, but adds a small, deliberate asymmetry — a notch, a missing pixel, a circuit cut, a terminal glyph — so the mark stops looking like a generic monogram and starts looking like it belongs to a tool, not a tea brand.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============================================================
+         A · Notched corner — chamfer cut + dot
+         ============================================================ -->
+    <div class="card">
+      <div class="card-head">
+        <span class="label">A · Chamfered</span>
+        <span class="name">Notched corner&nbsp;<em>—</em>&nbsp;a cut, not a curve</span>
+      </div>
+      <div class="card-body">
+        <div class="lockup">
+          <span class="mark">
+            <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+              <defs>
+                <clipPath id="chamferA"><path d="M0 0 H44 L56 12 V56 H0 Z"/></clipPath>
+              </defs>
+              <g clip-path="url(#chamferA)"><rect width="56" height="56" rx="8" fill="#1F4732"/></g>
+              <path d="M44 0 L56 12 L44 12 Z" fill="#FAF8F4"/>
+              <text x="28" y="42" text-anchor="middle"
+                    font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+              <circle cx="44" cy="44" r="2.5" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span class="word">Growth<em>Kit</em></span>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch cream">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <defs><clipPath id="chamferA-c"><path d="M0 0 H44 L56 12 V56 H0 Z"/></clipPath></defs>
+            <g clip-path="url(#chamferA-c)"><rect width="56" height="56" rx="8" fill="#1F4732"/></g>
+            <path d="M44 0 L56 12 L44 12 Z" fill="#FAF8F4"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+            <circle cx="44" cy="44" r="2.5" fill="#B7E4CC"/>
+          </svg>
+        </div>
+        <div class="swatch dark">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <defs><clipPath id="chamferA-d"><path d="M0 0 H44 L56 12 V56 H0 Z"/></clipPath></defs>
+            <g clip-path="url(#chamferA-d)"><rect width="56" height="56" rx="8" fill="#FAF8F4"/></g>
+            <path d="M44 0 L56 12 L44 12 Z" fill="#14130F"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <circle cx="44" cy="44" r="2.5" fill="#1F4732"/>
+          </svg>
+        </div>
+        <div class="swatch green">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <defs><clipPath id="chamferA-g"><path d="M0 0 H44 L56 12 V56 H0 Z"/></clipPath></defs>
+            <g clip-path="url(#chamferA-g)"><rect width="56" height="56" rx="8" fill="#FAF8F4"/></g>
+            <path d="M44 0 L56 12 L44 12 Z" fill="#1F4732"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <circle cx="44" cy="44" r="2.5" fill="#1F4732"/>
+          </svg>
+        </div>
+      </div>
+      <div class="specs"><strong>READS AS</strong>&nbsp;&nbsp;Editorial chip with a folded corner — like a dog-eared page or a clipped circuit-board pad.</div>
+    </div>
+
+    <!-- ============================================================
+         B · Pixel-cut G — corner pixel removed
+         ============================================================ -->
+    <div class="card">
+      <div class="card-head">
+        <span class="label">B · Pixel-cut</span>
+        <span class="name">Missing pixel&nbsp;<em>—</em>&nbsp;the dropped bit</span>
+      </div>
+      <div class="card-body">
+        <div class="lockup">
+          <span class="mark">
+            <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+              <defs>
+                <mask id="pixB"><rect width="56" height="56" fill="white"/><rect x="44" y="0" width="12" height="12" fill="black"/></mask>
+              </defs>
+              <rect width="56" height="56" rx="8" fill="#1F4732" mask="url(#pixB)"/>
+              <rect x="44" y="0" width="12" height="12" fill="none" stroke="#1F4732" stroke-width="1" stroke-dasharray="2 2" opacity="0.45"/>
+              <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+              <rect x="46" y="44" width="6" height="6" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span class="word">Growth<em>Kit</em></span>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch cream">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <defs><mask id="pixB-c"><rect width="56" height="56" fill="white"/><rect x="44" y="0" width="12" height="12" fill="black"/></mask></defs>
+            <rect width="56" height="56" rx="8" fill="#1F4732" mask="url(#pixB-c)"/>
+            <rect x="44" y="0" width="12" height="12" fill="none" stroke="#1F4732" stroke-width="1" stroke-dasharray="2 2" opacity="0.45"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+            <rect x="46" y="44" width="6" height="6" fill="#B7E4CC"/>
+          </svg>
+        </div>
+        <div class="swatch dark">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <defs><mask id="pixB-d"><rect width="56" height="56" fill="white"/><rect x="44" y="0" width="12" height="12" fill="black"/></mask></defs>
+            <rect width="56" height="56" rx="8" fill="#FAF8F4" mask="url(#pixB-d)"/>
+            <rect x="44" y="0" width="12" height="12" fill="none" stroke="#FAF8F4" stroke-width="1" stroke-dasharray="2 2" opacity="0.4"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <rect x="46" y="44" width="6" height="6" fill="#1F4732"/>
+          </svg>
+        </div>
+        <div class="swatch green">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <defs><mask id="pixB-g"><rect width="56" height="56" fill="white"/><rect x="44" y="0" width="12" height="12" fill="black"/></mask></defs>
+            <rect width="56" height="56" rx="8" fill="#FAF8F4" mask="url(#pixB-g)"/>
+            <rect x="44" y="0" width="12" height="12" fill="none" stroke="#FAF8F4" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <rect x="46" y="44" width="6" height="6" fill="#1F4732"/>
+          </svg>
+        </div>
+      </div>
+      <div class="specs"><strong>READS AS</strong>&nbsp;&nbsp;Sprite, terminal cursor, removed bit — but still a serif. The dashed ghost of the missing pixel makes it intentional.</div>
+    </div>
+
+    <!-- ============================================================
+         C · Terminal frame — corner brackets + caret dot  ⟵ RECOMMENDED
+         ============================================================ -->
+    <div class="card full">
+      <div class="card-head">
+        <span class="label">C · Terminal frame &nbsp;·&nbsp;recommended</span>
+        <span class="name">Bracketed&nbsp;<em>G</em>&nbsp;<em>—</em>&nbsp;a glyph in a terminal window</span>
+      </div>
+      <div class="card-body">
+        <div class="lockup">
+          <span class="mark">
+            <svg width="80" height="80" viewBox="0 0 80 80" aria-hidden="true">
+              <rect width="80" height="80" rx="10" fill="#1F4732"/>
+              <!-- corner brackets, evoke a terminal selection / scope marker -->
+              <g stroke="#FAF8F4" stroke-width="2" fill="none" stroke-linecap="square">
+                <path d="M10 18 V10 H18"/>
+                <path d="M62 10 H70 V18"/>
+                <path d="M70 62 V70 H62"/>
+                <path d="M18 70 H10 V62"/>
+              </g>
+              <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+              <!-- blinking-caret style square -->
+              <rect x="58" y="60" width="6" height="6" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span class="word big">Growth<em>Kit</em></span>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch cream">
+          <svg width="56" height="56" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="10" fill="#1F4732"/>
+            <g stroke="#FAF8F4" stroke-width="2" fill="none" stroke-linecap="square">
+              <path d="M10 18 V10 H18"/><path d="M62 10 H70 V18"/><path d="M70 62 V70 H62"/><path d="M18 70 H10 V62"/>
+            </g>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+            <rect x="58" y="60" width="6" height="6" fill="#B7E4CC"/>
+          </svg>
+        </div>
+        <div class="swatch dark">
+          <svg width="56" height="56" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="10" fill="#FAF8F4"/>
+            <g stroke="#1F4732" stroke-width="2" fill="none" stroke-linecap="square">
+              <path d="M10 18 V10 H18"/><path d="M62 10 H70 V18"/><path d="M70 62 V70 H62"/><path d="M18 70 H10 V62"/>
+            </g>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#1F4732">G</text>
+            <rect x="58" y="60" width="6" height="6" fill="#1F4732"/>
+          </svg>
+        </div>
+        <div class="swatch green">
+          <svg width="56" height="56" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="10" fill="#FAF8F4"/>
+            <g stroke="#1F4732" stroke-width="2" fill="none" stroke-linecap="square">
+              <path d="M10 18 V10 H18"/><path d="M62 10 H70 V18"/><path d="M70 62 V70 H62"/><path d="M18 70 H10 V62"/>
+            </g>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#1F4732">G</text>
+            <rect x="58" y="60" width="6" height="6" fill="#1F4732"/>
+          </svg>
+        </div>
+      </div>
+      <!-- size scale -->
+      <div class="scale-row">
+        <div class="step">
+          <svg width="56" height="56" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="10" fill="#1F4732"/>
+            <g stroke="#FAF8F4" stroke-width="2" fill="none" stroke-linecap="square"><path d="M10 18 V10 H18"/><path d="M62 10 H70 V18"/><path d="M70 62 V70 H62"/><path d="M18 70 H10 V62"/></g>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+            <rect x="58" y="60" width="6" height="6" fill="#B7E4CC"/>
+          </svg>
+          <span class="lbl">56 px</span>
+        </div>
+        <div class="step">
+          <svg width="40" height="40" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="10" fill="#1F4732"/>
+            <g stroke="#FAF8F4" stroke-width="3" fill="none" stroke-linecap="square"><path d="M10 18 V10 H18"/><path d="M62 10 H70 V18"/><path d="M70 62 V70 H62"/><path d="M18 70 H10 V62"/></g>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+            <rect x="58" y="60" width="6" height="6" fill="#B7E4CC"/>
+          </svg>
+          <span class="lbl">40 px</span>
+        </div>
+        <div class="step">
+          <svg width="28" height="28" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="12" fill="#1F4732"/>
+            <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+            <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+          </svg>
+          <span class="lbl">28 px</span>
+        </div>
+        <div class="step">
+          <svg width="20" height="20" viewBox="0 0 80 80" aria-hidden="true">
+            <rect width="80" height="80" rx="14" fill="#1F4732"/>
+            <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+            <rect x="58" y="60" width="10" height="10" fill="#B7E4CC"/>
+          </svg>
+          <span class="lbl">20 px · favicon (brackets drop, dot keeps)</span>
+        </div>
+      </div>
+      <div class="specs"><strong>READS AS</strong>&nbsp;&nbsp;A serif glyph framed in a developer's selection brackets, with a caret block in place of the original dot. Editorial + IDE + console — and very clearly not generic.</div>
+    </div>
+
+    <!-- ============================================================
+         D · Slashed serif — diagonal cut through the bowl
+         ============================================================ -->
+    <div class="card">
+      <div class="card-head">
+        <span class="label">D · Slashed</span>
+        <span class="name">Diagonal cut&nbsp;<em>—</em>&nbsp;a diff in the bowl</span>
+      </div>
+      <div class="card-body">
+        <div class="lockup">
+          <span class="mark">
+            <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+              <rect width="56" height="56" rx="8" fill="#1F4732"/>
+              <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+              <!-- diagonal seam -->
+              <line x1="6" y1="50" x2="50" y2="6" stroke="#B7E4CC" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>
+              <circle cx="44" cy="44" r="2.5" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span class="word">Growth<em>Kit</em></span>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch cream">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <rect width="56" height="56" rx="8" fill="#1F4732"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+            <line x1="6" y1="50" x2="50" y2="6" stroke="#B7E4CC" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>
+            <circle cx="44" cy="44" r="2.5" fill="#B7E4CC"/>
+          </svg>
+        </div>
+        <div class="swatch dark">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <rect width="56" height="56" rx="8" fill="#FAF8F4"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <line x1="6" y1="50" x2="50" y2="6" stroke="#1F4732" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.65"/>
+            <circle cx="44" cy="44" r="2.5" fill="#1F4732"/>
+          </svg>
+        </div>
+        <div class="swatch green">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <rect width="56" height="56" rx="8" fill="#FAF8F4"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <line x1="6" y1="50" x2="50" y2="6" stroke="#1F4732" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.7"/>
+            <circle cx="44" cy="44" r="2.5" fill="#1F4732"/>
+          </svg>
+        </div>
+      </div>
+      <div class="specs"><strong>READS AS</strong>&nbsp;&nbsp;A baseline rising on a 45° axis — chart line, code diff, a drawn sightline. Subtle.</div>
+    </div>
+
+    <!-- ============================================================
+         E · Pin/return arrow — G with a step-up tick on the spur
+         ============================================================ -->
+    <div class="card">
+      <div class="card-head">
+        <span class="label">E · Stepped spur</span>
+        <span class="name">Return arrow&nbsp;<em>—</em>&nbsp;the spur becomes a tick</span>
+      </div>
+      <div class="card-body">
+        <div class="lockup">
+          <span class="mark">
+            <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+              <rect width="56" height="56" rx="8" fill="#1F4732"/>
+              <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+              <!-- step-up tick replacing the dot -->
+              <g stroke="#B7E4CC" stroke-width="1.5" fill="none" stroke-linecap="square" stroke-linejoin="miter">
+                <path d="M40 47 H44 V43 H48"/>
+              </g>
+              <polygon points="48,40 52,43 48,46" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span class="word">Growth<em>Kit</em></span>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch cream">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <rect width="56" height="56" rx="8" fill="#1F4732"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#FAF8F4">G</text>
+            <g stroke="#B7E4CC" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M40 47 H44 V43 H48"/></g>
+            <polygon points="48,40 52,43 48,46" fill="#B7E4CC"/>
+          </svg>
+        </div>
+        <div class="swatch dark">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <rect width="56" height="56" rx="8" fill="#FAF8F4"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <g stroke="#1F4732" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M40 47 H44 V43 H48"/></g>
+            <polygon points="48,40 52,43 48,46" fill="#1F4732"/>
+          </svg>
+        </div>
+        <div class="swatch green">
+          <svg width="40" height="40" viewBox="0 0 56 56" aria-hidden="true">
+            <rect width="56" height="56" rx="8" fill="#FAF8F4"/>
+            <text x="28" y="42" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="40" fill="#1F4732">G</text>
+            <g stroke="#1F4732" stroke-width="1.5" fill="none" stroke-linecap="square"><path d="M40 47 H44 V43 H48"/></g>
+            <polygon points="48,40 52,43 48,46" fill="#1F4732"/>
+          </svg>
+        </div>
+      </div>
+      <div class="specs"><strong>READS AS</strong>&nbsp;&nbsp;A flowchart node — the dot promoted to a stepped arrow. The original "ascending" idea, smuggled back in.</div>
+    </div>
+
+  </div>
+
+  <div class="pick">
+    <div class="eyebrow"><span class="num">·</span>Recommendation</div>
+    <h3>Lead with <em>Option C — Terminal Frame</em>.</h3>
+    <p>It's the one that does the heaviest lifting on "this is a tool, made by engineers, for engineers." The corner brackets read instantly as a developer's selection scope — a marker you've seen in every IDE and CLI you've ever used — and the caret block where the dot used to be ties the wordmark to the editorial accent without losing its tech register. Of all five it's the most distinctive at scale, and the only one that survives at favicon size by simply dropping the brackets.</p>
+    <p style="margin-top: 14px;">If C feels too literal, <em>D — Slashed</em> is the same idea at half-volume.</p>
+  </div>
+
+</div>
+</body>
+</html>
