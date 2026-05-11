@@ -45,7 +45,31 @@ function doPost(e) {
 }
 
 function doGet() {
-  return ContentService
-    .createTextOutput('GrowthKit waitlist endpoint is live.')
-    .setMimeType(ContentService.MimeType.TEXT);
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const lastRow = sheet.getLastRow();
+    const lastCol = sheet.getLastColumn();
+    let count = 0;
+    // Skip row 1 — it's the header that doPost writes on first signup.
+    if (lastRow >= 2 && lastCol >= 1) {
+      const values = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+      for (let i = 0; i < values.length; i++) {
+        const row = values[i];
+        for (let j = 0; j < row.length; j++) {
+          const cell = row[j];
+          if (cell !== '' && cell !== null && cell !== undefined && String(cell).trim() !== '') {
+            count++;
+            break;
+          }
+        }
+      }
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, count: count }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
