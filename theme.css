@@ -157,6 +157,23 @@
   .topbar, .topbar-inner { transition: none !important; }
 }
 
+/* ── Final CTA ("Treat market research like the rest of your engineering")
+   In light mode this is an inverted black-on-cream slab. In dark mode the
+   token flip would turn it into a white slab with cream text (unreadable),
+   so we restate it as a lifted paper panel with bright type. */
+:root[data-theme="dark"] .closing {
+  background: var(--paper);
+  color: var(--ink);
+  border-top: 1px solid var(--line-2);
+}
+:root[data-theme="dark"] .closing .eyebrow      { color: rgba(255, 255, 255, 0.55); }
+:root[data-theme="dark"] .closing .eyebrow .num { color: #B7E4CC; }
+:root[data-theme="dark"] .closing h2            { color: var(--ink); }
+:root[data-theme="dark"] .closing h2 em         { color: #B7E4CC; }
+:root[data-theme="dark"] .closing p             { color: rgba(255, 255, 255, 0.72); }
+:root[data-theme="dark"] .closing .btn-primary  { background: var(--ink); color: var(--bg); }
+:root[data-theme="dark"] .closing .btn-primary:hover { background: #B7E4CC; color: var(--bg); }
+
 /* Drop shadows tuned for a dark canvas */
 :root[data-theme="dark"] .card,
 :root[data-theme="dark"] .spec-plate {
