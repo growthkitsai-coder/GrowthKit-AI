@@ -975,13 +975,14 @@
   .engine .feat-roman {
     font-family: 'Instrument Serif', serif;
     font-style: italic;
-    font-size: clamp(56px, 5.6vw, 84px);
+    font-size: clamp(48px, 4.6vw, 68px);
     line-height: 0.88;
     color: var(--accent);
-    letter-spacing: -0.025em;
+    letter-spacing: 0.02em;
     margin: 0 0 12px;
+    text-transform: uppercase;
     opacity: 0;
-    transform: translateX(-14px) skewX(-5deg);
+    transform: translateX(-14px);
     transition: opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1);
   }
   .engine .feat.in .feat-roman { opacity: 1; transform: none; transition-delay: 0.15s; }
@@ -1663,7 +1664,12 @@
     .process-flow .node-dot { background: var(--accent); border-color: var(--accent); transition: none; }
     .process-flow .node-label { opacity: 1; transform: translateX(-50%) translateY(0); transition: none; }
     .process-flow .step { opacity: 1; transform: none; transition: none; }
-    .engine .feat::before { background: var(--accent); border-color: var(--accent); transition: none; }
+    .engine .feat::before {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 5px rgba(31,71,50,0.10);
+      transition: none;
+    }
     .engine .feat::after { transform: scaleY(1); transition: none; }
     .engine .feat .feat-roman,
     .engine .feat .feat-tag,
@@ -1673,7 +1679,7 @@
     .engine .feat-specimen { opacity: 1; transform: none; transition: none; }
     .engine .feat h3 em::after { transform: scaleX(1); transition: none; }
     .engine .feat-specimen .spec-bars .row .bar::after { transform: scaleX(1); transition: none; }
-    .engine .feat-specimen .spec-stack .col { transition: none; }
+    .engine .feat-specimen .spec-stack .col { height: var(--h, 60%); transition: none; }
     .engine .feat-specimen .spec-scatter .dot { opacity: 1; transform: translate(-50%, -50%) scale(1); transition: none; }
     .engine .feat-specimen .spec-timeline .tick { transform: scaleY(1); transition: none; }
     .topbar { transition: none; }
@@ -1929,7 +1935,7 @@
       <div class="engine">
         <article class="feat reveal">
           <div class="feat-content">
-            <div class="feat-roman">i</div>
+            <div class="feat-roman">I</div>
             <div class="feat-tag">Module 01 · Market map</div>
             <h3>Your market, <em>measured</em>.</h3>
             <p>TAM and SAM by segment, live demand signals, buyer urgency, and the three segments your product can credibly win — so the next argument ends in evidence, not opinion.</p>
@@ -1952,7 +1958,7 @@
 
         <article class="feat reveal">
           <div class="feat-content">
-            <div class="feat-roman">ii</div>
+            <div class="feat-roman">II</div>
             <div class="feat-tag">Module 02 · Competitor teardown</div>
             <h3>Your rivals' <em>playbook</em>, on paper.</h3>
             <p>A side-by-side of your top five competitors — pricing, positioning, channels, content cadence, retention signals, and the complaints their customers keep leaving.</p>
@@ -1977,7 +1983,7 @@
 
         <article class="feat reveal">
           <div class="feat-content">
-            <div class="feat-roman">iii</div>
+            <div class="feat-roman">III</div>
             <div class="feat-tag">Module 03 · Gap analysis</div>
             <h3>The doors they <em>left open</em>.</h3>
             <p>Where your competitors are weak, where the market is underserved, and the wedge you should lead with. The synthesis nobody builds because it takes a week and a budget you don't have.</p>
@@ -2005,7 +2011,7 @@
 
         <article class="feat reveal">
           <div class="feat-content">
-            <div class="feat-roman">iv</div>
+            <div class="feat-roman">IV</div>
             <div class="feat-tag">Module 04 · 90-day plan</div>
             <h3>A plan, not a <em>dashboard</em>.</h3>
             <p>Week-by-week: what to ship, what to write, which channel to test, when to kill it — tied to the gaps you're targeting, with kill-criteria so the plan keeps deciding past week four.</p>
