@@ -177,40 +177,6 @@
   }
   @media (max-width: 1100px) { .hero .hero-glow { display: none; } }
 
-  /* Hero mesh — a slowly drifting field of soft radial hotspots layered
-     behind the hero content. Adds ambient depth without competing with
-     the headline or the Specimen plate. Light + dark have their own
-     palettes; both honor prefers-reduced-motion. */
-  .hero-mesh {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-    background:
-      radial-gradient(ellipse 540px 400px at 14% 24%, rgba(31, 71, 50, 0.10), transparent 62%),
-      radial-gradient(ellipse 660px 480px at 82% 12%, rgba(46, 98, 73, 0.09),  transparent 65%),
-      radial-gradient(ellipse 480px 360px at 38% 82%, rgba(31, 71, 50, 0.06),  transparent 70%),
-      radial-gradient(ellipse 360px 280px at 92% 68%, rgba(46, 98, 73, 0.07),  transparent 70%);
-    animation: heroMeshDrift 26s ease-in-out infinite alternate;
-    will-change: transform;
-  }
-  :root[data-theme="dark"] .hero-mesh {
-    background:
-      radial-gradient(ellipse 540px 400px at 14% 24%, rgba( 96, 168, 124, 0.10), transparent 62%),
-      radial-gradient(ellipse 660px 480px at 82% 12%, rgba( 58, 116,  87, 0.12), transparent 65%),
-      radial-gradient(ellipse 480px 360px at 38% 82%, rgba(183, 228, 204, 0.04), transparent 70%),
-      radial-gradient(ellipse 360px 280px at 92% 68%, rgba( 46,  98,  73, 0.10), transparent 70%);
-  }
-  @keyframes heroMeshDrift {
-    0%   { transform: translate3d(0, 0, 0)       scale(1); }
-    50%  { transform: translate3d(-14px, 6px, 0) scale(1.04); }
-    100% { transform: translate3d(10px, -8px, 0) scale(1); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-mesh { animation: none; }
-  }
-
   /* === Hero specimen plate (upper-right) === */
   .spec-plate {
     position: absolute;
@@ -325,32 +291,7 @@
   }
 
   @media (max-width: 1100px) { .spec-plate { display: none; } }
-
-  /* Spec-plate scan line — a thin vertical sweep that crosses the plate
-     every 9s, sitting above the rows and below the foot. Acts as ambient
-     "system is alive" signal. Mint-tinted in dark, forest in light. */
-  .spec-plate::after {
-    content: "";
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 64px;
-    left: -64px;
-    background: linear-gradient(90deg, transparent 0%, rgba(31, 71, 50, 0.06) 50%, transparent 100%);
-    pointer-events: none;
-    animation: specScan 9s ease-in-out infinite;
-    z-index: 2;
-    mix-blend-mode: multiply;
-  }
-  :root[data-theme="dark"] .spec-plate::after {
-    background: linear-gradient(90deg, transparent 0%, rgba(183, 228, 204, 0.06) 50%, transparent 100%);
-    mix-blend-mode: screen;
-  }
-  @keyframes specScan {
-    0%, 75%, 100% { transform: translateX(0); }
-    90%           { transform: translateX(calc(388px + 64px)); }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .spec-plate::after { animation: none; display: none; }
     .spec-plate .row { opacity: 1; transform: none; transition: none; }
     .spec-plate .plate-title::after { transform: scaleX(1); transition: none; }
   }
@@ -382,9 +323,9 @@
   h1.headline {
     font-family: 'Instrument Serif', serif;
     font-weight: 400;
-    font-size: clamp(64px, 9.5vw, 132px);
-    line-height: 0.96;
-    letter-spacing: -0.03em;
+    font-size: clamp(54px, 8vw, 104px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
     color: var(--ink);
     margin: 0 0 28px;
     max-width: 14ch;
@@ -987,8 +928,8 @@
   .engine .feat {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(90px, 13vw, 150px);
-    gap: clamp(18px, 2.5vw, 36px);
+    grid-template-columns: minmax(0, 1fr) clamp(220px, 26vw, 320px);
+    gap: clamp(32px, 5vw, 80px);
     padding: clamp(48px, 6vw, 84px) 0;
     border-bottom: 1px dashed var(--line);
     opacity: 1; transform: none; transition: none;
@@ -1140,11 +1081,11 @@
     position: relative;
     border: 1px solid var(--line-2);
     background: var(--paper);
-    border-radius: 6px;
-    padding: 30px 12px 12px;
-    aspect-ratio: 1.4 / 1;
+    border-radius: 8px;
+    padding: 56px 22px 22px;
+    aspect-ratio: 1.05 / 1;
     overflow: hidden;
-    box-shadow: 0 1px 0 rgba(20,19,15,0.02), 0 14px 28px -20px rgba(20,19,15,0.14);
+    box-shadow: 0 1px 0 rgba(20,19,15,0.02), 0 22px 50px -32px rgba(20,19,15,0.18);
     opacity: 0;
     transform: translateY(28px);
     transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
@@ -1152,42 +1093,36 @@
   .engine .feat.in .feat-specimen { opacity: 1; transform: none; transition-delay: 0.35s; }
   .engine .feat-specimen .spec-label {
     position: absolute;
-    top: 10px; left: 10px;
+    top: 14px; left: 16px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8.5px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.16em;
     color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: calc(100% - 44px);
-    text-overflow: ellipsis;
   }
   .engine .feat-specimen .spec-num {
     position: absolute;
-    top: 10px; right: 10px;
+    top: 14px; right: 16px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8.5px;
+    font-size: 10px;
     color: var(--accent);
-    letter-spacing: 0.10em;
+    letter-spacing: 0.12em;
   }
 
   /* Specimen I — segment bars */
-  .spec-bars { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
-  .spec-bars .row { display: flex; flex-direction: column; gap: 4px; }
+  .spec-bars { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+  .spec-bars .row { display: flex; flex-direction: column; gap: 6px; }
   .spec-bars .row .top {
     display: flex; justify-content: space-between;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 0.08em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    gap: 4px;
   }
-  .spec-bars .row .top .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .spec-bars .row .top .name { color: var(--ink-2); }
   .spec-bars .row .top .val { color: var(--accent); }
   .spec-bars .row .bar {
-    height: 4px;
+    height: 6px;
     background: var(--bg-2);
     border-radius: 999px;
     overflow: hidden;
@@ -1213,9 +1148,9 @@
     height: 100%;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    gap: 10px;
     align-items: end;
-    padding-bottom: 16px;
+    padding-bottom: 24px;
   }
   .spec-stack .col {
     background: var(--bg-2);
@@ -1228,13 +1163,13 @@
   .spec-stack .col::after {
     content: attr(data-name);
     position: absolute;
-    bottom: -14px;
+    bottom: -20px;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 7.5px;
+    font-size: 9px;
     color: var(--muted);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
   .spec-stack .col.you::after { color: var(--accent); }
@@ -1249,7 +1184,7 @@
   .spec-scatter { position: relative; height: 100%; }
   .spec-scatter .dot {
     position: absolute;
-    width: 5px; height: 5px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--line-2);
     opacity: 0;
@@ -1258,8 +1193,8 @@
   }
   .spec-scatter .gap {
     background: var(--accent);
-    width: 11px; height: 11px;
-    box-shadow: 0 0 0 4px rgba(31,71,50,0.10);
+    width: 16px; height: 16px;
+    box-shadow: 0 0 0 6px rgba(31,71,50,0.10);
   }
   .engine .feat.in .spec-scatter .dot { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   .engine .feat.in .spec-scatter .dot:nth-child(1) { transition-delay: 0.55s; }
@@ -1288,7 +1223,7 @@
   .spec-timeline .tick {
     position: relative;
     width: 1px;
-    height: 9px;
+    height: 14px;
     background: var(--line-2);
     transform: scaleY(0);
     transform-origin: center;
@@ -1297,19 +1232,19 @@
   }
   .spec-timeline .tick.mile {
     width: 2px;
-    height: 18px;
+    height: 26px;
     background: var(--accent);
   }
   .spec-timeline .tick.mile::after {
     content: attr(data-label);
     position: absolute;
-    top: 20px;
+    top: 30px;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 7.5px;
+    font-size: 9px;
     color: var(--accent);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
     white-space: nowrap;
   }
   .engine .feat.in .spec-timeline .tick { transform: scaleY(1); }
@@ -1328,20 +1263,12 @@
   .engine .feat.in .spec-timeline .tick:nth-child(14) { transition-delay: 1.15s; }
   .engine .feat.in .spec-timeline .tick:nth-child(15) { transition-delay: 1.20s; }
 
-  /* Narrow viewports: drop the spine but keep the specimen inline beside
-     the text so each diagram stays anchored to its module copy. The plate
-     shrinks proportionally via the clamp() in .engine .feat above. */
   @media (max-width: 900px) {
     .engine { padding-left: 0; }
     .engine::before { display: none; }
-    .engine .feat { gap: 14px; padding: 40px 0; }
+    .engine .feat { grid-template-columns: 1fr; gap: 28px; padding: 48px 0; }
     .engine .feat::before, .engine .feat::after { display: none; }
-  }
-  @media (max-width: 460px) {
-    .engine .feat { grid-template-columns: minmax(0, 1fr) 78px; gap: 12px; }
-    .engine .feat-specimen { padding: 24px 8px 8px; }
-    .engine .feat-specimen .spec-label { display: none; }
-    .engine .feat-specimen .spec-num { top: 6px; right: 6px; font-size: 7.5px; }
+    .engine .feat-specimen { aspect-ratio: 1.4 / 1; max-width: 420px; }
   }
 
   /* === Process flow — redesigned === */
@@ -1562,33 +1489,7 @@
     background: var(--ink);
     color: var(--bg);
     border-bottom: 0;
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
   }
-  .closing > .wrap { position: relative; z-index: 1; }
-  /* Aurora — slowly drifting soft gradient field behind the closing CTA.
-     Three radial hotspots in mint + forest, blurred and animated on a
-     long alternate cycle. Light and dark each get their own palette. */
-  .closing-aurora {
-    position: absolute;
-    inset: -10% -5%;
-    pointer-events: none;
-    z-index: 0;
-    background:
-      radial-gradient(ellipse 700px 480px at 12% 24%, rgba(183, 228, 204, 0.20), transparent 60%),
-      radial-gradient(ellipse 620px 500px at 88% 22%, rgba( 46,  98,  73, 0.35), transparent 60%),
-      radial-gradient(ellipse 540px 380px at 50% 96%, rgba(183, 228, 204, 0.14), transparent 70%);
-    filter: blur(4px);
-    animation: closingAurora 30s ease-in-out infinite alternate;
-    will-change: transform;
-  }
-  @keyframes closingAurora {
-    0%   { transform: translate3d(0, 0, 0)         rotate(0deg)  scale(1); }
-    50%  { transform: translate3d(-22px, 12px, 0)  rotate(1.2deg) scale(1.06); }
-    100% { transform: translate3d(16px, -14px, 0)  rotate(-1.4deg) scale(1.02); }
-  }
-  @media (prefers-reduced-motion: reduce) { .closing-aurora { animation: none; } }
   .closing .eyebrow { color: rgba(250,248,244,0.55); }
   .closing .eyebrow .num { color: #B7E4CC; }
   .closing h2 {
@@ -1788,7 +1689,7 @@
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
 <link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"></head>
-<body class="has-dot-grid" style="background-color: rgb(239, 233, 222); font-family: Inter;">
+<body style="background-color: rgb(239, 233, 222); font-family: Inter;">
 
 <!-- ====== TOP BAR ====== -->
 <header class="topbar">
@@ -1825,7 +1726,6 @@
 
   <!-- ====== HERO ====== -->
   <section class="hero">
-    <div class="hero-mesh" aria-hidden="true"></div>
     <div class="hero-glow" aria-hidden="true"></div>
     <div class="wrap">
       <div class="hero-top reveal">
@@ -1886,7 +1786,7 @@
             We map your market, dissect your competitors, and turn the picture into a 90‑day plan. Consulting‑grade work, at SaaS prices.
           </p>
           <div class="hero-actions">
-            <a href="/waitlist" class="btn-primary btn magnetic">
+            <a href="/waitlist" class="btn-primary btn">
               Join the waitlist <span class="arr">→</span>
             </a>
             <a href="#engine" class="btn-secondary btn">
@@ -1898,19 +1798,19 @@
         <div class="hero-meta reveal">
           <div class="item">
             <div class="k">Starts at</div>
-            <div class="v">$<span class="count-up" data-count="25">25</span><small>/ month · full plan, refreshed monthly</small></div>
+            <div class="v">$25<small>/ month · full plan, refreshed monthly</small></div>
           </div>
           <div class="item">
             <div class="k">Time to first report</div>
-            <div class="v">~<span class="count-up" data-count="90">90</span> sec<small>from brief to market map</small></div>
+            <div class="v">~90 sec<small>from brief to market map</small></div>
           </div>
           <div class="item">
             <div class="k">Competitors dissected</div>
-            <div class="v"><span class="count-up" data-count="5">5</span>+<small>per teardown, side‑by‑side</small></div>
+            <div class="v">5+<small>per teardown, side‑by‑side</small></div>
           </div>
           <div class="item">
             <div class="k">Founded</div>
-            <div class="v"><span class="count-up" data-count="2026" data-count-from="2020">2026</span><small>London · Remote</small></div>
+            <div class="v">2026<small>London · Remote</small></div>
           </div>
         </div>
       </div>
@@ -2033,8 +1933,7 @@
       </div>
 
       <div class="engine">
-        <article class="feat reveal spotlight-card">
-          <div class="spotlight" aria-hidden="true"></div>
+        <article class="feat reveal">
           <div class="feat-content">
             <div class="feat-roman">I</div>
             <div class="feat-tag">Module 01 · Market map</div>
@@ -2057,8 +1956,7 @@
           </aside>
         </article>
 
-        <article class="feat reveal spotlight-card">
-          <div class="spotlight" aria-hidden="true"></div>
+        <article class="feat reveal">
           <div class="feat-content">
             <div class="feat-roman">II</div>
             <div class="feat-tag">Module 02 · Competitor teardown</div>
@@ -2083,8 +1981,7 @@
           </aside>
         </article>
 
-        <article class="feat reveal spotlight-card">
-          <div class="spotlight" aria-hidden="true"></div>
+        <article class="feat reveal">
           <div class="feat-content">
             <div class="feat-roman">III</div>
             <div class="feat-tag">Module 03 · Gap analysis</div>
@@ -2112,8 +2009,7 @@
           </aside>
         </article>
 
-        <article class="feat reveal spotlight-card">
-          <div class="spotlight" aria-hidden="true"></div>
+        <article class="feat reveal">
           <div class="feat-content">
             <div class="feat-roman">IV</div>
             <div class="feat-tag">Module 04 · 90-day plan</div>
@@ -2151,8 +2047,6 @@
     </div>
   </section>
 
-  <div class="section-divider reveal" aria-hidden="true"></div>
-
   <!-- ====== PROCESS ====== -->
   <section class="block" id="process">
     <div class="wrap">
@@ -2188,22 +2082,19 @@
         </div>
 
         <div class="process">
-          <article class="step spotlight-card">
-            <div class="spotlight" aria-hidden="true"></div>
+          <article class="step">
             <div class="step-roman">i</div>
             <div class="step-tag">Input</div>
             <h3>Brief us in <em>plain English</em>.</h3>
             <p>Paste a site, a deck, or a paragraph. We surface the competitors ourselves.</p>
           </article>
-          <article class="step spotlight-card">
-            <div class="spotlight" aria-hidden="true"></div>
+          <article class="step">
             <div class="step-roman">ii</div>
             <div class="step-tag">Compute</div>
             <h3>We map the <em>field</em>.</h3>
             <p>Market data, pricing, content, and complaints — synthesised into a picture you can argue with.</p>
           </article>
-          <article class="step spotlight-card">
-            <div class="spotlight" aria-hidden="true"></div>
+          <article class="step">
             <div class="step-roman">iii</div>
             <div class="step-tag">Output</div>
             <h3>You review &amp; <em>act</em>.</h3>
@@ -2213,8 +2104,6 @@
       </div>
     </div>
   </section>
-
-  <div class="section-divider reveal" aria-hidden="true"></div>
 
   <!-- ====== FAQ ====== -->
   <section class="block" id="faq">
@@ -2274,17 +2163,14 @@
     </div>
   </section>
 
-  <div class="section-divider reveal" aria-hidden="true"></div>
-
   <!-- ====== CLOSING CTA ====== -->
   <section class="closing">
-    <div class="closing-aurora" aria-hidden="true"></div>
     <div class="wrap">
       <div class="reveal">
         <div class="eyebrow"><span class="num">05</span>Get started</div>
         <h2>Treat market research like the rest of your <em>engineering</em>.</h2>
         <p>Consulting‑grade market intelligence and competitor analysis — without paying consulting prices. Join the waitlist to be among the first founders to map their market and outflank their rivals with GrowthKit AI.</p>
-        <a href="/waitlist" class="btn-primary btn magnetic">
+        <a href="/waitlist" class="btn-primary btn">
           Join the waitlist <span class="arr">→</span>
         </a>
       </div>
@@ -2443,46 +2329,31 @@
     onScroll();
   }
 
-  // Generic count-up animation. Targets every .count-up span with a
-  // data-count attribute. Animates from data-count-from (default 0)
-  // to data-count when the span scrolls into view. data-count-dur
-  // overrides the default 1200ms duration.
-  function animateCount(el) {
-    var to = parseInt(el.getAttribute('data-count'), 10);
-    if (isNaN(to)) return;
-    var from = parseInt(el.getAttribute('data-count-from') || '0', 10);
-    var dur = parseInt(el.getAttribute('data-count-dur') || '1200', 10);
-    var startedAt = null;
-    el.textContent = String(from);
-    requestAnimationFrame(function step(now) {
-      if (startedAt === null) startedAt = now;
-      var t = Math.min((now - startedAt) / dur, 1);
-      var eased = 1 - Math.pow(1 - t, 3);
-      el.textContent = Math.round(from + (to - from) * eased);
-      if (t < 1) requestAnimationFrame(step);
-      else el.classList.add('is-counted');
+  // Hero meta numbers count up once, just after load
+  if (!prefersReduce) {
+    var values = document.querySelectorAll('.hero-meta .v');
+    values.forEach(function(v, idx){
+      var firstNode = null;
+      for (var i = 0; i < v.childNodes.length; i++) {
+        var n = v.childNodes[i];
+        if (n.nodeType === 3 && n.nodeValue.trim()) { firstNode = n; break; }
+      }
+      if (!firstNode) return;
+      var m = firstNode.nodeValue.match(/^(\s*)(\d+)([\s\S]*)$/);
+      if (!m) return;
+      var pre = m[1], target = parseInt(m[2], 10), suffix = m[3];
+      firstNode.nodeValue = pre + '0' + suffix;
+      var dur = 1100, started = null;
+      function frame(now) {
+        if (started === null) started = now;
+        var t = Math.min((now - started) / dur, 1);
+        var eased = 1 - Math.pow(1 - t, 3);
+        firstNode.nodeValue = pre + Math.round(eased * target) + suffix;
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      setTimeout(function(){ requestAnimationFrame(frame); }, 400 + idx * 120);
     });
   }
-
-  if (!prefersReduce && 'IntersectionObserver' in window) {
-    var counters = document.querySelectorAll('.count-up');
-    var ioCount = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (e.isIntersecting) {
-          // Stagger sibling counters by ~120ms so they cascade rather
-          // than fire all at once.
-          var idx = Array.prototype.indexOf.call(counters, e.target);
-          setTimeout(function(){ animateCount(e.target); }, 400 + (idx % 4) * 120);
-          ioCount.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(function(el){ ioCount.observe(el); });
-  }
-
-  // Spotlight + magnetic handlers live in theme.js so every page picks
-  // them up automatically. See the `.spotlight-card` / `.magnetic`
-  // sections there.
 
   // Stage-intro strike-through reveal — same trigger pattern as /methodology
   var stageIntro = document.querySelector('.problem-canvas .stage-intro');
