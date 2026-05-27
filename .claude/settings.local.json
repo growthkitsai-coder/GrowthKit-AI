@@ -3,7 +3,7 @@
     "allow": [
       "Bash(mkdir -p ~/.claude/skills)",
       "Read(//c/Users/vinee/.claude/**)",
-      "Bash(uipro init *)"
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"B2B SaaS market intelligence dark mode editorial premium\" --design-system -p \"GrowthKit AI\" -f markdown)"
     ]
   }
 }
