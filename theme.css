@@ -380,3 +380,159 @@
     transition: none !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Premium polish v3 — YC-grade ambient + microinteractions
+
+   Cross-page utilities used on the landing page and to be applied
+   selectively to other pages:
+     .has-dot-grid     Body class — adds the subtle dot-grid overlay
+     .section-divider  1px animated gradient divider between blocks
+     .magnetic         Buttons that follow the cursor via --mx / --my
+     .spotlight-card   Cards that get a cursor-following soft glow
+     .count-up         Numeric spans whose value animates on enter
+   The interactive ones (magnetic / spotlight / count-up) are driven
+   by a small JS hook in each page. CSS gracefully falls back when JS
+   is off — buttons render in place, cards keep base styling.
+   ──────────────────────────────────────────────────────────── */
+
+/* Body-level dot-grid overlay — fixed, behind content, masked into
+   a soft vignette so edges fade out. Light + dark have separate
+   dot colors; the rest of the math is identical. */
+.has-dot-grid {
+  position: relative;
+}
+.has-dot-grid::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, rgba(20, 19, 15, 0.045) 1px, transparent 1.2px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 85%);
+}
+:root[data-theme="dark"] .has-dot-grid::before {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.045) 1px, transparent 1.2px);
+}
+.has-dot-grid > * { position: relative; z-index: 1; }
+
+/* Section dividers — a 1px gradient line that fades in from left to
+   right when scrolled into view. Drop one between major sections. */
+.section-divider {
+  position: relative;
+  width: 100%;
+  max-width: var(--maxw, 1180px);
+  margin: 0 auto;
+  padding: 0 32px;
+  pointer-events: none;
+}
+.section-divider::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--line-2) 20%,
+    var(--accent) 50%,
+    var(--line-2) 80%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: scaleX(0.4);
+  transform-origin: center;
+  transition:
+    opacity .8s cubic-bezier(.22, .61, .36, 1),
+    transform 1.2s cubic-bezier(.22, .61, .36, 1);
+}
+.section-divider.in::before { opacity: 1; transform: scaleX(1); }
+:root[data-theme="dark"] .section-divider::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    var(--accent-pale) 50%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+}
+
+/* Magnetic buttons — JS sets --mx / --my in px (clamped ±8px); CSS
+   just smooths the transform. Falls back to identity if JS is off. */
+.magnetic {
+  transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
+  transition: transform .35s cubic-bezier(.16, 1, .3, 1), background-color .2s ease, box-shadow .25s ease;
+  will-change: transform;
+}
+
+/* Animated arrow microinteraction. Applies wherever `.arr` lives
+   inside a `.btn` — the existing italic arrow now slides on hover. */
+.btn .arr {
+  display: inline-block;
+  transition: transform .35s cubic-bezier(.22, .61, .36, 1);
+  will-change: transform;
+}
+.btn:hover .arr { transform: translateX(4px); }
+.btn.btn-primary:hover .arr { transform: translateX(5px); }
+
+/* Spotlight cards — a soft circular wash follows the cursor across
+   the card's interior. JS updates --mx / --my (in px, relative to
+   the card's bounding rect). The glow itself is a CSS gradient mask
+   so there is no extra DOM. Pseudo-element layered behind content. */
+.spotlight-card {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight-card > .spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .35s ease;
+  background: radial-gradient(
+    circle 320px at var(--mx, 50%) var(--my, 50%),
+    rgba(31, 71, 50, 0.06),
+    transparent 70%
+  );
+  z-index: 0;
+}
+.spotlight-card:hover > .spotlight,
+.spotlight-card:focus-within > .spotlight { opacity: 1; }
+:root[data-theme="dark"] .spotlight-card > .spotlight {
+  background: radial-gradient(
+    circle 320px at var(--mx, 50%) var(--my, 50%),
+    rgba(183, 228, 204, 0.08),
+    transparent 70%
+  );
+}
+
+/* Count-up spans use tabular figures so width doesn't jitter as
+   digits scroll. The element gets `.is-counted` once the animation
+   completes — useful for tests/screenshots. */
+.count-up {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Reduced-motion fallbacks for everything new in v3. */
+@media (prefers-reduced-motion: reduce) {
+  .section-divider::before {
+    opacity: 1 !important;
+    transform: scaleX(1) !important;
+    transition: none !important;
+  }
+  .magnetic {
+    transform: none !important;
+    transition: none !important;
+  }
+  .btn .arr,
+  .btn:hover .arr,
+  .btn.btn-primary:hover .arr {
+    transform: none !important;
+    transition: none !important;
+  }
+  .spotlight-card > .spotlight { display: none !important; }
+}

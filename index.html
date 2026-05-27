@@ -177,6 +177,40 @@
   }
   @media (max-width: 1100px) { .hero .hero-glow { display: none; } }
 
+  /* Hero mesh — a slowly drifting field of soft radial hotspots layered
+     behind the hero content. Adds ambient depth without competing with
+     the headline or the Specimen plate. Light + dark have their own
+     palettes; both honor prefers-reduced-motion. */
+  .hero-mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 540px 400px at 14% 24%, rgba(31, 71, 50, 0.10), transparent 62%),
+      radial-gradient(ellipse 660px 480px at 82% 12%, rgba(46, 98, 73, 0.09),  transparent 65%),
+      radial-gradient(ellipse 480px 360px at 38% 82%, rgba(31, 71, 50, 0.06),  transparent 70%),
+      radial-gradient(ellipse 360px 280px at 92% 68%, rgba(46, 98, 73, 0.07),  transparent 70%);
+    animation: heroMeshDrift 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  :root[data-theme="dark"] .hero-mesh {
+    background:
+      radial-gradient(ellipse 540px 400px at 14% 24%, rgba( 96, 168, 124, 0.10), transparent 62%),
+      radial-gradient(ellipse 660px 480px at 82% 12%, rgba( 58, 116,  87, 0.12), transparent 65%),
+      radial-gradient(ellipse 480px 360px at 38% 82%, rgba(183, 228, 204, 0.04), transparent 70%),
+      radial-gradient(ellipse 360px 280px at 92% 68%, rgba( 46,  98,  73, 0.10), transparent 70%);
+  }
+  @keyframes heroMeshDrift {
+    0%   { transform: translate3d(0, 0, 0)       scale(1); }
+    50%  { transform: translate3d(-14px, 6px, 0) scale(1.04); }
+    100% { transform: translate3d(10px, -8px, 0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-mesh { animation: none; }
+  }
+
   /* === Hero specimen plate (upper-right) === */
   .spec-plate {
     position: absolute;
@@ -323,9 +357,9 @@
   h1.headline {
     font-family: 'Instrument Serif', serif;
     font-weight: 400;
-    font-size: clamp(54px, 8vw, 104px);
-    line-height: 0.98;
-    letter-spacing: -0.025em;
+    font-size: clamp(64px, 9.5vw, 132px);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
     color: var(--ink);
     margin: 0 0 28px;
     max-width: 14ch;
@@ -1689,7 +1723,7 @@
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
 <link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"></head>
-<body style="background-color: rgb(239, 233, 222); font-family: Inter;">
+<body class="has-dot-grid" style="background-color: rgb(239, 233, 222); font-family: Inter;">
 
 <!-- ====== TOP BAR ====== -->
 <header class="topbar">
@@ -1726,6 +1760,7 @@
 
   <!-- ====== HERO ====== -->
   <section class="hero">
+    <div class="hero-mesh" aria-hidden="true"></div>
     <div class="hero-glow" aria-hidden="true"></div>
     <div class="wrap">
       <div class="hero-top reveal">
@@ -1786,7 +1821,7 @@
             We map your market, dissect your competitors, and turn the picture into a 90‑day plan. Consulting‑grade work, at SaaS prices.
           </p>
           <div class="hero-actions">
-            <a href="/waitlist" class="btn-primary btn">
+            <a href="/waitlist" class="btn-primary btn magnetic">
               Join the waitlist <span class="arr">→</span>
             </a>
             <a href="#engine" class="btn-secondary btn">
@@ -1798,19 +1833,19 @@
         <div class="hero-meta reveal">
           <div class="item">
             <div class="k">Starts at</div>
-            <div class="v">$25<small>/ month · full plan, refreshed monthly</small></div>
+            <div class="v">$<span class="count-up" data-count="25">25</span><small>/ month · full plan, refreshed monthly</small></div>
           </div>
           <div class="item">
             <div class="k">Time to first report</div>
-            <div class="v">~90 sec<small>from brief to market map</small></div>
+            <div class="v">~<span class="count-up" data-count="90">90</span> sec<small>from brief to market map</small></div>
           </div>
           <div class="item">
             <div class="k">Competitors dissected</div>
-            <div class="v">5+<small>per teardown, side‑by‑side</small></div>
+            <div class="v"><span class="count-up" data-count="5">5</span>+<small>per teardown, side‑by‑side</small></div>
           </div>
           <div class="item">
             <div class="k">Founded</div>
-            <div class="v">2026<small>London · Remote</small></div>
+            <div class="v"><span class="count-up" data-count="2026" data-count-from="2020">2026</span><small>London · Remote</small></div>
           </div>
         </div>
       </div>
@@ -1933,7 +1968,8 @@
       </div>
 
       <div class="engine">
-        <article class="feat reveal">
+        <article class="feat reveal spotlight-card">
+          <div class="spotlight" aria-hidden="true"></div>
           <div class="feat-content">
             <div class="feat-roman">I</div>
             <div class="feat-tag">Module 01 · Market map</div>
@@ -1956,7 +1992,8 @@
           </aside>
         </article>
 
-        <article class="feat reveal">
+        <article class="feat reveal spotlight-card">
+          <div class="spotlight" aria-hidden="true"></div>
           <div class="feat-content">
             <div class="feat-roman">II</div>
             <div class="feat-tag">Module 02 · Competitor teardown</div>
@@ -1981,7 +2018,8 @@
           </aside>
         </article>
 
-        <article class="feat reveal">
+        <article class="feat reveal spotlight-card">
+          <div class="spotlight" aria-hidden="true"></div>
           <div class="feat-content">
             <div class="feat-roman">III</div>
             <div class="feat-tag">Module 03 · Gap analysis</div>
@@ -2009,7 +2047,8 @@
           </aside>
         </article>
 
-        <article class="feat reveal">
+        <article class="feat reveal spotlight-card">
+          <div class="spotlight" aria-hidden="true"></div>
           <div class="feat-content">
             <div class="feat-roman">IV</div>
             <div class="feat-tag">Module 04 · 90-day plan</div>
@@ -2047,6 +2086,8 @@
     </div>
   </section>
 
+  <div class="section-divider reveal" aria-hidden="true"></div>
+
   <!-- ====== PROCESS ====== -->
   <section class="block" id="process">
     <div class="wrap">
@@ -2082,19 +2123,22 @@
         </div>
 
         <div class="process">
-          <article class="step">
+          <article class="step spotlight-card">
+            <div class="spotlight" aria-hidden="true"></div>
             <div class="step-roman">i</div>
             <div class="step-tag">Input</div>
             <h3>Brief us in <em>plain English</em>.</h3>
             <p>Paste a site, a deck, or a paragraph. We surface the competitors ourselves.</p>
           </article>
-          <article class="step">
+          <article class="step spotlight-card">
+            <div class="spotlight" aria-hidden="true"></div>
             <div class="step-roman">ii</div>
             <div class="step-tag">Compute</div>
             <h3>We map the <em>field</em>.</h3>
             <p>Market data, pricing, content, and complaints — synthesised into a picture you can argue with.</p>
           </article>
-          <article class="step">
+          <article class="step spotlight-card">
+            <div class="spotlight" aria-hidden="true"></div>
             <div class="step-roman">iii</div>
             <div class="step-tag">Output</div>
             <h3>You review &amp; <em>act</em>.</h3>
@@ -2104,6 +2148,8 @@
       </div>
     </div>
   </section>
+
+  <div class="section-divider reveal" aria-hidden="true"></div>
 
   <!-- ====== FAQ ====== -->
   <section class="block" id="faq">
@@ -2163,6 +2209,8 @@
     </div>
   </section>
 
+  <div class="section-divider reveal" aria-hidden="true"></div>
+
   <!-- ====== CLOSING CTA ====== -->
   <section class="closing">
     <div class="wrap">
@@ -2170,7 +2218,7 @@
         <div class="eyebrow"><span class="num">05</span>Get started</div>
         <h2>Treat market research like the rest of your <em>engineering</em>.</h2>
         <p>Consulting‑grade market intelligence and competitor analysis — without paying consulting prices. Join the waitlist to be among the first founders to map their market and outflank their rivals with GrowthKit AI.</p>
-        <a href="/waitlist" class="btn-primary btn">
+        <a href="/waitlist" class="btn-primary btn magnetic">
           Join the waitlist <span class="arr">→</span>
         </a>
       </div>
@@ -2329,29 +2377,75 @@
     onScroll();
   }
 
-  // Hero meta numbers count up once, just after load
-  if (!prefersReduce) {
-    var values = document.querySelectorAll('.hero-meta .v');
-    values.forEach(function(v, idx){
-      var firstNode = null;
-      for (var i = 0; i < v.childNodes.length; i++) {
-        var n = v.childNodes[i];
-        if (n.nodeType === 3 && n.nodeValue.trim()) { firstNode = n; break; }
-      }
-      if (!firstNode) return;
-      var m = firstNode.nodeValue.match(/^(\s*)(\d+)([\s\S]*)$/);
-      if (!m) return;
-      var pre = m[1], target = parseInt(m[2], 10), suffix = m[3];
-      firstNode.nodeValue = pre + '0' + suffix;
-      var dur = 1100, started = null;
-      function frame(now) {
-        if (started === null) started = now;
-        var t = Math.min((now - started) / dur, 1);
-        var eased = 1 - Math.pow(1 - t, 3);
-        firstNode.nodeValue = pre + Math.round(eased * target) + suffix;
-        if (t < 1) requestAnimationFrame(frame);
-      }
-      setTimeout(function(){ requestAnimationFrame(frame); }, 400 + idx * 120);
+  // Generic count-up animation. Targets every .count-up span with a
+  // data-count attribute. Animates from data-count-from (default 0)
+  // to data-count when the span scrolls into view. data-count-dur
+  // overrides the default 1200ms duration.
+  function animateCount(el) {
+    var to = parseInt(el.getAttribute('data-count'), 10);
+    if (isNaN(to)) return;
+    var from = parseInt(el.getAttribute('data-count-from') || '0', 10);
+    var dur = parseInt(el.getAttribute('data-count-dur') || '1200', 10);
+    var startedAt = null;
+    el.textContent = String(from);
+    requestAnimationFrame(function step(now) {
+      if (startedAt === null) startedAt = now;
+      var t = Math.min((now - startedAt) / dur, 1);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+      else el.classList.add('is-counted');
+    });
+  }
+
+  if (!prefersReduce && 'IntersectionObserver' in window) {
+    var counters = document.querySelectorAll('.count-up');
+    var ioCount = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          // Stagger sibling counters by ~120ms so they cascade rather
+          // than fire all at once.
+          var idx = Array.prototype.indexOf.call(counters, e.target);
+          setTimeout(function(){ animateCount(e.target); }, 400 + (idx % 4) * 120);
+          ioCount.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(function(el){ ioCount.observe(el); });
+  }
+
+  // Spotlight cards — a soft glow follows the cursor across the card.
+  // CSS does the rendering; JS only updates the position via CSS vars.
+  // No-op on touch devices (pointermove without hover is misleading).
+  if (window.matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.spotlight-card').forEach(function(card){
+      card.addEventListener('pointermove', function(e){
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
+  }
+
+  // Magnetic buttons — pull toward the cursor on hover, clamped ±10px.
+  // rAF-throttled to keep pointermove cheap. Honors reduced-motion.
+  if (!prefersReduce && window.matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.magnetic').forEach(function(btn){
+      var raf = null;
+      btn.addEventListener('pointermove', function(e){
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(function(){
+          var r = btn.getBoundingClientRect();
+          var dx = (e.clientX - r.left - r.width / 2) * 0.20;
+          var dy = (e.clientY - r.top - r.height / 2) * 0.20;
+          btn.style.setProperty('--mx', Math.max(-10, Math.min(10, dx)) + 'px');
+          btn.style.setProperty('--my', Math.max(-10, Math.min(10, dy)) + 'px');
+        });
+      });
+      btn.addEventListener('pointerleave', function(){
+        btn.style.setProperty('--mx', '0px');
+        btn.style.setProperty('--my', '0px');
+      });
     });
   }
 
