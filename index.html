@@ -2466,40 +2466,9 @@
     counters.forEach(function(el){ ioCount.observe(el); });
   }
 
-  // Spotlight cards — a soft glow follows the cursor across the card.
-  // CSS does the rendering; JS only updates the position via CSS vars.
-  // No-op on touch devices (pointermove without hover is misleading).
-  if (window.matchMedia('(hover: hover)').matches) {
-    document.querySelectorAll('.spotlight-card').forEach(function(card){
-      card.addEventListener('pointermove', function(e){
-        var r = card.getBoundingClientRect();
-        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
-      });
-    });
-  }
-
-  // Magnetic buttons — pull toward the cursor on hover, clamped ±10px.
-  // rAF-throttled to keep pointermove cheap. Honors reduced-motion.
-  if (!prefersReduce && window.matchMedia('(hover: hover)').matches) {
-    document.querySelectorAll('.magnetic').forEach(function(btn){
-      var raf = null;
-      btn.addEventListener('pointermove', function(e){
-        if (raf) cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(function(){
-          var r = btn.getBoundingClientRect();
-          var dx = (e.clientX - r.left - r.width / 2) * 0.20;
-          var dy = (e.clientY - r.top - r.height / 2) * 0.20;
-          btn.style.setProperty('--mx', Math.max(-10, Math.min(10, dx)) + 'px');
-          btn.style.setProperty('--my', Math.max(-10, Math.min(10, dy)) + 'px');
-        });
-      });
-      btn.addEventListener('pointerleave', function(){
-        btn.style.setProperty('--mx', '0px');
-        btn.style.setProperty('--my', '0px');
-      });
-    });
-  }
+  // Spotlight + magnetic handlers live in theme.js so every page picks
+  // them up automatically. See the `.spotlight-card` / `.magnetic`
+  // sections there.
 
   // Stage-intro strike-through reveal — same trigger pattern as /methodology
   var stageIntro = document.querySelector('.problem-canvas .stage-intro');

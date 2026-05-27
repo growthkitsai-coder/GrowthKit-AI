@@ -86,15 +86,18 @@
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
   .arr { font-family: 'Instrument Serif', serif; font-style: italic; transform: translateY(-1px); }
 </style>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js" defer></script>
 </head>
-<body>
+<body class="has-dot-grid">
 <main>
-  <div class="card">
+  <div class="card spotlight-card">
+    <div class="spotlight" aria-hidden="true"></div>
     <div class="code">Error · 404</div>
     <h1>Page <em>not found</em>.</h1>
     <p>The page you were looking for has moved, been retired, or never existed. No harm done — try one of these instead.</p>
     <div class="actions">
-      <a href="/" class="btn btn-primary">Back to home <span class="arr">→</span></a>
+      <a href="/" class="btn btn-primary magnetic">Back to home <span class="arr">→</span></a>
       <a href="/waitlist" class="btn btn-ghost">Join the waitlist</a>
     </div>
   </div>
