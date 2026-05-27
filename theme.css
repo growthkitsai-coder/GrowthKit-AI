@@ -57,16 +57,19 @@
 
 /* ── Dark-mode color tokens ─────────────────────────────────── */
 :root[data-theme="dark"] {
-  --bg:          #050708;        /* matte black, very slight green tint */
-  --bg-2:        #0E1113;
-  --ink:         #FFFFFF;        /* pure white body text */
-  --ink-2:       #DDD9D0;        /* secondary copy, still bright */
-  --muted:       #8A867C;        /* tertiary / labels */
-  --line:        #1F2220;
-  --line-2:      #2E322F;
-  --accent:      #3D7C5C;        /* darker forest green — readable on black */
-  --accent-soft: #2A5A40;
-  --paper:       #13171A;
+  --bg:            #050708;        /* matte black, very slight green tint */
+  --bg-2:          #0E1113;
+  --ink:           #FFFFFF;        /* pure white body text */
+  --ink-2:         #DDD9D0;        /* secondary copy, still bright */
+  --muted:         #9F9C92;        /* tertiary / labels — bumped to clear WCAG AA (4.5:1) on #050708 */
+  --line:          #1F2220;
+  --line-2:        #2E322F;
+  --border-bright: #4A524E;        /* hover/focus rings on dark surfaces */
+  --accent:        #3D7C5C;        /* darker forest green — readable on black */
+  --accent-soft:   #2A5A40;
+  --accent-pale:   #B7E4CC;        /* mint — used for em accents, primary CTAs, focus rings */
+  --paper:         #13171A;
+  --paper-2:       #181C1F;        /* raised surface (spec-plate, cards) */
 }
 
 /* Matte black backdrop with deep-forest-green ambient glows.
@@ -80,10 +83,11 @@
    browser/cache combinations were ignoring the cascade order. */
 :root[data-theme="dark"] body {
   background:
-    radial-gradient(ellipse 900px 720px at  95% -8%,   rgba(80, 152, 110, 0.34), transparent 62%),
-    radial-gradient(ellipse 620px 740px at 110% 45%,   rgba(58, 116,  87, 0.26), transparent 65%),
-    radial-gradient(ellipse 720px 520px at 100% 108%,  rgba(46,  98,  73, 0.20), transparent 60%),
-    radial-gradient(ellipse 520px 420px at  -5% 100%,  rgba(31,  71,  50, 0.14), transparent 55%),
+    radial-gradient(ellipse 720px 580px at  92%  -6%, rgba( 96, 168, 124, 0.32), transparent 60%),
+    radial-gradient(ellipse 540px 660px at 108%  46%, rgba( 58, 116,  87, 0.22), transparent 65%),
+    radial-gradient(ellipse 680px 480px at  98% 110%, rgba( 46,  98,  73, 0.18), transparent 60%),
+    radial-gradient(ellipse 460px 540px at  -6%  18%, rgba( 31,  71,  50, 0.10), transparent 60%),
+    radial-gradient(ellipse 520px 420px at  -5% 102%, rgba( 31,  71,  50, 0.12), transparent 55%),
     #050708 !important;
   background-attachment: fixed !important;
 }
@@ -215,6 +219,164 @@
   .theme-toggle .theme-icon,
   .theme-anim, .theme-anim *,
   .theme-anim *::before, .theme-anim *::after {
+    transition: none !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Dark-mode polish v2
+   Themed selection + scrollbar, mint-glow editorial em, brighter
+   focus ring, spec-plate + button + nav accents lifted to mint,
+   and a soft mint flash on theme-toggle click.
+   ──────────────────────────────────────────────────────────── */
+
+/* Themed text selection (light gets a forest tint; dark gets mint). */
+::selection { background: rgba(31, 71, 50, 0.18); color: inherit; }
+:root[data-theme="dark"] ::selection {
+  background: rgba(183, 228, 204, 0.28);
+  color: var(--ink);
+}
+
+/* Themed scrollbar — dark only. Light keeps the browser default. */
+:root[data-theme="dark"] {
+  scrollbar-color: #2E322F #050708;
+  scrollbar-width: thin;
+}
+:root[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+:root[data-theme="dark"] ::-webkit-scrollbar-track { background: #050708; }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #2E322F;
+  border-radius: 999px;
+  border: 2px solid #050708;
+  transition: background-color .2s ease;
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #4A524E; }
+
+/* Brighter, mint-tinted focus indicator throughout dark mode.
+   `outline` rather than `box-shadow` so we don't overwrite existing
+   shadows on buttons/cards. */
+:root[data-theme="dark"] a:focus-visible,
+:root[data-theme="dark"] button:focus-visible,
+:root[data-theme="dark"] input:focus-visible,
+:root[data-theme="dark"] textarea:focus-visible,
+:root[data-theme="dark"] select:focus-visible,
+:root[data-theme="dark"] [tabindex]:focus-visible {
+  outline: 2px solid rgba(183, 228, 204, 0.6);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* Theme-toggle already uses box-shadow for its focus halo —
+   keep that pattern but switch the tint to mint. */
+:root[data-theme="dark"] .theme-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(183, 228, 204, 0.45);
+}
+
+/* Mint glow on emphasis italics — the editorial "Markets, dissected"
+   pattern. Scoped to heading-level em + the .serif emphasis class
+   to avoid stray glow on body copy. */
+:root[data-theme="dark"] h1 em,
+:root[data-theme="dark"] h2 em,
+:root[data-theme="dark"] h3 em,
+:root[data-theme="dark"] h4 em,
+:root[data-theme="dark"] .serif em {
+  text-shadow:
+    0 0 28px rgba(183, 228, 204, 0.18),
+    0 0 60px rgba(183, 228, 204, 0.10);
+}
+
+/* Spec-plate lifts onto the raised-paper token and swaps em + dot
+   accents from --accent (#3D7C5C, too muddy on matte black) to mint. */
+:root[data-theme="dark"] .spec-plate {
+  background: var(--paper-2);
+}
+:root[data-theme="dark"] .spec-plate .plate-head,
+:root[data-theme="dark"] .spec-plate .plate-foot {
+  background: rgba(255, 255, 255, 0.02);
+}
+:root[data-theme="dark"] .spec-plate .plate-head .num,
+:root[data-theme="dark"] .spec-plate .plate-title h4 em,
+:root[data-theme="dark"] .spec-plate .r-label em {
+  color: var(--accent-pale);
+}
+:root[data-theme="dark"] .spec-plate .plate-foot .dot {
+  background: var(--accent-pale);
+  box-shadow:
+    0 0 0 3px rgba(183, 228, 204, 0.18),
+    0 0 14px rgba(183, 228, 204, 0.55);
+}
+
+/* Primary CTA — bare --accent (#3D7C5C) on near-black bg yields ~3:1.
+   Promote to mint for AAA contrast and brand consistency with the
+   closing CTA, which already uses mint in dark mode. */
+:root[data-theme="dark"] .btn-primary {
+  background: var(--accent-pale);
+  color: var(--bg);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.45),
+    0 14px 32px -16px rgba(183, 228, 204, 0.40);
+}
+:root[data-theme="dark"] .btn-primary:hover {
+  background: #FFFFFF;
+  color: var(--bg);
+}
+:root[data-theme="dark"] .btn-secondary:hover {
+  border-color: var(--accent-pale);
+  color: var(--accent-pale);
+}
+
+/* Topbar pill CTA ("Talk to a founder") — same logic as btn-primary.
+   In light mode it's --ink (black) on cream. The flipped token makes
+   it white-on-black, which is fine, but the hover-to-accent goes
+   muddy on dark — swap to mint. */
+:root[data-theme="dark"] .nav-cta:hover {
+  background: var(--accent-pale);
+  color: var(--bg);
+}
+
+/* Hero pill chip gets a hair of luminance so it reads above the
+   matte canvas. */
+:root[data-theme="dark"] .hero-top .pill {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--line-2);
+}
+
+/* FAQ rows get a subtle hover wash in dark mode. */
+:root[data-theme="dark"] .faq-item {
+  transition: background-color .25s ease, border-color .25s ease;
+}
+:root[data-theme="dark"] .faq-item:hover {
+  background: rgba(255, 255, 255, 0.015);
+  border-color: var(--line-2);
+}
+
+/* Theme-toggle: a soft mint flash on click for tactile feedback.
+   The :active pulse layers a halo behind the icon; the existing
+   `transform: scale(0.95)` is preserved by ordering. */
+:root[data-theme="dark"] .theme-toggle:active {
+  box-shadow:
+    0 0 0 6px rgba(183, 228, 204, 0.18),
+    0 0 28px rgba(183, 228, 204, 0.40);
+}
+
+/* Anti-pattern guard: no scale transforms on hover for cards (per
+   skill rule against layout-shifting hover). Use border + shadow
+   only. The stage cards in the pinned editorial morph become subtly
+   more visible on hover in dark mode. */
+:root[data-theme="dark"] .stage-card {
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+:root[data-theme="dark"] .stage-card:hover {
+  border-color: var(--border-bright);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04),
+    0 32px 60px -36px rgba(0, 0, 0, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="dark"] .faq-item,
+  :root[data-theme="dark"] .stage-card,
+  :root[data-theme="dark"] ::-webkit-scrollbar-thumb {
     transition: none !important;
   }
 }
