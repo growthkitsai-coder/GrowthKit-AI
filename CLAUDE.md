@@ -86,3 +86,20 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - `git push` to `main` → Vercel auto-deploys to growthkitai.com.
 - Don't commit `.env.local`, `.vercel/`, or anything containing credentials.
 - Footer/topbar/`<head>` blocks are **duplicated across every page** (no templating). When changing nav links, footer columns, the topbar morph behavior, or the pre-paint theme script, update **all** HTML files, not just one.
+
+## Working with Cowork and Claude Code
+
+Avi runs both Claude Cowork (desktop app) and Claude Code (CLI inside VS Code) against this repo. Both tools read this file and `memory.md` from the repo root, so they share context. Two rules keep them from stepping on each other:
+
+**Commit policy.** Whenever either tool changes a file, commit before the user switches to the other tool — otherwise the second tool may overwrite uncommitted work.
+
+- **Claude Code: auto-commit any change.** After any successful edit, run `git add -A && git commit -m "<concise message describing the change>"`. Do not push automatically (Avi may want to bundle commits) unless he explicitly asks. If a commit fails (pre-commit hook, nothing to commit, etc.), surface the reason and stop.
+- **Claude Cowork: prompt the user to commit.** Cowork does not run git on its own; after any meaningful file change, remind Avi to commit (or to switch to Claude Code to run the commit) before he moves to the other tool.
+- Never commit `.env.local`, `.vercel/`, secrets, or anything from the auto-memory directory.
+
+**Tool strengths — and when to redirect.** Each tool should recognize when a task fits the *other* tool better and tell Avi so. Don't refuse the task — do what you can, then suggest the better tool with one specific reason.
+
+- **Claude Cowork is better for:** open-ended planning and brainstorming, market/competitor research with web browsing, copywriting and tone work, generating non-code deliverables (images, PDFs, decks, brand assets), connector-driven tasks (Gmail, Calendar, Notion, HubSpot, etc.), visual review of the deployed site via Claude in Chrome, scheduled recurring tasks, and any work that benefits from rich plugins (marketing, SEO, design, brand-guidelines, canvas-design, theme-factory).
+- **Claude Code is better for:** actual HTML/CSS/JS edits — especially multi-file changes like footer/nav updates that span every page, git operations (branches, commits, rebases, diffs, pushes), running `vercel dev` locally, debugging via shell, fast file-level iteration inside VS Code, and anything where the diff matters more than the conversation.
+
+**Redirection rule.** If Avi asks Cowork to do a multi-file refactor, a long debugging session, or anything that mostly produces a diff, point him to Claude Code. If Avi asks Claude Code to write fresh marketing copy, generate brand assets, or research competitors on the web, point him to Cowork. The phrasing should be brief, e.g. *"I can do this here, but Claude Code will be faster for a multi-file footer edit — want me to draft the change and you run it there?"*
