@@ -33,13 +33,12 @@
 <meta name="twitter:image" content="https://growthkitai.com/logo-lockup-cream.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
 <link rel="prefetch" href="/waitlist">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://growthkitai.com/#org","name":"GrowthKit AI","url":"https://growthkitai.com/","logo":{"@type":"ImageObject","url":"https://growthkitai.com/logo-mark-512.png","contentUrl":"https://growthkitai.com/logo-mark-512.png"},"image":"https://growthkitai.com/logo-lockup-cream.png","description":"A market-intelligence engine for founders, headquartered in the United Kingdom and serving customers worldwide with a focus on the UK and US.","address":{"@type":"PostalAddress","addressCountry":"GB"},"areaServed":["GB","US","Worldwide"],"email":"info@growthkitai.com","contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"info@growthkitai.com","areaServed":["GB","US"],"availableLanguage":["en"]}},{"@type":"WebSite","@id":"https://growthkitai.com/#site","url":"https://growthkitai.com/","name":"GrowthKit AI","publisher":{"@id":"https://growthkitai.com/#org"},"inLanguage":"en"},{"@type":"WebPage","@id":"https://growthkitai.com/#webpage","url":"https://growthkitai.com/","name":"GrowthKit AI — Market intelligence & competitive strategy for founders","isPartOf":{"@id":"https://growthkitai.com/#site"},"about":{"@id":"https://growthkitai.com/#org"},"description":"GrowthKit AI is a market-intelligence engine for founders. Live competitor tracking, customer-signal mining, and decision-ready briefs that compress weeks of research into hours.","inLanguage":"en","primaryImageOfPage":"https://growthkitai.com/logo-lockup-cream.png"},{"@type":"FAQPage","@id":"https://growthkitai.com/#faq","mainEntity":[{"@type":"Question","name":"Is this an agency, or software?","acceptedAnswer":{"@type":"Answer","text":"Software, with operator review. The market map, competitor teardown, and 90-day plan are produced by our system; a partner from our team checks the synthesis before it lands in your inbox. You get consultancy-grade output without the consultancy invoice."}},{"@type":"Question","name":"Who is this not for?","acceptedAnswer":{"@type":"Answer","text":"Pre-idea founders looking for an idea to build, and large enterprises with a dedicated market-intelligence team. We're sharpest for seed and Series A teams that have a product and want to validate the market — and outflank the competition — before they double down."}},{"@type":"Question","name":"How is this different from prompting an LLM yourself?","acceptedAnswer":{"@type":"Answer","text":"We've fed the system live market data, pricing pages, competitor content libraries, review-site complaint mining, and a curated corpus of launch postmortems — then wrapped it in evaluators that catch the shallow, generic takes. The output is tied to artifacts you can act on: a market map, a competitor teardown, a gap analysis, and a 90-day plan. Not a wall of advice you'd still have to translate."}},{"@type":"Question","name":"What does it cost?","acceptedAnswer":{"@type":"Answer","text":"Our basic pilot gives founders limited access for free. Standard plans start at $25/month for the full market map, competitor teardown, gap analysis, and 90-day plan, refreshed monthly. For 1-to-1 work with our market-intel partners, contact us directly."}},{"@type":"Question","name":"Who is behind it?","acceptedAnswer":{"@type":"Answer","text":"A small team of founders, engineers, and market-research operators who got tired of watching good products lose to mediocre ones because nobody mapped the field."}}]}]}</script>
 <style>
   :root {
-    /* Brand anchors (shared across both modes) */
     --bg: #FAF8F4;
     --bg-2: #F2EFE8;
     --ink: #14130F;
@@ -49,34 +48,8 @@
     --line-2: #D4CEC1;
     --accent: #1F4732;          /* deep forest, oklch-tuned */
     --accent-soft: #2E6249;
-    --accent-bright: #3E9A6A;   /* lighter forest — gradient endpoint */
     --paper: #FFFFFF;
     --maxw: 1180px;
-
-    /* ── "Studio" design language (light / default) ───────────────
-       Bold, airy, design-led SaaS. Grotesk display, large radii,
-       soft layered shadows, a vivid forest→green gradient accent
-       (replaces the old serif-italic em), spring-flavored motion.
-       Dark "Console" overrides all of these in theme.css. */
-    --display: 'Bricolage Grotesque', 'Inter', sans-serif;
-    --display-wght: 700;
-    --display-tight: -0.03em;
-    --grad-accent: linear-gradient(102deg, #1F4732 0%, #2E6249 42%, #3E9A6A 100%);
-    --r-card: 22px;
-    --r-pill: 999px;
-    --r-btn: 14px;
-    --r-field: 12px;
-    --surface: #FFFFFF;
-    --surface-2: #F7F4EE;
-    --hairline: var(--line);
-    --shadow-card: 0 2px 4px rgba(20,19,15,0.03), 0 18px 44px -26px rgba(20,19,15,0.20);
-    --shadow-card-hover: 0 4px 10px rgba(20,19,15,0.05), 0 34px 70px -30px rgba(31,71,50,0.30);
-    --shadow-btn: 0 2px 0 rgba(20,19,15,0.04), 0 18px 34px -16px rgba(31,71,50,0.50);
-    --bloom-1: rgba(62,154,106,0.20);
-    --bloom-2: rgba(46,98,73,0.13);
-    --grid-overlay: none;
-    --ease-spring: cubic-bezier(.34, 1.4, .5, 1);
-    --ease-out: cubic-bezier(.16, 1, .3, 1);
   }
 
   * { box-sizing: border-box; }
@@ -100,7 +73,7 @@
   @media (max-width: 720px) { .wrap { padding: 0 22px; } }
 
   /* === Type === */
-  .serif { font-family: var(--display); font-weight: 400; letter-spacing: -0.01em; }
+  .serif { font-family: 'Instrument Serif', 'Times New Roman', serif; font-weight: 400; letter-spacing: -0.01em; }
   .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   .eyebrow {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -132,7 +105,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-size: 22px;
     letter-spacing: -0.01em;
     color: var(--ink);
@@ -145,7 +118,7 @@
     align-items: center;
     justify-content: center;
     color: var(--bg);
-    font-family: var(--display);
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
     font-size: 18px;
     font-style: italic;
     transform: translateY(-1px);
@@ -173,7 +146,7 @@
     transition: background .2s ease, transform .2s ease;
   }
   .nav-cta:hover { background: var(--accent); }
-  .nav-cta .arr { font-family: var(--display); font-style: italic; transform: translateY(-1px); }
+  .nav-cta .arr { font-family: 'Instrument Serif', serif; font-style: italic; transform: translateY(-1px); }
 
   @media (max-width: 820px) {
     .nav-links { display: none; }
@@ -242,7 +215,7 @@
     padding: 18px 18px 16px;
   }
   .spec-plate .plate-title h4 {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: 30px;
     line-height: 1;
@@ -295,7 +268,7 @@
     letter-spacing: 0.04em;
   }
   .spec-plate .r-label {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-size: 19px;
     line-height: 1;
     letter-spacing: -0.005em;
@@ -348,7 +321,7 @@
   .pill .meta { color: var(--muted); }
 
   h1.headline {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(54px, 8vw, 104px);
     line-height: 0.98;
@@ -432,7 +405,7 @@
     transition: border-color .2s ease, color .2s ease;
   }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-  .btn .arr { font-family: var(--display); font-style: italic; }
+  .btn .arr { font-family: 'Instrument Serif', serif; font-style: italic; }
 
   .hero-meta {
     display: grid;
@@ -450,7 +423,7 @@
     margin-bottom: 8px;
   }
   .hero-meta .item .v {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-size: 28px;
     line-height: 1.1;
     color: var(--ink);
@@ -479,7 +452,7 @@
     margin-bottom: 72px;
   }
   .section-head h2 {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(36px, 4.6vw, 56px);
     line-height: 1.05;
@@ -520,7 +493,7 @@
     margin-bottom: 22px;
   }
   .problem-grid h3 {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: 26px;
     line-height: 1.15;
@@ -585,7 +558,7 @@
   .stage-intro .stage-meta { margin-bottom: 8px; }
   .stage-intro .stage-meta .eyebrow { font-size: 12.5px; }
   .stage-intro .problem-headline {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(48px, 7.6vw, 116px);
     line-height: 0.98;
@@ -648,7 +621,7 @@
     position: absolute;
     top: clamp(-80px, -6vw, -40px);
     right: clamp(-30px, -2vw, 0px);
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-weight: 400;
     font-size: clamp(240px, 32vw, 460px);
@@ -687,7 +660,7 @@
   .stage-card .card-title {
     position: relative;
     z-index: 1;
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(60px, 10vw, 152px);
     line-height: 0.96;
@@ -783,7 +756,7 @@
     gap: 56px;
     white-space: nowrap;
     animation: marquee 38s linear infinite;
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-size: clamp(30px, 4vw, 48px);
     color: var(--ink-2);
     letter-spacing: -0.01em;
@@ -814,7 +787,7 @@
   .stage-card .card-aside {
     position: relative;
     z-index: 1;
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-size: clamp(16px, 1.2vw, 20px);
     line-height: 1.4;
@@ -1000,7 +973,7 @@
   /* Left column content */
   .engine .feat-content { position: relative; }
   .engine .feat-roman {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-size: clamp(48px, 4.6vw, 68px);
     line-height: 0.88;
@@ -1026,7 +999,7 @@
   }
   .engine .feat.in .feat-tag { opacity: 1; transform: none; transition-delay: 0.30s; }
   .engine .feat h3 {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(30px, 3.2vw, 44px);
     line-height: 1.08;
@@ -1412,7 +1385,7 @@
   .process-flow.in .step:nth-child(3) { transition-delay: 1.40s; }
 
   .process .step-roman {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-size: clamp(56px, 6vw, 80px);
     color: var(--accent);
@@ -1432,7 +1405,7 @@
     border-bottom: 1px solid var(--line);
   }
   .process .step h3 {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(28px, 2.8vw, 38px);
     line-height: 1.06;
@@ -1475,7 +1448,7 @@
     padding-top: 4px;
   }
   .faq-item .q {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-size: 22px;
     line-height: 1.25;
     letter-spacing: -0.005em;
@@ -1502,7 +1475,7 @@
     align-items: center;
     justify-content: center;
     color: var(--muted);
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-size: 22px;
     transition: transform .2s ease, color .2s ease;
     transform: translateY(2px);
@@ -1520,7 +1493,7 @@
   .closing .eyebrow { color: rgba(250,248,244,0.55); }
   .closing .eyebrow .num { color: #B7E4CC; }
   .closing h2 {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-weight: 400;
     font-size: clamp(48px, 6.4vw, 84px);
     line-height: 1.0;
@@ -1568,7 +1541,7 @@
   .foot-grid ul a { font-size: 14px; color: var(--ink-2); transition: color .2s ease; }
   .foot-grid ul a:hover { color: var(--accent); }
   .foot-tag {
-    font-family: var(--display);
+    font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-size: 22px;
     color: var(--ink);
@@ -1672,137 +1645,6 @@
   .problem-grid .cell:hover { transform: translateY(-2px); }
   .engine .feat:hover { transform: translateY(-2px); }
 
-  /* ════════════════════════════════════════════════════════════════
-     STUDIO LANGUAGE (light / default) — token-driven so the Console
-     dark language in theme.css can override every value cleanly.
-     Bold grotesk display · gradient keyword · airy soft-rounded cards.
-     ════════════════════════════════════════════════════════════════ */
-
-  /* Fixed schematic backdrop. Light = none; Console (dark) draws a grid. */
-  .fx-grid {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image: var(--grid-overlay);
-    background-size: var(--grid-size, 60px 60px);
-    -webkit-mask-image: var(--grid-mask, none);
-    mask-image: var(--grid-mask, none);
-  }
-
-  /* Airy bloom canvas (light). Dark restates body bg in theme.css. */
-  body {
-    background:
-      radial-gradient(1100px 760px at 88% -8%, var(--bloom-1), transparent 60%),
-      radial-gradient(900px 700px at -8% 12%, var(--bloom-2), transparent 60%),
-      var(--bg);
-    background-attachment: fixed;
-  }
-
-  /* Display headings: heavier weight + tighter tracking than the old serif. */
-  h1.headline, .section-head h2, .closing h2,
-  .stage-intro .problem-headline, .stage-card .card-title,
-  .engine .feat h3, .process .step h3, .problem-grid h3,
-  .spec-plate .plate-title h4 {
-    font-weight: var(--display-wght);
-    letter-spacing: var(--display-tight);
-  }
-  h1.headline { font-size: clamp(52px, 7.4vw, 96px); line-height: 0.96; }
-  .brand { font-weight: 700; letter-spacing: -0.02em; }
-
-  /* The gradient keyword — replaces the serif-italic em sitewide.
-     -webkit-text-fill-color keeps a solid fallback on old engines. */
-  h1 em, h2 em, h3 em, h4 em,
-  .headline em, .marquee-track em, .stage-card .card-title em,
-  .spec-plate .r-label em {
-    font-style: normal;
-    color: var(--accent);
-    background: var(--grad-accent);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  /* Drop the old animated under-strokes on em — the gradient is the accent. */
-  h1.headline em::after,
-  .engine .feat h3 em::after,
-  .stage-card .card-title em::after { display: none; }
-
-  /* The hero keyword's gradient drifts slowly — alive, never flashy. */
-  .headline em {
-    background-size: 220% 100%;
-    animation: gradDrift 9s ease-in-out infinite;
-  }
-  @keyframes gradDrift {
-    0%, 100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
-  }
-
-  /* Numerals & flourishes were serif-italic; grotesk wants them upright. */
-  .feat-roman, .process .step-roman, .stage-card .ghost-num,
-  .brand .logo-mark, .marquee-track, .foot-tag,
-  .stage-card .card-aside, .btn .arr, .nav-cta .arr,
-  .nav-back .arr { font-style: normal; }
-  .feat-roman, .process .step-roman {
-    font-weight: 800; letter-spacing: -0.04em;
-    -webkit-text-fill-color: transparent;
-    background: var(--grad-accent); -webkit-background-clip: text; background-clip: text;
-  }
-  .stage-card .ghost-num { font-weight: 800; opacity: 0.06; }
-  .foot-tag { font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
-  .stage-card .card-aside { font-style: normal; }
-
-  /* Buttons — confident gradient primary, generous radius, spring nudge. */
-  .btn-primary {
-    background: var(--grad-accent);
-    border-radius: var(--r-btn);
-    box-shadow: var(--shadow-btn);
-    transition: transform .3s var(--ease-spring), box-shadow .3s var(--ease-out), filter .25s ease;
-  }
-  .btn-primary:hover { background: var(--grad-accent); filter: brightness(1.06); transform: translateY(-2px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-secondary {
-    border-radius: var(--r-btn);
-    border-color: var(--line-2);
-    transition: border-color .25s ease, color .25s ease, background .25s ease, transform .3s var(--ease-spring);
-  }
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--surface-2); transform: translateY(-2px); }
-  .hero-actions .btn-primary, .closing .btn-primary { border-radius: var(--r-btn); }
-
-  /* Panels adopt the big Studio radius + soft shadow.
-     (Pills keep their own 999px shape — deliberately excluded here.) */
-  .spec-plate, .feat-specimen, .card {
-    border-radius: var(--r-card);
-    box-shadow: var(--shadow-card);
-  }
-  /* The whole .feat lifts on hover (existing rule); deepen the specimen's
-     shadow with it. Box-shadow only, so the .9s reveal transition on
-     opacity/transform is left untouched. */
-  .engine .feat:hover .feat-specimen { box-shadow: var(--shadow-card-hover); }
-  .spec-plate .plate-head, .spec-plate .plate-foot { background: var(--surface-2); }
-  .feat .feat-meta .pill { border-radius: var(--r-pill); }
-
-  /* Topbar pill (light): solid-ish cream, soft float. */
-  .topbar.scrolled { border-radius: var(--r-pill); }
-  .nav-cta { border-radius: var(--r-pill); }
-
-  /* Closing CTA → confident gradient slab. */
-  .closing {
-    background:
-      radial-gradient(900px 500px at 50% -20%, rgba(62,154,106,0.25), transparent 60%),
-      var(--ink);
-  }
-  .closing .btn-primary { background: var(--bg); color: var(--ink); -webkit-text-fill-color: var(--ink); }
-  .closing .btn-primary:hover { background: var(--accent-bright); color: var(--bg); -webkit-text-fill-color: var(--bg); filter: none; }
-  .closing h2 em { -webkit-text-fill-color: transparent; background: linear-gradient(102deg, #9be7bd, #d9f6e6); -webkit-background-clip: text; background-clip: text; }
-
-  /* Marquee em keeps the gradient too. */
-  .marquee-track em { font-style: normal; }
-
-  @media (prefers-reduced-motion: reduce) {
-    body { background-attachment: scroll; }
-    .headline em { animation: none; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
     .pill .dot { animation: none; }
@@ -1845,9 +1687,9 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
-<script src="theme.js" defer></script></head>
-<body>
-<div class="fx-grid" aria-hidden="true"></div>
+<script src="theme.js" defer></script>
+<link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"></head>
+<body style="background-color: rgb(239, 233, 222); font-family: Inter;">
 
 <!-- ====== TOP BAR ====== -->
 <header class="topbar">
