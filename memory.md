@@ -8,7 +8,7 @@ Always read `CLAUDE.md` AND this file before doing any work.
 
 ## TL;DR — what this project is
 
-GrowthKit AI is a marketing site (plain static HTML, no build step) for a market-intelligence product aimed at seed → Series A founders. Four deliverables: market map, competitor teardown, gap analysis, 90-day plan (~14 plays), refreshed monthly. Tagline: *"Markets, dissected — not guessed."* Standard plans from $25/month. UK-based, London, founded 2026. Status: v0.4 private beta. Contact: `info@growthkitai.com`. Hosted on Vercel at `growthkitai.com`. Auto-deploys from `main` on GitHub.
+GrowthKit AI is a marketing site (plain static HTML, no build step) for a market-intelligence product aimed at seed → Series A founders. Four deliverables: market map, competitor teardown, gap analysis, 90-day plan (~14 plays), refreshed monthly. Tagline: *"Markets, dissected — not guessed."* Pricing (per the index FAQ, 2026-06-10): free pilot · Basic $30/month · Premium agentic $200/month; no `/pricing` page exists yet. UK-based, London, founded 2026. Status: v0.4 private beta. Contact: `info@growthkitai.com`. Hosted on Vercel at `growthkitai.com`. Auto-deploys from `main` on GitHub.
 
 Owner: Avi Aggarwal (Co-Founder). LinkedIn: https://www.linkedin.com/in/avi-aggarwal-build-ready/
 
@@ -21,9 +21,9 @@ Everything lives at the repo root. No `src/`, no `public/`, no framework, no `pa
 Pages (all public except `logo.html`):
 
 - `index.html` (~2400 lines, ~100KB) — landing page. Hero with "Specimen №01" plate, pinned editorial problem morph, engine schematic, three-step process, FAQ, closing CTA, footer. Loads GSAP 3.13 + ScrollTrigger + Lenis from jsDelivr.
-- `waitlist.html` — single-card signup form (Name, Work email, "wants updates" checkbox). POSTs to a Google Apps Script Web App; morphs into "You're on the list" success state.
+- `waitlist.html` — single-card signup form (Name, Work email, "wants updates" checkbox). POSTs to a Google Apps Script Web App; morphs into "You're on the list" success state. Anti-spam (2026-06-10): hidden `company` honeypot field (`.hp-field`, parked off-screen — not `display:none` on purpose) and a `t` field (ms since page load; server drops < 2.5s). Emits `waitlist_signup` / `waitlist_error` analytics events.
 - `methodology.html` — long-form pitch (Hero → Mission → Marquee → 4 Pillars → 3 Steps → 5 tenets → CTA).
-- `careers.html` — Why now → 4 perks → 2 Intern role cards (Growth → "Head of Growth" track, Marketing → "CMO" track) → 3 application channels.
+- `careers.html` — Why now → 4 perks → 2 Intern role cards (Growth → "Head of Growth" track, Marketing → "CMO" track) → 3 application channels. Second JSON-LD block carries JobPosting schema for both roles (remote, GB/US, `validThrough` 2026-12-31 — keep fresh or remove when roles close).
 - `contact.html` — two channel cards (email + LinkedIn).
 - `privacy.html` — UK/EEA-aware policy. GrowthKit AI is the data controller.
 - `terms.html` — numbered ToS sections.
@@ -40,13 +40,13 @@ Shared:
 
 Infrastructure:
 
-- `vercel.json` — clean-URL rewrites + 301 redirects + cache headers + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). Current clean-URL list: `/privacy /waitlist /contact /careers /methodology /terms /manifesto /security /status`. Note: `security.html`'s terminal readout quotes these headers verbatim — update it if the headers change.
+- `vercel.json` — clean-URL rewrites + 301 redirects + cache headers (images/fonts 1y immutable; **css/js 1h + stale-while-revalidate 1d**, because `theme.css`/`theme.js` aren't fingerprinted — don't restore the old blanket 1y rule) + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). Current clean-URL list: `/privacy /waitlist /contact /careers /methodology /terms /manifesto /security /status`. Note: `security.html`'s terminal readout quotes these headers verbatim — update it if the headers change.
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `googlea9dc9b0133a60f51.html` (Google Search Console verification).
-- `waitlist-apps-script.gs` — Apps Script source. Header has setup instructions.
+- `waitlist-apps-script.gs` — Apps Script source. Header has setup instructions. **The repo copy is source only** — after editing, paste into the Apps Script editor and redeploy via "Manage deployments → pencil → New version". Hardened 2026-06-10: server-side validation, honeypot + min-time drops (silent `{ok:true}`), email dedupe (consent only upgrades), soft rate limit (60/10 min, visible failure), confirmation email to new signups via MailApp (never blocks the signup).
 - `scripts/check-site.mjs` — zero-dependency Node consistency checker; run before every commit that touches HTML / sitemap / vercel.json. Details under "Workflow conventions".
 - `.github/workflows/site-checks.yml` — GitHub Action: checker + lychee external-link check (push/PR + weekly cron + manual dispatch).
 
-Logo assets at root: `logo-lockup-{cream,dark}.png`, `logo-mark-{64,128,256,512,1024}.png`, `logo-mark-{cream,dark}-512.png`, `logo.png`.
+Logo assets at root: `logo-lockup-{cream,dark}.png`, `logo-mark-{64,128,256,512,1024}.png`, `logo-mark-{cream,dark}-512.png`, `logo.png`. Social card: `og-card.png` (1200×630, generated from the cream lockup) — every page's `og:image`/`twitter:image` points at it; overwrite that one file to restyle link previews site-wide.
 
 Gitignored: `.env.local`, `.vercel/`.
 
@@ -252,3 +252,10 @@ If you ever feel the two tools have diverged in understanding, run `git status` 
   - Light mode untouched on every page. All reduced-motion guards preserved (scanline + pulses disabled).
   - Known pre-existing oddity left alone (flagged to Avi): `index.html` `<body>` carries an injected inline style `background-color: rgb(239,233,222); font-family: Inter` + a duplicate `gfont-Inter` font link — looks like a visual-editor artifact from an earlier session; harmless in dark mode (theme.css `!important` wins) but overrides the cream token in light mode.
   - `node scripts/check-site.mjs` passed after the rollout.
+- **2026-06-10** — (Claude Code session, "Phase 2 conversion hardening") The waitlist path got teeth, and the funnel got eyes:
+  - **`waitlist-apps-script.gs` rewritten** (must be re-pasted into the Apps Script editor + redeployed "New version" to take effect — the repo copy is source only): server-side name/email validation; honeypot (`company`) and min-fill-time (`t` < 2.5s) drops that return `{ok:true}` so bots don't learn; **email dedupe** (case-insensitive; re-signup refreshes the row, consent only upgrades No → Yes); `LockService` around sheet writes; soft rate limit (60 accepted/10 min, then a *visible* "try again in a few minutes" — launch-day spikes are never silently dropped); **confirmation email** to brand-new signups via `MailApp` (brand voice, reply-to `info@`, quota-guarded, never blocks the signup).
+  - **`waitlist.html`**: off-screen `.hp-field` honeypot (deliberately not `display:none`), `loadedAt` timestamp → sends `company` + `t` with the POST; fires `waitlist_signup` / `waitlist_error` analytics events.
+  - **Analytics custom events on all 10 public pages:** a `window.va` queue shim + click listener (before the insights script) emits `cta_click` (any `/waitlist` link or `.nav-cta`/`.btn-primary`, with page/section/href); `status.html` fires `status_check_failed` (with which target failed) when the master banner goes amber. **Caveat: Vercel records custom events on Pro/Enterprise only** — on Hobby they're silently ignored; pageviews unaffected.
+  - **`careers.html`**: second JSON-LD block with **JobPosting** schema for both intern roles (TELECOMMUTE, GB/US, email apply, `validThrough` 2026-12-31 — bump or remove when roles close). All JSON-LD on all pages re-validated with a parse pass.
+  - **Checker caught another live regression:** the index FAQ pricing answer (new $30 Basic / $200 Premium agentic copy) linked to a non-existent `/pricing` page — dead link removed, FAQ copy + FAQPage schema confirmed in sync. Pricing facts in CLAUDE.md + this file updated to match the FAQ ($25 figure was stale). If `/pricing` gets built later (Phase 3 candidate), follow the new-page checklist and re-link the FAQ.
+  - `node scripts/check-site.mjs` green; JSON-LD parse check green.
