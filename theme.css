@@ -67,9 +67,17 @@
   --border-bright: #4A524E;        /* hover/focus rings on dark surfaces */
   --accent:        #3D7C5C;        /* darker forest green — readable on black */
   --accent-soft:   #2A5A40;
-  --accent-pale:   #B7E4CC;        /* mint — used for em accents, primary CTAs, focus rings */
+  --accent-pale:   #B7E4CC;        /* legacy mint — superseded by --neon for accents */
   --paper:         #13171A;
   --paper-2:       #181C1F;        /* raised surface (spec-plate, cards) */
+
+  /* "Neon console" system — site-wide dark identity (born on manifesto.html).
+     Electric spring-green accents on deep-forest panels. */
+  --neon:          #3EF59F;        /* electric spring green — em accents, labels, LEDs, CTAs */
+  --neon-2:        #8FFFC9;        /* lighter highlight — hover states, readouts */
+  --deep-1:        #06140D;        /* deepest panel green (gradient end) */
+  --deep-2:        #0A1F15;        /* raised deep-green panel (gradient start) */
+  --deep-3:        #143524;        /* deep-green border */
 }
 
 /* Matte black backdrop with deep-forest-green ambient glows.
@@ -170,17 +178,29 @@
    token flip would turn it into a white slab with cream text (unreadable),
    so we restate it as a lifted paper panel with bright type. */
 :root[data-theme="dark"] .closing {
-  background: var(--paper);
+  background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
   color: var(--ink);
-  border-top: 1px solid var(--line-2);
+  border-top: 1px solid var(--deep-3);
+  box-shadow: inset 0 1px 0 rgba(143, 255, 201, 0.06);
 }
-:root[data-theme="dark"] .closing .eyebrow      { color: rgba(255, 255, 255, 0.55); }
-:root[data-theme="dark"] .closing .eyebrow .num { color: #B7E4CC; }
+:root[data-theme="dark"] .closing .eyebrow      { color: rgba(143, 255, 201, 0.55); }
+:root[data-theme="dark"] .closing .eyebrow .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
 :root[data-theme="dark"] .closing h2            { color: var(--ink); }
-:root[data-theme="dark"] .closing h2 em         { color: #B7E4CC; }
+:root[data-theme="dark"] .closing h2 em {
+  color: var(--neon);
+  text-shadow:
+    0 0 22px rgba(62, 245, 159, 0.40),
+    0 0 70px rgba(62, 245, 159, 0.18);
+}
 :root[data-theme="dark"] .closing p             { color: rgba(255, 255, 255, 0.72); }
-:root[data-theme="dark"] .closing .btn-primary  { background: var(--ink); color: var(--bg); }
-:root[data-theme="dark"] .closing .btn-primary:hover { background: #B7E4CC; color: var(--bg); }
+:root[data-theme="dark"] .closing .btn-primary {
+  background: var(--neon);
+  color: #04110A;
+  box-shadow:
+    0 0 22px -4px rgba(62, 245, 159, 0.55),
+    0 14px 34px -16px rgba(62, 245, 159, 0.4);
+}
+:root[data-theme="dark"] .closing .btn-primary:hover { background: var(--neon-2); color: #04110A; }
 
 /* Drop shadows tuned for a dark canvas */
 :root[data-theme="dark"] .card,
@@ -192,7 +212,7 @@
 :root[data-theme="dark"] .submit {
   box-shadow:
     0 1px 0 rgba(0, 0, 0, 0.4),
-    0 14px 32px -16px rgba(79, 156, 115, 0.45);
+    0 14px 32px -16px rgba(62, 245, 159, 0.45);
 }
 
 /* ── Smooth cross-fade while toggling ──────────────────────────
@@ -233,8 +253,8 @@
 /* Themed text selection (light gets a forest tint; dark gets mint). */
 ::selection { background: rgba(31, 71, 50, 0.18); color: inherit; }
 :root[data-theme="dark"] ::selection {
-  background: rgba(183, 228, 204, 0.28);
-  color: var(--ink);
+  background: rgba(62, 245, 159, 0.30);
+  color: #FFFFFF;
 }
 
 /* Themed scrollbar — dark only. Light keeps the browser default. */
@@ -250,7 +270,7 @@
   border: 2px solid #050708;
   transition: background-color .2s ease;
 }
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #4A524E; }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #1F5236; }
 
 /* Brighter, mint-tinted focus indicator throughout dark mode.
    `outline` rather than `box-shadow` so we don't overwrite existing
@@ -261,102 +281,111 @@
 :root[data-theme="dark"] textarea:focus-visible,
 :root[data-theme="dark"] select:focus-visible,
 :root[data-theme="dark"] [tabindex]:focus-visible {
-  outline: 2px solid rgba(183, 228, 204, 0.6);
+  outline: 2px solid rgba(62, 245, 159, 0.65);
   outline-offset: 3px;
   border-radius: 4px;
 }
 /* Theme-toggle already uses box-shadow for its focus halo —
-   keep that pattern but switch the tint to mint. */
+   keep that pattern but switch the tint to neon. */
 :root[data-theme="dark"] .theme-toggle:focus-visible {
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(183, 228, 204, 0.45);
+  box-shadow: 0 0 0 3px rgba(62, 245, 159, 0.45);
 }
 
-/* Mint glow on emphasis italics — the editorial "Markets, dissected"
+/* Neon glow on emphasis italics — the editorial "Markets, dissected"
    pattern. Scoped to heading-level em + the .serif emphasis class
-   to avoid stray glow on body copy. */
+   to avoid stray glow on body copy. Color is promoted to neon because
+   the inline per-page `em { color: var(--accent) }` resolves to a
+   muddy #3D7C5C on matte black. */
 :root[data-theme="dark"] h1 em,
 :root[data-theme="dark"] h2 em,
 :root[data-theme="dark"] h3 em,
 :root[data-theme="dark"] h4 em,
 :root[data-theme="dark"] .serif em {
+  color: var(--neon);
   text-shadow:
-    0 0 28px rgba(183, 228, 204, 0.18),
-    0 0 60px rgba(183, 228, 204, 0.10);
+    0 0 22px rgba(62, 245, 159, 0.40),
+    0 0 70px rgba(62, 245, 159, 0.18);
 }
 
-/* Spec-plate lifts onto the raised-paper token and swaps em + dot
-   accents from --accent (#3D7C5C, too muddy on matte black) to mint. */
+/* Spec-plate becomes a sealed deep-green terminal card with neon
+   accents — the manifesto signature-plate treatment, site-wide. */
 :root[data-theme="dark"] .spec-plate {
-  background: var(--paper-2);
+  background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+  border-color: var(--deep-3);
 }
 :root[data-theme="dark"] .spec-plate .plate-head,
 :root[data-theme="dark"] .spec-plate .plate-foot {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(62, 245, 159, 0.05);
+  border-color: var(--deep-3);
+  color: rgba(143, 255, 201, 0.65);
 }
 :root[data-theme="dark"] .spec-plate .plate-head .num,
 :root[data-theme="dark"] .spec-plate .plate-title h4 em,
 :root[data-theme="dark"] .spec-plate .r-label em {
-  color: var(--accent-pale);
+  color: var(--neon);
+  text-shadow: 0 0 14px rgba(62, 245, 159, 0.45);
 }
+:root[data-theme="dark"] .spec-plate .row { border-bottom-color: rgba(62, 245, 159, 0.14); }
 :root[data-theme="dark"] .spec-plate .plate-foot .dot {
-  background: var(--accent-pale);
+  background: var(--neon);
   box-shadow:
-    0 0 0 3px rgba(183, 228, 204, 0.18),
-    0 0 14px rgba(183, 228, 204, 0.55);
+    0 0 0 3px rgba(62, 245, 159, 0.16),
+    0 0 14px rgba(62, 245, 159, 0.75);
 }
 
 /* Primary CTA — bare --accent (#3D7C5C) on near-black bg yields ~3:1.
-   Promote to mint for AAA contrast and brand consistency with the
-   closing CTA, which already uses mint in dark mode. */
+   Promote to neon for contrast and the console identity. Text goes
+   near-black green (#04110A) for maximum legibility on the glow. */
 :root[data-theme="dark"] .btn-primary {
-  background: var(--accent-pale);
-  color: var(--bg);
+  background: var(--neon);
+  color: #04110A;
   box-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.45),
-    0 14px 32px -16px rgba(183, 228, 204, 0.40);
+    0 0 22px -4px rgba(62, 245, 159, 0.55),
+    0 14px 34px -16px rgba(62, 245, 159, 0.40);
 }
 :root[data-theme="dark"] .btn-primary:hover {
-  background: #FFFFFF;
-  color: var(--bg);
+  background: var(--neon-2);
+  color: #04110A;
 }
 :root[data-theme="dark"] .btn-secondary:hover {
-  border-color: var(--accent-pale);
-  color: var(--accent-pale);
+  border-color: var(--neon);
+  color: var(--neon);
+  box-shadow: 0 0 18px -6px rgba(62, 245, 159, 0.5);
 }
 
-/* Topbar pill CTA ("Talk to a founder") — same logic as btn-primary.
+/* Topbar pill CTA ("Join waitlist") — same logic as btn-primary.
    In light mode it's --ink (black) on cream. The flipped token makes
    it white-on-black, which is fine, but the hover-to-accent goes
-   muddy on dark — swap to mint. */
+   muddy on dark — swap to neon. */
 :root[data-theme="dark"] .nav-cta:hover {
-  background: var(--accent-pale);
-  color: var(--bg);
+  background: var(--neon);
+  color: #04110A;
 }
 
 /* Hero pill chip gets a hair of luminance so it reads above the
    matte canvas. */
 :root[data-theme="dark"] .hero-top .pill {
   background: rgba(255, 255, 255, 0.02);
-  border-color: var(--line-2);
+  border-color: var(--deep-3);
 }
 
-/* FAQ rows get a subtle hover wash in dark mode. */
+/* FAQ rows scan on hover — the manifesto article-hover treatment. */
 :root[data-theme="dark"] .faq-item {
   transition: background-color .25s ease, border-color .25s ease;
 }
 :root[data-theme="dark"] .faq-item:hover {
-  background: rgba(255, 255, 255, 0.015);
-  border-color: var(--line-2);
+  background: linear-gradient(90deg, rgba(62, 245, 159, 0.05), rgba(10, 31, 21, 0.45) 40%, transparent);
+  border-color: var(--deep-3);
 }
 
-/* Theme-toggle: a soft mint flash on click for tactile feedback.
+/* Theme-toggle: a soft neon flash on click for tactile feedback.
    The :active pulse layers a halo behind the icon; the existing
    `transform: scale(0.95)` is preserved by ordering. */
 :root[data-theme="dark"] .theme-toggle:active {
   box-shadow:
-    0 0 0 6px rgba(183, 228, 204, 0.18),
-    0 0 28px rgba(183, 228, 204, 0.40);
+    0 0 0 6px rgba(62, 245, 159, 0.18),
+    0 0 28px rgba(62, 245, 159, 0.40);
 }
 
 /* Anti-pattern guard: no scale transforms on hover for cards (per
@@ -367,10 +396,65 @@
   transition: border-color .25s ease, box-shadow .25s ease;
 }
 :root[data-theme="dark"] .stage-card:hover {
-  border-color: var(--border-bright);
+  border-color: rgba(62, 245, 159, 0.35);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.04),
     0 32px 60px -36px rgba(0, 0, 0, 0.65);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   "Neon console" shared layer — site-wide dark identity.
+   Born on manifesto.html, now the dark mode for every page.
+   Pages opt in to the decor by placing two empty fixed divs right
+   after <body>:  <div class="dk-grid"></div> <div class="dk-scan"></div>
+   Both are display:none in light mode and cost nothing there.
+   Page content stacks above them via per-page
+   `main, footer { position: relative; z-index: 1; }`.
+   ──────────────────────────────────────────────────────────── */
+
+.dk-grid, .dk-scan { display: none; }
+
+/* Faint phosphor grid floor, masked to fade out down the page. */
+:root[data-theme="dark"] .dk-grid {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(62, 245, 159, 0.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(62, 245, 159, 0.030) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 0%, transparent 72%);
+          mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 0%, transparent 72%);
+}
+
+/* Slow scanline sweep, top to bottom. */
+:root[data-theme="dark"] .dk-scan {
+  display: block;
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  height: 22vh;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(62, 245, 159, 0.045), transparent);
+  animation: dkScan 10s linear infinite;
+}
+@keyframes dkScan {
+  from { transform: translateY(-30vh); }
+  to   { transform: translateY(130vh); }
+}
+
+/* Shared neon pulse for status dots / LEDs. */
+@keyframes dkPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(62, 245, 159, 0.16), 0 0 14px rgba(62, 245, 159, 0.75); }
+  50%      { box-shadow: 0 0 0 6px rgba(62, 245, 159, 0.06), 0 0 22px rgba(62, 245, 159, 0.95); }
+}
+
+/* Mono section numbers ("/ 01") glow neon everywhere. */
+:root[data-theme="dark"] .eyebrow .num {
+  color: var(--neon);
+  text-shadow: 0 0 12px rgba(62, 245, 159, 0.45);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -379,4 +463,5 @@
   :root[data-theme="dark"] ::-webkit-scrollbar-thumb {
     transition: none !important;
   }
+  :root[data-theme="dark"] .dk-scan { display: none; }
 }

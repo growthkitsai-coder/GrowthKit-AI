@@ -1685,11 +1685,141 @@
     .topbar { transition: none; }
     .problem-grid .cell:hover, .engine .feat:hover { transform: none; }
   }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer (page-specific overrides).
+     Shared tokens, grid floor + scanline sweep, em glow, buttons,
+     spec-plate and closing CTA all come from theme.css. This block
+     only re-skins index-specific components. Light mode untouched.
+     ───────────────────────────────────────────────────────────── */
+  main, footer { position: relative; z-index: 1; }
+
+  /* Hero glow goes phosphor */
+  :root[data-theme="dark"] .hero .hero-glow {
+    background:
+      radial-gradient(closest-side, rgba(62, 245, 159, 0.13), rgba(62, 245, 159, 0) 50%),
+      radial-gradient(closest-side, rgba(20, 53, 36, 0.45), rgba(20, 53, 36, 0) 72%);
+  }
+  :root[data-theme="dark"] .pill .dot {
+    background: var(--neon);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+  :root[data-theme="dark"] h1.headline em::after { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
+
+  /* Problem morph — log-entry treatment */
+  :root[data-theme="dark"] .stage-card .ghost-num {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(62, 245, 159, 0.20);
+    opacity: 0.55;
+    text-shadow: none;
+  }
+  :root[data-theme="dark"] .stage-card .card-tag {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.5);
+  }
+  :root[data-theme="dark"] .stage-card .card-title em::after { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
+  :root[data-theme="dark"] .stage-card .card-title .framed-word .fr { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.55); }
+  :root[data-theme="dark"] .stage-card .card-aside span { color: var(--neon); }
+  :root[data-theme="dark"] .stage-intro .problem-headline .strike::after { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
+  :root[data-theme="dark"] .problem-hud .hud-dot.is-active {
+    background: var(--neon);
+    box-shadow: 0 0 10px rgba(62, 245, 159, 0.7);
+  }
+
+  /* Marquee strip */
+  :root[data-theme="dark"] .marquee-track em {
+    color: var(--neon);
+    text-shadow: 0 0 22px rgba(62, 245, 159, 0.35);
+  }
+  :root[data-theme="dark"] .marquee-track .sep { background: var(--deep-3); }
+
+  /* Engine schematic — spine lights up neon */
+  :root[data-theme="dark"] .engine .feat.in::before {
+    background: var(--neon);
+    border-color: var(--neon);
+    box-shadow: 0 0 0 5px rgba(62, 245, 159, 0.12), 0 0 16px rgba(62, 245, 159, 0.7);
+  }
+  :root[data-theme="dark"] .engine .feat::after {
+    background: var(--neon);
+    box-shadow: 0 0 8px rgba(62, 245, 159, 0.5);
+  }
+  :root[data-theme="dark"] .engine .feat-roman {
+    color: var(--neon);
+    text-shadow: 0 0 26px rgba(62, 245, 159, 0.40);
+  }
+  :root[data-theme="dark"] .engine .feat h3 em::after { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
+  :root[data-theme="dark"] .engine .feat .feat-meta .pill {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--deep-3);
+  }
+  :root[data-theme="dark"] .engine .feat .feat-meta .pill:hover { border-color: rgba(62, 245, 159, 0.55); }
+  :root[data-theme="dark"] .engine .feat .feat-meta .pill .v {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.45);
+  }
+
+  /* Specimen panels — deep-green instrument readouts */
+  :root[data-theme="dark"] .engine .feat-specimen {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.05),
+      0 0 0 1px rgba(62, 245, 159, 0.08),
+      0 0 38px -10px rgba(62, 245, 159, 0.18),
+      0 22px 50px -32px rgba(0, 0, 0, 0.7);
+  }
+  :root[data-theme="dark"] .engine .feat-specimen .spec-num { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.5); }
+  :root[data-theme="dark"] .spec-bars .row .top .val { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+  :root[data-theme="dark"] .spec-bars .row .bar { background: rgba(255, 255, 255, 0.06); }
+  :root[data-theme="dark"] .spec-bars .row .bar::after {
+    background: var(--neon);
+    box-shadow: 0 0 10px rgba(62, 245, 159, 0.6);
+  }
+  :root[data-theme="dark"] .spec-stack .col { background: rgba(62, 245, 159, 0.12); }
+  :root[data-theme="dark"] .spec-stack .col.you {
+    background: var(--neon);
+    box-shadow: 0 0 16px rgba(62, 245, 159, 0.5);
+  }
+  :root[data-theme="dark"] .spec-stack .col.you::after { color: var(--neon); }
+  :root[data-theme="dark"] .spec-scatter .dot { background: var(--deep-3); }
+  :root[data-theme="dark"] .spec-scatter .dot.gap {
+    background: var(--neon);
+    box-shadow: 0 0 0 6px rgba(62, 245, 159, 0.12), 0 0 18px rgba(62, 245, 159, 0.8);
+  }
+  :root[data-theme="dark"] .spec-timeline .tick { background: var(--deep-3); }
+  :root[data-theme="dark"] .spec-timeline .tick.mile {
+    background: var(--neon);
+    box-shadow: 0 0 10px rgba(62, 245, 159, 0.6);
+  }
+  :root[data-theme="dark"] .spec-timeline .tick.mile::after { color: var(--neon); }
+
+  /* Process flow — neon wave + lit nodes */
+  :root[data-theme="dark"] .flow-track { color: var(--neon); }
+  :root[data-theme="dark"] .flow-track .track-line-svg { filter: drop-shadow(0 0 6px rgba(62, 245, 159, 0.45)); }
+  :root[data-theme="dark"] .process-flow.in .node-dot {
+    background: var(--neon) !important;
+    border-color: var(--neon) !important;
+    box-shadow: 0 0 0 5px rgba(62, 245, 159, 0.10), 0 0 14px rgba(62, 245, 159, 0.7) !important;
+  }
+  :root[data-theme="dark"] .process .step-roman {
+    color: var(--neon);
+    text-shadow: 0 0 26px rgba(62, 245, 159, 0.40);
+  }
+
+  /* FAQ */
+  :root[data-theme="dark"] .faq-item.open .toggle { color: var(--neon); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .pill .dot { animation: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
 <link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"></head>
 <body style="background-color: rgb(239, 233, 222); font-family: Inter;">
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
 
 <!-- ====== TOP BAR ====== -->
 <header class="topbar">

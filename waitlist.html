@@ -427,11 +427,96 @@
     .pill .dot { animation: none; }
     .success-stamp { transform: none; opacity: 1; animation: none; }
   }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer (page-specific overrides).
+     Shared tokens, grid/scanline decor, em glow, focus rings and
+     selection come from theme.css. Light mode untouched.
+     ───────────────────────────────────────────────────────────── */
+  main { position: relative; z-index: 1; }
+
+  :root[data-theme="dark"] .intro .pill { border-color: var(--deep-3); background: rgba(255, 255, 255, 0.02); }
+  :root[data-theme="dark"] .intro .pill .dot {
+    background: var(--neon);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+
+  /* Application card → sealed terminal panel */
+  :root[data-theme="dark"] .card {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.06),
+      0 0 0 1px rgba(62, 245, 159, 0.08),
+      0 0 44px -8px rgba(62, 245, 159, 0.16),
+      0 36px 70px -40px rgba(0, 0, 0, 0.8);
+  }
+  :root[data-theme="dark"] .card-head,
+  :root[data-theme="dark"] .card-foot {
+    background: rgba(62, 245, 159, 0.05);
+    border-color: var(--deep-3);
+    color: rgba(143, 255, 201, 0.65);
+  }
+  :root[data-theme="dark"] .card-head .num {
+    color: var(--neon);
+    text-shadow: 0 0 12px rgba(62, 245, 159, 0.45);
+  }
+
+  /* Inputs — phosphor fields */
+  :root[data-theme="dark"] .field {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--deep-3);
+  }
+  :root[data-theme="dark"] .field:hover { border-color: rgba(62, 245, 159, 0.35); }
+  :root[data-theme="dark"] .field:focus {
+    border-color: var(--neon);
+    background: rgba(62, 245, 159, 0.04);
+    box-shadow: 0 0 0 3px rgba(62, 245, 159, 0.15), 0 0 18px -6px rgba(62, 245, 159, 0.5);
+  }
+
+  /* Submit goes neon (shadow tint comes from theme.css) */
+  :root[data-theme="dark"] .submit { background: var(--neon); color: #04110A; }
+  :root[data-theme="dark"] .submit:hover { background: var(--neon-2); }
+
+  /* Consent checkbox */
+  :root[data-theme="dark"] .consent { border-top-color: rgba(62, 245, 159, 0.18); }
+  :root[data-theme="dark"] .check-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--deep-3);
+  }
+  :root[data-theme="dark"] .check-wrap:hover .check-box { border-color: var(--neon); }
+  :root[data-theme="dark"] .check-wrap input:checked + .check-box {
+    background: var(--neon);
+    border-color: var(--neon);
+    box-shadow: 0 0 12px rgba(62, 245, 159, 0.5);
+  }
+  :root[data-theme="dark"] .check-wrap input:checked + .check-box svg { color: #04110A; }
+  :root[data-theme="dark"] .check-wrap input:focus-visible + .check-box {
+    box-shadow: 0 0 0 3px rgba(62, 245, 159, 0.3);
+  }
+
+  :root[data-theme="dark"] .form-error { color: #FF8A66; }
+
+  /* Success state */
+  :root[data-theme="dark"] .success-stamp {
+    background: var(--neon);
+    box-shadow: 0 0 0 6px rgba(62, 245, 159, 0.14), 0 0 34px rgba(62, 245, 159, 0.55);
+  }
+  :root[data-theme="dark"] .success-stamp svg { color: #04110A; }
+  :root[data-theme="dark"] .success-body .back { border-bottom-color: var(--deep-3); }
+  :root[data-theme="dark"] .success-body .back:hover { color: var(--neon); border-bottom-color: var(--neon); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .intro .pill .dot { animation: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
 </head>
 <body>
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
 
 <header class="topbar">
   <div class="wrap topbar-inner">
