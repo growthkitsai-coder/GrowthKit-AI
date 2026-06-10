@@ -42,7 +42,7 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - `index.html` (~2400 lines) — landing page: hero with "Specimen №01" plate, pinned editorial problem morph, engine schematic, three-step process, FAQ, closing CTA, footer.
 - `waitlist.html` — single-card signup form (Name, Work email, "wants updates" checkbox), morphs into a "You're on the list" success state.
 - `methodology.html` — long-form pitch page. Sections: Hero → Mission → Marquee → 4 Pillars → 3 Steps → "Opinions we hold strongly" (5 tenets) → Final CTA.
-- `careers.html` — Why-this-why-now → 4 perks → 2 role cards (Growth / Marketing Intern) → 3 application channels (email, company LinkedIn, Avi's LinkedIn).
+- `careers.html` — Why-this-why-now → 4 perks → 2 role cards (Growth / Marketing Intern) → 3 application channels (email, company LinkedIn, Avi's LinkedIn). Head carries **JobPosting JSON-LD** for both roles (remote, GB/US, `validThrough` 2026-12-31 — bump it or remove the postings when the roles close, or Google flags them stale).
 - `contact.html` — short page with two channel cards (email + LinkedIn).
 - `manifesto.html` — founding-document page ("The market is knowable"): preamble with drop cap → 7 numbered articles (5 Believe / 2 Reject, expanded from methodology's tenets) → "Specimen №00" signature plate → CTA.
 - `security.html` — honest security-posture page ("Security by subtraction"): 4 posture cards → architecture section with a terminal readout of the real `vercel.json` response headers → full data inventory → responsible-disclosure steps (email, 2-business-day ack, credit-no-bounty) → "What we don't claim" honesty block (explicitly NOT SOC 2 / ISO 27001 — don't add badge claims).
@@ -52,12 +52,12 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - `404.html` — minimalist error page, `noindex, follow`. Links back to home + waitlist.
 - `logo.html` — **internal** logo design reference page (five logo variants explored). Not linked from public nav. Not in sitemap.
 - `theme.css`, `theme.js` — shared theme system.
-- `vercel.json` — clean-URL rewrites + redirects + cache headers + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
+- `vercel.json` — clean-URL rewrites + redirects + cache headers (**images/fonts: 1 year immutable; css/js: 1 hour + `stale-while-revalidate` 1 day** — `theme.css`/`theme.js` are not fingerprinted, so never restore the old blanket 1-year rule for them) + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `googlea9dc9b0133a60f51.html`.
-- `waitlist-apps-script.gs` — the Google Apps Script deployed as a Web App. Setup instructions are in the file header.
+- `waitlist-apps-script.gs` — the Google Apps Script deployed as a Web App. Setup instructions are in the file header. **The repo copy is source, not the deployment** — after editing it, paste the contents into the Apps Script editor (Extensions → Apps Script in the Sheet) and redeploy via "Manage deployments → pencil → New version".
 - `scripts/check-site.mjs` — zero-dependency Node consistency checker (see Guard rails). The only script in the repo.
 - `.github/workflows/site-checks.yml` — GitHub Action: runs the checker + a lychee external-link check on every push/PR, weekly cron, and manual dispatch.
-- Logo assets: `logo-lockup-cream.png`, `logo-lockup-dark.png`, `logo-mark-{64,128,256,512,1024}.png`, `logo-mark-cream-512.png`, `logo-mark-dark-512.png`, `logo.png`.
+- Logo assets: `logo-lockup-cream.png`, `logo-lockup-dark.png`, `logo-mark-{64,128,256,512,1024}.png`, `logo-mark-cream-512.png`, `logo-mark-dark-512.png`, `logo.png`. Social card: **`og-card.png`** (1200×630, cream lockup composite) — every page's `og:image`/`twitter:image` points at it, so overwriting that one file restyles link previews site-wide.
 - **`.env.local`** (currently holds `VERCEL_OIDC_TOKEN`) and **`.vercel/`** are gitignored — don't commit either.
 
 ## Waitlist plumbing
@@ -67,6 +67,7 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - **All waitlist data lives in that Google Sheet — it is the system of record.** No copy is stored on Vercel, in git, or anywhere else.
 - **Failure modes to know:** (a) if `SCRIPT_URL` is empty the page shows "Form is not configured yet"; (b) **re-deploying as "New deployment" in Apps Script issues a new URL and breaks the page** until `SCRIPT_URL` is updated — always use "Manage deployments → pencil → New version" instead.
 - **`SCRIPT_URL` now lives in TWO files:** `waitlist.html` (POST, form submit) and `status.html` (GET, live health check). If the deployment URL ever changes, update both.
+- **Hardening (2026-06-10):** `doPost` now validates name/email server-side, silently drops honeypot hits (hidden `company` field) and sub-2.5-second submissions, **dedupes by email** (case-insensitive — re-signup updates the row, consent only ever upgrades No → Yes), applies a soft rate limit (60 accepted signups / 10 min, then a visible "try again in a few minutes" error rather than silent loss), and sends a short **confirmation email** to brand-new signups via MailApp (wrapped so mail failure never blocks the signup; consumer Gmail quota is ~100/day). The form sends two extra fields: `company` (honeypot) and `t` (ms between page load and submit).
 
 ## Conventions
 
