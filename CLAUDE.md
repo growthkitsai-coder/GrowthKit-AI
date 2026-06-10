@@ -55,6 +55,8 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - `vercel.json` — clean-URL rewrites + redirects + cache headers + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `googlea9dc9b0133a60f51.html`.
 - `waitlist-apps-script.gs` — the Google Apps Script deployed as a Web App. Setup instructions are in the file header.
+- `scripts/check-site.mjs` — zero-dependency Node consistency checker (see Guard rails). The only script in the repo.
+- `.github/workflows/site-checks.yml` — GitHub Action: runs the checker + a lychee external-link check on every push/PR, weekly cron, and manual dispatch.
 - Logo assets: `logo-lockup-cream.png`, `logo-lockup-dark.png`, `logo-mark-{64,128,256,512,1024}.png`, `logo-mark-cream-512.png`, `logo-mark-dark-512.png`, `logo.png`.
 - **`.env.local`** (currently holds `VERCEL_OIDC_TOKEN`) and **`.vercel/`** are gitignored — don't commit either.
 
@@ -72,6 +74,7 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - **Dark mode.** Driven by `data-theme="dark"` on `<html>`, persisted in `localStorage` under key `gk-theme`. Every `<head>` starts with a pre-paint inline script that sets the attribute before first paint to avoid a flash. Don't remove it. Dark-mode `body` background uses radial-gradient glows with `!important` because per-page inline `body { background: var(--bg); }` would otherwise win.
 - **Clean URLs.** `vercel.json` rewrites `/privacy` → `/privacy.html` etc. and 301-redirects the `.html` form to the clean form. **When you add a new page, update both `vercel.json` (rewrites + redirects) and `sitemap.xml`.** The cleanURL list currently is: `/privacy /waitlist /contact /careers /methodology /terms /manifesto /security /status`.
 - **Topbar morphs into a floating pill on scroll** (`theme.css` handles the transition; pages add the `.scrolled` class via their own inline script when `window.scrollY > 24`).
+- **Topbar nav (standardized 2026-06-10).** Every subpage uses Product (`/#engine`) / How it works (`/#process`) / Methodology (`/methodology`) / Contact (`/contact`). `index.html` uses its own anchors (Product / How it works / FAQ). Don't reintroduce the old "Customers → /#proof" link — that anchor doesn't exist.
 - **Copy voice.** Confident, operator-grade, no fluff. Em-dashes for asides. Italic `<em>` inside headings for emphasis (this is *the* signature pattern — e.g. "Markets, <em>dissected</em>", "Talk to a <em>founder</em>, not a form"). Avoid corporate-speak. "A founder, not a form, will reply" recurs.
 - **Color tokens** (light defaults — dark overrides in `theme.css`):
   - `--bg: #FAF8F4` cream · `--bg-2: #F2EFE8`
@@ -79,18 +82,36 @@ Everything lives at the repo root — no `src/`, no `public/`.
   - `--accent: #1F4732` deep forest · `--accent-soft: #2E6249` · `--accent-pale: #B7E4CC` (used in dark mode closing CTA)
   - `--line: #E2DDD3` · `--line-2: #D4CEC1`
   - `--maxw: 1180px`
-- **SEO.** Every public page has canonical, OpenGraph, Twitter card, JSON-LD structured data, and is listed in `sitemap.xml`. `index.html` includes Organization + WebSite + WebPage + FAQPage schema. Match the existing pattern when adding pages.
+- **SEO.** Every public page has canonical, OpenGraph, Twitter card, JSON-LD structured data, and is listed in `sitemap.xml`. `index.html` includes Organization + WebSite + WebPage + FAQPage schema. Match the existing pattern when adding pages. (Enforced by `scripts/check-site.mjs` — `methodology.html` was missing all OG/Twitter/JSON-LD until 2026-06-10.)
 - **Footer.** Three-column (Product / Company / Legal). As of 2026-06-10 there are **no placeholder links left**: Company = Manifesto / Methodology / Careers / Contact, Legal = Privacy / Terms / Security / Status, all pointing at real pages. Footers are still duplicated across every page — keep them in sync.
 - **Dark mode "neon console" treatment (new pages only).** `manifesto.html`, `security.html`, and `status.html` carry an extra dark-mode layer in their inline CSS: electric spring-green neon (`--neon: #3EF59F`, `--neon-2: #8FFFC9`) with deep-forest panels (`--deep-1: #06140D`, `--deep-2: #0A1F15`, `--deep-3: #143524`), a fixed faint grid floor (`.dk-grid`) and a scanline sweep (`.dk-scan`). These decorative layers are `display:none` in light mode and only activate under `[data-theme="dark"]` — light mode on every page stays classic cream + forest. The older pages still use the softer mint (`--accent-pale`) dark treatment from `theme.css`. If extending the neon look to other pages, copy the pattern from one of these three.
 - **Reduced motion.** All animations have `@media (prefers-reduced-motion: reduce)` fallbacks.
 
+## Guard rails (consistency checker + CI)
+
+Because every page duplicates its head/topbar/footer by hand, cross-page consistency drifts silently. Two automated checks guard against that:
+
+- **`scripts/check-site.mjs`** — plain Node (≥18), zero dependencies. Run it locally with `node scripts/check-site.mjs` **after any change to HTML files, `sitemap.xml`, or `vercel.json`, before committing.** It fails if: a placeholder `href="#"` / `href="/#"` appears on a public page; `sitemap.xml` and `vercel.json` rewrites/redirects fall out of parity (or a listed page file is missing); a public page lacks canonical (with the correct URL), `og:title/description/url/image`, `twitter:card`, or JSON-LD; footers diverge across pages (link grid compared with `#x` ↔ `/#x` normalized); `logo.html` leaks into the sitemap or any public link; an internal href/src points at a non-existent file, clean URL, or `id` anchor; or `SCRIPT_URL` is empty/mismatched between `waitlist.html` and `status.html`. The page lists at the top of the script (`INTERNAL_PAGES`, `NO_FOOTER`, `NO_SITEMAP`) must be kept current when pages are added.
+- **`.github/workflows/site-checks.yml`** — runs the checker on every push/PR, plus a **lychee** job that checks external URLs only (jsDelivr pins, Google Fonts, LinkedIn, Apps Script). It accepts `999` (LinkedIn bot-block) and `429`, excludes `growthkitai.com` self-references (a new page's canonical would 404 until the same push finishes deploying) and the `fonts.gstatic.com` preconnect root. A weekly Monday cron catches external links that die between pushes.
+- **CI does not gate deploys** — Vercel deploys on push regardless. A red ✗ means the live site shipped with a problem: fix it and push again.
+
 ## Workflow
 
-- Edits are made directly to HTML files. No lint, no tests.
+- Edits are made directly to HTML files. No lint, no tests — but **run `node scripts/check-site.mjs` before committing** any HTML/sitemap/vercel.json change (see Guard rails).
 - Local preview: open the file in a browser, or `vercel dev` from the project root if you need to test clean-URL rewrites.
 - `git push` to `main` → Vercel auto-deploys to growthkitai.com.
 - Don't commit `.env.local`, `.vercel/`, or anything containing credentials.
 - Footer/topbar/`<head>` blocks are **duplicated across every page** (no templating). When changing nav links, footer columns, the topbar morph behavior, or the pre-paint theme script, update **all** HTML files, not just one.
+
+## Documentation upkeep (always, after every change)
+
+This repo carries three Markdown context files. **Whenever anything durable changes — a page added/removed, a convention adopted, infrastructure or plumbing touched, a decision made — update all of the .md files that cover it, in the same session as the change, before committing.** Stale docs are how the two-tool setup (Cowork + Code) breaks. What belongs where:
+
+- **`CLAUDE.md`** (this file) — the rulebook Claude reads. Company facts, hosting/accounts, stack, file layout, conventions, workflow, guard rails, tool-collaboration rules. Update when any of those change. Keep it prescriptive and current — no history here.
+- **`AGENTS.md`** — deliberately just a pointer for non-Claude agents (Codex etc.): "read CLAUDE.md + memory.md, run the checker before pushing." **Do not duplicate content into it** — it drifted once and was cut down on purpose. Only touch it if the pointer itself goes stale (e.g. a file it names moves).
+- **`memory.md`** — the shared notebook for durable knowledge: detailed page descriptions, design-system notes, sharp edges/gotchas, open items, and a dated **change log** (append an entry for every meaningful session). Update it whenever something non-obvious is learned or shipped.
+
+When adding a new public page, the full checklist is: the page itself → `vercel.json` (rewrites + redirects) → `sitemap.xml` → footers/nav on every page → `scripts/check-site.mjs` page lists if it's an exception → run the checker → update CLAUDE.md, AGENTS.md, and memory.md.
 
 ## Working with Cowork and Claude Code
 

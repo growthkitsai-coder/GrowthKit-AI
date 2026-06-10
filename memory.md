@@ -43,6 +43,8 @@ Infrastructure:
 - `vercel.json` — clean-URL rewrites + 301 redirects + cache headers + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). Current clean-URL list: `/privacy /waitlist /contact /careers /methodology /terms /manifesto /security /status`. Note: `security.html`'s terminal readout quotes these headers verbatim — update it if the headers change.
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `googlea9dc9b0133a60f51.html` (Google Search Console verification).
 - `waitlist-apps-script.gs` — Apps Script source. Header has setup instructions.
+- `scripts/check-site.mjs` — zero-dependency Node consistency checker; run before every commit that touches HTML / sitemap / vercel.json. Details under "Workflow conventions".
+- `.github/workflows/site-checks.yml` — GitHub Action: checker + lychee external-link check (push/PR + weekly cron + manual dispatch).
 
 Logo assets at root: `logo-lockup-{cream,dark}.png`, `logo-mark-{64,128,256,512,1024}.png`, `logo-mark-{cream,dark}-512.png`, `logo.png`.
 
@@ -115,18 +117,23 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 
 ## Workflow conventions
 
-- Edits go directly to HTML files. No lint, no tests, no build.
+- Edits go directly to HTML files. No lint, no tests, no build — but there **is** a consistency checker now (added 2026-06-10): run `node scripts/check-site.mjs` after any change to HTML / `sitemap.xml` / `vercel.json`, before committing. Zero dependencies, needs Node ≥18.
+- The same checker runs in CI (`.github/workflows/site-checks.yml`) on every push/PR plus a weekly Monday cron, alongside a **lychee** job that checks external URLs only (jsDelivr, Google Fonts, LinkedIn — `999`/`429` accepted as alive; `growthkitai.com` self-references and the `fonts.gstatic.com` preconnect root excluded). CI does **not** gate Vercel deploys — a red ✗ means the live site shipped with a problem.
+- What the checker enforces: no placeholder `href="#"`/`href="/#"`; sitemap ↔ vercel.json rewrite/redirect parity (and that target files exist); canonical with correct URL + og:title/description/url/image + twitter:card + JSON-LD on every public page (404.html must stay noindex); identical footer link grids across pages; `logo.html` stays out of sitemap and public links; every internal href/src resolves (file, clean URL, or real `id` anchor — index `#x` and subpage `/#x` treated as equal); `SCRIPT_URL` non-empty and identical in `waitlist.html` + `status.html`.
 - Local preview: open the file in a browser, or `vercel dev` from the project root if you need to test clean-URL rewrites.
 - `git push origin main` → Vercel auto-deploys to growthkitai.com.
 - Never commit `.env.local`, `.vercel/`, or anything containing credentials.
 - Topbar / footer / `<head>` blocks are **duplicated across every page**. When changing nav links, footer columns, the topbar morph behavior, or the pre-paint theme script, update **every** HTML file.
+- **Keep the .md files current** (rule added to CLAUDE.md 2026-06-10): after any durable change, update CLAUDE.md (rulebook), this file (knowledge + change log entry), and leave AGENTS.md alone unless its pointer goes stale — it was deliberately cut down to "read CLAUDE.md + memory.md, run the checker".
 
-**When adding a new public page, four things must be updated:**
+**When adding a new public page, update (the checker enforces 1–3):**
 
 1. `vercel.json` — add to both `rewrites` AND `redirects`.
 2. `sitemap.xml` — add the new URL block.
 3. Every existing page's footer/nav (if linked).
-4. This file (`memory.md`) — note the new page in the file list above.
+4. `scripts/check-site.mjs` — only if the page is an exception (no footer / not in sitemap / internal): add it to `NO_FOOTER`, `NO_SITEMAP`, or `INTERNAL_PAGES` at the top.
+5. CLAUDE.md (file layout) + this file (`memory.md`) — note the new page.
+6. Run `node scripts/check-site.mjs` — it should pass before you commit.
 
 ---
 
@@ -140,6 +147,8 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 - **Pre-paint theme script.** Every `<head>` starts with an inline script that sets `data-theme` before first paint. Removing it causes a flash of incorrect theme.
 - **Apps Script deployment.** "New deployment" = new URL = broken waitlist. Always "Manage deployments → New version".
 - **GSAP/ScrollTrigger/Lenis are only loaded on `index.html`.** Don't assume they're available on other pages.
+- **Subpage topbar nav is standardized** (2026-06-10): Product (`/#engine`) / How it works (`/#process`) / Methodology / Contact. Four older pages carried a dead "Customers → `/#proof`" link for weeks (no such id on index.html) — exactly the silent drift the checker now catches.
+- **LinkedIn returns HTTP 999 to bots** — that's why the lychee config accepts 999; don't "fix" it by removing the accept list or LinkedIn links will fail CI forever.
 
 ---
 
@@ -228,3 +237,8 @@ If you ever feel the two tools have diverged in understanding, run `git status` 
   - **vercel.json** — rewrites + 301 redirects for the three new clean URLs. **sitemap.xml** — three new URL entries (lastmod 2026-06-10).
   - **`SCRIPT_URL` now exists in two files** (waitlist.html + status.html) — update both if the Apps Script deployment URL changes.
   - Waitlist stood at **44 signups** when checked this session.
+- **2026-06-10** — (Claude Code session, "Phase 1 guard rails") Shipped the consistency checker + CI:
+  - **New:** `scripts/check-site.mjs` (zero-dep Node) + `.github/workflows/site-checks.yml` (checker job + lychee external-link job; push/PR + weekly cron). Full check list documented under "Workflow conventions". CI doesn't gate Vercel deploys — red ✗ = live site has a problem.
+  - **Bugs the checker caught on its first run, now fixed:** ① `methodology.html` had **no** OpenGraph / Twitter card / JSON-LD at all (despite docs claiming every page did) — full block added; ② four older pages (careers, contact, privacy, terms) had a dead topbar link "Customers → `/#proof`" (no such anchor on index.html) — their navs were aligned to the newer standard (Product / How it works / Methodology / Contact) used by manifesto/security/status/methodology.
+  - **Docs:** CLAUDE.md gained "Guard rails" + "Documentation upkeep" sections (keep all .md files updated with every change; AGENTS.md is now deliberately a thin pointer — don't re-expand it); this file updated to match.
+  - Ran concurrently with another session doing Phase 0 (og-card.png OG images, sitemap lastmod, AGENTS.md slim-down) and dark-mode console work on index.html/theme.css — commits were interleaved; checker passed on the merged tree.
