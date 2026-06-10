@@ -960,11 +960,110 @@
     .pillar:hover, .pstep:hover .badge { transform: none; }
     .method-hero .hero-glow { display: none; }
   }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer (page-specific overrides).
+     Shared tokens, grid/scanline decor, em glow, buttons and the
+     closing CTA come from theme.css. Light mode untouched.
+     ───────────────────────────────────────────────────────────── */
+  main, footer { position: relative; z-index: 1; }
+
+  /* Mouse-tracked hero glow goes phosphor */
+  :root[data-theme="dark"] .method-hero .hero-glow {
+    background: radial-gradient(closest-side, rgba(62, 245, 159, 0.11), rgba(62, 245, 159, 0));
+  }
+  :root[data-theme="dark"] .method-hero h1 .em-wrap { color: var(--neon); text-shadow: 0 0 22px rgba(62,245,159,0.40), 0 0 70px rgba(62,245,159,0.18); }
+  :root[data-theme="dark"] .method-hero h1 .em-wrap .under { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
+
+  /* Hero stats panel → deep-green instrument plate */
+  :root[data-theme="dark"] .hero-stats {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.06),
+      0 0 0 1px rgba(62, 245, 159, 0.08),
+      0 0 44px -8px rgba(62, 245, 159, 0.16),
+      0 36px 70px -40px rgba(0, 0, 0, 0.8);
+  }
+  :root[data-theme="dark"] .hero-stats .head {
+    background: rgba(62, 245, 159, 0.05);
+    border-bottom-color: var(--deep-3);
+    color: rgba(143, 255, 201, 0.65);
+  }
+  :root[data-theme="dark"] .hero-stats .head .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  :root[data-theme="dark"] .hero-stats .row { border-bottom-color: rgba(62, 245, 159, 0.14); }
+  :root[data-theme="dark"] .hero-stats .row .r-label em { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+
+  /* Mission */
+  :root[data-theme="dark"] .mission h2 .strike::after { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
+  :root[data-theme="dark"] .mission .sig .dot {
+    background: var(--neon);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+
+  /* Marquee */
+  :root[data-theme="dark"] .marquee-track em {
+    color: var(--neon);
+    text-shadow: 0 0 22px rgba(62, 245, 159, 0.35);
+  }
+  :root[data-theme="dark"] .marquee-track .sep { background: var(--deep-3); }
+
+  /* Pillars — log entries with neon ghosts */
+  :root[data-theme="dark"] .pillar:hover {
+    background: linear-gradient(90deg, rgba(62, 245, 159, 0.05), rgba(10, 31, 21, 0.45) 40%, transparent);
+  }
+  :root[data-theme="dark"] .pillar::before {
+    background:
+      radial-gradient(420px circle at var(--gx, 50%) var(--gy, 0%),
+        rgba(62, 245, 159, 0.09), rgba(62, 245, 159, 0) 60%);
+  }
+  :root[data-theme="dark"] .pillar .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  :root[data-theme="dark"] .pillar .ghost {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(62, 245, 159, 0.22);
+    opacity: 0.55;
+  }
+  :root[data-theme="dark"] .pillar:hover .ghost {
+    opacity: 0.9;
+    -webkit-text-stroke: 1px rgba(62, 245, 159, 0.40);
+  }
+  :root[data-theme="dark"] .pillar ul li .v { color: var(--neon-2); }
+
+  /* Process — badges as lit nodes, line draws neon */
+  :root[data-theme="dark"] .process-line path {
+    stroke: var(--neon);
+    filter: drop-shadow(0 0 6px rgba(62, 245, 159, 0.45));
+  }
+  :root[data-theme="dark"] .pstep .badge {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    color: var(--neon);
+    text-shadow: 0 0 14px rgba(62, 245, 159, 0.5);
+  }
+  :root[data-theme="dark"] .pstep:hover .badge { border-color: var(--neon); box-shadow: 0 0 18px -4px rgba(62,245,159,0.5); }
+  :root[data-theme="dark"] .pstep .runtime { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.4); }
+
+  /* Beliefs */
+  :root[data-theme="dark"] .belief:hover {
+    background: linear-gradient(90deg, rgba(62, 245, 159, 0.05), rgba(10, 31, 21, 0.45) 40%, transparent);
+  }
+  :root[data-theme="dark"] .belief .tag { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  :root[data-theme="dark"] .belief .tag::before { background: var(--neon); box-shadow: 0 0 8px rgba(62,245,159,0.6); }
+
+  /* Stats ribbon */
+  :root[data-theme="dark"] .stat .v em { color: var(--neon); text-shadow: 0 0 22px rgba(62,245,159,0.40); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .mission .sig .dot { animation: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
 </head>
 <body>
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
 
 <!-- ====== TOP BAR ====== -->
 <header class="topbar">

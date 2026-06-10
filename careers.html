@@ -567,6 +567,64 @@
     .topbar { transition: none; }
     .channel-card:hover, .role-card:hover { transform: none; }
   }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer (page-specific overrides).
+     Shared tokens, grid/scanline decor, em glow and buttons come
+     from theme.css. Light mode untouched.
+     ───────────────────────────────────────────────────────────── */
+  main, footer { position: relative; z-index: 1; }
+
+  /* Why-us points */
+  :root[data-theme="dark"] .points { background: var(--deep-3); border-color: var(--deep-3); }
+  :root[data-theme="dark"] .points .pt .k { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+
+  /* Role cards → deep-green armored panels */
+  :root[data-theme="dark"] .role-card {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.05),
+      0 24px 50px -32px rgba(0, 0, 0, 0.7);
+  }
+  :root[data-theme="dark"] .role-card:hover {
+    border-color: rgba(62, 245, 159, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.07),
+      0 0 0 1px rgba(62, 245, 159, 0.18),
+      0 0 38px -8px rgba(62, 245, 159, 0.28),
+      0 24px 50px -32px rgba(0, 0, 0, 0.7);
+  }
+  :root[data-theme="dark"] .role-head { border-bottom-color: rgba(62, 245, 159, 0.18); }
+  :root[data-theme="dark"] .role-head .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  :root[data-theme="dark"] .role-head .badge { border-color: var(--deep-3); color: rgba(143, 255, 201, 0.65); }
+  :root[data-theme="dark"] .role-card ul li { border-bottom-color: rgba(62, 245, 159, 0.14); }
+  :root[data-theme="dark"] .role-card ul li .b { color: var(--neon); }
+  :root[data-theme="dark"] .grow-into {
+    background: rgba(62, 245, 159, 0.05);
+    border-color: var(--deep-3);
+  }
+  :root[data-theme="dark"] .grow-into .label { color: rgba(143, 255, 201, 0.65); }
+  :root[data-theme="dark"] .grow-into .text em { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+
+  /* Application channels */
+  :root[data-theme="dark"] .channel-card {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.05),
+      0 24px 50px -32px rgba(0, 0, 0, 0.7);
+  }
+  :root[data-theme="dark"] .channel-card:hover {
+    border-color: rgba(62, 245, 159, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.07),
+      0 0 0 1px rgba(62, 245, 159, 0.18),
+      0 0 38px -8px rgba(62, 245, 159, 0.28),
+      0 24px 50px -32px rgba(0, 0, 0, 0.7);
+  }
+  :root[data-theme="dark"] .channel-head .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  :root[data-theme="dark"] .channel-card:hover .arr { color: var(--neon); }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
