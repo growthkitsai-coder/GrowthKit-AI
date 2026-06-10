@@ -1,0 +1,58 @@
+# GrowthKit AI — site guard rails.
+# Job 1 runs scripts/check-site.mjs (cross-page consistency: placeholder links,
+# sitemap↔vercel.json parity, SEO heads, footer sync, logo.html isolation,
+# internal links, SCRIPT_URL sync).
+# Job 2 runs lychee against external URLs only (jsDelivr pins, Google Fonts,
+# LinkedIn, Apps Script) — internal links are already covered by job 1.
+# The weekly cron catches external links that die between pushes.
+#
+# Note: Vercel deploys on push regardless of CI — a red ✗ here doesn't block
+# the deploy, it tells you the deploy shipped with a consistency problem.
+
+name: Site checks
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC
+  workflow_dispatch:
+
+jobs:
+  consistency:
+    name: Cross-page consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/check-site.mjs
+
+  links:
+    name: External links (lychee)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check external URLs
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --scheme http/https → external URLs only (root-relative internal
+          #   links are validated by check-site.mjs instead).
+          # 999 = LinkedIn's bot-blocking status; 429 = rate limited. Neither
+          #   means the link is dead.
+          # growthkitai.com is excluded: canonicals/og:url for a page added in
+          #   this same push would 404 until Vercel finishes deploying it.
+          # fonts.gstatic.com is a preconnect origin — its root 404s by design.
+          args: >-
+            --no-progress
+            --scheme https
+            --scheme http
+            --accept '100..=103,200..=299,429,999'
+            --max-retries 2
+            --timeout 30
+            --exclude 'https://growthkitai\.com'
+            --exclude 'https://fonts\.gstatic\.com/?$'
+            --exclude-path logo.html
+            './*.html'
+          fail: true
