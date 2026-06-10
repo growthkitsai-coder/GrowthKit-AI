@@ -85,9 +85,33 @@
   .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
   .arr { font-family: 'Instrument Serif', serif; font-style: italic; transform: translateY(-1px); }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer.
+     theme.css (linked below) supplies the dark tokens, body glows,
+     grid/scanline decor and the neon em treatment. This page never
+     loaded theme.css before, so dark mode previously did nothing
+     here — that's fixed by the link below. Light mode untouched.
+     ───────────────────────────────────────────────────────────── */
+  main { position: relative; z-index: 1; }
+
+  :root[data-theme="dark"] .code {
+    color: var(--neon);
+    text-shadow: 0 0 12px rgba(62, 245, 159, 0.45);
+  }
+  :root[data-theme="dark"] .btn-primary:hover { background: var(--neon); color: #04110A; }
+  :root[data-theme="dark"] .btn-ghost { border-color: var(--deep-3); }
+  :root[data-theme="dark"] .btn-ghost:hover {
+    border-color: var(--neon);
+    color: var(--neon);
+    box-shadow: 0 0 18px -6px rgba(62, 245, 159, 0.5);
+  }
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
 <main>
   <div class="card">
     <div class="code">Error · 404</div>
