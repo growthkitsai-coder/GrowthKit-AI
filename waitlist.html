@@ -509,6 +509,16 @@
   @media (prefers-reduced-motion: reduce) {
     :root[data-theme="dark"] .intro .pill .dot { animation: none; }
   }
+
+  /* Honeypot — parked off-screen; humans never see it, bots fill it.
+     Not display:none, because naive bots skip invisible fields. */
+  .hp-field {
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 1px; height: 1px;
+    overflow: hidden;
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
@@ -575,6 +585,11 @@
             <input id="email" name="email" type="email" autocomplete="email" required class="field" placeholder="ada@yourstartup.com">
           </div>
 
+          <div class="hp-field" aria-hidden="true">
+            <label for="company">Company</label>
+            <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
           <button type="submit" class="submit">
             <span class="submit-label">Submit application</span> <span class="arr">→</span>
           </button>
@@ -630,6 +645,10 @@
 <script>
 (function () {
   'use strict';
+
+  // Stamped at parse time; the Apps Script drops submissions that arrive
+  // faster than a human could plausibly fill the form.
+  var loadedAt = Date.now();
 
   // Paste the Web app URL from your Apps Script deployment here.
   // See waitlist-apps-script.gs in this repo for setup instructions.
@@ -701,7 +720,9 @@
       var body = new URLSearchParams({
         name: name,
         email: email,
-        updates: form.updates.checked ? 'true' : 'false'
+        updates: form.updates.checked ? 'true' : 'false',
+        company: form.company.value || '',
+        t: String(Date.now() - loadedAt)
       });
       var res = await fetch(SCRIPT_URL, { method: 'POST', body: body });
       if (!res.ok) throw new Error('Request failed (' + res.status + ').');
@@ -712,9 +733,11 @@
       submitBtn.disabled = false;
       submitLabel.textContent = originalLabel;
       formError.textContent = "Couldn't submit — " + (err && err.message ? err.message : 'please try again.');
+      if (window.va) window.va('event', { name: 'waitlist_error', data: { message: String((err && err.message) || err).slice(0, 120) } });
       return;
     }
 
+    if (window.va) window.va('event', { name: 'waitlist_signup', data: { updates: form.updates.checked } });
     successName.textContent = name.split(' ')[0] || 'friend';
     successUpdatesNote.textContent = form.updates.checked
       ? "We'll send updates and market‑intel notes to " + email + "."
@@ -726,6 +749,21 @@
 })();
 </script>
 
+<script>
+(function () {
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  // Conversion funnel: log clicks on waitlist links and primary CTAs.
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest ? e.target.closest("a") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    var cls = typeof a.className === "string" ? a.className : "";
+    if (href.indexOf("/waitlist") !== 0 && cls.indexOf("nav-cta") < 0 && cls.indexOf("btn-primary") < 0) return;
+    var sec = a.closest("header") ? "topbar" : a.closest("footer") ? "footer" : a.closest("section[id]") ? a.closest("section[id]").id : "body";
+    window.va("event", { name: "cta_click", data: { page: location.pathname, section: sec, href: href } });
+  });
+})();
+</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

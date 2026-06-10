@@ -625,5 +625,20 @@
 })();
 </script>
 
+<script>
+(function () {
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  // Conversion funnel: log clicks on waitlist links and primary CTAs.
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest ? e.target.closest("a") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    var cls = typeof a.className === "string" ? a.className : "";
+    if (href.indexOf("/waitlist") !== 0 && cls.indexOf("nav-cta") < 0 && cls.indexOf("btn-primary") < 0) return;
+    var sec = a.closest("header") ? "topbar" : a.closest("footer") ? "footer" : a.closest("section[id]") ? a.closest("section[id]").id : "body";
+    window.va("event", { name: "cta_click", data: { page: location.pathname, section: sec, href: href } });
+  });
+})();
+</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body></html>
