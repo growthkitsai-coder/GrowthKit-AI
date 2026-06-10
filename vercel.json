@@ -9,7 +9,10 @@
     { "source": "/contact.html", "destination": "/contact", "permanent": true },
     { "source": "/careers.html", "destination": "/careers", "permanent": true },
     { "source": "/methodology.html", "destination": "/methodology", "permanent": true },
-    { "source": "/terms.html", "destination": "/terms", "permanent": true }
+    { "source": "/terms.html", "destination": "/terms", "permanent": true },
+    { "source": "/manifesto.html", "destination": "/manifesto", "permanent": true },
+    { "source": "/security.html", "destination": "/security", "permanent": true },
+    { "source": "/status.html", "destination": "/status", "permanent": true }
   ],
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
@@ -17,7 +20,10 @@
     { "source": "/contact", "destination": "/contact.html" },
     { "source": "/careers", "destination": "/careers.html" },
     { "source": "/methodology", "destination": "/methodology.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/manifesto", "destination": "/manifesto.html" },
+    { "source": "/security", "destination": "/security.html" },
+    { "source": "/status", "destination": "/status.html" }
   ],
   "headers": [
     {

@@ -27,7 +27,10 @@ Pages (all public except `logo.html`):
 - `contact.html` — two channel cards (email + LinkedIn).
 - `privacy.html` — UK/EEA-aware policy. GrowthKit AI is the data controller.
 - `terms.html` — numbered ToS sections.
-- `404.html` — minimalist, `noindex, follow`. Links to home + waitlist.
+- `manifesto.html` — founding-document page ("The market is knowable."). Preamble with drop cap → 7 numbered articles (5 Believe / 2 Reject — expanded from methodology's 5 tenets, reworded so the two pages don't read copy-pasted) → "Specimen №00" signature plate with blinking cursor → CTA to waitlist/methodology.
+- `security.html` — security-posture page ("Security by subtraction."). 4 posture cards → architecture section with a mono terminal readout of the **actual** response headers from `vercel.json` (keep them in sync if headers change) → itemised data inventory → responsible disclosure (info@growthkitai.com, subject "Security — GrowthKit AI", 2-business-day ack, credit but no paid bounty) → "What we don't claim" block (explicitly NOT SOC 2 / ISO 27001 certified — never add badge claims without Avi's sign-off).
+- `status.html` — live status page. **Checks run client-side in the visitor's browser**: (1) website/CDN via cache-busted fetch of `/logo-mark-64.png`, (2) waitlist intake via GET to the Apps Script `doGet` (expects `{ok:true,…}`), both with 9s timeouts and latency readouts; (3) engine row is a static "private beta" chip. Master banner aggregates: all ok → "All systems operational", any failure → amber "Something's not answering" (copy explains it may be the visitor's network). Incident log is an honest empty state ("history begins June 2026"). Has a "run checks again" button.
+- `404.html` — minimalist, `noindex, follow`. Links to home + waitlist. No footer.
 - `logo.html` — **internal** logo variant reference page. Not linked from nav. Not in sitemap. Do not link from public pages.
 
 Shared:
@@ -37,7 +40,7 @@ Shared:
 
 Infrastructure:
 
-- `vercel.json` — clean-URL rewrites + 301 redirects + cache headers + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). Current clean-URL list: `/privacy /waitlist /contact /careers /methodology /terms`.
+- `vercel.json` — clean-URL rewrites + 301 redirects + cache headers + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy). Current clean-URL list: `/privacy /waitlist /contact /careers /methodology /terms /manifesto /security /status`. Note: `security.html`'s terminal readout quotes these headers verbatim — update it if the headers change.
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `googlea9dc9b0133a60f51.html` (Google Search Console verification).
 - `waitlist-apps-script.gs` — Apps Script source. Header has setup instructions.
 
@@ -71,6 +74,13 @@ Gitignored: `.env.local`, `.vercel/`.
 
 Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows (asymmetric right-side bias — mirrors weld.studio aesthetic). The dark body background uses `!important` because per-page inline `body { background: var(--bg); }` would otherwise win the cascade.
 
+**Dark-mode "neon console" layer (manifesto / security / status only, added 2026-06-10).** These three pages deliberately push dark mode further than the rest of the site — a techy, neon, terminal aesthetic for the dev-leaning audience — while their light mode stays identical to site DNA. The treatment lives entirely in each page's inline CSS under `:root[data-theme="dark"]`:
+
+- Tokens: `--neon: #3EF59F` (electric spring green), `--neon-2: #8FFFC9`, deep-forest panels `--deep-1: #06140D`, `--deep-2: #0A1F15`, `--deep-3: #143524`.
+- Decor layers: `.dk-grid` (fixed faint neon grid, masked to fade toward the bottom) and `.dk-scan` (slow scanline sweep). Both are `display:none` by default and only activate in dark mode; `.dk-scan` is disabled under `prefers-reduced-motion`.
+- Patterns: heading `<em>`s glow neon, mono labels/tags get neon text-shadows, cards become deep-green gradient panels with glowing borders on hover, status LEDs/chips pulse, the manifesto signature plate has a blinking cursor, primary buttons go neon-on-near-black.
+- Light mode on these pages = classic cream + forest, unchanged. Older pages keep the softer mint (`--accent-pale`) dark treatment from `theme.css`. To extend the neon look to another page, copy the dark-mode block from one of these three.
+
 **Fonts (Google Fonts):**
 
 - Instrument Serif — display/headings (with frequent `<em>` italics for emphasis)
@@ -87,7 +97,7 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 
 **SEO.** Every public page has canonical, OpenGraph, Twitter card, JSON-LD structured data, and is in `sitemap.xml`. `index.html` includes Organization + WebSite + WebPage + FAQPage schema. Match existing pattern when adding pages.
 
-**Footer.** Three-column (Product / Company / Legal), duplicated across every page (no templating). Known placeholders pointing to `#`: `Manifesto`, `Security`, `Status`. If creating any of these pages, also update sitemap, vercel.json, and every footer.
+**Footer.** Three-column (Product / Company / Legal), duplicated across every page (no templating). As of 2026-06-10 there are **no placeholder links left** — Company: Manifesto (`/manifesto`) / Methodology / Careers / Contact; Legal: Privacy / Terms / Security (`/security`) / Status (`/status`). Pages with footers: index, methodology, careers, contact, privacy, terms + the three new pages. `waitlist.html` and `404.html` have no footer (intentional).
 
 ---
 
@@ -95,9 +105,11 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 
 1. `waitlist.html` POSTs FormData (`name`, `email`, `updates`) to a Google Apps Script Web App via the `SCRIPT_URL` constant near the top of the page's inline `<script>` block.
 2. The Apps Script (`waitlist-apps-script.gs`) `doPost` appends `[Timestamp, Name, Email, Wants updates]` to Avi's Google Sheet and writes the header row on first signup. `doGet` returns the live signup count as JSON.
-3. **Failure modes:**
+3. **`SCRIPT_URL` is now duplicated in `status.html`** (added 2026-06-10), which GETs the same endpoint as a live health check. If the deployment URL ever changes, update it in **both** `waitlist.html` and `status.html`.
+4. **Failure modes:**
    - Empty `SCRIPT_URL` → page shows "Form is not configured yet".
    - Re-deploying as "New deployment" in Apps Script issues a **new URL** and breaks the page. **Always use "Manage deployments → pencil → New version"** instead — that keeps the URL stable.
+   - If the Apps Script deployment is deleted or its access changes from "Anyone", the status page's waitlist row will show amber "unreachable" — that's the check working, not a bug in the page.
 
 ---
 
@@ -121,6 +133,7 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 ## Known sharp edges / gotchas
 
 - **CLAUDE.md is committed to git.** Do not put secrets, credentials, or PII into it. Same for this memory.md file — treat it as public.
+- **`security.html` makes factual claims** (MFA on founder accounts, named vendor list, no payment data, honest "no SOC 2" disclosure). If infrastructure or vendors change, update that page — a wrong security page is worse than none.
 - **No templating.** Footer/topbar/`<head>` duplication is intentional but means changes must be replicated by hand across every HTML file. A grep + multi-file edit is the right pattern.
 - **`logo.html` is internal.** Don't add it to nav, sitemap, or any public link.
 - **Dark-mode body background uses `!important`.** This is deliberate (cascade conflict with per-page inline styles). Don't "clean it up".
@@ -132,8 +145,11 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 
 ## Open / placeholder items
 
-- Footer links `Manifesto`, `Security`, `Status` all point to `#` — pages don't exist yet.
+- ~~Footer links `Manifesto`, `Security`, `Status` point to `#`~~ — **resolved 2026-06-10**: all three pages now exist and every footer links to them.
 - Hiring pipeline: two open Intern roles on `careers.html` (Growth, Marketing). Applications go to `info@growthkitai.com` with subject `Internship — GrowthKit AI`.
+- `security.html` promises a named thank-you on the page for valid vulnerability reports — if one ever arrives, add the credit there.
+- `status.html` promises public postmortems in its incident log — if an incident happens, write it up there (what happened, why, what changed).
+- Next steps agreed in planning (2026-06-10 session): ① email the waitlist (44 signups as of 2026-06-10) and invite a first pilot cohort — Cowork task; ② build a public "specimen" page (example market map / teardown excerpt) — Cowork drafts content, Code builds the page; ③ add a conversion event on waitlist submit; ④ start LinkedIn distribution once the specimen exists; ⑤ verify `info@growthkitai.com` actually receives mail (every page + careers route through it).
 
 ---
 
@@ -205,3 +221,10 @@ If you ever feel the two tools have diverged in understanding, run `git status` 
 
 - **2026-05-26** — Initial creation. Captured everything in CLAUDE.md plus observations from the repo (theme.css, vercel.json, sitemap.xml, waitlist-apps-script.gs, theme.js). Added Cowork + Code collaboration playbook.
 - **2026-05-26** — Added explicit commit policy (Claude Code auto-commits, Cowork prompts the user). Expanded the Cowork + Code section with a redirection rule: either tool should suggest the other when a task fits it better, with concrete examples. Mirrored these rules into CLAUDE.md.
+- **2026-06-10** — (Claude Code session) Shipped the three missing footer pages and killed the last placeholder links:
+  - **New pages:** `manifesto.html` (7-article founding document), `security.html` (honest posture page — explicitly no SOC 2 claim), `status.html` (live client-side checks of CDN + waitlist endpoint). All three follow the standard head/SEO/topbar/footer pattern, and all three carry a new dark-mode **"neon console"** layer (electric `#3EF59F` neon + deep-forest panels + grid/scanline decor) per Avi's direction that dark mode should feel distinctly techy/neon while light mode stays classic cream + forest. Documented under "Design system" above.
+  - **Footers normalized on every page** (index, methodology, careers, contact, privacy, terms + new pages): Manifesto → `/manifesto`, Security → `/security`, Status → `/status`. methodology.html's footer was missing the Manifesto entry entirely — added.
+  - **methodology.html** was missing the Vercel Web Analytics snippet — added, so analytics is now genuinely on every page.
+  - **vercel.json** — rewrites + 301 redirects for the three new clean URLs. **sitemap.xml** — three new URL entries (lastmod 2026-06-10).
+  - **`SCRIPT_URL` now exists in two files** (waitlist.html + status.html) — update both if the Apps Script deployment URL changes.
+  - Waitlist stood at **44 signups** when checked this session.

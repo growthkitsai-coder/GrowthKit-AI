@@ -44,6 +44,9 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - `methodology.html` — long-form pitch page. Sections: Hero → Mission → Marquee → 4 Pillars → 3 Steps → "Opinions we hold strongly" (5 tenets) → Final CTA.
 - `careers.html` — Why-this-why-now → 4 perks → 2 role cards (Growth / Marketing Intern) → 3 application channels (email, company LinkedIn, Avi's LinkedIn).
 - `contact.html` — short page with two channel cards (email + LinkedIn).
+- `manifesto.html` — founding-document page ("The market is knowable"): preamble with drop cap → 7 numbered articles (5 Believe / 2 Reject, expanded from methodology's tenets) → "Specimen №00" signature plate → CTA.
+- `security.html` — honest security-posture page ("Security by subtraction"): 4 posture cards → architecture section with a terminal readout of the real `vercel.json` response headers → full data inventory → responsible-disclosure steps (email, 2-business-day ack, credit-no-bounty) → "What we don't claim" honesty block (explicitly NOT SOC 2 / ISO 27001 — don't add badge claims).
+- `status.html` — live status page. Checks run **client-side in the visitor's browser**: pings a CDN asset (`/logo-mark-64.png?ping=…`) and the waitlist Apps Script `doGet` endpoint, measures latency, renders operational/degraded chips + a master banner. The engine row is a static "private beta" chip (no public endpoint). Incident log is an honest empty state. **This page contains a second copy of `SCRIPT_URL`** (see Waitlist plumbing).
 - `privacy.html` — UK/EEA-aware policy. **GrowthKit AI is the data controller.** Numbered sections (Who we are, What this policy covers, Information collected, Use, Legal basis (UK/EEA), Sharing, Cookies & analytics, International transfers, Retention, Security, Rights, Children, Third-party links, Disclaimers, Liability, Indemnification, Changes, Governing law, Contact).
 - `terms.html` — numbered sections covering the agreement, definitions, eligibility, waitlist/pilots/beta, acceptable use, accounts, IP, fees, third parties, confidentiality, liability, termination, governing law.
 - `404.html` — minimalist error page, `noindex, follow`. Links back to home + waitlist.
@@ -61,12 +64,13 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - The Apps Script (`waitlist-apps-script.gs`) appends rows to **a Google Sheet that Avi owns personally** (under his Google account — *not* a service account, not a shared workspace). The script's `doPost` appends `[Timestamp, Name, Email, Wants updates]` and writes the header row on first signup. `doGet` returns the live signup count as JSON.
 - **All waitlist data lives in that Google Sheet — it is the system of record.** No copy is stored on Vercel, in git, or anywhere else.
 - **Failure modes to know:** (a) if `SCRIPT_URL` is empty the page shows "Form is not configured yet"; (b) **re-deploying as "New deployment" in Apps Script issues a new URL and breaks the page** until `SCRIPT_URL` is updated — always use "Manage deployments → pencil → New version" instead.
+- **`SCRIPT_URL` now lives in TWO files:** `waitlist.html` (POST, form submit) and `status.html` (GET, live health check). If the deployment URL ever changes, update both.
 
 ## Conventions
 
 - **Each HTML page is self-contained.** Per-page CSS is inlined; only `theme.css` is shared. Don't extract CSS into shared files without a real reason — the inline pattern is deliberate (no bundler, fastest first paint).
 - **Dark mode.** Driven by `data-theme="dark"` on `<html>`, persisted in `localStorage` under key `gk-theme`. Every `<head>` starts with a pre-paint inline script that sets the attribute before first paint to avoid a flash. Don't remove it. Dark-mode `body` background uses radial-gradient glows with `!important` because per-page inline `body { background: var(--bg); }` would otherwise win.
-- **Clean URLs.** `vercel.json` rewrites `/privacy` → `/privacy.html` etc. and 301-redirects the `.html` form to the clean form. **When you add a new page, update both `vercel.json` (rewrites + redirects) and `sitemap.xml`.** The cleanURL list currently is: `/privacy /waitlist /contact /careers /methodology /terms`.
+- **Clean URLs.** `vercel.json` rewrites `/privacy` → `/privacy.html` etc. and 301-redirects the `.html` form to the clean form. **When you add a new page, update both `vercel.json` (rewrites + redirects) and `sitemap.xml`.** The cleanURL list currently is: `/privacy /waitlist /contact /careers /methodology /terms /manifesto /security /status`.
 - **Topbar morphs into a floating pill on scroll** (`theme.css` handles the transition; pages add the `.scrolled` class via their own inline script when `window.scrollY > 24`).
 - **Copy voice.** Confident, operator-grade, no fluff. Em-dashes for asides. Italic `<em>` inside headings for emphasis (this is *the* signature pattern — e.g. "Markets, <em>dissected</em>", "Talk to a <em>founder</em>, not a form"). Avoid corporate-speak. "A founder, not a form, will reply" recurs.
 - **Color tokens** (light defaults — dark overrides in `theme.css`):
@@ -76,7 +80,8 @@ Everything lives at the repo root — no `src/`, no `public/`.
   - `--line: #E2DDD3` · `--line-2: #D4CEC1`
   - `--maxw: 1180px`
 - **SEO.** Every public page has canonical, OpenGraph, Twitter card, JSON-LD structured data, and is listed in `sitemap.xml`. `index.html` includes Organization + WebSite + WebPage + FAQPage schema. Match the existing pattern when adding pages.
-- **Footer.** Three-column (Product / Company / Legal). **Known placeholders:** the `Manifesto`, `Security`, and `Status` links all point to `#` — these pages don't exist yet. If creating them, also add to sitemap, vercel.json, and update all footers (they're duplicated across every page).
+- **Footer.** Three-column (Product / Company / Legal). As of 2026-06-10 there are **no placeholder links left**: Company = Manifesto / Methodology / Careers / Contact, Legal = Privacy / Terms / Security / Status, all pointing at real pages. Footers are still duplicated across every page — keep them in sync.
+- **Dark mode "neon console" treatment (new pages only).** `manifesto.html`, `security.html`, and `status.html` carry an extra dark-mode layer in their inline CSS: electric spring-green neon (`--neon: #3EF59F`, `--neon-2: #8FFFC9`) with deep-forest panels (`--deep-1: #06140D`, `--deep-2: #0A1F15`, `--deep-3: #143524`), a fixed faint grid floor (`.dk-grid`) and a scanline sweep (`.dk-scan`). These decorative layers are `display:none` in light mode and only activate under `[data-theme="dark"]` — light mode on every page stays classic cream + forest. The older pages still use the softer mint (`--accent-pale`) dark treatment from `theme.css`. If extending the neon look to other pages, copy the pattern from one of these three.
 - **Reduced motion.** All animations have `@media (prefers-reduced-motion: reduce)` fallbacks.
 
 ## Workflow
