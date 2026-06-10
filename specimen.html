@@ -1,0 +1,1306 @@
+<!DOCTYPE html><html lang="en"><head>
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<link rel="icon" type="image/png" sizes="512x512" href="/logo-mark-512.png">
+<link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/logo-mark-512.png">
+<title>Specimen — a sample market teardown — GrowthKit AI</title>
+<meta name="description" content="A real GrowthKit AI deliverable, run on a fictional company: market map, competitor teardown, gap analysis, and 90-day plan — redacted where your market gets specific.">
+<meta name="theme-color" content="#1F4732">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="author" content="GrowthKit AI">
+<link rel="canonical" href="https://growthkitai.com/specimen">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GrowthKit AI">
+<meta property="og:title" content="Specimen — a sample market teardown — GrowthKit AI">
+<meta property="og:description" content="The actual deliverable, run on a fictional company. Market map, teardown, gap analysis, 90-day plan — see the rigor before you sign up.">
+<meta property="og:url" content="https://growthkitai.com/specimen">
+<meta property="og:image" content="https://growthkitai.com/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GrowthKit AI — Markets, dissected — not guessed.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Specimen — a sample market teardown — GrowthKit AI">
+<meta name="twitter:description" content="The actual deliverable, run on a fictional company. See the rigor before you sign up.">
+<meta name="twitter:image" content="https://growthkitai.com/og-card.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://growthkitai.com/specimen#webpage","url":"https://growthkitai.com/specimen","name":"Specimen — a sample market teardown — GrowthKit AI","isPartOf":{"@id":"https://growthkitai.com/#site"},"inLanguage":"en","description":"A real GrowthKit AI deliverable, run on a fictional company: market map, competitor teardown, gap analysis, and 90-day plan — redacted where your market gets specific.","breadcrumb":{"@id":"https://growthkitai.com/specimen#breadcrumb"}},{"@type":"BreadcrumbList","@id":"https://growthkitai.com/specimen#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://growthkitai.com/"},{"@type":"ListItem","position":2,"name":"Specimen","item":"https://growthkitai.com/specimen"}]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F2EFE8;
+    --ink: #14130F;
+    --ink-2: #2A2823;
+    --muted: #6B6760;
+    --line: #E2DDD3;
+    --line-2: #D4CEC1;
+    --accent: #1F4732;
+    --accent-soft: #2E6249;
+    --paper: #FFFFFF;
+    --maxw: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    font-feature-settings: "ss01", "cv11";
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+
+  .serif { font-family: 'Instrument Serif', 'Times New Roman', serif; font-weight: 400; letter-spacing: -0.01em; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .eyebrow .num { color: var(--accent); margin-right: 10px; }
+
+  main, footer { position: relative; z-index: 1; }
+
+  /* === Top bar === */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .topbar.scrolled {
+    background: rgba(250, 248, 244, 0.78);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    backdrop-filter: saturate(140%) blur(12px);
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04);
+  }
+  .topbar-inner {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .brand .logo-mark {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-size: 18px;
+    font-style: italic;
+    transform: translateY(-1px);
+    position: relative;
+    overflow: hidden;
+  }
+  .brand .logo-mark svg { display: block; }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--ink-2);
+    transition: color .2s ease;
+    position: relative;
+    padding: 4px 0;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .35s cubic-bezier(.16,1,.3,1);
+  }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .nav-cta:hover { background: var(--accent); }
+  .nav-cta .arr { font-family: 'Instrument Serif', serif; font-style: italic; transform: translateY(-1px); }
+
+  @media (max-width: 820px) {
+    .nav-links { display: none; }
+  }
+
+  /* === Page hero === */
+  .page-hero {
+    position: relative;
+    padding: 104px 0 64px;
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .page-hero .eyebrow { margin-bottom: 22px; }
+  .page-hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(52px, 8vw, 104px);
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    color: var(--ink);
+    margin: 0 0 28px;
+    max-width: 14ch;
+  }
+  .page-hero h1 em { font-style: italic; color: var(--accent); }
+  .page-hero .lede {
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    max-width: 56ch;
+    margin: 0;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hero-meta .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 9px;
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.12);
+  }
+
+  /* === Brief plate (subject card) === */
+  .brief { padding: 88px 0; border-bottom: 1px solid var(--line); }
+  .brief-plate {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 32px 60px -36px rgba(20,19,15,0.22);
+  }
+  .brief-plate .plate-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 22px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .brief-plate .plate-head .num { color: var(--accent); margin-right: 4px; }
+  .brief-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .brief-grid .cell {
+    padding: 26px 28px 24px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .brief-grid .cell:nth-child(3n) { border-right: 0; }
+  .brief-grid .cell:nth-child(n+4) { border-bottom: 0; }
+  .brief-grid .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .brief-grid .v {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .brief-grid .v em { font-style: italic; color: var(--accent); }
+  .brief-note {
+    padding: 18px 28px;
+    border-top: 1px dashed var(--line);
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .brief-note strong { color: var(--ink-2); font-weight: 600; }
+  @media (max-width: 720px) {
+    .brief-grid { grid-template-columns: 1fr 1fr; }
+    .brief-grid .cell:nth-child(3n) { border-right: 1px solid var(--line); }
+    .brief-grid .cell:nth-child(2n) { border-right: 0; }
+    .brief-grid .cell { border-bottom: 1px solid var(--line); }
+    .brief-grid .cell:nth-child(n+5) { border-bottom: 0; }
+  }
+
+  /* === Shared section chrome === */
+  .sect { padding: 100px 0; border-bottom: 1px solid var(--line); }
+  .sect .section-head { margin-bottom: 52px; max-width: 820px; }
+  .sect .section-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(34px, 4.4vw, 54px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 18px 0 16px;
+    color: var(--ink);
+    max-width: 18ch;
+  }
+  .sect .section-head h2 em { font-style: italic; color: var(--accent); }
+  .sect .section-head .lede {
+    font-size: 16.5px;
+    color: var(--ink-2);
+    max-width: 62ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* === 01 · Market map === */
+  .map-panel {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 32px 60px -36px rgba(20,19,15,0.22);
+  }
+  .map-panel .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 12px 22px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .map-panel .panel-head .num { color: var(--accent); }
+  .map-svg-wrap { padding: 28px 26px 10px; }
+  .map-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+  .map-svg .axis      { stroke: var(--line-2); stroke-width: 1.5; }
+  .map-svg .gridline  { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 6; }
+  .map-svg .axis-label,
+  .map-svg .tick-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    fill: var(--muted);
+  }
+  .map-svg .dot       { fill: var(--ink-2); opacity: 0.75; }
+  .map-svg .dot-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    fill: var(--ink-2);
+  }
+  .map-svg .dot-sub   {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    fill: var(--muted);
+  }
+  .map-svg .you-dot   { fill: var(--accent); }
+  .map-svg .you-ring  { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.35; }
+  .map-svg .you-label { fill: var(--accent); font-weight: 600; }
+  .map-svg .gap-zone  { fill: var(--accent); opacity: 0.06; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 6 6; }
+  .map-svg .gap-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    fill: var(--accent);
+    font-weight: 600;
+  }
+  .map-legend {
+    display: flex;
+    gap: 26px;
+    flex-wrap: wrap;
+    padding: 16px 26px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .map-legend .swatch {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    margin-right: 8px;
+    transform: translateY(0.5px);
+  }
+  .map-legend .s-comp { background: var(--ink-2); opacity: 0.75; }
+  .map-legend .s-you  { background: var(--accent); }
+  .map-legend .s-gap  {
+    background: transparent;
+    border: 1.5px dashed var(--accent);
+    border-radius: 2px;
+  }
+
+  /* === 02 · Teardown table === */
+  .teardown-table {
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--paper);
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 32px 60px -36px rgba(20,19,15,0.22);
+  }
+  .tt-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1.3fr 1fr 1.4fr;
+    border-bottom: 1px solid var(--line);
+  }
+  .tt-row:last-child { border-bottom: 0; }
+  .tt-row.tt-head {
+    background: var(--bg-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .tt-row > div { padding: 20px 22px; }
+  .tt-row.tt-head > div { padding: 12px 22px; }
+  .tt-row .c-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    color: var(--ink);
+  }
+  .tt-row .c-name small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .tt-row .c-body { font-size: 14px; color: var(--ink-2); line-height: 1.58; }
+  .tt-row .c-soft { font-size: 14px; color: var(--ink-2); line-height: 1.58; }
+  .tt-row .c-soft strong { color: var(--accent); font-weight: 600; }
+  @media (max-width: 860px) {
+    .tt-row { grid-template-columns: 1fr 1fr; }
+    .tt-row.tt-head { display: none; }
+    .tt-row > div { padding: 16px 18px; }
+  }
+
+  /* === 03 · Gap matrix === */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  .gap-card {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 30px 30px 26px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04), 0 24px 50px -36px rgba(20,19,15,0.2);
+  }
+  .gap-card .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .gap-card h3 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(22px, 2.6vw, 30px);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .gap-card h3 em { font-style: italic; color: var(--accent); }
+  .gap-card p { font-size: 14.5px; color: var(--ink-2); line-height: 1.6; margin: 0 0 22px; }
+  .gap-meter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .gap-meter .bar {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .gap-meter .bar i {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  @media (max-width: 760px) { .gap-grid { grid-template-columns: 1fr; } }
+
+  /* === 04 · Plays === */
+  .play-list { border-top: 1px solid var(--line); }
+  .play {
+    display: grid;
+    grid-template-columns: 92px 1fr 220px;
+    gap: 34px;
+    padding: 36px 0 38px;
+    border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+  .play .p-num {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 34px;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 4px;
+  }
+  .play h3 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(22px, 2.8vw, 30px);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .play h3 em { font-style: italic; color: var(--accent); }
+  .play p { font-size: 14.5px; color: var(--ink-2); line-height: 1.6; margin: 0; max-width: 64ch; }
+  .play .p-meta {
+    display: grid;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 6px;
+  }
+  .play .p-meta b { color: var(--ink-2); font-weight: 500; }
+  .play .p-meta .kill { color: var(--accent); }
+  @media (max-width: 860px) {
+    .play { grid-template-columns: 56px 1fr; }
+    .play .p-meta { grid-column: 2; }
+  }
+
+  /* === Redaction === */
+  .redacted-block { position: relative; }
+  .redacted {
+    filter: blur(7px);
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .redact-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .redact-card {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 38px 42px;
+    text-align: center;
+    max-width: 460px;
+    margin: 0 22px;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 40px 80px -36px rgba(20,19,15,0.35);
+  }
+  .redact-card .lock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .redact-card h3 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .redact-card h3 em { font-style: italic; color: var(--accent); }
+  .redact-card p { font-size: 14px; color: var(--ink-2); line-height: 1.6; margin: 0 0 24px; }
+  .redact-card .actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+  /* === Closing === */
+  .closing-cta { padding: 130px 0 140px; text-align: center; }
+  .closing-cta h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(40px, 5.6vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin: 22px auto 24px;
+    max-width: 20ch;
+    color: var(--ink);
+  }
+  .closing-cta h2 em { font-style: italic; color: var(--accent); }
+  .closing-cta p {
+    font-size: 17px;
+    color: var(--ink-2);
+    max-width: 48ch;
+    margin: 0 auto 36px;
+  }
+  .closing-cta .actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 26px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 6px;
+    font-size: 14.5px;
+    font-weight: 500;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .btn-primary:hover { background: var(--ink); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary .arr { font-family: 'Instrument Serif', serif; font-style: italic; transition: transform .2s ease; }
+  .btn-primary:hover .arr { transform: translateX(3px); }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 22px;
+    border: 1px solid var(--line-2);
+    color: var(--ink);
+    border-radius: 6px;
+    font-size: 14.5px;
+    background: transparent;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* === Footer === */
+  footer {
+    background: var(--bg);
+    padding: 56px 0 40px;
+    border-top: 1px solid var(--line);
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    margin-bottom: 48px;
+  }
+  .foot-grid h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+  .foot-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .foot-grid ul a { font-size: 14px; color: var(--ink-2); transition: color .2s ease; }
+  .foot-grid ul a:hover { color: var(--accent); }
+  .foot-tag {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-top: 10px;
+    max-width: 24ch;
+  }
+  .foot-bar {
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  @media (max-width: 760px) {
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* === Reveal === */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer (page-specific overrides).
+     Shared tokens, grid floor + scanline, em glow, buttons and
+     eyebrow nums come from theme.css. This block re-skins the
+     specimen components only. Light mode above is untouched.
+     ───────────────────────────────────────────────────────────── */
+  :root[data-theme="dark"] .hero-meta .dot {
+    background: var(--neon);
+    box-shadow:
+      0 0 0 3px rgba(62,245,159,0.16),
+      0 0 14px rgba(62,245,159,0.75);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+
+  /* Panels become deep-green instrument readouts */
+  :root[data-theme="dark"] .brief-plate,
+  :root[data-theme="dark"] .map-panel,
+  :root[data-theme="dark"] .teardown-table,
+  :root[data-theme="dark"] .gap-card,
+  :root[data-theme="dark"] .redact-card {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143,255,201,0.05),
+      0 0 0 1px rgba(62,245,159,0.08),
+      0 0 38px -10px rgba(62,245,159,0.16),
+      0 28px 60px -36px rgba(0,0,0,0.7);
+  }
+  :root[data-theme="dark"] .brief-plate .plate-head,
+  :root[data-theme="dark"] .map-panel .panel-head,
+  :root[data-theme="dark"] .tt-row.tt-head {
+    background: rgba(62,245,159,0.05);
+    border-color: var(--deep-3);
+    color: rgba(143,255,201,0.65);
+  }
+  :root[data-theme="dark"] .brief-plate .plate-head .num,
+  :root[data-theme="dark"] .map-panel .panel-head .num {
+    color: var(--neon);
+    text-shadow: 0 0 12px rgba(62,245,159,0.45);
+  }
+  :root[data-theme="dark"] .brief-grid .cell,
+  :root[data-theme="dark"] .brief-note,
+  :root[data-theme="dark"] .tt-row { border-color: rgba(62,245,159,0.14); }
+  :root[data-theme="dark"] .gap-card .tag {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62,245,159,0.5);
+  }
+  :root[data-theme="dark"] .gap-meter .bar { background: rgba(255,255,255,0.07); }
+  :root[data-theme="dark"] .gap-meter .bar i {
+    background: var(--neon);
+    box-shadow: 0 0 10px rgba(62,245,159,0.6);
+  }
+  :root[data-theme="dark"] .tt-row .c-soft strong { color: var(--neon); }
+  :root[data-theme="dark"] .play .p-num {
+    color: var(--neon);
+    text-shadow: 0 0 22px rgba(62,245,159,0.4);
+  }
+  :root[data-theme="dark"] .play .p-meta .kill { color: var(--neon); }
+  :root[data-theme="dark"] .redact-card .lock {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62,245,159,0.5);
+  }
+
+  /* Map SVG re-inks itself via CSS variables */
+  :root[data-theme="dark"] .map-svg .axis      { stroke: var(--deep-3); }
+  :root[data-theme="dark"] .map-svg .gridline  { stroke: rgba(62,245,159,0.10); }
+  :root[data-theme="dark"] .map-svg .axis-label,
+  :root[data-theme="dark"] .map-svg .tick-label,
+  :root[data-theme="dark"] .map-svg .dot-sub   { fill: rgba(143,255,201,0.55); }
+  :root[data-theme="dark"] .map-svg .dot       { fill: #DDD9D0; }
+  :root[data-theme="dark"] .map-svg .dot-label { fill: #DDD9D0; }
+  :root[data-theme="dark"] .map-svg .you-dot   { fill: var(--neon); }
+  :root[data-theme="dark"] .map-svg .you-ring  { stroke: var(--neon); opacity: 0.5; }
+  :root[data-theme="dark"] .map-svg .you-label { fill: var(--neon); }
+  :root[data-theme="dark"] .map-svg .gap-zone  { fill: var(--neon); opacity: 0.07; stroke: var(--neon); }
+  :root[data-theme="dark"] .map-svg .gap-label { fill: var(--neon); }
+  :root[data-theme="dark"] .map-legend .s-comp { background: #DDD9D0; }
+  :root[data-theme="dark"] .map-legend .s-you  { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.7); }
+  :root[data-theme="dark"] .map-legend .s-gap  { border-color: var(--neon); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .topbar { transition: none; }
+    :root[data-theme="dark"] .hero-meta .dot { animation: none; }
+  }
+</style>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js" defer></script>
+</head>
+<body>
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
+
+<!-- ====== TOP BAR ====== -->
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="/" class="brand">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 80 80">
+          <rect width="80" height="80" rx="14" fill="#1F4732"/>
+          <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+          <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+          <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+        </svg>
+      </span>
+      <span>GrowthKit AI</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#engine">Product</a>
+      <a href="/#process">How it works</a>
+      <a href="/methodology">Methodology</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <div class="topbar-end">
+      <a href="/waitlist" class="nav-cta">
+        Join waitlist <span class="arr">↗</span>
+      </a>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
+        <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ====== PAGE HERO ====== -->
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="reveal in">
+        <div class="eyebrow"><span class="num">/</span>Specimen №02 — sample deliverable</div>
+        <h1>This is the <em>specimen</em>.</h1>
+        <p class="lede">
+          Every claim on this site is unverifiable until you see the work. So here it is — an actual GrowthKit deliverable, run end-to-end on a fictional company in a real category. The structure, depth, and method are exactly what subscribers receive. The parts that get specific to <em>your</em> market are redacted.
+        </p>
+        <div class="hero-meta">
+          <span><span class="dot" aria-hidden="true"></span>Live format — refreshed monthly</span>
+          <span>Subject: fictional</span>
+          <span>Method: real</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== BRIEF ====== -->
+  <section class="brief">
+    <div class="wrap">
+      <div class="brief-plate reveal">
+        <div class="plate-head">
+          <span><span class="num">/</span>subject brief</span>
+          <span>prepared — june 2026</span>
+        </div>
+        <div class="brief-grid">
+          <div class="cell">
+            <div class="k">Company</div>
+            <div class="v">Crewline <em>(fictional)</em></div>
+          </div>
+          <div class="cell">
+            <div class="k">Category</div>
+            <div class="v">Field-service software — independent HVAC contractors</div>
+          </div>
+          <div class="cell">
+            <div class="k">Stage</div>
+            <div class="v">Seed · live product</div>
+          </div>
+          <div class="cell">
+            <div class="k">Traction</div>
+            <div class="v">$41k MRR <em>(illustrative)</em></div>
+          </div>
+          <div class="cell">
+            <div class="k">Geography</div>
+            <div class="v">United States</div>
+          </div>
+          <div class="cell">
+            <div class="k">Deliverables</div>
+            <div class="v">Map · Teardown · Gaps · 90-day plan</div>
+          </div>
+        </div>
+        <div class="brief-note">
+          <strong>Honesty note.</strong> Crewline does not exist; the competitors below are invented composites and every number is illustrative. We chose a fictional subject so we could show the full anatomy of a deliverable without exposing a paying customer's market intelligence. The pipeline that produced this page is the one that runs on real subscriptions.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 01 · MARKET MAP ====== -->
+  <section class="sect" id="map">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow"><span class="num">01</span>Market map</div>
+        <h2>Eleven players, one <em>unguarded</em> corner.</h2>
+        <p class="lede">
+          We position every competitor on the two axes that actually decide purchase in this category: how much workflow the product owns, and what it costs an owner-operator to run it. The map below is hand-checked by an operator before it ships.
+        </p>
+      </div>
+
+      <div class="map-panel reveal">
+        <div class="panel-head">
+          <span><span class="num">/</span>positioning — workflow depth × price</span>
+          <span>n = 11 vendors · jun 2026</span>
+        </div>
+        <div class="map-svg-wrap">
+          <svg class="map-svg" viewBox="0 0 880 560" role="img" aria-label="Market map: workflow depth versus price per seat. Ten fictional competitors plotted; Crewline sits in a highlighted gap zone of deep workflow at owner-operator pricing.">
+            <!-- gridlines -->
+            <line class="gridline" x1="90"  y1="60"  x2="90"  y2="480"/>
+            <line class="gridline" x1="270" y1="60"  x2="270" y2="480"/>
+            <line class="gridline" x1="450" y1="60"  x2="450" y2="480"/>
+            <line class="gridline" x1="630" y1="60"  x2="630" y2="480"/>
+            <line class="gridline" x1="810" y1="60"  x2="810" y2="480"/>
+            <line class="gridline" x1="90"  y1="60"  x2="810" y2="60"/>
+            <line class="gridline" x1="90"  y1="165" x2="810" y2="165"/>
+            <line class="gridline" x1="90"  y1="270" x2="810" y2="270"/>
+            <line class="gridline" x1="90"  y1="375" x2="810" y2="375"/>
+
+            <!-- axes -->
+            <line class="axis" x1="90" y1="480" x2="810" y2="480"/>
+            <line class="axis" x1="90" y1="60"  x2="90"  y2="480"/>
+            <text class="axis-label" x="450" y="530" text-anchor="middle">price per seat / month →</text>
+            <text class="axis-label" x="-270" y="40" transform="rotate(-90)" text-anchor="middle">workflow depth →</text>
+            <text class="tick-label" x="90"  y="503" text-anchor="middle">$0</text>
+            <text class="tick-label" x="270" y="503" text-anchor="middle">$50</text>
+            <text class="tick-label" x="450" y="503" text-anchor="middle">$120</text>
+            <text class="tick-label" x="630" y="503" text-anchor="middle">$220</text>
+            <text class="tick-label" x="810" y="503" text-anchor="middle">$350+</text>
+
+            <!-- gap zone -->
+            <rect class="gap-zone" x="130" y="95" width="230" height="160" rx="10"/>
+            <text class="gap-label" x="150" y="125">the gap</text>
+            <text class="dot-sub" x="150" y="143">deep workflow · owner-operator price</text>
+
+            <!-- competitors (fictional composites) -->
+            <circle class="dot" cx="700" cy="90"  r="9"/>
+            <text class="dot-label" x="718" y="88">Atlas FSM</text>
+            <text class="dot-sub"   x="718" y="103">enterprise suite</text>
+
+            <circle class="dot" cx="585" cy="150" r="8"/>
+            <text class="dot-label" x="602" y="148">DispatchPro</text>
+            <text class="dot-sub"   x="602" y="163">mid-market all-in-one</text>
+
+            <circle class="dot" cx="455" cy="205" r="8"/>
+            <text class="dot-label" x="472" y="203">FieldHive</text>
+            <text class="dot-sub"   x="472" y="218">SMB all-in-one</text>
+
+            <circle class="dot" cx="350" cy="330" r="7"/>
+            <text class="dot-label" x="366" y="328">Wrenchly</text>
+            <text class="dot-sub"   x="366" y="343">invoicing point tool</text>
+
+            <circle class="dot" cx="250" cy="385" r="7"/>
+            <text class="dot-label" x="266" y="383">RouteOwl</text>
+            <text class="dot-sub"   x="266" y="398">scheduling point tool</text>
+
+            <circle class="dot" cx="475" cy="300" r="7"/>
+            <text class="dot-label" x="491" y="298">ServiceDeck</text>
+            <text class="dot-sub"   x="491" y="313">horizontal CRM, retrofitted</text>
+
+            <circle class="dot" cx="660" cy="250" r="7"/>
+            <text class="dot-label" x="676" y="248">TradeStack</text>
+            <text class="dot-sub"   x="676" y="263">multi-trade platform</text>
+
+            <circle class="dot" cx="180" cy="430" r="7"/>
+            <text class="dot-label" x="196" y="428">QuoteHammer</text>
+            <text class="dot-sub"   x="196" y="443">quoting only</text>
+
+            <circle class="dot" cx="125" cy="455" r="7"/>
+            <text class="dot-label" x="141" y="453">Spreadsheets</text>
+            <text class="dot-sub"   x="141" y="468">status quo — 61% of segment</text>
+
+            <circle class="dot" cx="545" cy="355" r="7"/>
+            <text class="dot-label" x="561" y="353">JobLedger</text>
+            <text class="dot-sub"   x="561" y="368">accounting-first</text>
+
+            <!-- the subject -->
+            <circle class="you-ring" cx="245" cy="175" r="17"/>
+            <circle class="you-dot"  cx="245" cy="175" r="9"/>
+            <text class="dot-label you-label" x="245" y="148" text-anchor="middle">CREWLINE</text>
+          </svg>
+        </div>
+        <div class="map-legend">
+          <span><i class="swatch s-comp"></i>competitor (fictional composite)</span>
+          <span><i class="swatch s-you"></i>subject company</span>
+          <span><i class="swatch s-gap"></i>identified gap zone</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 02 · COMPETITOR TEARDOWN ====== -->
+  <section class="sect" id="teardown">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow"><span class="num">02</span>Competitor teardown</div>
+        <h2>Where each rival <em>wins</em> — and where they've gone soft.</h2>
+        <p class="lede">
+          Pricing pages taken apart line by line, review-site complaints mined and clustered, positioning read against what buyers actually search. Three of six entries shown; the rest behave the same way, about different companies.
+        </p>
+      </div>
+
+      <div class="teardown-table reveal">
+        <div class="tt-row tt-head">
+          <div>Competitor</div>
+          <div>Wedge &amp; motion</div>
+          <div>Pricing</div>
+          <div>Where they're soft</div>
+        </div>
+        <div class="tt-row">
+          <div class="c-name">Atlas FSM<small>enterprise incumbent</small></div>
+          <div class="c-body">Owns the multi-truck fleet segment with a sales-led motion and a 6-week onboarding. The brand every contractor knows — and most can't afford.</div>
+          <div class="c-body">$298/seat/mo<br>annual contract, setup fee</div>
+          <div class="c-soft"><strong>Soft underneath:</strong> 1–3 truck shops churn in trials — onboarding assumes an office manager the owner-operator doesn't have.</div>
+        </div>
+        <div class="tt-row">
+          <div class="c-name">DispatchPro<small>mid-market all-in-one</small></div>
+          <div class="c-body">All-in-one for 5–20 tech shops, growth via franchise partnerships. Strong scheduling; everything else is acquired modules stitched together.</div>
+          <div class="c-body">$129/seat/mo<br>monthly, per-seat</div>
+          <div class="c-soft"><strong>Soft underneath:</strong> complaint mining shows "invoice sync" as the top recurring grievance for 14 straight months — an integration wound that hasn't closed.</div>
+        </div>
+        <div class="tt-row">
+          <div class="c-name">FieldHive<small>SMB all-in-one</small></div>
+          <div class="c-body">Closest to the gap zone. PLG motion, free trial, good mobile app. Spreads across all trades — landscaping to locksmiths — so HVAC-specific workflow stalls in the backlog.</div>
+          <div class="c-body">$89/seat/mo<br>monthly, add-on heavy</div>
+          <div class="c-soft"><strong>Soft underneath:</strong> add-on pricing crosses $140 effective once permits + maintenance contracts are bolted on. Buyers notice; reviews say so.</div>
+        </div>
+        <div class="redacted-block">
+          <div class="redacted" aria-hidden="true">
+            <div class="tt-row">
+              <div class="c-name">ServiceDeck<small>horizontal CRM</small></div>
+              <div class="c-body">Generic pipeline tooling retrofitted for trades; partner-led distribution through accounting software marketplaces.</div>
+              <div class="c-body">$74/seat/mo</div>
+              <div class="c-soft"><strong>Soft underneath:</strong> no native dispatch — relies on a third-party calendar bridge buyers describe as fragile.</div>
+            </div>
+            <div class="tt-row">
+              <div class="c-name">TradeStack<small>multi-trade platform</small></div>
+              <div class="c-body">Roll-up strategy, buying point tools and cross-selling the bundle into an installed base of 11k shops.</div>
+              <div class="c-body">$185/seat/mo</div>
+              <div class="c-soft"><strong>Soft underneath:</strong> integration debt from four acquisitions in two years; support response times doubled.</div>
+            </div>
+            <div class="tt-row">
+              <div class="c-name">JobLedger<small>accounting-first</small></div>
+              <div class="c-body">Wedges in through bookkeeping, expands to quoting. Loved by accountants, tolerated by the techs who have to use it.</div>
+              <div class="c-body">$59/seat/mo</div>
+              <div class="c-soft"><strong>Soft underneath:</strong> mobile experience is the worst-rated in the category — 2.9 stars and falling.</div>
+            </div>
+          </div>
+          <div class="redact-overlay">
+            <div class="redact-card">
+              <div class="lock">█ redacted — 3 of 6 entries</div>
+              <h3>The other half is <em>yours</em>.</h3>
+              <p>In a live deliverable these rows hold your actual competitors — pricing dissected, complaints clustered, weaknesses named.</p>
+              <div class="actions">
+                <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 03 · GAP ANALYSIS ====== -->
+  <section class="sect" id="gaps">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow"><span class="num">03</span>Gap analysis</div>
+        <h2>Four gaps, ranked by how hard they <em>compound</em>.</h2>
+        <p class="lede">
+          A gap only matters if it's reachable, defensible, and big enough to care about. Each one is scored on those three axes and paired with the evidence that surfaced it. Two of four shown.
+        </p>
+      </div>
+
+      <div class="gap-grid">
+        <div class="gap-card reveal">
+          <div class="tag">Gap 01 / wedge</div>
+          <h3>Deep HVAC workflow at <em>owner-operator</em> pricing.</h3>
+          <p>Every vendor with real workflow depth prices for fleets. Every vendor priced for 1–3 truck shops is a point tool. 61% of the segment still runs on spreadsheets — not because they love them, but because nothing serious is priced for them. The corner is open.</p>
+          <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="width:92%"></i></div><span>92</span></div>
+        </div>
+        <div class="gap-card reveal">
+          <div class="tag">Gap 02 / trust</div>
+          <h3>Nobody owns the <em>permit</em> headache.</h3>
+          <p>Complaint mining across review sites puts permit tracking in the top three grievances for every competitor that touches it — and most don't. It's unglamorous, jurisdiction-specific work, which is exactly why it's still unclaimed and exactly why it retains.</p>
+          <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="width:78%"></i></div><span>78</span></div>
+        </div>
+        <div class="redacted-block" style="grid-column: 1 / -1;">
+          <div class="gap-grid redacted" aria-hidden="true">
+            <div class="gap-card">
+              <div class="tag">Gap 03 / channel</div>
+              <h3>The distributor <em>counter</em> as a channel.</h3>
+              <p>Supply-house counters see every contractor in a region weekly. No software vendor has built for that relationship; two regional distributors already run informal referral programs that convert.</p>
+              <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="width:71%"></i></div><span>71</span></div>
+            </div>
+            <div class="gap-card">
+              <div class="tag">Gap 04 / pricing</div>
+              <h3>Flat-rate books are <em>stale</em> everywhere.</h3>
+              <p>Every competitor ships a static flat-rate pricing book updated annually. Material costs moved 22% in eighteen months. A live-updating book is a wedge nobody has priced.</p>
+              <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="width:64%"></i></div><span>64</span></div>
+            </div>
+          </div>
+          <div class="redact-overlay">
+            <div class="redact-card">
+              <div class="lock">█ redacted — 2 of 4 gaps</div>
+              <h3>Gaps 03 and 04 stay <em>sealed</em>.</h3>
+              <p>Channel and pricing gaps are the most market-specific intelligence in the deliverable — the part that would be worth copying.</p>
+              <div class="actions">
+                <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 04 · 90-DAY PLAN ====== -->
+  <section class="sect" id="plan">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow"><span class="num">04</span>The 90-day plan</div>
+        <h2>Fourteen plays. Each with a <em>kill-criterion</em>.</h2>
+        <p class="lede">
+          Sequenced, sized, and built to keep deciding for you in week four when the launch adrenaline is gone. Every play states the evidence it rests on, the effort it costs, and the number that kills it if it isn't working. Three of fourteen shown.
+        </p>
+      </div>
+
+      <div class="play-list">
+        <div class="play reveal">
+          <div class="p-num">01</div>
+          <div>
+            <h3>Reposition the homepage around the <em>1–3 truck</em> shop.</h3>
+            <p>Crewline's current copy says "for HVAC teams of every size" — which reads as "for nobody." Gap 01 says the open corner is owner-operators priced out of Atlas and underserved by point tools. Name them in the headline, show their price, and let the fleets self-select out.</p>
+          </div>
+          <div class="p-meta">
+            <span>Channel — <b>website / positioning</b></span>
+            <span>Effort — <b>3 days</b></span>
+            <span class="kill">Kill if — trial starts don't lift 15% in 21 days</span>
+          </div>
+        </div>
+        <div class="play reveal">
+          <div class="p-num">02</div>
+          <div>
+            <h3>Ship the permit tracker as a <em>free</em> standalone tool.</h3>
+            <p>Gap 02's complaint clusters show permit tracking is felt weekly and owned by no one. A free, jurisdiction-aware permit tracker is cheap to build, ranks for long-tail searches competitors ignore, and puts a Crewline login in the shop before the sales conversation starts.</p>
+          </div>
+          <div class="p-meta">
+            <span>Channel — <b>product-led / SEO</b></span>
+            <span>Effort — <b>2 weeks</b></span>
+            <span class="kill">Kill if — &lt;200 activations by day 45</span>
+          </div>
+        </div>
+        <div class="play reveal">
+          <div class="p-num">03</div>
+          <div>
+            <h3>Run the <em>invoice-sync</em> comparison page against DispatchPro.</h3>
+            <p>Fourteen months of the same top complaint is not a bug, it's a moat invitation. A direct comparison page targeting "DispatchPro invoice sync" search terms meets switchers at the exact moment of frustration — with migration tooling waiting.</p>
+          </div>
+          <div class="p-meta">
+            <span>Channel — <b>comparison SEO</b></span>
+            <span>Effort — <b>1 week</b></span>
+            <span class="kill">Kill if — page converts &lt;2% of qualified visits</span>
+          </div>
+        </div>
+
+        <div class="redacted-block">
+          <div class="redacted" aria-hidden="true">
+            <div class="play"><div class="p-num">04</div><div><h3>The distributor-counter referral pilot.</h3><p>Two regional supply houses, a co-branded one-pager, and a revenue share that costs nothing until it works. The channel nobody in the category has built for.</p></div><div class="p-meta"><span>Channel — <b>partnerships</b></span><span>Effort — <b>2 weeks</b></span><span class="kill">Kill if — no signed pilot by day 30</span></div></div>
+            <div class="play"><div class="p-num">05</div><div><h3>Live flat-rate book as the pricing wedge.</h3><p>Material costs moved 22% in eighteen months and every competitor's book is annual. Ship the live book to maintenance-plan customers first.</p></div><div class="p-meta"><span>Channel — <b>product</b></span><span>Effort — <b>3 weeks</b></span><span class="kill">Kill if — attach rate &lt;25%</span></div></div>
+            <div class="play"><div class="p-num">06</div><div><h3>The trade-school instructor program.</h3><p>Apprentices learn on whatever their instructor demos. Forty programs, free licenses, a generation of muscle memory.</p></div><div class="p-meta"><span>Channel — <b>community</b></span><span>Effort — <b>ongoing</b></span><span class="kill">Kill if — &lt;8 programs onboard by day 60</span></div></div>
+            <div class="play"><div class="p-num">07</div><div><h3>Seasonal switch-window campaign.</h3><p>Shops change software in the shoulder seasons — April and October. The campaign calendar is built backwards from that.</p></div><div class="p-meta"><span>Channel — <b>lifecycle</b></span><span>Effort — <b>1 week</b></span><span class="kill">Kill if — open rate &lt;30%</span></div></div>
+          </div>
+          <div class="redact-overlay">
+            <div class="redact-card">
+              <div class="lock">█ redacted — plays 04–14</div>
+              <h3>Eleven plays, <em>sealed</em>.</h3>
+              <p>This is where the plan stops being a sample and starts being a strategy. Yours arrives sequenced for your market, refreshed monthly as conditions move.</p>
+              <div class="actions">
+                <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
+                <a href="/pricing" class="btn-secondary">See pricing</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CLOSING ====== -->
+  <section class="closing-cta">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow"><span class="num">05</span>Your turn</div>
+        <h2>Now imagine this, about <em>your</em> market.</h2>
+        <p>Same anatomy, zero redactions, refreshed every month. The Basic plan is $30/month; the premium agentic plan keeps the engine running between refreshes.</p>
+        <div class="actions">
+          <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
+          <a href="/pricing" class="btn-secondary">See pricing</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="brand">
+          <span class="logo-mark" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 80 80">
+              <rect width="80" height="80" rx="14" fill="#1F4732"/>
+              <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+              <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+              <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span>GrowthKit AI</span>
+        </a>
+        <p class="foot-tag">Market intelligence, engineered for founders.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/#engine">The engine</a></li>
+          <li><a href="/#process">How it works</a></li>
+          <li><a href="/specimen">Specimen</a></li>
+          <li><a href="/pricing">Pricing</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+          <li><a href="/waitlist">Join waitlist</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/manifesto">Manifesto</a></li>
+          <li><a href="/methodology">Methodology</a></li>
+          <li><a href="/careers">Careers</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/security">Security</a></li>
+          <li><a href="/status">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bar">
+      <div>© 2026 GrowthKit AI</div>
+      <div>London · Remote · v0.4 (private beta)</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  } else {
+    els.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  var topbar = document.querySelector('.topbar');
+  if (topbar) {
+    var lastState = false;
+    function onScroll() {
+      var scrolled = window.scrollY > 24;
+      if (scrolled !== lastState) {
+        topbar.classList.toggle('scrolled', scrolled);
+        lastState = scrolled;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+})();
+</script>
+
+<script defer src="/_vercel/insights/script.js"></script>
+</body></html>

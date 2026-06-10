@@ -12,7 +12,9 @@
     { "source": "/terms.html", "destination": "/terms", "permanent": true },
     { "source": "/manifesto.html", "destination": "/manifesto", "permanent": true },
     { "source": "/security.html", "destination": "/security", "permanent": true },
-    { "source": "/status.html", "destination": "/status", "permanent": true }
+    { "source": "/status.html", "destination": "/status", "permanent": true },
+    { "source": "/specimen.html", "destination": "/specimen", "permanent": true },
+    { "source": "/pricing.html", "destination": "/pricing", "permanent": true }
   ],
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
@@ -23,7 +25,9 @@
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/manifesto", "destination": "/manifesto.html" },
     { "source": "/security", "destination": "/security.html" },
-    { "source": "/status", "destination": "/status.html" }
+    { "source": "/status", "destination": "/status.html" },
+    { "source": "/specimen", "destination": "/specimen.html" },
+    { "source": "/pricing", "destination": "/pricing.html" }
   ],
   "headers": [
     {
