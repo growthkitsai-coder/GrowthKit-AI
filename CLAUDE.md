@@ -9,7 +9,7 @@ Brand positioning: *consulting-grade work at SaaS prices.*
 
 - **Founded:** 2026, London · Remote.
 - **Status:** v0.4 (private beta).
-- **Pricing:** free pilot tier for limited access; standard plans start at **$25/month** (full plan, refreshed monthly). 1-to-1 work with market-intel partners is direct-contact only.
+- **Pricing (per index.html FAQ, updated 2026-06-10):** free pilot tier for limited access; **Basic $30/month** (market map, teardown, gap analysis, 90-day plan — refreshed monthly); **Premium agentic $200/month** (engine runs continuously, operator review on every refresh). 1-to-1 work with market-intel partners is direct-contact only. There is **no `/pricing` page yet** — the FAQ is the public source of truth (a dead `/pricing` link was removed from the FAQ on 2026-06-10; if a pricing page gets built, follow the new-page checklist).
 - **Audience:** seed / Series A founders with a product. **Not** for pre-idea founders or large enterprises with their own market-intel teams.
 - **Contact email:** `info@growthkitai.com` (referenced from every page).
 - **Hiring (careers page):** two open Intern roles (Growth → "Head of Growth" track, Marketing → "CMO" track). Internship inquiries go to `info@growthkitai.com` with subject `Internship — GrowthKit AI`.
@@ -25,7 +25,7 @@ Brand positioning: *consulting-grade work at SaaS prices.*
 - **Hosting:** Vercel. Project `growthkit-ai` (id `prj_q14WI5uJEqAJQzg63ZVEbaPHovzQ`, org `team_wbjFESk88zLTz0UjMUI3SlRz`). Pushing to `main` on GitHub auto-deploys.
 - **GitHub repo:** https://github.com/growthkitsai-coder/GrowthKit-AI
 - **GitHub account:** `growthkitsai-coder` — https://github.com/growthkitsai-coder. *(Password is NOT stored here — CLAUDE.md is committed to git. Ask Avi for credentials when needed; never write them to tracked files. A Personal Access Token is the right pattern.)*
-- **Analytics:** Vercel Web Analytics is injected on every page via `/_vercel/insights/script.js`.
+- **Analytics:** Vercel Web Analytics is injected on every page via `/_vercel/insights/script.js`, preceded by a `window.va` queue shim + a click listener that emits **custom events**: `cta_click` (clicks on `/waitlist` links and `.nav-cta`/`.btn-primary`, with page + section + href), `waitlist_signup` / `waitlist_error` (waitlist.html form), `status_check_failed` (status.html health checks). Vercel only records custom events on **Pro/Enterprise** — on Hobby they are silently ignored (pageviews still work), so don't conclude the wiring is broken if no events show up.
 - **Search Console:** Google verification via both meta tag (`google-site-verification` in `index.html`) and the file `googlea9dc9b0133a60f51.html`.
 
 ## Stack
