@@ -1,0 +1,1330 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
+<title>Acme Analytics — Market intelligence · June 2026 · GrowthKit AI</title>
+<meta name="description" content="Confidential market-intelligence deliverable prepared by GrowthKit AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F2EFE8;
+    --ink: #14130F;
+    --ink-2: #2A2823;
+    --muted: #6B6760;
+    --line: #E2DDD3;
+    --line-2: #D4CEC1;
+    --accent: #1F4732;
+    --accent-soft: #2E6249;
+    --warn: #A6691E;
+    --paper: #FFFFFF;
+    --maxw: 980px;
+  }
+  :root[data-theme="dark"] {
+    --bg: #050708;
+    --bg-2: #0E1113;
+    --ink: #FFFFFF;
+    --ink-2: #DDD9D0;
+    --muted: #9F9C92;
+    --line: #1F2220;
+    --line-2: #2E322F;
+    --accent: #3D7C5C;
+    --accent-soft: #2A5A40;
+    --warn: #FFC24D;
+    --paper: #13171A;
+    --neon: #3EF59F;
+    --neon-2: #8FFFC9;
+    --deep-1: #06140D;
+    --deep-2: #0A1F15;
+    --deep-3: #143524;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11";
+  }
+  :root[data-theme="dark"] body {
+    background:
+      radial-gradient(ellipse 720px 580px at  92%  -6%, rgba( 96, 168, 124, 0.30), transparent 60%),
+      radial-gradient(ellipse 540px 660px at 108%  46%, rgba( 58, 116,  87, 0.20), transparent 65%),
+      radial-gradient(ellipse 460px 540px at  -6%  18%, rgba( 31,  71,  50, 0.10), transparent 60%),
+      #050708;
+    background-attachment: fixed;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :root[data-theme="dark"] ::selection { background: rgba(62,245,159,0.30); color: #FFFFFF; }
+
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+  @media (max-width: 680px) { .wrap { padding: 0 20px; } }
+
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .eyebrow .num { color: var(--accent); margin-right: 10px; }
+  :root[data-theme="dark"] .eyebrow .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+
+  em { font-style: italic; }
+  h1 em, h2 em, h3 em, .quote em { color: var(--accent); }
+  :root[data-theme="dark"] h1 em,
+  :root[data-theme="dark"] h2 em,
+  :root[data-theme="dark"] h3 em,
+  :root[data-theme="dark"] .quote em {
+    color: var(--neon);
+    text-shadow: 0 0 22px rgba(62,245,159,0.40), 0 0 70px rgba(62,245,159,0.18);
+  }
+
+  /* Neon-console decor — dark only */
+  .dk-grid, .dk-scan { display: none; }
+  :root[data-theme="dark"] .dk-grid {
+    display: block; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      linear-gradient(rgba(62,245,159,0.030) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62,245,159,0.030) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 0%, transparent 72%);
+            mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 0%, transparent 72%);
+  }
+  :root[data-theme="dark"] .dk-scan {
+    display: block; position: fixed; left: 0; right: 0; top: 0; height: 22vh;
+    z-index: 0; pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(62,245,159,0.045), transparent);
+    animation: dkScan 10s linear infinite;
+  }
+  @keyframes dkScan { from { transform: translateY(-30vh); } to { transform: translateY(130vh); } }
+
+  main { position: relative; z-index: 1; }
+
+  /* === Masthead (screen only) === */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  :root[data-theme="dark"] .masthead { background: rgba(5,7,8,0.72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  .masthead-inner {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .brand .logo-mark { width: 24px; height: 24px; border-radius: 5px; overflow: hidden; flex-shrink: 0; }
+  .brand .logo-mark svg { display: block; }
+  .brand small {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .mast-end { display: flex; align-items: center; gap: 10px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip .cdot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  :root[data-theme="dark"] .chip { border-color: var(--deep-3); color: rgba(143,255,201,0.65); }
+  :root[data-theme="dark"] .chip .cdot { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.7); }
+  .mast-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .mast-btn:hover { border-color: var(--accent); color: var(--accent); }
+  :root[data-theme="dark"] .mast-btn { border-color: var(--deep-3); color: var(--neon-2); }
+  :root[data-theme="dark"] .mast-btn:hover { border-color: var(--neon); color: var(--neon); box-shadow: 0 0 18px -6px rgba(62,245,159,0.5); }
+  .mast-btn.icon { width: 34px; padding: 0; }
+  .mast-btn .theme-ic { width: 14px; height: 14px; }
+  .mast-btn .ic-sun { display: none; }
+  :root[data-theme="dark"] .mast-btn .ic-sun { display: block; }
+  :root[data-theme="dark"] .mast-btn .ic-moon { display: none; }
+  @media (max-width: 560px) { .brand small { display: none; } .chip { display: none; } }
+
+  /* === Cover === */
+  .cover { padding: 72px 0 48px; border-bottom: 1px solid var(--line); }
+  .cover .eyebrow { margin-bottom: 20px; }
+  .cover h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(44px, 7vw, 76px);
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin: 0 0 10px;
+  }
+  .cover .sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(19px, 2.4vw, 24px);
+    color: var(--muted);
+    margin: 0 0 36px;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+  }
+  .cover-meta .cell { padding: 18px 18px 18px 0; border-right: 1px solid var(--line); margin-right: 18px; }
+  .cover-meta .cell:last-child { border-right: 0; margin-right: 0; }
+  .cover-meta .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .cover-meta .v { font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+  @media (max-width: 720px) {
+    .cover-meta { grid-template-columns: 1fr 1fr; }
+    .cover-meta .cell:nth-child(2) { border-right: 0; }
+  }
+  .confidential {
+    margin-top: 26px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--warn);
+  }
+
+  /* === Sections === */
+  section.block { padding: 60px 0; border-bottom: 1px solid var(--line); }
+  .section-head { margin-bottom: 30px; }
+  .section-head .eyebrow { margin-bottom: 12px; }
+  .section-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(30px, 4.4vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0;
+    max-width: 22ch;
+  }
+  .lede {
+    font-size: 15px;
+    color: var(--ink-2);
+    line-height: 1.65;
+    max-width: 70ch;
+    margin: 14px 0 0;
+  }
+
+  /* === TL;DR === */
+  .tldr-plate {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04), 0 24px 50px -34px rgba(20,19,15,0.2);
+  }
+  :root[data-theme="dark"] .tldr-plate {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143,255,201,0.06),
+      0 0 0 1px rgba(62,245,159,0.08),
+      0 0 44px -8px rgba(62,245,159,0.16),
+      0 36px 70px -40px rgba(0,0,0,0.8);
+  }
+  .tldr-plate .plate-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  :root[data-theme="dark"] .tldr-plate .plate-head { background: rgba(62,245,159,0.05); border-bottom-color: var(--deep-3); color: rgba(143,255,201,0.65); }
+  .tldr-plate .plate-body { padding: 26px 28px 28px; }
+  .tldr-plate .quote {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(20px, 2.6vw, 26px);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+  }
+  .moves { list-style: none; padding: 0; margin: 0; border-top: 1px dashed var(--line); }
+  :root[data-theme="dark"] .moves { border-top-color: rgba(62,245,159,0.18); }
+  .moves li {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14.5px;
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+  :root[data-theme="dark"] .moves li { border-bottom-color: rgba(62,245,159,0.14); }
+  .moves li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .moves .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  :root[data-theme="dark"] .moves .n { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+
+  /* === Stat strip === */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin: 26px 0 30px;
+  }
+  .stat-strip .cell { padding: 20px 18px 20px 0; border-right: 1px solid var(--line); margin-right: 18px; }
+  .stat-strip .cell:last-child { border-right: 0; margin-right: 0; }
+  .stat-strip .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stat-strip .v {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(26px, 3.2vw, 34px);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+  .stat-strip .v small { display: block; font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  @media (max-width: 720px) {
+    .stat-strip { grid-template-columns: 1fr 1fr; }
+    .stat-strip .cell:nth-child(2) { border-right: 0; }
+  }
+
+  /* === Segment rows === */
+  .seg-list { border-top: 1px solid var(--line); }
+  .seg {
+    display: grid;
+    grid-template-columns: 44px 1.3fr 1fr 130px;
+    gap: 20px;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .seg .rank {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--accent);
+  }
+  :root[data-theme="dark"] .seg .rank { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+  .seg .name { font-family: 'Instrument Serif', serif; font-size: 19px; letter-spacing: -0.005em; }
+  .seg .name small { display: block; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .seg .facts { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); line-height: 1.7; }
+  .seg .facts .dim { color: var(--muted); }
+  .seg .scorebox { text-align: right; }
+  .seg .score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 7px;
+  }
+  :root[data-theme="dark"] .seg .score { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+  .seg .bar { height: 5px; background: var(--bg-2); border-radius: 999px; overflow: hidden; }
+  :root[data-theme="dark"] .seg .bar { background: rgba(255,255,255,0.06); }
+  .seg .bar i { display: block; height: 100%; width: var(--w, 50%); background: var(--accent); border-radius: 999px; }
+  :root[data-theme="dark"] .seg .bar i { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.6); }
+  @media (max-width: 720px) {
+    .seg { grid-template-columns: 34px 1fr; }
+    .seg .facts { grid-column: 2; }
+    .seg .scorebox { grid-column: 2; text-align: left; max-width: 220px; }
+  }
+  .note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 14px;
+    margin-top: 22px;
+    line-height: 1.7;
+  }
+  :root[data-theme="dark"] .note { border-left-color: var(--neon); }
+
+  /* === Competitor cards === */
+  .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .comp-grid { grid-template-columns: 1fr; } }
+  .comp {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.02);
+  }
+  :root[data-theme="dark"] .comp {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow: inset 0 1px 0 rgba(143,255,201,0.05), 0 24px 50px -32px rgba(0,0,0,0.7);
+  }
+  .comp .comp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px dashed var(--line);
+  }
+  :root[data-theme="dark"] .comp .comp-head { border-bottom-color: rgba(62,245,159,0.18); }
+  .comp h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  .comp .comp-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  :root[data-theme="dark"] .comp .comp-num { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+  .comp .one-liner { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 14.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.45; }
+  .comp dl { margin: 0; display: grid; gap: 9px; }
+  .comp dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .comp dd { margin: 0 0 4px; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  .comp .soft {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px dashed var(--line-2);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    background: var(--bg-2);
+  }
+  :root[data-theme="dark"] .comp .soft { background: rgba(62,245,159,0.05); border-color: rgba(62,245,159,0.25); }
+  .comp .soft b {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+  :root[data-theme="dark"] .comp .soft b { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+
+  /* === Gaps === */
+  .gap-list { border-top: 1px solid var(--line); }
+  .gap {
+    display: grid;
+    grid-template-columns: 44px 1fr 96px;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+  .gap .gnum { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 24px; color: var(--accent); line-height: 1; padding-top: 2px; }
+  :root[data-theme="dark"] .gap .gnum { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+  .gap h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 19px; margin: 0 0 6px; letter-spacing: -0.005em; }
+  .gap p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; max-width: 70ch; }
+  .gap p .src { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .gap .urgency { text-align: right; }
+  .pillb {
+    display: inline-block;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .pillb.hi { color: var(--accent); border-color: rgba(31,71,50,0.4); background: rgba(31,71,50,0.06); }
+  .pillb.md { color: var(--warn); border-color: rgba(166,105,30,0.35); background: rgba(166,105,30,0.06); }
+  :root[data-theme="dark"] .pillb { border-color: var(--deep-3); }
+  :root[data-theme="dark"] .pillb.hi { color: var(--neon); border-color: rgba(62,245,159,0.45); background: rgba(62,245,159,0.07); text-shadow: 0 0 10px rgba(62,245,159,0.5); }
+  :root[data-theme="dark"] .pillb.md { color: var(--warn); border-color: rgba(255,194,77,0.45); background: rgba(255,194,77,0.07); }
+  @media (max-width: 640px) {
+    .gap { grid-template-columns: 34px 1fr; }
+    .gap .urgency { grid-column: 2; text-align: left; }
+  }
+
+  .wedge {
+    margin-top: 30px;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 24px 28px;
+  }
+  :root[data-theme="dark"] .wedge {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    border-left-color: var(--neon);
+    box-shadow: inset 0 1px 0 rgba(143,255,201,0.05), 0 0 38px -10px rgba(62,245,159,0.18);
+  }
+  .wedge .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  :root[data-theme="dark"] .wedge .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  .wedge .quote {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(19px, 2.4vw, 24px);
+    line-height: 1.4;
+    letter-spacing: -0.008em;
+    margin: 0;
+  }
+
+  /* === Differentiation matrix === */
+  .matrix-wrap { margin-top: 30px; overflow-x: auto; }
+  table.matrix { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.matrix th, table.matrix td {
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  table.matrix th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--bg-2);
+    font-weight: 500;
+  }
+  :root[data-theme="dark"] table.matrix th { background: rgba(62,245,159,0.05); }
+  table.matrix td.dim { text-align: left; color: var(--ink-2); font-size: 13px; }
+  table.matrix th.you, table.matrix td.you { background: rgba(31,71,50,0.06); color: var(--accent); font-weight: 600; }
+  :root[data-theme="dark"] table.matrix th.you,
+  :root[data-theme="dark"] table.matrix td.you { background: rgba(62,245,159,0.08); color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.4); }
+  table.matrix td .y { color: var(--accent); font-weight: 600; }
+  table.matrix td .p { color: var(--warn); }
+  table.matrix td .n { color: var(--muted); }
+  :root[data-theme="dark"] table.matrix td .y { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+
+  /* === 90-day plan === */
+  .month { margin-top: 34px; }
+  .month:first-of-type { margin-top: 26px; }
+  .month-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .month-head .m-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  :root[data-theme="dark"] .month-head .m-label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  .month-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .plays { display: grid; gap: 12px; }
+  .play {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.02);
+  }
+  :root[data-theme="dark"] .play {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow: inset 0 1px 0 rgba(143,255,201,0.05), 0 24px 50px -32px rgba(0,0,0,0.7);
+  }
+  .play .pnum {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 3px;
+  }
+  :root[data-theme="dark"] .play .pnum { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+  .play .p-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .play h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 18.5px; margin: 0; letter-spacing: -0.005em; }
+  .play .what { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; max-width: 76ch; }
+  .play .meta {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .play .meta b { font-weight: 500; color: var(--accent); margin-right: 6px; }
+  :root[data-theme="dark"] .play .meta b { color: var(--neon); }
+  @media (max-width: 560px) { .play { grid-template-columns: 1fr; } .play .pnum { padding-top: 0; } }
+
+  .review-box {
+    margin-top: 34px;
+    border: 1px dashed var(--line-2);
+    border-radius: 8px;
+    padding: 22px 26px;
+  }
+  :root[data-theme="dark"] .review-box { border-color: var(--deep-3); }
+  .review-box .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  :root[data-theme="dark"] .review-box .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  .review-box ol { margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+  .review-box ol li::marker { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  :root[data-theme="dark"] .review-box ol li::marker { color: var(--neon); }
+
+  /* === Method appendix === */
+  .method p { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; max-width: 74ch; margin: 0 0 12px; }
+  .method p:last-child { margin-bottom: 0; }
+  .method p strong { color: var(--ink); font-weight: 600; }
+
+  /* === Doc footer === */
+  .doc-foot { padding: 44px 0 56px; }
+  .doc-foot .foot-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .doc-foot .tag {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.35;
+    max-width: 30ch;
+  }
+  .doc-foot .cols {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    line-height: 2;
+    text-align: right;
+  }
+  .doc-foot .cols a { color: var(--accent); }
+  :root[data-theme="dark"] .doc-foot .cols a { color: var(--neon); }
+  .doc-foot .legal {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     PRINT — "Save as PDF" is the PDF export path.
+     White paper, ink text, forest accents preserved, no chrome,
+     no decor, sections break cleanly.
+     ───────────────────────────────────────────────────────────── */
+  @media print {
+    @page { size: A4; margin: 15mm 14mm; }
+    :root, :root[data-theme="dark"] {
+      --bg: #FFFFFF; --bg-2: #F4F2ED; --ink: #14130F; --ink-2: #2A2823;
+      --muted: #6B6760; --line: #DDD8CE; --line-2: #CFC9BC;
+      --accent: #1F4732; --accent-soft: #2E6249; --warn: #A6691E; --paper: #FFFFFF;
+    }
+    html, body { background: #FFFFFF !important; color: #14130F; font-size: 11.5px; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; text-shadow: none !important; }
+    .masthead, .dk-grid, .dk-scan { display: none !important; }
+    .cover { padding: 6mm 0 8mm; }
+    section.block { padding: 8mm 0; }
+    .comp, .play, .tldr-plate, .wedge, .review-box, .seg, .gap { break-inside: avoid; }
+    section.block { break-inside: auto; }
+    #market, #competitors, #gaps, #plan { break-before: page; }
+    .comp, .play {
+      background: #FFFFFF !important;
+      border: 1px solid #CFC9BC !important;
+    }
+    .comp .soft { background: #F4F2ED !important; }
+    table.matrix th { background: #F4F2ED !important; }
+    .wrap { max-width: none; padding: 0; }
+    a { color: inherit; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
+
+<!-- ====== MASTHEAD (screen only) ====== -->
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <span class="brand">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 80 80">
+          <rect width="80" height="80" rx="14" fill="#1F4732"/>
+          <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+          <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+          <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+        </svg>
+      </span>
+      <span>GrowthKit AI</span>
+      <small>market intelligence</small>
+    </span>
+    <span class="mast-end">
+      <span class="chip"><span class="cdot" aria-hidden="true"></span>June 2026 · refresh 03</span>
+      <button class="mast-btn" type="button" onclick="window.print()">⎙ print / pdf</button>
+      <button class="mast-btn icon" type="button" id="themeBtn" aria-label="Toggle theme">
+        <svg class="theme-ic ic-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
+        <svg class="theme-ic ic-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ====== COVER ====== -->
+  <section class="cover">
+    <div class="wrap">
+      <div class="eyebrow"><span class="num">/</span>deliverable — confidential</div>
+      <h1>Acme Analytics</h1>
+      <p class="sub">Market intelligence · June 2026 · refresh №03</p>
+      <div class="cover-meta">
+        <div class="cell">
+          <div class="k">Prepared for</div>
+          <div class="v">Jordan Reyes, Co-founder &amp; CEO (demo — fictional company)</div>
+        </div>
+        <div class="cell">
+          <div class="k">Prepared by</div>
+          <div class="v">GrowthKit AI — market-intel desk</div>
+        </div>
+        <div class="cell">
+          <div class="k">Issued</div>
+          <div class="v">10 June 2026</div>
+        </div>
+        <div class="cell">
+          <div class="k">Next refresh</div>
+          <div class="v">8 July 2026</div>
+        </div>
+      </div>
+      <div class="confidential">Confidential — prepared exclusively for Acme Analytics. Do not redistribute.</div>
+    </div>
+  </section>
+
+  <!-- ====== TL;DR ====== -->
+  <section class="block" id="tldr">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">00</span>Read this first</div>
+        <h2>The verdict, and the three <em>moves</em>.</h2>
+      </div>
+      <div class="tldr-plate">
+        <div class="plate-head">
+          <span>/ verdict</span>
+          <span>60-second read</span>
+        </div>
+        <div class="plate-body">
+          <p class="quote">Your market grew while you were heads-down shipping: warehouse-native analytics demand is up ~22% this quarter, and the mid-market is the segment pulling it. Two of your five rivals just repriced upward, opening a value window that closes when they notice churn. Lead with the embedded-dashboards wedge, take the SMB DevTools segment first, and stop spending on the enterprise motion until play 11 says otherwise.</p>
+          <ol class="moves">
+            <li><span class="n">01</span><span>Reprice the Starter tier to $49 this month — Graphspan and MetricMill both moved to $79+, and complaint mining shows their SMB cohort is actively shopping.</span></li>
+            <li><span class="n">02</span><span>Ship the embedded-dashboards quickstart (play 02) before the 24th — it targets the single biggest open gap and three rivals can&#39;t follow without re-architecting.</span></li>
+            <li><span class="n">03</span><span>Kill the LinkedIn paid pilot — $61 CPL against a $49 product fails the play-08 kill criterion you set in April. Move the budget to the integration-marketplace listings.</span></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 01 MARKET MAP ====== -->
+  <section class="block" id="market">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">01</span>Market map</div>
+        <h2>Your market, <em>measured</em>.</h2>
+        <p class="lede">The warehouse-native product-analytics market is consolidating around two buying motions: engineers who self-serve from docs, and data leads who buy after a proof-of-concept. Your product fits the first motion; your website still sells to the second. That mismatch — not demand — is the constraint this quarter.</p>
+      </div>
+
+      <div class="stat-strip">
+        <div class="cell">
+          <div class="k">TAM</div>
+          <div class="v">$2.4B<small>total addressable</small></div>
+        </div>
+        <div class="cell">
+          <div class="k">SAM</div>
+          <div class="v">$340M<small>serviceable</small></div>
+        </div>
+        <div class="cell">
+          <div class="k">SOM (12 mo)</div>
+          <div class="v">$14M<small>obtainable, next 4 quarters</small></div>
+        </div>
+        <div class="cell">
+          <div class="k">Demand signals</div>
+          <div class="v">~1,240<small>scraped this refresh</small></div>
+        </div>
+      </div>
+
+      <div class="seg-list">
+        <div class="seg">
+          <div class="rank">i.</div>
+          <div class="name">SMB DevTools<small>10–80-person developer-tool companies instrumenting product usage themselves</small></div>
+          <div class="facts">≈ 6,400 companies · $58M<br><span class="dim">urgency —</span> high — quarterly budget cycles, buying now</div>
+          <div class="scorebox">
+            <div class="score">82 / 100</div>
+            <div class="bar"><i style="--w: 82%"></i></div>
+          </div>
+        </div>
+        <div class="seg">
+          <div class="rank">ii.</div>
+          <div class="name">Mid-market SaaS<small>Series B–C SaaS with a data team of 1–3 moving off legacy event analytics</small></div>
+          <div class="facts">≈ 2,100 companies · $96M<br><span class="dim">urgency —</span> medium — renewal-window driven</div>
+          <div class="scorebox">
+            <div class="score">58 / 100</div>
+            <div class="bar"><i style="--w: 58%"></i></div>
+          </div>
+        </div>
+        <div class="seg">
+          <div class="rank">iii.</div>
+          <div class="name">Enterprise data platforms<small>1,000+ seat orgs standardising on warehouse-native tooling</small></div>
+          <div class="facts">≈ 380 companies · $186M<br><span class="dim">urgency —</span> low — 9–14 month cycles, security review heavy</div>
+          <div class="scorebox">
+            <div class="score">34 / 100</div>
+            <div class="bar"><i style="--w: 34%"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">signals scraped 28 may – 8 jun: search volumes (180 terms), 4 job boards, 6 community forums, g2/capterra review deltas, competitor pricing-page diffs, 3 podcast transcripts.</div>
+    </div>
+  </section>
+
+  <!-- ====== 02 COMPETITOR TEARDOWN ====== -->
+  <section class="block" id="competitors">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">02</span>Competitor teardown</div>
+        <h2>Their playbooks, <em>on paper</em>.</h2>
+        <p class="lede">Each card is one rival: how they position, what they charge, where they show up — and the soft spot their own customers keep pointing at.</p>
+      </div>
+      <div class="comp-grid">
+        <article class="comp">
+          <div class="comp-head">
+            <h3>Graphspan</h3>
+            <span class="comp-num">rival 01</span>
+          </div>
+          <p class="one-liner">The incumbent default — big logo wall, ageing architecture.</p>
+          <dl>
+            <div><dt>Positioning</dt><dd>&quot;Enterprise product intelligence&quot; — sells certainty to VPs, not capability to builders.</dd></div>
+            <div><dt>Pricing</dt><dd>$79/seat/mo entry, opaque enterprise tiers; repriced +18% in May.</dd></div>
+            <div><dt>Channels</dt><dd>Outbound SDR motion, G2 dominance, two flagship conferences a year.</dd></div>
+            <div><dt>Content cadence</dt><dd>2 blog posts/week, webinar mill, almost no developer content.</dd></div>
+            <div><dt>Complaint themes</dt><dd>Slow dashboards on large datasets, 3-week onboarding, support tickets auto-closed — 212 negative review mentions this refresh, up 31%.</dd></div>
+          </dl>
+          <div class="soft"><b>Where they're soft</b>Their May repricing hit exactly the cohort you serve best. SMB customers on annual plans renew into a +18% bill between now and September — a churn window measured in weeks, not quarters.</div>
+        </article>
+        <article class="comp">
+          <div class="comp-head">
+            <h3>MetricMill</h3>
+            <span class="comp-num">rival 02</span>
+          </div>
+          <p class="one-liner">Velocity machine — ships fast, breaks trust.</p>
+          <dl>
+            <div><dt>Positioning</dt><dd>&quot;Analytics that keeps up with you&quot; — speed-first narrative aimed at startups.</dd></div>
+            <div><dt>Pricing</dt><dd>Free tier → $79/mo growth tier (was $59 until April).</dd></div>
+            <div><dt>Channels</dt><dd>Product-led: free tier + template gallery; strong on X/Twitter, weak SEO.</dd></div>
+            <div><dt>Content cadence</dt><dd>Daily changelog, shipping-in-public threads, founder podcast circuit.</dd></div>
+            <div><dt>Complaint themes</dt><dd>Breaking API changes (3 in six months), data discrepancies vs. warehouse ground truth, billing surprises at tier boundaries.</dd></div>
+          </dl>
+          <div class="soft"><b>Where they're soft</b>Reliability is their brand debt: 41% of their negative reviews this quarter mention trust in the numbers. Your warehouse-native accuracy story lands hardest against exactly this.</div>
+        </article>
+        <article class="comp">
+          <div class="comp-head">
+            <h3>Funnelscope</h3>
+            <span class="comp-num">rival 03</span>
+          </div>
+          <p class="one-liner">Narrow but deep — owns the funnel-visualisation niche.</p>
+          <dl>
+            <div><dt>Positioning</dt><dd>&quot;See where revenue leaks&quot; — single-use-case clarity, PLG funnels only.</dd></div>
+            <div><dt>Pricing</dt><dd>$39/mo flat — cheapest credible option in the field.</dd></div>
+            <div><dt>Channels</dt><dd>SEO fortress (2,400 ranking pages), comparison-page farm, affiliate program.</dd></div>
+            <div><dt>Content cadence</dt><dd>4 SEO posts/week, zero community presence, no events.</dd></div>
+            <div><dt>Complaint themes</dt><dd>&quot;Great funnels, but I still need a second tool for everything else&quot; — the modal review. Export limits on the flat tier.</dd></div>
+          </dl>
+          <div class="soft"><b>Where they're soft</b>They own one room in the house you sell the whole house. Their own reviews say users outgrow them in 6–9 months — be the documented next step (play 06 targets their comparison keywords directly).</div>
+        </article>
+        <article class="comp">
+          <div class="comp-head">
+            <h3>Plotwise</h3>
+            <span class="comp-num">rival 04</span>
+          </div>
+          <p class="one-liner">Design-led dashboards for non-technical teams.</p>
+          <dl>
+            <div><dt>Positioning</dt><dd>&quot;Beautiful analytics for everyone&quot; — sells to marketing and ops, not engineering.</dd></div>
+            <div><dt>Pricing</dt><dd>$25/seat/mo, seat-count growth model.</dd></div>
+            <div><dt>Channels</dt><dd>Figma-community halo, design-influencer sponsorships, template marketplace.</dd></div>
+            <div><dt>Content cadence</dt><dd>Fortnightly template drops, strong newsletter (est. 40k), thin technical docs.</dd></div>
+            <div><dt>Complaint themes</dt><dd>Can&#39;t handle event volumes past ~10M/mo, SQL escape-hatch missing, engineers route around it.</dd></div>
+          </dl>
+          <div class="soft"><b>Where they're soft</b>Engineering teams veto them at scale — your warehouse-native pitch wins every deal where an engineer is in the room. Their seat-based pricing also punishes exactly the team growth your usage-based model rewards.</div>
+        </article>
+        <article class="comp">
+          <div class="comp-head">
+            <h3>Cohortree</h3>
+            <span class="comp-num">rival 05</span>
+          </div>
+          <p class="one-liner">The open-source wildcard — loud community, unclear business.</p>
+          <dl>
+            <div><dt>Positioning</dt><dd>&quot;Own your analytics&quot; — self-host narrative aimed at privacy-conscious teams.</dd></div>
+            <div><dt>Pricing</dt><dd>OSS free; cloud $0.0004/event — cheap at small scale, unpredictable at large.</dd></div>
+            <div><dt>Channels</dt><dd>GitHub (14k stars), HN launches, Discord (8k members), zero paid spend.</dd></div>
+            <div><dt>Content cadence</dt><dd>Release-notes-as-content, community showcase, sporadic deep-dive posts.</dd></div>
+            <div><dt>Complaint themes</dt><dd>Self-host upgrade pain, sparse docs past the quickstart, cloud bill shock at volume.</dd></div>
+          </dl>
+          <div class="soft"><b>Where they're soft</b>They harvest your top-of-funnel (developers searching &quot;self-host analytics&quot;) but convert poorly: complaint mining shows teams abandoning self-host at the 6-month mark. A migration guide + import tool (play 09) turns their churn into your pipeline.</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 03 GAP ANALYSIS ====== -->
+  <section class="block" id="gaps">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">03</span>Gap analysis</div>
+        <h2>The doors they <em>left open</em>.</h2>
+        <p class="lede">Eight gaps surfaced this refresh; the six below survived evidence review. The pattern across them: every rival serves either the engineer or the business buyer — none serves the handoff between them, and that handoff is where your embedded-dashboards capability already lives.</p>
+      </div>
+
+      <div class="gap-list">
+        <div class="gap">
+          <div class="gnum">01</div>
+          <div>
+            <h3>Embedded / customer-facing dashboards</h3>
+            <p>94 complaint mentions across rival reviews asking to embed charts in their own product; only Plotwise offers it, capped at 10M events/mo. Search volume for &quot;embedded analytics API&quot; up 34% QoQ.</p>
+          </div>
+          <div class="urgency"><span class="pillb hi">high</span></div>
+        </div>
+        <div class="gap">
+          <div class="gnum">02</div>
+          <div>
+            <h3>Graphspan&#39;s repricing churn window</h3>
+            <p>Their +18% May repricing hits SMB annual renewals June–September. Review velocity from their SMB cohort tripled in four weeks; 7 of the last 20 explicitly name shopping for alternatives.</p>
+          </div>
+          <div class="urgency"><span class="pillb hi">high</span></div>
+        </div>
+        <div class="gap">
+          <div class="gnum">03</div>
+          <div>
+            <h3>Funnelscope graduation path</h3>
+            <p>Their modal negative review is &quot;outgrew it.&quot; 1,900/mo searches on &quot;funnelscope alternative&quot;-class terms with no credible incumbent answer — their comparison-page farm doesn&#39;t cover graduation, only entry.</p>
+          </div>
+          <div class="urgency"><span class="pillb hi">high</span></div>
+        </div>
+        <div class="gap">
+          <div class="gnum">04</div>
+          <div>
+            <h3>Self-host abandonment (Cohortree churn)</h3>
+            <p>Community threads show consistent self-host abandonment around month 6 (upgrade pain, ops burden). No rival offers a documented migration path; import tooling is a one-sprint build.</p>
+          </div>
+          <div class="urgency"><span class="pillb md">medium</span></div>
+        </div>
+        <div class="gap">
+          <div class="gnum">05</div>
+          <div>
+            <h3>Warehouse-accuracy trust narrative</h3>
+            <p>41% of MetricMill&#39;s negative reviews mention numbers that don&#39;t match the warehouse. Nobody in the field owns the &quot;matches your warehouse, provably&quot; claim — it is yours by architecture.</p>
+          </div>
+          <div class="urgency"><span class="pillb md">medium</span></div>
+        </div>
+        <div class="gap">
+          <div class="gnum">06</div>
+          <div>
+            <h3>Usage-based pricing for growing teams</h3>
+            <p>Plotwise and Graphspan both charge per seat; complaint mining shows seat-audit resentment in 60+ reviews. Your usage-based model is an unadvertised differentiator — it appears nowhere on your pricing page.</p>
+          </div>
+          <div class="urgency"><span class="pillb">low</span></div>
+        </div>
+      </div>
+
+      <div class="wedge">
+        <div class="label">/ the wedge — lead with this</div>
+        <p class="quote">Acme is the only warehouse-native analytics tool a developer can embed in their own product in under an hour — the analytics layer for people who build, not just buy. Every play in section 04 either proves this claim, prices it, or puts it where developer-buyers already look.</p>
+      </div>
+
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <thead><tr><th style="text-align:left">Dimension</th><th class="you">You</th><th>Graphspan</th><th>MetricMill</th><th>Funnelscope</th><th>Plotwise</th><th>Cohortree</th></tr></thead>
+          <tbody>
+            <tr><td class="dim">Warehouse-native (no data copy)</td><td class="you"><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="p">◐</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+            <tr><td class="dim">Embeddable in your own product</td><td class="you"><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="p">◐</span></td><td><span class="n">—</span></td></tr>
+            <tr><td class="dim">Handles 100M+ events/mo</td><td class="you"><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="p">◐</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="p">◐</span></td></tr>
+            <tr><td class="dim">Self-serve setup &lt; 1 hour</td><td class="you"><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="p">◐</span></td></tr>
+            <tr><td class="dim">Usage-based pricing</td><td class="you"><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="p">◐</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td></tr>
+            <tr><td class="dim">SOC 2 attested</td><td class="you"><span class="p">◐</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="n">—</span></td><td><span class="y">✓</span></td><td><span class="n">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 04 90-DAY PLAN ====== -->
+  <section class="block" id="plan">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">04</span>90-day plan</div>
+        <h2>A plan, not a <em>dashboard</em>.</h2>
+        <p class="lede">Fourteen plays, sequenced so each month funds the next: month one converts the two churn windows that are open right now, month two builds the content moat while those convert, month three scales what survived its kill criteria. Every play names the number and the date that kills it — honour them.</p>
+      </div>
+
+      <div class="month">
+        <div class="month-head">
+          <span class="m-label">Days 0–30 — strike the open windows</span>
+          <span class="rule" aria-hidden="true"></span>
+        </div>
+        <div class="plays">
+          <article class="play">
+            <div class="pnum">01</div>
+            <div>
+              <div class="p-head">
+                <h3>Reprice Starter to $49 + publish the pricing page</h3>
+                <span class="pillb">Pricing</span>
+              </div>
+              <p class="what">Move Starter from $39 to $49 with usage-based scaling made explicit on a public pricing page (it&#39;s currently behind a demo call). Anchor directly against Graphspan&#39;s new $79 and name the comparison.</p>
+              <div class="meta">
+                <span><b>kill if</b>trial starts drop &gt;15% for 14 consecutive days</span>
+                <span><b>success</b>+20% trial-to-paid revenue per signup by day 30</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">02</div>
+            <div>
+              <div class="p-head">
+                <h3>Ship the embedded-dashboards quickstart</h3>
+                <span class="pillb">Product / Docs</span>
+              </div>
+              <p class="what">A copy-paste quickstart that gets a chart rendering inside the user&#39;s own app in under an hour — the wedge made tangible. Ship the docs page, a starter repo, and a 4-minute demo video.</p>
+              <div class="meta">
+                <span><b>kill if</b>quickstart completion rate &lt;25% after 2 weeks of traffic</span>
+                <span><b>success</b>150 quickstart completions; 15 embedded-tier conversations by day 30</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">03</div>
+            <div>
+              <div class="p-head">
+                <h3>Graphspan renewal-window rescue campaign</h3>
+                <span class="pillb">Outbound</span>
+              </div>
+              <p class="what">A 40-account list of Graphspan SMB customers (built from review-site profiles and tech-detection) gets a founder-signed note + a white-glove migration offer with a 90-day price lock.</p>
+              <div class="meta">
+                <span><b>kill if</b>reply rate &lt;4% after 80 sends</span>
+                <span><b>success</b>8 migration conversations; 3 closed by day 45</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">04</div>
+            <div>
+              <div class="p-head">
+                <h3>&quot;Funnelscope, then what?&quot; comparison hub</h3>
+                <span class="pillb">SEO</span>
+              </div>
+              <p class="what">One pillar page + three comparison pages targeting the graduation keywords their farm ignores. Written for the engineer who has outgrown funnels, with a real import path.</p>
+              <div class="meta">
+                <span><b>kill if</b>zero page-one rankings on target terms after 45 days</span>
+                <span><b>success</b>800 organic visits/mo to the hub by day 60</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">05</div>
+            <div>
+              <div class="p-head">
+                <h3>Kill the LinkedIn paid pilot</h3>
+                <span class="pillb">Paid</span>
+              </div>
+              <p class="what">April&#39;s pilot has failed its own criterion ($61 CPL vs. the $35 kill line). Stop spend, write the postmortem, reallocate the $2.4k/mo to integration-marketplace listings (play 07).</p>
+              <div class="meta">
+                <span><b>kill if</b>n/a — this play IS a kill, executing week one</span>
+                <span><b>success</b>$2.4k/mo reallocated with zero pipeline loss after 30 days</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="month">
+        <div class="month-head">
+          <span class="m-label">Days 31–60 — build the moat while the windows convert</span>
+          <span class="rule" aria-hidden="true"></span>
+        </div>
+        <div class="plays">
+          <article class="play">
+            <div class="pnum">06</div>
+            <div>
+              <div class="p-head">
+                <h3>&quot;Provably matches your warehouse&quot; trust page</h3>
+                <span class="pillb">Product marketing</span>
+              </div>
+              <p class="what">A technical page + open methodology showing parity tests between Acme numbers and raw warehouse queries — aimed straight at MetricMill&#39;s 41% trust-complaint cohort. Include a runnable parity script.</p>
+              <div class="meta">
+                <span><b>kill if</b>&lt;10% of sales conversations reference it after 30 days live</span>
+                <span><b>success</b>cited in 25% of closed-won notes by day 90</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">07</div>
+            <div>
+              <div class="p-head">
+                <h3>Integration marketplace blitz</h3>
+                <span class="pillb">Partnerships</span>
+              </div>
+              <p class="what">Listings + co-marketing with the four warehouse and CDP marketplaces where your buyers already shop. Funded by the killed LinkedIn budget.</p>
+              <div class="meta">
+                <span><b>kill if</b>&lt;40 marketplace-sourced signups by day 60</span>
+                <span><b>success</b>120 signups/mo from marketplaces by day 90</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">08</div>
+            <div>
+              <div class="p-head">
+                <h3>Founder build-log series</h3>
+                <span class="pillb">Content / Social</span>
+              </div>
+              <p class="what">Weekly engineering build-log on X + LinkedIn: real load numbers, parity tests, embedding demos. The developer-credibility channel MetricMill owns and Graphspan can&#39;t enter.</p>
+              <div class="meta">
+                <span><b>kill if</b>follower-sourced signups &lt;10 after 8 posts</span>
+                <span><b>success</b>2k engineer followers; 40 attributable signups by day 90</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">09</div>
+            <div>
+              <div class="p-head">
+                <h3>Cohortree migration guide + importer</h3>
+                <span class="pillb">Product / Docs</span>
+              </div>
+              <p class="what">A documented self-host → Acme path with an import CLI that preserves event history. Post it where their month-6 abandoners ask for help (their own Discord allows it; be useful, not spammy).</p>
+              <div class="meta">
+                <span><b>kill if</b>&lt;5 migrations started by day 60</span>
+                <span><b>success</b>15 completed migrations by day 90</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">10</div>
+            <div>
+              <div class="p-head">
+                <h3>Mid-market renewal-calendar outbound</h3>
+                <span class="pillb">Outbound</span>
+              </div>
+              <p class="what">The Mid-market SaaS segment buys at renewal time: build a 60-account calendar from public contract-cycle signals and run a lighter-touch sequence timed to land 60 days pre-renewal.</p>
+              <div class="meta">
+                <span><b>kill if</b>meeting rate &lt;5% after first 30 accounts</span>
+                <span><b>success</b>10 qualified mid-market meetings by day 75</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="month">
+        <div class="month-head">
+          <span class="m-label">Days 61–90 — scale what survived</span>
+          <span class="rule" aria-hidden="true"></span>
+        </div>
+        <div class="plays">
+          <article class="play">
+            <div class="pnum">11</div>
+            <div>
+              <div class="p-head">
+                <h3>Double the winning acquisition play</h3>
+                <span class="pillb">Allocation</span>
+              </div>
+              <p class="what">By day 60 one of plays 03/04/07/10 will be the efficiency leader. It gets the freed budget and one extra pair of hands for the final month. The scoreboard, not the loudest voice, picks it.</p>
+              <div class="meta">
+                <span><b>kill if</b>n/a — allocation play</span>
+                <span><b>success</b>winning play&#39;s volume 2× at flat CAC by day 90</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">12</div>
+            <div>
+              <div class="p-head">
+                <h3>Embedded-tier pricing + 3 lighthouse case studies</h3>
+                <span class="pillb">Pricing / Proof</span>
+              </div>
+              <p class="what">Productise the embedded wedge: a published embedded tier, and the three best quickstart adopters turned into named case studies with load numbers.</p>
+              <div class="meta">
+                <span><b>kill if</b>&lt;3 embedded-tier customers signed by day 80</span>
+                <span><b>success</b>embedded tier on the pricing page with 3 logos by day 90</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">13</div>
+            <div>
+              <div class="p-head">
+                <h3>SOC 2 Type I kickoff</h3>
+                <span class="pillb">Ops</span>
+              </div>
+              <p class="what">The matrix&#39;s one ✗ that blocks mid-market deals. Engage an auditor, stand up the evidence tooling, and publish a security page with the honest current state (mirroring growthkitai.com/security&#39;s pattern).</p>
+              <div class="meta">
+                <span><b>kill if</b>n/a — gate for Q3 enterprise motion</span>
+                <span><b>success</b>Type I evidence collection live by day 90; attestation Q3</span>
+              </div>
+            </div>
+          </article>
+          <article class="play">
+            <div class="pnum">14</div>
+            <div>
+              <div class="p-head">
+                <h3>Quarter postmortem + next-quarter thesis</h3>
+                <span class="pillb">Operating cadence</span>
+              </div>
+              <p class="what">Day 85–90: write the quarter&#39;s postmortem against this document — every play, its kill line, what the market did. It becomes the brief for the next GrowthKit refresh.</p>
+              <div class="meta">
+                <span><b>kill if</b>n/a</span>
+                <span><b>success</b>postmortem shipped to the team + GrowthKit by day 90</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="review-box">
+        <div class="label">/ weekly review — 90 minutes, same agenda every week</div>
+        <ol>
+          <li>Scoreboard first (10 min): each live play&#39;s metric vs. its kill line — no narrative, numbers only.</li>
+          <li>Kill or double (20 min): any play past its kill date gets killed or gets a written exception with a new date. No silent extensions.</li>
+          <li>Signals delta (15 min): what moved in the market this week — rival pricing, new complaints, search shifts (from the GrowthKit feed).</li>
+          <li>Next week&#39;s single bet (10 min): the one play getting extra hands, and what everyone else keeps steady.</li>
+          <li>Log it (5 min): three bullet decisions to the #growth channel — the quarter&#39;s memory lives there, not in heads.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== METHOD ====== -->
+  <section class="block method" id="method">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">05</span>Method &amp; caveats</div>
+        <h2>How to <em>read</em> this document.</h2>
+      </div>
+      <p><strong>Where the numbers come from.</strong> Demand signals are scraped from search volumes, hiring posts, community threads, review sites, and competitor traffic estimates, then de-duplicated and scored. Market sizing triangulates public filings, analyst estimates, and bottoms-up buyer counts — when sources disagree, we show the conservative figure.</p>
+      <p><strong>Segment scores</strong> (0–100) weight demand momentum, buyer urgency, competitive crowding, and your credible right-to-win. A 70+ segment deserves a play this quarter; below 40 is a watch-list entry, not a target.</p>
+      <p><strong>Kill criteria are commitments.</strong> Each play names the number and the date that kills it. Honouring them is what makes this a plan instead of a wish — week-four drift is the failure mode this document is designed against.</p>
+      <p><strong>Every claim is sourced</strong> to a signal we collected this refresh. If a claim matters to a decision and you want the underlying data, reply to the delivery email and we'll send the raw extract.</p>
+      <p><strong>Caveats.</strong> Estimates marked “~” carry ±30% uncertainty. Competitor pricing reflects their public pages on the issue date; private/custom pricing may differ. This is decision-support, not investment advice.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ====== DOC FOOTER ====== -->
+<footer class="doc-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="tag">Markets, <em>dissected</em> — not guessed.</div>
+      <div class="cols">
+        Prepared by GrowthKit AI · London<br>
+        Questions, corrections, raw data → <a href="mailto:info@growthkitai.com">info@growthkitai.com</a><br>
+        Issued 10 June 2026 · next refresh 8 July 2026
+      </div>
+    </div>
+    <div class="legal">
+      © 2026 GrowthKit AI. Confidential — prepared exclusively for Acme Analytics under the engagement terms. Estimates carry uncertainty; see Method &amp; caveats. Not investment advice.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var KEY = 'gk-theme';
+  var btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var root = document.documentElement;
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', 'dark');
+    try { localStorage.setItem(KEY, dark ? 'light' : 'dark'); } catch (e) {}
+  });
+})();
+</script>
+</body></html>

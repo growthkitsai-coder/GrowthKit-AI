@@ -1,0 +1,273 @@
+{
+  "_comment": "DEMO CLIENT — entirely fictional company and competitors. This file is the committed example of the deliverable data format; real client JSONs live next to it but are gitignored. Regenerate the demo with: node scripts/make-deliverable.mjs clients/demo.json --force",
+  "client": "Acme Analytics",
+  "slug": "acme-analytics",
+  "period": "2026-06",
+  "periodLabel": "June 2026",
+  "refreshNumber": 3,
+  "dateIssued": "10 June 2026",
+  "nextRefresh": "8 July 2026",
+  "preparedFor": "Jordan Reyes, Co-founder & CEO (demo — fictional company)",
+  "preparedBy": "GrowthKit AI — market-intel desk",
+  "token": "demo",
+  "tldr": {
+    "verdict": "Your market grew while you were heads-down shipping: warehouse-native analytics demand is up ~22% this quarter, and the mid-market is the segment pulling it. Two of your five rivals just repriced upward, opening a value window that closes when they notice churn. Lead with the embedded-dashboards wedge, take the SMB DevTools segment first, and stop spending on the enterprise motion until play 11 says otherwise.",
+    "moves": [
+      "Reprice the Starter tier to $49 this month — Graphspan and MetricMill both moved to $79+, and complaint mining shows their SMB cohort is actively shopping.",
+      "Ship the embedded-dashboards quickstart (play 02) before the 24th — it targets the single biggest open gap and three rivals can't follow without re-architecting.",
+      "Kill the LinkedIn paid pilot — $61 CPL against a $49 product fails the play-08 kill criterion you set in April. Move the budget to the integration-marketplace listings."
+    ]
+  },
+  "market": {
+    "intro": "The warehouse-native product-analytics market is consolidating around two buying motions: engineers who self-serve from docs, and data leads who buy after a proof-of-concept. Your product fits the first motion; your website still sells to the second. That mismatch — not demand — is the constraint this quarter.",
+    "tam": "$2.4B",
+    "sam": "$340M",
+    "som": "$14M",
+    "signals": "~1,240",
+    "signalsNote": "signals scraped 28 may – 8 jun: search volumes (180 terms), 4 job boards, 6 community forums, g2/capterra review deltas, competitor pricing-page diffs, 3 podcast transcripts.",
+    "segments": [
+      {
+        "name": "SMB DevTools",
+        "definition": "10–80-person developer-tool companies instrumenting product usage themselves",
+        "size": "≈ 6,400 companies · $58M",
+        "urgency": "high — quarterly budget cycles, buying now",
+        "score": 82
+      },
+      {
+        "name": "Mid-market SaaS",
+        "definition": "Series B–C SaaS with a data team of 1–3 moving off legacy event analytics",
+        "size": "≈ 2,100 companies · $96M",
+        "urgency": "medium — renewal-window driven",
+        "score": 58
+      },
+      {
+        "name": "Enterprise data platforms",
+        "definition": "1,000+ seat orgs standardising on warehouse-native tooling",
+        "size": "≈ 380 companies · $186M",
+        "urgency": "low — 9–14 month cycles, security review heavy",
+        "score": 34
+      }
+    ]
+  },
+  "competitors": [
+    {
+      "name": "Graphspan",
+      "oneLiner": "The incumbent default — big logo wall, ageing architecture.",
+      "positioning": "\"Enterprise product intelligence\" — sells certainty to VPs, not capability to builders.",
+      "pricing": "$79/seat/mo entry, opaque enterprise tiers; repriced +18% in May.",
+      "channels": "Outbound SDR motion, G2 dominance, two flagship conferences a year.",
+      "cadence": "2 blog posts/week, webinar mill, almost no developer content.",
+      "complaints": "Slow dashboards on large datasets, 3-week onboarding, support tickets auto-closed — 212 negative review mentions this refresh, up 31%.",
+      "soft": "Their May repricing hit exactly the cohort you serve best. SMB customers on annual plans renew into a +18% bill between now and September — a churn window measured in weeks, not quarters."
+    },
+    {
+      "name": "MetricMill",
+      "oneLiner": "Velocity machine — ships fast, breaks trust.",
+      "positioning": "\"Analytics that keeps up with you\" — speed-first narrative aimed at startups.",
+      "pricing": "Free tier → $79/mo growth tier (was $59 until April).",
+      "channels": "Product-led: free tier + template gallery; strong on X/Twitter, weak SEO.",
+      "cadence": "Daily changelog, shipping-in-public threads, founder podcast circuit.",
+      "complaints": "Breaking API changes (3 in six months), data discrepancies vs. warehouse ground truth, billing surprises at tier boundaries.",
+      "soft": "Reliability is their brand debt: 41% of their negative reviews this quarter mention trust in the numbers. Your warehouse-native accuracy story lands hardest against exactly this."
+    },
+    {
+      "name": "Funnelscope",
+      "oneLiner": "Narrow but deep — owns the funnel-visualisation niche.",
+      "positioning": "\"See where revenue leaks\" — single-use-case clarity, PLG funnels only.",
+      "pricing": "$39/mo flat — cheapest credible option in the field.",
+      "channels": "SEO fortress (2,400 ranking pages), comparison-page farm, affiliate program.",
+      "cadence": "4 SEO posts/week, zero community presence, no events.",
+      "complaints": "\"Great funnels, but I still need a second tool for everything else\" — the modal review. Export limits on the flat tier.",
+      "soft": "They own one room in the house you sell the whole house. Their own reviews say users outgrow them in 6–9 months — be the documented next step (play 06 targets their comparison keywords directly)."
+    },
+    {
+      "name": "Plotwise",
+      "oneLiner": "Design-led dashboards for non-technical teams.",
+      "positioning": "\"Beautiful analytics for everyone\" — sells to marketing and ops, not engineering.",
+      "pricing": "$25/seat/mo, seat-count growth model.",
+      "channels": "Figma-community halo, design-influencer sponsorships, template marketplace.",
+      "cadence": "Fortnightly template drops, strong newsletter (est. 40k), thin technical docs.",
+      "complaints": "Can't handle event volumes past ~10M/mo, SQL escape-hatch missing, engineers route around it.",
+      "soft": "Engineering teams veto them at scale — your warehouse-native pitch wins every deal where an engineer is in the room. Their seat-based pricing also punishes exactly the team growth your usage-based model rewards."
+    },
+    {
+      "name": "Cohortree",
+      "oneLiner": "The open-source wildcard — loud community, unclear business.",
+      "positioning": "\"Own your analytics\" — self-host narrative aimed at privacy-conscious teams.",
+      "pricing": "OSS free; cloud $0.0004/event — cheap at small scale, unpredictable at large.",
+      "channels": "GitHub (14k stars), HN launches, Discord (8k members), zero paid spend.",
+      "cadence": "Release-notes-as-content, community showcase, sporadic deep-dive posts.",
+      "complaints": "Self-host upgrade pain, sparse docs past the quickstart, cloud bill shock at volume.",
+      "soft": "They harvest your top-of-funnel (developers searching \"self-host analytics\") but convert poorly: complaint mining shows teams abandoning self-host at the 6-month mark. A migration guide + import tool (play 09) turns their churn into your pipeline."
+    }
+  ],
+  "gaps": {
+    "intro": "Eight gaps surfaced this refresh; the six below survived evidence review. The pattern across them: every rival serves either the engineer or the business buyer — none serves the handoff between them, and that handoff is where your embedded-dashboards capability already lives.",
+    "wedge": "Acme is the only warehouse-native analytics tool a developer can embed in their own product in under an hour — the analytics layer for people who build, not just buy. Every play in section 04 either proves this claim, prices it, or puts it where developer-buyers already look.",
+    "items": [
+      {
+        "title": "Embedded / customer-facing dashboards",
+        "evidence": "94 complaint mentions across rival reviews asking to embed charts in their own product; only Plotwise offers it, capped at 10M events/mo. Search volume for \"embedded analytics API\" up 34% QoQ.",
+        "urgency": "high"
+      },
+      {
+        "title": "Graphspan's repricing churn window",
+        "evidence": "Their +18% May repricing hits SMB annual renewals June–September. Review velocity from their SMB cohort tripled in four weeks; 7 of the last 20 explicitly name shopping for alternatives.",
+        "urgency": "high"
+      },
+      {
+        "title": "Funnelscope graduation path",
+        "evidence": "Their modal negative review is \"outgrew it.\" 1,900/mo searches on \"funnelscope alternative\"-class terms with no credible incumbent answer — their comparison-page farm doesn't cover graduation, only entry.",
+        "urgency": "high"
+      },
+      {
+        "title": "Self-host abandonment (Cohortree churn)",
+        "evidence": "Community threads show consistent self-host abandonment around month 6 (upgrade pain, ops burden). No rival offers a documented migration path; import tooling is a one-sprint build.",
+        "urgency": "medium"
+      },
+      {
+        "title": "Warehouse-accuracy trust narrative",
+        "evidence": "41% of MetricMill's negative reviews mention numbers that don't match the warehouse. Nobody in the field owns the \"matches your warehouse, provably\" claim — it is yours by architecture.",
+        "urgency": "medium"
+      },
+      {
+        "title": "Usage-based pricing for growing teams",
+        "evidence": "Plotwise and Graphspan both charge per seat; complaint mining shows seat-audit resentment in 60+ reviews. Your usage-based model is an unadvertised differentiator — it appears nowhere on your pricing page.",
+        "urgency": "low"
+      }
+    ],
+    "matrix": [
+      { "dimension": "Warehouse-native (no data copy)", "you": "yes", "rivals": ["no", "part", "no", "no", "yes"] },
+      { "dimension": "Embeddable in your own product", "you": "yes", "rivals": ["no", "no", "no", "part", "no"] },
+      { "dimension": "Handles 100M+ events/mo", "you": "yes", "rivals": ["yes", "part", "no", "no", "part"] },
+      { "dimension": "Self-serve setup < 1 hour", "you": "yes", "rivals": ["no", "yes", "yes", "yes", "part"] },
+      { "dimension": "Usage-based pricing", "you": "yes", "rivals": ["no", "part", "no", "no", "yes"] },
+      { "dimension": "SOC 2 attested", "you": "part", "rivals": ["yes", "yes", "no", "yes", "no"] }
+    ]
+  },
+  "plan": {
+    "intro": "Fourteen plays, sequenced so each month funds the next: month one converts the two churn windows that are open right now, month two builds the content moat while those convert, month three scales what survived its kill criteria. Every play names the number and the date that kills it — honour them.",
+    "review": [
+      "Scoreboard first (10 min): each live play's metric vs. its kill line — no narrative, numbers only.",
+      "Kill or double (20 min): any play past its kill date gets killed or gets a written exception with a new date. No silent extensions.",
+      "Signals delta (15 min): what moved in the market this week — rival pricing, new complaints, search shifts (from the GrowthKit feed).",
+      "Next week's single bet (10 min): the one play getting extra hands, and what everyone else keeps steady.",
+      "Log it (5 min): three bullet decisions to the #growth channel — the quarter's memory lives there, not in heads."
+    ],
+    "months": [
+      {
+        "label": "Days 0–30 — strike the open windows",
+        "plays": [
+          {
+            "title": "Reprice Starter to $49 + publish the pricing page",
+            "channel": "Pricing",
+            "what": "Move Starter from $39 to $49 with usage-based scaling made explicit on a public pricing page (it's currently behind a demo call). Anchor directly against Graphspan's new $79 and name the comparison.",
+            "kill": "trial starts drop >15% for 14 consecutive days",
+            "metric": "+20% trial-to-paid revenue per signup by day 30"
+          },
+          {
+            "title": "Ship the embedded-dashboards quickstart",
+            "channel": "Product / Docs",
+            "what": "A copy-paste quickstart that gets a chart rendering inside the user's own app in under an hour — the wedge made tangible. Ship the docs page, a starter repo, and a 4-minute demo video.",
+            "kill": "quickstart completion rate <25% after 2 weeks of traffic",
+            "metric": "150 quickstart completions; 15 embedded-tier conversations by day 30"
+          },
+          {
+            "title": "Graphspan renewal-window rescue campaign",
+            "channel": "Outbound",
+            "what": "A 40-account list of Graphspan SMB customers (built from review-site profiles and tech-detection) gets a founder-signed note + a white-glove migration offer with a 90-day price lock.",
+            "kill": "reply rate <4% after 80 sends",
+            "metric": "8 migration conversations; 3 closed by day 45"
+          },
+          {
+            "title": "\"Funnelscope, then what?\" comparison hub",
+            "channel": "SEO",
+            "what": "One pillar page + three comparison pages targeting the graduation keywords their farm ignores. Written for the engineer who has outgrown funnels, with a real import path.",
+            "kill": "zero page-one rankings on target terms after 45 days",
+            "metric": "800 organic visits/mo to the hub by day 60"
+          },
+          {
+            "title": "Kill the LinkedIn paid pilot",
+            "channel": "Paid",
+            "what": "April's pilot has failed its own criterion ($61 CPL vs. the $35 kill line). Stop spend, write the postmortem, reallocate the $2.4k/mo to integration-marketplace listings (play 07).",
+            "kill": "n/a — this play IS a kill, executing week one",
+            "metric": "$2.4k/mo reallocated with zero pipeline loss after 30 days"
+          }
+        ]
+      },
+      {
+        "label": "Days 31–60 — build the moat while the windows convert",
+        "plays": [
+          {
+            "title": "\"Provably matches your warehouse\" trust page",
+            "channel": "Product marketing",
+            "what": "A technical page + open methodology showing parity tests between Acme numbers and raw warehouse queries — aimed straight at MetricMill's 41% trust-complaint cohort. Include a runnable parity script.",
+            "kill": "<10% of sales conversations reference it after 30 days live",
+            "metric": "cited in 25% of closed-won notes by day 90"
+          },
+          {
+            "title": "Integration marketplace blitz",
+            "channel": "Partnerships",
+            "what": "Listings + co-marketing with the four warehouse and CDP marketplaces where your buyers already shop. Funded by the killed LinkedIn budget.",
+            "kill": "<40 marketplace-sourced signups by day 60",
+            "metric": "120 signups/mo from marketplaces by day 90"
+          },
+          {
+            "title": "Founder build-log series",
+            "channel": "Content / Social",
+            "what": "Weekly engineering build-log on X + LinkedIn: real load numbers, parity tests, embedding demos. The developer-credibility channel MetricMill owns and Graphspan can't enter.",
+            "kill": "follower-sourced signups <10 after 8 posts",
+            "metric": "2k engineer followers; 40 attributable signups by day 90"
+          },
+          {
+            "title": "Cohortree migration guide + importer",
+            "channel": "Product / Docs",
+            "what": "A documented self-host → Acme path with an import CLI that preserves event history. Post it where their month-6 abandoners ask for help (their own Discord allows it; be useful, not spammy).",
+            "kill": "<5 migrations started by day 60",
+            "metric": "15 completed migrations by day 90"
+          },
+          {
+            "title": "Mid-market renewal-calendar outbound",
+            "channel": "Outbound",
+            "what": "The Mid-market SaaS segment buys at renewal time: build a 60-account calendar from public contract-cycle signals and run a lighter-touch sequence timed to land 60 days pre-renewal.",
+            "kill": "meeting rate <5% after first 30 accounts",
+            "metric": "10 qualified mid-market meetings by day 75"
+          }
+        ]
+      },
+      {
+        "label": "Days 61–90 — scale what survived",
+        "plays": [
+          {
+            "title": "Double the winning acquisition play",
+            "channel": "Allocation",
+            "what": "By day 60 one of plays 03/04/07/10 will be the efficiency leader. It gets the freed budget and one extra pair of hands for the final month. The scoreboard, not the loudest voice, picks it.",
+            "kill": "n/a — allocation play",
+            "metric": "winning play's volume 2× at flat CAC by day 90"
+          },
+          {
+            "title": "Embedded-tier pricing + 3 lighthouse case studies",
+            "channel": "Pricing / Proof",
+            "what": "Productise the embedded wedge: a published embedded tier, and the three best quickstart adopters turned into named case studies with load numbers.",
+            "kill": "<3 embedded-tier customers signed by day 80",
+            "metric": "embedded tier on the pricing page with 3 logos by day 90"
+          },
+          {
+            "title": "SOC 2 Type I kickoff",
+            "channel": "Ops",
+            "what": "The matrix's one ✗ that blocks mid-market deals. Engage an auditor, stand up the evidence tooling, and publish a security page with the honest current state (mirroring growthkitai.com/security's pattern).",
+            "kill": "n/a — gate for Q3 enterprise motion",
+            "metric": "Type I evidence collection live by day 90; attestation Q3"
+          },
+          {
+            "title": "Quarter postmortem + next-quarter thesis",
+            "channel": "Operating cadence",
+            "what": "Day 85–90: write the quarter's postmortem against this document — every play, its kill line, what the market did. It becomes the brief for the next GrowthKit refresh.",
+            "kill": "n/a",
+            "metric": "postmortem shipped to the team + GrowthKit by day 90"
+          }
+        ]
+      }
+    ]
+  }
+}

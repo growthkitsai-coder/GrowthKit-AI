@@ -1,0 +1,983 @@
+<!DOCTYPE html><html lang="en"><head>
+<!--
+  GrowthKit AI — deliverable template (v1, 2026-06).
+
+  This file is the MASTER TEMPLATE for client deliverables. Do not hand-edit
+  a client's copy — edit the client's JSON in clients/ and re-run:
+
+      node scripts/make-deliverable.mjs clients/<client>.json
+
+  The generator fills every <!––GK:F:…––> (scalar field) and <!––GK:S:…––>
+  (section) slot below and writes the result to d/<token>/<slug>-<period>.html.
+  The committed demo (clients/demo.json → d/demo/…) is the living example of
+  what a filled document looks like.
+
+  Design DNA matches growthkitai.com: cream + forest light mode, neon-console
+  dark mode, Instrument Serif / Inter / JetBrains Mono, and a print stylesheet
+  so "Save as PDF" from the browser produces the client's PDF copy.
+
+  This document is self-contained on purpose (no theme.css / theme.js /
+  analytics) so a copy can be emailed, archived, or hosted anywhere without
+  breaking — and so confidential client documents never phone home.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
+<title>Deliverable template — GrowthKit AI</title>
+<meta name="description" content="Confidential market-intelligence deliverable prepared by GrowthKit AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F2EFE8;
+    --ink: #14130F;
+    --ink-2: #2A2823;
+    --muted: #6B6760;
+    --line: #E2DDD3;
+    --line-2: #D4CEC1;
+    --accent: #1F4732;
+    --accent-soft: #2E6249;
+    --warn: #A6691E;
+    --paper: #FFFFFF;
+    --maxw: 980px;
+  }
+  :root[data-theme="dark"] {
+    --bg: #050708;
+    --bg-2: #0E1113;
+    --ink: #FFFFFF;
+    --ink-2: #DDD9D0;
+    --muted: #9F9C92;
+    --line: #1F2220;
+    --line-2: #2E322F;
+    --accent: #3D7C5C;
+    --accent-soft: #2A5A40;
+    --warn: #FFC24D;
+    --paper: #13171A;
+    --neon: #3EF59F;
+    --neon-2: #8FFFC9;
+    --deep-1: #06140D;
+    --deep-2: #0A1F15;
+    --deep-3: #143524;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11";
+  }
+  :root[data-theme="dark"] body {
+    background:
+      radial-gradient(ellipse 720px 580px at  92%  -6%, rgba( 96, 168, 124, 0.30), transparent 60%),
+      radial-gradient(ellipse 540px 660px at 108%  46%, rgba( 58, 116,  87, 0.20), transparent 65%),
+      radial-gradient(ellipse 460px 540px at  -6%  18%, rgba( 31,  71,  50, 0.10), transparent 60%),
+      #050708;
+    background-attachment: fixed;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :root[data-theme="dark"] ::selection { background: rgba(62,245,159,0.30); color: #FFFFFF; }
+
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+  @media (max-width: 680px) { .wrap { padding: 0 20px; } }
+
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .eyebrow .num { color: var(--accent); margin-right: 10px; }
+  :root[data-theme="dark"] .eyebrow .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+
+  em { font-style: italic; }
+  h1 em, h2 em, h3 em, .quote em { color: var(--accent); }
+  :root[data-theme="dark"] h1 em,
+  :root[data-theme="dark"] h2 em,
+  :root[data-theme="dark"] h3 em,
+  :root[data-theme="dark"] .quote em {
+    color: var(--neon);
+    text-shadow: 0 0 22px rgba(62,245,159,0.40), 0 0 70px rgba(62,245,159,0.18);
+  }
+
+  /* Neon-console decor — dark only */
+  .dk-grid, .dk-scan { display: none; }
+  :root[data-theme="dark"] .dk-grid {
+    display: block; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      linear-gradient(rgba(62,245,159,0.030) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62,245,159,0.030) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 0%, transparent 72%);
+            mask-image: radial-gradient(ellipse 95% 75% at 50% 0%, #000 0%, transparent 72%);
+  }
+  :root[data-theme="dark"] .dk-scan {
+    display: block; position: fixed; left: 0; right: 0; top: 0; height: 22vh;
+    z-index: 0; pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(62,245,159,0.045), transparent);
+    animation: dkScan 10s linear infinite;
+  }
+  @keyframes dkScan { from { transform: translateY(-30vh); } to { transform: translateY(130vh); } }
+
+  main { position: relative; z-index: 1; }
+
+  /* === Masthead (screen only) === */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  :root[data-theme="dark"] .masthead { background: rgba(5,7,8,0.72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  .masthead-inner {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .brand .logo-mark { width: 24px; height: 24px; border-radius: 5px; overflow: hidden; flex-shrink: 0; }
+  .brand .logo-mark svg { display: block; }
+  .brand small {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .mast-end { display: flex; align-items: center; gap: 10px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip .cdot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  :root[data-theme="dark"] .chip { border-color: var(--deep-3); color: rgba(143,255,201,0.65); }
+  :root[data-theme="dark"] .chip .cdot { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.7); }
+  .mast-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .mast-btn:hover { border-color: var(--accent); color: var(--accent); }
+  :root[data-theme="dark"] .mast-btn { border-color: var(--deep-3); color: var(--neon-2); }
+  :root[data-theme="dark"] .mast-btn:hover { border-color: var(--neon); color: var(--neon); box-shadow: 0 0 18px -6px rgba(62,245,159,0.5); }
+  .mast-btn.icon { width: 34px; padding: 0; }
+  .mast-btn .theme-ic { width: 14px; height: 14px; }
+  .mast-btn .ic-sun { display: none; }
+  :root[data-theme="dark"] .mast-btn .ic-sun { display: block; }
+  :root[data-theme="dark"] .mast-btn .ic-moon { display: none; }
+  @media (max-width: 560px) { .brand small { display: none; } .chip { display: none; } }
+
+  /* === Cover === */
+  .cover { padding: 72px 0 48px; border-bottom: 1px solid var(--line); }
+  .cover .eyebrow { margin-bottom: 20px; }
+  .cover h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(44px, 7vw, 76px);
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin: 0 0 10px;
+  }
+  .cover .sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(19px, 2.4vw, 24px);
+    color: var(--muted);
+    margin: 0 0 36px;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+  }
+  .cover-meta .cell { padding: 18px 18px 18px 0; border-right: 1px solid var(--line); margin-right: 18px; }
+  .cover-meta .cell:last-child { border-right: 0; margin-right: 0; }
+  .cover-meta .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .cover-meta .v { font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+  @media (max-width: 720px) {
+    .cover-meta { grid-template-columns: 1fr 1fr; }
+    .cover-meta .cell:nth-child(2) { border-right: 0; }
+  }
+  .confidential {
+    margin-top: 26px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--warn);
+  }
+
+  /* === Sections === */
+  section.block { padding: 60px 0; border-bottom: 1px solid var(--line); }
+  .section-head { margin-bottom: 30px; }
+  .section-head .eyebrow { margin-bottom: 12px; }
+  .section-head h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(30px, 4.4vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0;
+    max-width: 22ch;
+  }
+  .lede {
+    font-size: 15px;
+    color: var(--ink-2);
+    line-height: 1.65;
+    max-width: 70ch;
+    margin: 14px 0 0;
+  }
+
+  /* === TL;DR === */
+  .tldr-plate {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04), 0 24px 50px -34px rgba(20,19,15,0.2);
+  }
+  :root[data-theme="dark"] .tldr-plate {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143,255,201,0.06),
+      0 0 0 1px rgba(62,245,159,0.08),
+      0 0 44px -8px rgba(62,245,159,0.16),
+      0 36px 70px -40px rgba(0,0,0,0.8);
+  }
+  .tldr-plate .plate-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  :root[data-theme="dark"] .tldr-plate .plate-head { background: rgba(62,245,159,0.05); border-bottom-color: var(--deep-3); color: rgba(143,255,201,0.65); }
+  .tldr-plate .plate-body { padding: 26px 28px 28px; }
+  .tldr-plate .quote {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(20px, 2.6vw, 26px);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+  }
+  .moves { list-style: none; padding: 0; margin: 0; border-top: 1px dashed var(--line); }
+  :root[data-theme="dark"] .moves { border-top-color: rgba(62,245,159,0.18); }
+  .moves li {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14.5px;
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+  :root[data-theme="dark"] .moves li { border-bottom-color: rgba(62,245,159,0.14); }
+  .moves li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .moves .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  :root[data-theme="dark"] .moves .n { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+
+  /* === Stat strip === */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin: 26px 0 30px;
+  }
+  .stat-strip .cell { padding: 20px 18px 20px 0; border-right: 1px solid var(--line); margin-right: 18px; }
+  .stat-strip .cell:last-child { border-right: 0; margin-right: 0; }
+  .stat-strip .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stat-strip .v {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(26px, 3.2vw, 34px);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+  .stat-strip .v small { display: block; font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  @media (max-width: 720px) {
+    .stat-strip { grid-template-columns: 1fr 1fr; }
+    .stat-strip .cell:nth-child(2) { border-right: 0; }
+  }
+
+  /* === Segment rows === */
+  .seg-list { border-top: 1px solid var(--line); }
+  .seg {
+    display: grid;
+    grid-template-columns: 44px 1.3fr 1fr 130px;
+    gap: 20px;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .seg .rank {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--accent);
+  }
+  :root[data-theme="dark"] .seg .rank { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+  .seg .name { font-family: 'Instrument Serif', serif; font-size: 19px; letter-spacing: -0.005em; }
+  .seg .name small { display: block; font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .seg .facts { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); line-height: 1.7; }
+  .seg .facts .dim { color: var(--muted); }
+  .seg .scorebox { text-align: right; }
+  .seg .score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 7px;
+  }
+  :root[data-theme="dark"] .seg .score { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+  .seg .bar { height: 5px; background: var(--bg-2); border-radius: 999px; overflow: hidden; }
+  :root[data-theme="dark"] .seg .bar { background: rgba(255,255,255,0.06); }
+  .seg .bar i { display: block; height: 100%; width: var(--w, 50%); background: var(--accent); border-radius: 999px; }
+  :root[data-theme="dark"] .seg .bar i { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.6); }
+  @media (max-width: 720px) {
+    .seg { grid-template-columns: 34px 1fr; }
+    .seg .facts { grid-column: 2; }
+    .seg .scorebox { grid-column: 2; text-align: left; max-width: 220px; }
+  }
+  .note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 14px;
+    margin-top: 22px;
+    line-height: 1.7;
+  }
+  :root[data-theme="dark"] .note { border-left-color: var(--neon); }
+
+  /* === Competitor cards === */
+  .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .comp-grid { grid-template-columns: 1fr; } }
+  .comp {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.02);
+  }
+  :root[data-theme="dark"] .comp {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow: inset 0 1px 0 rgba(143,255,201,0.05), 0 24px 50px -32px rgba(0,0,0,0.7);
+  }
+  .comp .comp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px dashed var(--line);
+  }
+  :root[data-theme="dark"] .comp .comp-head { border-bottom-color: rgba(62,245,159,0.18); }
+  .comp h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  .comp .comp-num { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  :root[data-theme="dark"] .comp .comp-num { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+  .comp .one-liner { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 14.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.45; }
+  .comp dl { margin: 0; display: grid; gap: 9px; }
+  .comp dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .comp dd { margin: 0 0 4px; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  .comp .soft {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px dashed var(--line-2);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    background: var(--bg-2);
+  }
+  :root[data-theme="dark"] .comp .soft { background: rgba(62,245,159,0.05); border-color: rgba(62,245,159,0.25); }
+  .comp .soft b {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+  :root[data-theme="dark"] .comp .soft b { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+
+  /* === Gaps === */
+  .gap-list { border-top: 1px solid var(--line); }
+  .gap {
+    display: grid;
+    grid-template-columns: 44px 1fr 96px;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+  .gap .gnum { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 24px; color: var(--accent); line-height: 1; padding-top: 2px; }
+  :root[data-theme="dark"] .gap .gnum { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+  .gap h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 19px; margin: 0 0 6px; letter-spacing: -0.005em; }
+  .gap p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; max-width: 70ch; }
+  .gap p .src { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .gap .urgency { text-align: right; }
+  .pillb {
+    display: inline-block;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .pillb.hi { color: var(--accent); border-color: rgba(31,71,50,0.4); background: rgba(31,71,50,0.06); }
+  .pillb.md { color: var(--warn); border-color: rgba(166,105,30,0.35); background: rgba(166,105,30,0.06); }
+  :root[data-theme="dark"] .pillb { border-color: var(--deep-3); }
+  :root[data-theme="dark"] .pillb.hi { color: var(--neon); border-color: rgba(62,245,159,0.45); background: rgba(62,245,159,0.07); text-shadow: 0 0 10px rgba(62,245,159,0.5); }
+  :root[data-theme="dark"] .pillb.md { color: var(--warn); border-color: rgba(255,194,77,0.45); background: rgba(255,194,77,0.07); }
+  @media (max-width: 640px) {
+    .gap { grid-template-columns: 34px 1fr; }
+    .gap .urgency { grid-column: 2; text-align: left; }
+  }
+
+  .wedge {
+    margin-top: 30px;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 24px 28px;
+  }
+  :root[data-theme="dark"] .wedge {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    border-left-color: var(--neon);
+    box-shadow: inset 0 1px 0 rgba(143,255,201,0.05), 0 0 38px -10px rgba(62,245,159,0.18);
+  }
+  .wedge .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  :root[data-theme="dark"] .wedge .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  .wedge .quote {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(19px, 2.4vw, 24px);
+    line-height: 1.4;
+    letter-spacing: -0.008em;
+    margin: 0;
+  }
+
+  /* === Differentiation matrix === */
+  .matrix-wrap { margin-top: 30px; overflow-x: auto; }
+  table.matrix { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.matrix th, table.matrix td {
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  table.matrix th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--bg-2);
+    font-weight: 500;
+  }
+  :root[data-theme="dark"] table.matrix th { background: rgba(62,245,159,0.05); }
+  table.matrix td.dim { text-align: left; color: var(--ink-2); font-size: 13px; }
+  table.matrix th.you, table.matrix td.you { background: rgba(31,71,50,0.06); color: var(--accent); font-weight: 600; }
+  :root[data-theme="dark"] table.matrix th.you,
+  :root[data-theme="dark"] table.matrix td.you { background: rgba(62,245,159,0.08); color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.4); }
+  table.matrix td .y { color: var(--accent); font-weight: 600; }
+  table.matrix td .p { color: var(--warn); }
+  table.matrix td .n { color: var(--muted); }
+  :root[data-theme="dark"] table.matrix td .y { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
+
+  /* === 90-day plan === */
+  .month { margin-top: 34px; }
+  .month:first-of-type { margin-top: 26px; }
+  .month-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .month-head .m-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  :root[data-theme="dark"] .month-head .m-label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  .month-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .plays { display: grid; gap: 12px; }
+  .play {
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    box-shadow: 0 1px 0 rgba(20,19,15,0.02);
+  }
+  :root[data-theme="dark"] .play {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow: inset 0 1px 0 rgba(143,255,201,0.05), 0 24px 50px -32px rgba(0,0,0,0.7);
+  }
+  .play .pnum {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 3px;
+  }
+  :root[data-theme="dark"] .play .pnum { color: var(--neon); text-shadow: 0 0 14px rgba(62,245,159,0.45); }
+  .play .p-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .play h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 18.5px; margin: 0; letter-spacing: -0.005em; }
+  .play .what { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; max-width: 76ch; }
+  .play .meta {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .play .meta b { font-weight: 500; color: var(--accent); margin-right: 6px; }
+  :root[data-theme="dark"] .play .meta b { color: var(--neon); }
+  @media (max-width: 560px) { .play { grid-template-columns: 1fr; } .play .pnum { padding-top: 0; } }
+
+  .review-box {
+    margin-top: 34px;
+    border: 1px dashed var(--line-2);
+    border-radius: 8px;
+    padding: 22px 26px;
+  }
+  :root[data-theme="dark"] .review-box { border-color: var(--deep-3); }
+  .review-box .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  :root[data-theme="dark"] .review-box .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+  .review-box ol { margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+  .review-box ol li::marker { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  :root[data-theme="dark"] .review-box ol li::marker { color: var(--neon); }
+
+  /* === Method appendix === */
+  .method p { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; max-width: 74ch; margin: 0 0 12px; }
+  .method p:last-child { margin-bottom: 0; }
+  .method p strong { color: var(--ink); font-weight: 600; }
+
+  /* === Doc footer === */
+  .doc-foot { padding: 44px 0 56px; }
+  .doc-foot .foot-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .doc-foot .tag {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.35;
+    max-width: 30ch;
+  }
+  .doc-foot .cols {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    line-height: 2;
+    text-align: right;
+  }
+  .doc-foot .cols a { color: var(--accent); }
+  :root[data-theme="dark"] .doc-foot .cols a { color: var(--neon); }
+  .doc-foot .legal {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     PRINT — "Save as PDF" is the PDF export path.
+     White paper, ink text, forest accents preserved, no chrome,
+     no decor, sections break cleanly.
+     ───────────────────────────────────────────────────────────── */
+  @media print {
+    @page { size: A4; margin: 15mm 14mm; }
+    :root, :root[data-theme="dark"] {
+      --bg: #FFFFFF; --bg-2: #F4F2ED; --ink: #14130F; --ink-2: #2A2823;
+      --muted: #6B6760; --line: #DDD8CE; --line-2: #CFC9BC;
+      --accent: #1F4732; --accent-soft: #2E6249; --warn: #A6691E; --paper: #FFFFFF;
+    }
+    html, body { background: #FFFFFF !important; color: #14130F; font-size: 11.5px; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; text-shadow: none !important; }
+    .masthead, .dk-grid, .dk-scan { display: none !important; }
+    .cover { padding: 6mm 0 8mm; }
+    section.block { padding: 8mm 0; }
+    .comp, .play, .tldr-plate, .wedge, .review-box, .seg, .gap { break-inside: avoid; }
+    section.block { break-inside: auto; }
+    #market, #competitors, #gaps, #plan { break-before: page; }
+    .comp, .play {
+      background: #FFFFFF !important;
+      border: 1px solid #CFC9BC !important;
+    }
+    .comp .soft { background: #F4F2ED !important; }
+    table.matrix th { background: #F4F2ED !important; }
+    .wrap { max-width: none; padding: 0; }
+    a { color: inherit; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
+
+<!-- ====== MASTHEAD (screen only) ====== -->
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <span class="brand">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 80 80">
+          <rect width="80" height="80" rx="14" fill="#1F4732"/>
+          <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+          <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+          <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+        </svg>
+      </span>
+      <span>GrowthKit AI</span>
+      <small>market intelligence</small>
+    </span>
+    <span class="mast-end">
+      <span class="chip"><span class="cdot" aria-hidden="true"></span><!--GK:F:periodLabel-->—<!--/GK:F:periodLabel--> · refresh <!--GK:F:refreshNumber-->—<!--/GK:F:refreshNumber--></span>
+      <button class="mast-btn" type="button" onclick="window.print()">⎙ print / pdf</button>
+      <button class="mast-btn icon" type="button" id="themeBtn" aria-label="Toggle theme">
+        <svg class="theme-ic ic-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
+        <svg class="theme-ic ic-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ====== COVER ====== -->
+  <section class="cover">
+    <div class="wrap">
+      <div class="eyebrow"><span class="num">/</span>deliverable — confidential</div>
+      <h1><!--GK:F:client-->Client name<!--/GK:F:client--></h1>
+      <p class="sub">Market intelligence · <!--GK:F:periodLabel-->—<!--/GK:F:periodLabel--> · refresh №<!--GK:F:refreshNumber-->—<!--/GK:F:refreshNumber--></p>
+      <div class="cover-meta">
+        <div class="cell">
+          <div class="k">Prepared for</div>
+          <div class="v"><!--GK:F:preparedFor-->—<!--/GK:F:preparedFor--></div>
+        </div>
+        <div class="cell">
+          <div class="k">Prepared by</div>
+          <div class="v"><!--GK:F:preparedBy-->—<!--/GK:F:preparedBy--></div>
+        </div>
+        <div class="cell">
+          <div class="k">Issued</div>
+          <div class="v"><!--GK:F:dateIssued-->—<!--/GK:F:dateIssued--></div>
+        </div>
+        <div class="cell">
+          <div class="k">Next refresh</div>
+          <div class="v"><!--GK:F:nextRefresh-->—<!--/GK:F:nextRefresh--></div>
+        </div>
+      </div>
+      <div class="confidential">Confidential — prepared exclusively for <!--GK:F:client-->the client<!--/GK:F:client-->. Do not redistribute.</div>
+    </div>
+  </section>
+
+  <!-- ====== TL;DR ====== -->
+  <section class="block" id="tldr">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">00</span>Read this first</div>
+        <h2>The verdict, and the three <em>moves</em>.</h2>
+      </div>
+      <div class="tldr-plate">
+        <div class="plate-head">
+          <span>/ verdict</span>
+          <span>60-second read</span>
+        </div>
+        <div class="plate-body">
+          <p class="quote"><!--GK:F:tldrVerdict-->The one-paragraph verdict goes here.<!--/GK:F:tldrVerdict--></p>
+          <ol class="moves">
+            <!--GK:S:moves-->
+            <!-- Filled by scripts/make-deliverable.mjs from tldr.moves[] -->
+            <!--/GK:S:moves-->
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 01 MARKET MAP ====== -->
+  <section class="block" id="market">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">01</span>Market map</div>
+        <h2>Your market, <em>measured</em>.</h2>
+        <p class="lede"><!--GK:F:marketIntro-->Analyst note on the market goes here.<!--/GK:F:marketIntro--></p>
+      </div>
+
+      <div class="stat-strip">
+        <div class="cell">
+          <div class="k">TAM</div>
+          <div class="v"><!--GK:F:tam-->—<!--/GK:F:tam--><small>total addressable</small></div>
+        </div>
+        <div class="cell">
+          <div class="k">SAM</div>
+          <div class="v"><!--GK:F:sam-->—<!--/GK:F:sam--><small>serviceable</small></div>
+        </div>
+        <div class="cell">
+          <div class="k">SOM (12 mo)</div>
+          <div class="v"><!--GK:F:som-->—<!--/GK:F:som--><small>obtainable, next 4 quarters</small></div>
+        </div>
+        <div class="cell">
+          <div class="k">Demand signals</div>
+          <div class="v"><!--GK:F:signals-->—<!--/GK:F:signals--><small>scraped this refresh</small></div>
+        </div>
+      </div>
+
+      <div class="seg-list">
+        <!--GK:S:segments-->
+        <!-- Filled by scripts/make-deliverable.mjs from market.segments[] -->
+        <!--/GK:S:segments-->
+      </div>
+
+      <div class="note"><!--GK:F:signalsNote-->Where the demand signals came from.<!--/GK:F:signalsNote--></div>
+    </div>
+  </section>
+
+  <!-- ====== 02 COMPETITOR TEARDOWN ====== -->
+  <section class="block" id="competitors">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">02</span>Competitor teardown</div>
+        <h2>Their playbooks, <em>on paper</em>.</h2>
+        <p class="lede">Each card is one rival: how they position, what they charge, where they show up — and the soft spot their own customers keep pointing at.</p>
+      </div>
+      <div class="comp-grid">
+        <!--GK:S:competitors-->
+        <!-- Filled by scripts/make-deliverable.mjs from competitors[] -->
+        <!--/GK:S:competitors-->
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 03 GAP ANALYSIS ====== -->
+  <section class="block" id="gaps">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">03</span>Gap analysis</div>
+        <h2>The doors they <em>left open</em>.</h2>
+        <p class="lede"><!--GK:F:gapsIntro-->Analyst note on the gap landscape goes here.<!--/GK:F:gapsIntro--></p>
+      </div>
+
+      <div class="gap-list">
+        <!--GK:S:gaps-->
+        <!-- Filled by scripts/make-deliverable.mjs from gaps.items[] -->
+        <!--/GK:S:gaps-->
+      </div>
+
+      <div class="wedge">
+        <div class="label">/ the wedge — lead with this</div>
+        <p class="quote"><!--GK:F:wedge-->The wedge thesis goes here.<!--/GK:F:wedge--></p>
+      </div>
+
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <!--GK:S:matrix-->
+          <!-- Filled by scripts/make-deliverable.mjs from gaps.matrix -->
+          <!--/GK:S:matrix-->
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 04 90-DAY PLAN ====== -->
+  <section class="block" id="plan">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">04</span>90-day plan</div>
+        <h2>A plan, not a <em>dashboard</em>.</h2>
+        <p class="lede"><!--GK:F:planIntro-->Note on how the plays are sequenced goes here.<!--/GK:F:planIntro--></p>
+      </div>
+
+      <!--GK:S:months-->
+      <!-- Filled by scripts/make-deliverable.mjs from plan.months[] -->
+      <!--/GK:S:months-->
+
+      <div class="review-box">
+        <div class="label">/ weekly review — 90 minutes, same agenda every week</div>
+        <ol>
+          <!--GK:S:review-->
+          <!-- Filled by scripts/make-deliverable.mjs from plan.review[] -->
+          <!--/GK:S:review-->
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== METHOD ====== -->
+  <section class="block method" id="method">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow"><span class="num">05</span>Method &amp; caveats</div>
+        <h2>How to <em>read</em> this document.</h2>
+      </div>
+      <p><strong>Where the numbers come from.</strong> Demand signals are scraped from search volumes, hiring posts, community threads, review sites, and competitor traffic estimates, then de-duplicated and scored. Market sizing triangulates public filings, analyst estimates, and bottoms-up buyer counts — when sources disagree, we show the conservative figure.</p>
+      <p><strong>Segment scores</strong> (0–100) weight demand momentum, buyer urgency, competitive crowding, and your credible right-to-win. A 70+ segment deserves a play this quarter; below 40 is a watch-list entry, not a target.</p>
+      <p><strong>Kill criteria are commitments.</strong> Each play names the number and the date that kills it. Honouring them is what makes this a plan instead of a wish — week-four drift is the failure mode this document is designed against.</p>
+      <p><strong>Every claim is sourced</strong> to a signal we collected this refresh. If a claim matters to a decision and you want the underlying data, reply to the delivery email and we'll send the raw extract.</p>
+      <p><strong>Caveats.</strong> Estimates marked “~” carry ±30% uncertainty. Competitor pricing reflects their public pages on the issue date; private/custom pricing may differ. This is decision-support, not investment advice.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ====== DOC FOOTER ====== -->
+<footer class="doc-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="tag">Markets, <em>dissected</em> — not guessed.</div>
+      <div class="cols">
+        Prepared by GrowthKit AI · London<br>
+        Questions, corrections, raw data → <a href="mailto:info@growthkitai.com">info@growthkitai.com</a><br>
+        Issued <!--GK:F:dateIssued-->—<!--/GK:F:dateIssued--> · next refresh <!--GK:F:nextRefresh-->—<!--/GK:F:nextRefresh-->
+      </div>
+    </div>
+    <div class="legal">
+      © 2026 GrowthKit AI. Confidential — prepared exclusively for <!--GK:F:client-->the client<!--/GK:F:client--> under the engagement terms. Estimates carry uncertainty; see Method &amp; caveats. Not investment advice.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var KEY = 'gk-theme';
+  var btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var root = document.documentElement;
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', 'dark');
+    try { localStorage.setItem(KEY, dark ? 'light' : 'dark'); } catch (e) {}
+  });
+})();
+</script>
+</body></html>

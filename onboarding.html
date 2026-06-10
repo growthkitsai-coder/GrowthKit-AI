@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<link rel="icon" type="image/png" sizes="512x512" href="/logo-mark-512.png">
+<link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/logo-mark-512.png">
+<title>Client onboarding — GrowthKit AI</title>
+<meta name="description" content="Brief the GrowthKit AI engine: your company, your market, your competitors, your ideal customer. Ten minutes, once — then the intelligence starts compounding.">
+<meta name="theme-color" content="#1F4732">
+<meta name="robots" content="noindex, follow">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GrowthKit AI">
+<meta property="og:title" content="Client onboarding — GrowthKit AI">
+<meta property="og:description" content="Brief the engine: your company, market, competitors, and ICP. Ten minutes, once.">
+<meta property="og:url" content="https://growthkitai.com/onboarding">
+<meta property="og:image" content="https://growthkitai.com/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GrowthKit AI — Markets, dissected — not guessed.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Client onboarding — GrowthKit AI">
+<meta name="twitter:description" content="Brief the engine: company, market, competitors, ICP.">
+<meta name="twitter:image" content="https://growthkitai.com/og-card.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --bg-2: #F2EFE8;
+    --ink: #14130F;
+    --ink-2: #2A2823;
+    --muted: #6B6760;
+    --line: #E2DDD3;
+    --line-2: #D4CEC1;
+    --accent: #1F4732;
+    --accent-soft: #2E6249;
+    --paper: #FFFFFF;
+    --maxw: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    font-feature-settings: "ss01", "cv11";
+    min-height: 100vh;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 720px) { .wrap { padding: 0 22px; } }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .eyebrow .num { color: var(--accent); margin-right: 10px; }
+
+  /* === Top bar === */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .topbar.scrolled {
+    background: rgba(250, 248, 244, 0.78);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    backdrop-filter: saturate(140%) blur(12px);
+    box-shadow: 0 1px 0 rgba(20,19,15,0.04);
+  }
+  .topbar-inner {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .brand .logo-mark {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-size: 18px;
+    font-style: italic;
+    transform: translateY(-1px);
+    position: relative;
+    overflow: hidden;
+  }
+  .brand .logo-mark svg { display: block; }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--ink-2);
+    transition: color .2s ease;
+    position: relative;
+    padding: 4px 0;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .35s cubic-bezier(.16,1,.3,1);
+  }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .nav-cta:hover { background: var(--accent); }
+  .nav-cta .arr { font-family: 'Instrument Serif', serif; font-style: italic; transform: translateY(-1px); }
+  @media (max-width: 820px) { .nav-links { display: none; } }
+
+  /* === Page === */
+  main { padding: 80px 0 120px; }
+
+  .intro {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 48px;
+  }
+  .intro .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 28px;
+  }
+  .intro .pill .dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.12);
+    animation: pulseDot 3.2s ease-in-out infinite;
+  }
+  .intro h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(44px, 6vw, 72px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0 0 20px;
+  }
+  .intro h1 em { font-style: italic; color: var(--accent); }
+  .intro p {
+    font-size: 17px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    max-width: 52ch;
+    margin: 0 auto;
+  }
+  @keyframes pulseDot {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(31,71,50,0.10); }
+    50%      { box-shadow: 0 0 0 6px rgba(31,71,50,0.04); }
+  }
+
+  /* === Brief card (spec-plate DNA, like waitlist) === */
+  .card {
+    max-width: 680px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 32px 60px -36px rgba(20,19,15,0.18);
+    overflow: hidden;
+  }
+  .card-head, .card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 18px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    background: var(--bg-2);
+  }
+  .card-head { border-bottom: 1px solid var(--line); }
+  .card-foot { border-top: 1px solid var(--line); }
+  .card-head .num { color: var(--accent); margin-right: 1px; }
+
+  .card-body { padding: 32px 36px 28px; }
+  @media (max-width: 560px) { .card-body { padding: 26px 22px 22px; } }
+
+  .sec-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 28px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .sec-label:first-child { margin-top: 0; }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .row-2 { grid-template-columns: 1fr; gap: 0; } }
+
+  .field-group { margin-bottom: 18px; }
+  .field-label {
+    display: block;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .field-label .opt { color: var(--line-2); text-transform: none; letter-spacing: 0; }
+  .field {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 13px 16px;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
+    outline: none;
+  }
+  .field::placeholder { color: var(--muted); opacity: 0.55; }
+  .field:hover { border-color: var(--line-2); }
+  .field:focus {
+    border-color: var(--accent);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.10);
+  }
+  textarea.field { resize: vertical; min-height: 96px; }
+  select.field { appearance: none; -webkit-appearance: none; background-image: none; cursor: pointer; }
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: "↓";
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* Honeypot — parked off-screen; humans never see it, bots fill it.
+     Not display:none, because naive bots skip invisible fields. */
+  .hp-field {
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 1px; height: 1px;
+    overflow: hidden;
+  }
+
+  .submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--accent);
+    color: var(--bg);
+    border: 0;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease, transform .15s ease;
+    margin-top: 14px;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 14px 32px -16px rgba(31,71,50,0.55);
+  }
+  .submit:hover { background: var(--ink); }
+  .submit:active { transform: translateY(1px); }
+  .submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .submit .arr {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    transform: translateY(-1px);
+    transition: transform .25s ease;
+  }
+  .submit:hover .arr { transform: translate(3px, -1px); }
+
+  .privacy-note {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line);
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .privacy-note a { color: var(--accent); border-bottom: 1px solid var(--line-2); }
+
+  .form-error {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: #B0341C;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+  .form-error:empty { display: none; }
+
+  /* === Success === */
+  .success-body { text-align: center; padding: 56px 36px 48px; }
+  @media (max-width: 560px) { .success-body { padding: 44px 22px 36px; } }
+  .success-stamp {
+    margin: 0 auto 28px;
+    width: 72px; height: 72px;
+    border-radius: 999px;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 6px rgba(31,71,50,0.10);
+    animation: stampIn 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  .success-stamp svg { color: var(--bg); width: 30px; height: 30px; }
+  @keyframes stampIn { to { transform: scale(1); opacity: 1; } }
+  .success-body h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    color: var(--ink);
+  }
+  .success-body h2 em { font-style: italic; color: var(--accent); }
+  .success-body .lede {
+    font-size: 16px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 42ch;
+  }
+  .success-body .note {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin: 18px auto 0;
+    max-width: 42ch;
+    line-height: 1.6;
+  }
+  .success-body .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 36px;
+    font-size: 14px;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .success-body .back:hover { color: var(--accent); border-color: var(--accent); }
+  .success-body .back .arr { font-family: 'Instrument Serif', serif; font-style: italic; transition: transform .25s ease; }
+  .success-body .back:hover .arr { transform: translateX(-3px); }
+
+  .hidden { display: none !important; }
+
+  /* === Footer === */
+  footer {
+    background: var(--bg);
+    padding: 56px 0 40px;
+    border-top: 1px solid var(--line);
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    margin-bottom: 48px;
+  }
+  .foot-grid h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+  .foot-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .foot-grid ul a { font-size: 14px; color: var(--ink-2); transition: color .2s ease; }
+  .foot-grid ul a:hover { color: var(--accent); }
+  .foot-tag {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-top: 10px;
+    max-width: 24ch;
+  }
+  .foot-bar {
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
+
+  /* === Reveal === */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .topbar { transition: none; }
+    .pill .dot { animation: none; }
+    .success-stamp { transform: none; opacity: 1; animation: none; }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     DARK MODE — "Console" neon layer (page-specific overrides).
+     Shared tokens, grid/scanline decor, em glow, focus rings and
+     selection come from theme.css. Light mode untouched.
+     ───────────────────────────────────────────────────────────── */
+  main, footer { position: relative; z-index: 1; }
+
+  :root[data-theme="dark"] .intro .pill { border-color: var(--deep-3); background: rgba(255, 255, 255, 0.02); }
+  :root[data-theme="dark"] .intro .pill .dot {
+    background: var(--neon);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+
+  :root[data-theme="dark"] .card {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border-color: var(--deep-3);
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.06),
+      0 0 0 1px rgba(62, 245, 159, 0.08),
+      0 0 44px -8px rgba(62, 245, 159, 0.16),
+      0 36px 70px -40px rgba(0, 0, 0, 0.8);
+  }
+  :root[data-theme="dark"] .card-head,
+  :root[data-theme="dark"] .card-foot {
+    background: rgba(62, 245, 159, 0.05);
+    border-color: var(--deep-3);
+    color: rgba(143, 255, 201, 0.65);
+  }
+  :root[data-theme="dark"] .card-head .num {
+    color: var(--neon);
+    text-shadow: 0 0 12px rgba(62, 245, 159, 0.45);
+  }
+  :root[data-theme="dark"] .sec-label {
+    color: var(--neon);
+    text-shadow: 0 0 12px rgba(62, 245, 159, 0.45);
+    border-bottom-color: rgba(62, 245, 159, 0.18);
+  }
+  :root[data-theme="dark"] .field {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--deep-3);
+  }
+  :root[data-theme="dark"] .field:hover { border-color: rgba(62, 245, 159, 0.35); }
+  :root[data-theme="dark"] .field:focus {
+    border-color: var(--neon);
+    background: rgba(62, 245, 159, 0.04);
+    box-shadow: 0 0 0 3px rgba(62, 245, 159, 0.15), 0 0 18px -6px rgba(62, 245, 159, 0.5);
+  }
+  :root[data-theme="dark"] .submit { background: var(--neon); color: #04110A; }
+  :root[data-theme="dark"] .submit:hover { background: var(--neon-2); }
+  :root[data-theme="dark"] .privacy-note { border-top-color: rgba(62, 245, 159, 0.18); }
+  :root[data-theme="dark"] .privacy-note a { color: var(--neon); border-bottom-color: var(--deep-3); }
+  :root[data-theme="dark"] .form-error { color: #FF8A66; }
+  :root[data-theme="dark"] .success-stamp {
+    background: var(--neon);
+    box-shadow: 0 0 0 6px rgba(62, 245, 159, 0.14), 0 0 34px rgba(62, 245, 159, 0.55);
+  }
+  :root[data-theme="dark"] .success-stamp svg { color: #04110A; }
+  :root[data-theme="dark"] .success-body .back { border-bottom-color: var(--deep-3); }
+  :root[data-theme="dark"] .success-body .back:hover { color: var(--neon); border-bottom-color: var(--neon); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .intro .pill .dot { animation: none; }
+  }
+</style>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js" defer></script>
+</head>
+<body>
+
+<div class="dk-grid" aria-hidden="true"></div>
+<div class="dk-scan" aria-hidden="true"></div>
+
+<!-- ====== TOP BAR ====== -->
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="/" class="brand">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 80 80">
+          <rect width="80" height="80" rx="14" fill="#1F4732"/>
+          <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+          <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+          <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+        </svg>
+      </span>
+      <span>GrowthKit AI</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/#engine">Product</a>
+      <a href="/#process">How it works</a>
+      <a href="/methodology">Methodology</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <div class="topbar-end">
+      <a href="/waitlist" class="nav-cta">
+        Join waitlist <span class="arr">↗</span>
+      </a>
+      <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
+        <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="intro reveal">
+      <span class="pill">
+        <span class="dot"></span>
+        <span>Private beta · for accepted clients</span>
+      </span>
+      <h1>Brief the <em>engine</em>.</h1>
+      <p>Ten minutes, once. Tell us what you're building, who it's for, and which rivals you already watch — the engine takes it from there, and your first deliverable lands within the week.</p>
+    </div>
+
+    <div id="formCard" class="card reveal" style="--reveal-delay: 200ms;">
+      <div class="card-head">
+        <span><span class="num">/</span>client brief</span>
+        <span>onboarding · 2026</span>
+      </div>
+      <div class="card-body">
+        <form id="onboardingForm" novalidate>
+
+          <div class="sec-label">01 — The company</div>
+          <div class="row-2">
+            <div class="field-group">
+              <label for="companyName" class="field-label">Company name</label>
+              <input id="companyName" name="companyName" type="text" autocomplete="organization" required class="field" placeholder="Acme Analytics">
+            </div>
+            <div class="field-group">
+              <label for="website" class="field-label">Website</label>
+              <input id="website" name="website" type="url" autocomplete="url" required class="field" placeholder="https://acme.com">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field-group">
+              <label for="contactName" class="field-label">Your name</label>
+              <input id="contactName" name="contactName" type="text" autocomplete="name" required class="field" placeholder="Ada Lovelace">
+            </div>
+            <div class="field-group">
+              <label for="email" class="field-label">Work email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required class="field" placeholder="ada@acme.com">
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="stage" class="field-label">Stage</label>
+            <div class="select-wrap">
+              <select id="stage" name="stage" required class="field">
+                <option value="" disabled selected>Choose your stage</option>
+                <option value="pre-seed">Pre-seed</option>
+                <option value="seed">Seed</option>
+                <option value="series-a">Series A</option>
+                <option value="beyond">Beyond Series A</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sec-label">02 — The market</div>
+          <div class="field-group">
+            <label for="market" class="field-label">Your market, in plain English</label>
+            <textarea id="market" name="market" required class="field" rows="4" placeholder="What you sell, to whom, and what they'd be doing without you. Three sentences beats three paragraphs."></textarea>
+          </div>
+          <div class="field-group">
+            <label for="competitors" class="field-label">Competitors you already watch <span class="opt">· optional</span></label>
+            <textarea id="competitors" name="competitors" class="field" rows="3" placeholder="One per line — names or URLs. We'll surface the ones you're missing."></textarea>
+            <div class="hint">Leave it empty if you'd rather we map the field from scratch — most clients are surprised by at least one name we add.</div>
+          </div>
+
+          <div class="sec-label">03 — The customer</div>
+          <div class="field-group">
+            <label for="icp" class="field-label">Your ideal customer</label>
+            <textarea id="icp" name="icp" required class="field" rows="3" placeholder="Who signs, who uses it, and what makes a customer perfect — size, role, stack, urgency."></textarea>
+          </div>
+          <div class="field-group">
+            <label for="notes" class="field-label">Anything else we should know <span class="opt">· optional</span></label>
+            <textarea id="notes" name="notes" class="field" rows="3" placeholder="A launch coming up, a rival move that worries you, a market question you want answered first…"></textarea>
+          </div>
+
+          <div class="hp-field" aria-hidden="true">
+            <label for="fax">Fax</label>
+            <input id="fax" name="fax" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button type="submit" class="submit">
+            <span class="submit-label">Send the brief</span> <span class="arr">→</span>
+          </button>
+
+          <div id="formError" class="form-error" role="alert" aria-live="polite"></div>
+
+          <p class="privacy-note">
+            Your brief goes straight to the founding team's access-controlled workspace and is used exclusively to produce your deliverables — never to train third-party models without your consent. The fine print lives in the <a href="/privacy">privacy policy</a> and <a href="/security">security page</a>.
+          </p>
+        </form>
+      </div>
+      <div class="card-foot">
+        <span>Read by a founder, not a form</span>
+        <span>2026 · ldn</span>
+      </div>
+    </div>
+
+    <div id="successCard" class="card hidden">
+      <div class="card-head">
+        <span><span class="num">/</span>client brief</span>
+        <span>received · 2026</span>
+      </div>
+      <div class="success-body">
+        <div class="success-stamp" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2>Brief <em>received</em>.</h2>
+        <p class="lede">Thanks, <span id="successName">friend</span> — the engine starts on <span id="successCompany">your market</span> today. Your first deliverable lands within the week, reviewed by an operator before it reaches you.</p>
+        <p class="note">A confirmation is on its way to your inbox. Anything you forgot to mention — just reply to it.</p>
+        <a href="/" class="back"><span class="arr">←</span> Back to home</a>
+      </div>
+      <div class="card-foot">
+        <span>Logged · in the queue</span>
+        <span>2026 · ldn</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="brand">
+          <span class="logo-mark" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 80 80">
+              <rect width="80" height="80" rx="14" fill="#1F4732"/>
+              <g stroke="#FAF8F4" stroke-width="4" fill="none" stroke-linecap="square"><path d="M12 22 V12 H22"/><path d="M58 12 H68 V22"/><path d="M68 58 V68 H58"/><path d="M22 68 H12 V58"/></g>
+              <text x="40" y="58" text-anchor="middle" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" font-size="56" fill="#FAF8F4">G</text>
+              <rect x="58" y="60" width="8" height="8" fill="#B7E4CC"/>
+            </svg>
+          </span>
+          <span>GrowthKit AI</span>
+        </a>
+        <p class="foot-tag">Market intelligence, engineered for founders.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/#engine">The engine</a></li>
+          <li><a href="/#process">How it works</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+          <li><a href="/waitlist">Join waitlist</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/manifesto">Manifesto</a></li>
+          <li><a href="/methodology">Methodology</a></li>
+          <li><a href="/careers">Careers</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/security">Security</a></li>
+          <li><a href="/status">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bar">
+      <div>© 2026 GrowthKit AI</div>
+      <div>London · Remote · v0.4 (private beta)</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // Onboarding briefs go to their own Apps Script + Sheet (NOT the waitlist's).
+  // Deploy onboarding-apps-script.gs (instructions in its header), then paste
+  // the Web app URL here. Until then the form shows a friendly config notice.
+  var SCRIPT_URL = '';
+
+  var loadedAt = Date.now();
+
+  // Reveal on view
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  } else {
+    els.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // Topbar elevation on scroll
+  var topbar = document.querySelector('.topbar');
+  if (topbar) {
+    var lastState = false;
+    function onScroll() {
+      var scrolled = window.scrollY > 24;
+      if (scrolled !== lastState) {
+        topbar.classList.toggle('scrolled', scrolled);
+        lastState = scrolled;
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // Form submit
+  var form = document.getElementById('onboardingForm');
+  var formCard = document.getElementById('formCard');
+  var successCard = document.getElementById('successCard');
+  var successName = document.getElementById('successName');
+  var successCompany = document.getElementById('successCompany');
+  var formError = document.getElementById('formError');
+  var submitBtn = form.querySelector('.submit');
+  var submitLabel = submitBtn.querySelector('.submit-label');
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    var companyName = form.companyName.value.trim();
+    var website = form.website.value.trim();
+    var contactName = form.contactName.value.trim();
+    var email = form.email.value.trim();
+    var stage = form.stage.value;
+    var market = form.market.value.trim();
+    var icp = form.icp.value.trim();
+
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    var firstBad =
+      !companyName ? form.companyName :
+      !website     ? form.website :
+      !contactName ? form.contactName :
+      !emailOk     ? form.email :
+      !stage       ? form.stage :
+      !market      ? form.market :
+      !icp         ? form.icp : null;
+    if (firstBad) {
+      formError.textContent = 'A required field is missing — everything except competitors and notes is needed.';
+      firstBad.focus();
+      return;
+    }
+
+    if (!SCRIPT_URL) {
+      formError.textContent = 'Form is not configured yet — deploy onboarding-apps-script.gs and set SCRIPT_URL in onboarding.html.';
+      return;
+    }
+
+    formError.textContent = '';
+    var originalLabel = submitLabel.textContent;
+    submitBtn.disabled = true;
+    submitLabel.textContent = 'Sending…';
+
+    try {
+      var body = new URLSearchParams({
+        companyName: companyName,
+        website: website,
+        contactName: contactName,
+        email: email,
+        stage: stage,
+        market: market,
+        competitors: form.competitors.value.trim(),
+        icp: icp,
+        notes: form.notes.value.trim(),
+        fax: form.fax.value,
+        t: String(Date.now() - loadedAt)
+      });
+      var res = await fetch(SCRIPT_URL, { method: 'POST', body: body });
+      if (!res.ok) throw new Error('Request failed (' + res.status + ').');
+      var data = await res.json();
+      if (!data || data.ok !== true) throw new Error((data && data.error) || 'Submission was not accepted.');
+    } catch (err) {
+      submitBtn.disabled = false;
+      submitLabel.textContent = originalLabel;
+      formError.textContent = "Couldn't send — " + (err && err.message ? err.message : 'please try again.');
+      if (window.va) window.va('event', { name: 'onboarding_error', data: { message: String((err && err.message) || err).slice(0, 120) } });
+      return;
+    }
+
+    if (window.va) window.va('event', { name: 'onboarding_submitted', data: { stage: stage } });
+    successName.textContent = contactName.split(' ')[0] || 'friend';
+    successCompany.textContent = companyName || 'your market';
+    formCard.classList.add('hidden');
+    successCard.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  // Conversion funnel: log clicks on waitlist links and primary CTAs.
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest ? e.target.closest("a") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    var cls = typeof a.className === "string" ? a.className : "";
+    if (href.indexOf("/waitlist") !== 0 && cls.indexOf("nav-cta") < 0 && cls.indexOf("btn-primary") < 0) return;
+    var sec = a.closest("header") ? "topbar" : a.closest("footer") ? "footer" : a.closest("section[id]") ? a.closest("section[id]").id : "body";
+    window.va("event", { name: "cta_click", data: { page: location.pathname, section: sec, href: href } });
+  });
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
