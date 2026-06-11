@@ -444,6 +444,73 @@
   /* Section h3 subheads get a phosphor tint so the doc scans like a
      spec sheet rather than a wall of gray. */
   :root[data-theme="dark"] .doc-body h3 { color: var(--neon-2); }
+
+  /* Hero meta-row → live document register: pulsing LED on the
+     effective date, blinking terminal cursor after the version stamp. */
+  :root[data-theme="dark"] .page-hero .meta-row div:first-child::before {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--neon);
+    margin-right: 9px;
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 3px rgba(62,245,159,0.16),
+      0 0 14px rgba(62,245,159,0.75);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+  :root[data-theme="dark"] .page-hero .meta-row div:last-child::after {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 12px;
+    background: var(--neon);
+    margin-left: 7px;
+    transform: translateY(2px);
+    box-shadow: 0 0 10px rgba(62,245,159,0.8);
+    animation: dkBlink 1.1s steps(1) infinite;
+  }
+
+  /* TOC index numbers light up as the cursor passes */
+  :root[data-theme="dark"] .toc ol li a:hover::before {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62,245,159,0.5);
+  }
+
+  /* Numbered sections read as log entries: neon tick before each mono
+     eyebrow (the manifesto article-tag dash), scan-wash on hover.
+     Padding is offset by negative margins so the text column sits in
+     exactly the same place as light mode. */
+  :root[data-theme="dark"] .doc-body .sec-eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 22px; height: 1px;
+    background: var(--neon);
+    box-shadow: 0 0 8px rgba(62,245,159,0.6);
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  :root[data-theme="dark"] .doc-body section {
+    padding-left: 16px; padding-right: 16px;
+    margin-left: -16px; margin-right: -16px;
+    border-radius: 8px;
+    transition: background-color .35s ease;
+  }
+  :root[data-theme="dark"] .doc-body section:hover {
+    background: linear-gradient(90deg, rgba(62,245,159,0.045), rgba(10,31,21,0.35) 40%, transparent);
+  }
+
+  @keyframes dkPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(62,245,159,0.16), 0 0 14px rgba(62,245,159,0.75); }
+    50%      { box-shadow: 0 0 0 6px rgba(62,245,159,0.06), 0 0 22px rgba(62,245,159,0.95); }
+  }
+  @keyframes dkBlink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .page-hero .meta-row div:first-child::before,
+    :root[data-theme="dark"] .page-hero .meta-row div:last-child::after { animation: none; }
+    :root[data-theme="dark"] .doc-body section { transition: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
