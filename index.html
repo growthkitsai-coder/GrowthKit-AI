@@ -1825,6 +1825,72 @@
 
   /* FAQ */
   :root[data-theme="dark"] .faq-item.open .toggle { color: var(--neon); }
+  :root[data-theme="dark"] .faq-item.open .qnum {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.45);
+  }
+
+  /* Problem morph runs on the open grid floor — the section's opaque
+     background would hide the fixed .dk-grid/.dk-scan decor for the
+     whole pinned scroll, so it goes transparent in dark only. */
+  :root[data-theme="dark"] section.block.problem-pin { background: transparent; }
+  :root[data-theme="dark"] .stage-card .card-aside { border-top-color: rgba(62, 245, 159, 0.14); }
+  :root[data-theme="dark"] .stage-intro .stage-foot { border-top-color: var(--deep-3); }
+  :root[data-theme="dark"] .problem-hud .hud-counter b {
+    color: var(--neon-2);
+    text-shadow: 0 0 12px rgba(62, 245, 159, 0.35);
+  }
+  /* Ghost numerals brighten on hover — the manifesto article-ghost move */
+  :root[data-theme="dark"] .stage-card:hover .ghost-num {
+    -webkit-text-stroke: 1px rgba(62, 245, 159, 0.40);
+    opacity: 0.9;
+  }
+
+  /* Marquee → console rail between sections (solid deep green so the
+     edge-fade gradients match exactly) */
+  :root[data-theme="dark"] .marquee {
+    background: var(--deep-2);
+    border-top-color: var(--deep-3);
+    border-bottom-color: var(--deep-3);
+  }
+  :root[data-theme="dark"] .marquee::before { background: linear-gradient(to right, var(--deep-2), rgba(10, 31, 21, 0)); }
+  :root[data-theme="dark"] .marquee::after  { background: linear-gradient(to left,  var(--deep-2), rgba(10, 31, 21, 0)); }
+
+  /* Engine — module tags go neon (manifesto article-tag analog), rows
+     read as log entries: dashed neon separators + the signature
+     left-to-right hover scan, and the spine becomes a powered rail. */
+  :root[data-theme="dark"] .engine::before {
+    background: linear-gradient(to bottom, rgba(62, 245, 159, 0.28), rgba(62, 245, 159, 0.05));
+  }
+  :root[data-theme="dark"] .engine .feat { border-bottom-color: rgba(62, 245, 159, 0.14); }
+  :root[data-theme="dark"] .engine .feat:hover {
+    background: linear-gradient(90deg, rgba(62, 245, 159, 0.05), rgba(10, 31, 21, 0.45) 40%, transparent);
+  }
+  :root[data-theme="dark"] .engine .feat .feat-tag {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.45);
+  }
+
+  /* Process — step tags neon, node labels light up with their dots */
+  :root[data-theme="dark"] .process .step-tag {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.45);
+    border-bottom-color: rgba(62, 245, 159, 0.35);
+  }
+  :root[data-theme="dark"] .process-flow.in .node-label {
+    color: var(--neon-2);
+    text-shadow: 0 0 12px rgba(62, 245, 159, 0.35);
+  }
+
+  /* Hero meta — the four figures read as glowing instrument readouts */
+  :root[data-theme="dark"] .hero-meta { border-left-color: var(--deep-3); }
+  :root[data-theme="dark"] .hero-meta .item .v {
+    color: var(--neon-2);
+    text-shadow: 0 0 18px rgba(62, 245, 159, 0.22);
+  }
+  @media (max-width: 900px) {
+    :root[data-theme="dark"] .hero-meta { border-top-color: var(--deep-3); }
+  }
 
   /* ── Extra motion: live-console flourishes (dark only) ──────────
      A CRT scanline sweeps each instrument panel, a terminal caret
@@ -1887,12 +1953,17 @@
   :root[data-theme="dark"] .engine .feat.in::before {
     animation: dkNodeBreathe 3.4s ease-in-out infinite;
   }
+  /* The gap dot in the scatter specimen breathes too — it IS the product */
+  :root[data-theme="dark"] .engine .feat.in .spec-scatter .dot.gap {
+    animation: dkNodeBreathe 3.4s ease-in-out infinite;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     :root[data-theme="dark"] .pill .dot,
     :root[data-theme="dark"] .spec-plate .plate-foot .dot,
     :root[data-theme="dark"] .spec-plate .plate-title .sub::after,
-    :root[data-theme="dark"] .engine .feat.in::before { animation: none; }
+    :root[data-theme="dark"] .engine .feat.in::before,
+    :root[data-theme="dark"] .engine .feat.in .spec-scatter .dot.gap { animation: none; }
     :root[data-theme="dark"] .spec-plate::after,
     :root[data-theme="dark"] .engine .feat-specimen::after { display: none; }
   }
