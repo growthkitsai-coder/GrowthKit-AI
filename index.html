@@ -1706,6 +1706,23 @@
   }
   :root[data-theme="dark"] h1.headline em::after { background: var(--neon); box-shadow: 0 0 12px rgba(62,245,159,0.6); }
 
+  /* Hero specimen plate glows like the manifesto's instrument panel.
+     theme.css already gives every .spec-plate the deep-green gradient
+     and neon head; its generic dark box-shadow is flat, so here we add
+     the ambient phosphor halo. Scoped to .hero so only the index hero
+     panel lifts — spec-plates on other pages keep the flat shadow. */
+  :root[data-theme="dark"] .hero .spec-plate {
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.06),
+      0 0 0 1px rgba(62, 245, 159, 0.08),
+      0 0 44px -8px rgba(62, 245, 159, 0.16),
+      0 36px 70px -40px rgba(0, 0, 0, 0.8);
+  }
+  /* Status LED pulses neon (the light-mode pulseDot keyframes are forest). */
+  :root[data-theme="dark"] .spec-plate .plate-foot .dot {
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+
   /* Problem morph — log-entry treatment */
   :root[data-theme="dark"] .stage-card .ghost-num {
     color: transparent;
@@ -1810,13 +1827,14 @@
   :root[data-theme="dark"] .faq-item.open .toggle { color: var(--neon); }
 
   @media (prefers-reduced-motion: reduce) {
-    :root[data-theme="dark"] .pill .dot { animation: none; }
+    :root[data-theme="dark"] .pill .dot,
+    :root[data-theme="dark"] .spec-plate .plate-foot .dot { animation: none; }
   }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
-<link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"></head>
-<body style="background-color: rgb(239, 233, 222); font-family: Inter;">
+</head>
+<body>
 
 <div class="dk-grid" aria-hidden="true"></div>
 <div class="dk-scan" aria-hidden="true"></div>
