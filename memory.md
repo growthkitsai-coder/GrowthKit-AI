@@ -154,7 +154,6 @@ Dark mode swaps to matte black `#050708` with radial-gradient forest-green glows
 - **GSAP/ScrollTrigger/Lenis are only loaded on `index.html`.** Don't assume they're available on other pages.
 - **Subpage topbar nav is standardized** (2026-06-10): Product (`/#engine`) / How it works (`/#process`) / Methodology / Contact. Four older pages carried a dead "Customers → `/#proof`" link for weeks (no such id on index.html) — exactly the silent drift the checker now catches.
 - **LinkedIn returns HTTP 999 to bots** — that's why the lychee config accepts 999; don't "fix" it by removing the accept list or LinkedIn links will fail CI forever.
-- **A background watcher auto-commits with the message `lol`.** Observed 2026-06-11: working-tree edits get swept into commits titled `lol` within seconds (matches the older `lol` commits in `git log`), sometimes *before* a manual `git commit` runs — which then reports "nothing to commit, working tree clean" even though the edits are on disk and already committed. The changes still land; only the commit message is useless. If you want readable history, find and disable that watcher (or commit fast). When in doubt, verify with `git show HEAD:<file>` rather than trusting "nothing to commit".
 
 ---
 
