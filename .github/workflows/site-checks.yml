@@ -37,15 +37,23 @@ jobs:
       - name: Check external URLs
         uses: lycheeverse/lychee-action@v2
         with:
-          # --scheme http/https → external URLs only (root-relative internal
-          #   links are validated by check-site.mjs instead).
+          # --base-url makes lychee resolve root-relative links (/waitlist,
+          #   /#engine, /logo-mark-512.png) against the production origin
+          #   instead of erroring with "Cannot convert path to a URI" (lychee
+          #   v0.23 treats unresolvable root-relative links in local files as
+          #   errors — that failed every run until 2026-06-11). The resolved
+          #   URLs then hit the growthkitai.com exclude below, so internal
+          #   links stay the consistency job's responsibility.
+          # --scheme http/https → external URLs only.
           # 999 = LinkedIn's bot-blocking status; 429 = rate limited. Neither
           #   means the link is dead.
-          # growthkitai.com is excluded: canonicals/og:url for a page added in
-          #   this same push would 404 until Vercel finishes deploying it.
+          # growthkitai.com is excluded: internal links are validated by
+          #   check-site.mjs, and canonicals/og:url for a page added in this
+          #   same push would 404 until Vercel finishes deploying it.
           # fonts.gstatic.com is a preconnect origin — its root 404s by design.
           args: >-
             --no-progress
+            --base-url 'https://growthkitai.com/'
             --scheme https
             --scheme http
             --accept '100..=103,200..=299,429,999'
