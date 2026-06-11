@@ -444,6 +444,80 @@
   /* Section h3 subheads get a phosphor tint so the doc scans like a
      spec sheet rather than a wall of gray. */
   :root[data-theme="dark"] .doc-body h3 { color: var(--neon-2); }
+
+  /* ── Final deepening pass (index/methodology parity, 2026-06-11) ── */
+
+  /* Giant section-sign ghost behind the hero — neon wireframe, dark only
+     (the 404 "404" / contact numeral treatment). */
+  .doc-ghost { display: none; }
+  :root[data-theme="dark"] .page-hero { position: relative; overflow: hidden; }
+  :root[data-theme="dark"] .doc-ghost {
+    display: block;
+    position: absolute;
+    right: -20px;
+    bottom: -90px;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(260px, 30vw, 440px);
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(62, 245, 159, 0.16);
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+  :root[data-theme="dark"] .page-hero .wrap { position: relative; z-index: 1; }
+
+  /* Meta-row reads as a terminal status line — blinking caret after the
+     version stamp (keyframes shared via theme.css). */
+  :root[data-theme="dark"] .page-hero .meta-row div:last-child::after {
+    content: "▋";
+    margin-left: 6px;
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.65);
+    animation: dkCaret 1.1s steps(1, end) infinite;
+  }
+
+  /* TOC file-index runs live: CRT readout sweep + caret on its label. */
+  :root[data-theme="dark"] .toc { overflow: hidden; }
+  :root[data-theme="dark"] .toc::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 16px;
+    z-index: 4;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+      transparent,
+      rgba(62, 245, 159, 0.08) 45%,
+      rgba(62, 245, 159, 0.16) 50%,
+      rgba(62, 245, 159, 0.08) 55%,
+      transparent);
+    animation: dkScanDown 7s linear infinite;
+  }
+  :root[data-theme="dark"] .toc .eyebrow::after {
+    content: "▋";
+    margin-left: 5px;
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.65);
+    animation: dkCaret 1.1s steps(1, end) infinite;
+  }
+
+  /* Sections take the manifesto scan-wash on hover — the doc reads as
+     log entries under review. */
+  :root[data-theme="dark"] .doc-body section {
+    transition: background-color .25s ease;
+    border-radius: 6px;
+  }
+  :root[data-theme="dark"] .doc-body section:hover {
+    background: linear-gradient(90deg, rgba(62, 245, 159, 0.04), rgba(10, 31, 21, 0.35) 40%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .page-hero .meta-row div:last-child::after,
+    :root[data-theme="dark"] .toc .eyebrow::after { animation: none; }
+    :root[data-theme="dark"] .toc::after { display: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
@@ -489,6 +563,7 @@
 
   <!-- ====== PAGE HERO ====== -->
   <section class="page-hero">
+    <span class="doc-ghost" aria-hidden="true">§</span>
     <div class="wrap">
       <div class="reveal in">
         <div class="eyebrow"><span class="num">/</span>Legal — Terms</div>
