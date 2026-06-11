@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+# Client deliverables and their template — private, never crawl.
+Disallow: /d/
+Disallow: /deliverables/
 
 # AI training crawlers — uncomment any line below to block.
 # User-agent: GPTBot

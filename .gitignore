@@ -1,2 +1,10 @@
 .vercel
 .env*.local
+
+# Client confidentiality: real client briefs and generated deliverables stay
+# out of git (the repo is public). Only the fictional demo is committed.
+# To deploy a real client file: make the repo private first, then `git add -f`.
+clients/*
+!clients/demo.json
+d/*
+!d/demo

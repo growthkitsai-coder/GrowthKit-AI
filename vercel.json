@@ -14,7 +14,8 @@
     { "source": "/security.html", "destination": "/security", "permanent": true },
     { "source": "/status.html", "destination": "/status", "permanent": true },
     { "source": "/specimen.html", "destination": "/specimen", "permanent": true },
-    { "source": "/pricing.html", "destination": "/pricing", "permanent": true }
+    { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
+    { "source": "/onboarding.html", "destination": "/onboarding", "permanent": true }
   ],
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
@@ -27,9 +28,22 @@
     { "source": "/security", "destination": "/security.html" },
     { "source": "/status", "destination": "/status.html" },
     { "source": "/specimen", "destination": "/specimen.html" },
-    { "source": "/pricing", "destination": "/pricing.html" }
+    { "source": "/pricing", "destination": "/pricing.html" },
+    { "source": "/onboarding", "destination": "/onboarding.html" }
   ],
   "headers": [
+    {
+      "source": "/d/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/deliverables/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
     {
       "source": "/(.*)\\.(png|jpg|jpeg|gif|webp|svg|ico|woff|woff2)",
       "headers": [

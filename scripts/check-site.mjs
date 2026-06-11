@@ -31,7 +31,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = 'https://growthkitai.com';
 const INTERNAL_PAGES = ['logo.html', 'googlea9dc9b0133a60f51.html']; // never public, never in sitemap
 const NO_FOOTER = ['waitlist.html', '404.html']; // footer intentionally absent
-const NO_SITEMAP = ['404.html']; // public but noindex
+const NO_SITEMAP = ['404.html', 'onboarding.html']; // public but noindex
 
 const failures = [];
 const fail = (msg) => failures.push(msg);
@@ -64,7 +64,10 @@ for (const p of sitemapPaths) {
   if (redirectMap.get(`${p}.html`) !== p) fail(`vercel.json: missing/wrong redirect ${p}.html → ${p} (page is in sitemap)`);
 }
 for (const [source, dest] of rewriteMap) {
-  if (!sitemapPaths.includes(source)) fail(`sitemap.xml: missing ${source} (has a vercel.json rewrite)`);
+  // noindex pages get a clean URL but stay out of the sitemap on purpose
+  if (!sitemapPaths.includes(source) && !NO_SITEMAP.includes(dest.replace(/^\//, ''))) {
+    fail(`sitemap.xml: missing ${source} (has a vercel.json rewrite)`);
+  }
   if (!existsSync(join(ROOT, dest))) fail(`vercel.json: rewrite ${source} → ${dest}, but ${dest} does not exist`);
 }
 if (redirectMap.get('/index.html') !== '/') fail('vercel.json: missing redirect /index.html → /');
