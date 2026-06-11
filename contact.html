@@ -188,6 +188,26 @@
     max-width: 50ch;
     margin: 0;
   }
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hero-meta .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 9px;
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(31,71,50,0.12);
+  }
 
   /* === Contact grid === */
   .contact-section { padding: 80px 0 96px; border-bottom: 1px solid var(--line); }
@@ -224,6 +244,8 @@
   .channels { display: grid; gap: 18px; }
   .channel-card {
     display: block;
+    position: relative;
+    overflow: hidden;
     background: var(--paper);
     border: 1px solid var(--line-2);
     border-radius: 8px;
@@ -231,6 +253,10 @@
     transition: border-color .25s ease, transform .35s cubic-bezier(.16,1,.3,1), box-shadow .25s ease;
     box-shadow: 0 1px 0 rgba(20,19,15,0.02);
   }
+  .channel-card .channel-head,
+  .channel-card h3,
+  .channel-card .target,
+  .channel-card .desc { position: relative; z-index: 1; }
   .channel-card:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
@@ -284,6 +310,21 @@
     line-height: 1.55;
     max-width: 52ch;
   }
+  .channel-card .ghost {
+    position: absolute;
+    right: -8px;
+    bottom: -44px;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(110px, 13vw, 170px);
+    line-height: 0.8;
+    color: var(--accent);
+    opacity: 0.05;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity .35s ease, transform .6s cubic-bezier(.16,1,.3,1);
+  }
+  .channel-card:hover .ghost { opacity: 0.10; transform: translate(-6px, -8px); }
 
   /* === Meta strip === */
   .meta-strip {
@@ -440,6 +481,85 @@
   :root[data-theme="dark"] .meta-strip .cell { border-color: rgba(62, 245, 159, 0.14); }
   :root[data-theme="dark"] .meta-strip .k { color: rgba(143, 255, 201, 0.55); }
   :root[data-theme="dark"] .meta-strip .v em { color: var(--neon); text-shadow: 0 0 18px rgba(62,245,159,0.40); }
+
+  /* Hero meta → live ops readout: pulsing LED, phosphor separators */
+  :root[data-theme="dark"] .hero-meta .dot {
+    background: var(--neon);
+    box-shadow:
+      0 0 0 3px rgba(62,245,159,0.16),
+      0 0 14px rgba(62,245,159,0.75);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+
+  /* Channel labels get a live LED — each channel reads as "online" */
+  :root[data-theme="dark"] .channel-head .label::before {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--neon);
+    margin-right: 9px;
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 3px rgba(62,245,159,0.16),
+      0 0 14px rgba(62,245,159,0.75);
+    animation: dkPulse 2.6s ease-in-out infinite;
+  }
+  :root[data-theme="dark"] .channels .channel-card:nth-child(2) .label::before { animation-delay: 1.3s; }
+
+  /* Terminal cursor blinks at the end of each phosphor address line */
+  :root[data-theme="dark"] .channel-card .target::after {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 13px;
+    background: var(--neon);
+    margin-left: 7px;
+    transform: translateY(2px);
+    box-shadow: 0 0 10px rgba(62,245,159,0.8);
+    animation: dkBlink 1.1s steps(1) infinite;
+  }
+
+  /* Ghost numerals become neon wireframes (manifesto article treatment) */
+  :root[data-theme="dark"] .channel-card .ghost {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(62,245,159,0.22);
+    opacity: 0.55;
+  }
+  :root[data-theme="dark"] .channel-card:hover .ghost {
+    opacity: 0.9;
+    -webkit-text-stroke: 1px rgba(62,245,159,0.40);
+  }
+
+  /* Card hover picks up the manifesto scan-wash on top of the panel */
+  :root[data-theme="dark"] .channel-card:hover {
+    background:
+      linear-gradient(90deg, rgba(62,245,159,0.05), transparent 45%),
+      linear-gradient(180deg, var(--deep-2), var(--deep-1));
+  }
+
+  /* Meta strip cells scan on hover; keys get the eyebrow slash tick */
+  :root[data-theme="dark"] .meta-strip .cell { transition: background-color .3s ease; }
+  :root[data-theme="dark"] .meta-strip .cell:hover {
+    background: linear-gradient(90deg, rgba(62,245,159,0.045), transparent 70%);
+  }
+  :root[data-theme="dark"] .meta-strip .k::before {
+    content: "/ " / "";
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62,245,159,0.5);
+  }
+
+  @keyframes dkPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(62,245,159,0.16), 0 0 14px rgba(62,245,159,0.75); }
+    50%      { box-shadow: 0 0 0 6px rgba(62,245,159,0.06), 0 0 22px rgba(62,245,159,0.95); }
+  }
+  @keyframes dkBlink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .channel-card:hover .ghost { transform: none; }
+    :root[data-theme="dark"] .hero-meta .dot,
+    :root[data-theme="dark"] .channel-head .label::before,
+    :root[data-theme="dark"] .channel-card .target::after { animation: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
@@ -492,6 +612,11 @@
         <p class="lede">
           Questions about the methodology, the pilot, or whether GrowthKit AI's market intelligence is right for your stage? Send us a note. A real person on the team replies — usually within one business day.
         </p>
+        <div class="hero-meta">
+          <span><span class="dot" aria-hidden="true"></span>Channels open</span>
+          <span>London · Remote</span>
+          <span>Reply — one business day</span>
+        </div>
       </div>
     </div>
   </section>
@@ -517,6 +642,7 @@
             <h3>Send us an <em>email</em>.</h3>
             <p class="target">info@growthkitai.com</p>
             <p class="desc">Pilot questions, partnership proposals, press, or feedback on the market‑intel approach. We read every message and reply within one business day.</p>
+            <span class="ghost" aria-hidden="true">01</span>
           </a>
 
           <a class="channel-card reveal" href="https://www.linkedin.com/company/growth-kit-ai/?viewAsMember=true" target="_blank" rel="noopener noreferrer">
@@ -527,6 +653,7 @@
             <h3>Follow on <em>LinkedIn</em>.</h3>
             <p class="target">linkedin.com/company/growth-kit-ai</p>
             <p class="desc">For updates, behind-the-scenes notes from the pilot, and the occasional founder essay. DMs are open.</p>
+            <span class="ghost" aria-hidden="true">02</span>
           </a>
         </div>
       </div>
