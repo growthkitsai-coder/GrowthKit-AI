@@ -246,13 +246,39 @@
 /* ── Final CTA ("Treat market research like the rest of your engineering")
    In light mode this is an inverted black-on-cream slab. In dark mode the
    token flip would turn it into a white slab with cream text (unreadable),
-   so we restate it as a lifted paper panel with bright type. */
+   so we restate it as a sealed deep-green console deck: phosphor grid
+   etched into the panel (same 44px pitch as the .dk-grid floor) and a
+   CRT readout line sweeping across it. */
 :root[data-theme="dark"] .closing {
-  background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(62, 245, 159, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(62, 245, 159, 0.025) 1px, transparent 1px),
+    linear-gradient(180deg, var(--deep-2), var(--deep-1));
+  background-size: 44px 44px, 44px 44px, auto;
   color: var(--ink);
   border-top: 1px solid var(--deep-3);
-  box-shadow: inset 0 1px 0 rgba(143, 255, 201, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(143, 255, 201, 0.06),
+    inset 0 0 80px -30px rgba(62, 245, 159, 0.10);
 }
+:root[data-theme="dark"] .closing::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 18px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba(62, 245, 159, 0.07) 45%,
+    rgba(62, 245, 159, 0.14) 50%,
+    rgba(62, 245, 159, 0.07) 55%,
+    transparent);
+  animation: dkScanDown 9s linear infinite;
+}
+:root[data-theme="dark"] .closing .wrap { position: relative; z-index: 1; }
 :root[data-theme="dark"] .closing .eyebrow      { color: rgba(143, 255, 201, 0.55); }
 :root[data-theme="dark"] .closing .eyebrow .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
 :root[data-theme="dark"] .closing h2            { color: var(--ink); }
@@ -556,6 +582,41 @@
   color: var(--neon);
 }
 
+/* ── Footer → console base plate (site-wide; footers are identical
+   on every page). Transparent over the body glows with a deep-green
+   fade at the top edge, phosphor column headers, and the bottom bar
+   reading as a terminal status line: pulsing LED before the ©, a
+   blinking caret after the build tag. */
+:root[data-theme="dark"] footer {
+  background: linear-gradient(180deg, rgba(10, 31, 21, 0.45), rgba(5, 7, 8, 0) 55%);
+  border-top-color: var(--deep-3);
+}
+:root[data-theme="dark"] .foot-grid h4 {
+  color: rgba(143, 255, 201, 0.55);
+  text-shadow: 0 0 10px rgba(62, 245, 159, 0.25);
+}
+:root[data-theme="dark"] .foot-bar {
+  border-top-color: var(--deep-3);
+  color: rgba(143, 255, 201, 0.60);
+}
+:root[data-theme="dark"] .foot-bar div:first-child::before {
+  content: "";
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--neon);
+  margin-right: 9px;
+  transform: translateY(-1px);
+  animation: dkPulse 2.6s ease-in-out infinite;
+}
+:root[data-theme="dark"] .foot-bar div:last-child::after {
+  content: "▋";
+  margin-left: 6px;
+  color: var(--neon);
+  text-shadow: 0 0 10px rgba(62, 245, 159, 0.65);
+  animation: dkCaret 1.1s steps(1, end) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme="dark"] .faq-item,
   :root[data-theme="dark"] .stage-card,
@@ -563,7 +624,10 @@
     transition: none !important;
   }
   :root[data-theme="dark"] .dk-scan { display: none; }
-  :root[data-theme="dark"] .topbar .brand > span:last-child::after {
+  :root[data-theme="dark"] .topbar .brand > span:last-child::after,
+  :root[data-theme="dark"] .foot-bar div:first-child::before,
+  :root[data-theme="dark"] .foot-bar div:last-child::after {
     animation: none;
   }
+  :root[data-theme="dark"] .closing::after { display: none; }
 }
