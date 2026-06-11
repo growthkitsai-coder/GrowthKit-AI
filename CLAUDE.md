@@ -10,6 +10,14 @@
 >
 > **No exceptions. Nothing is "too small to document."** Multiple agents work in this repo and the .md files are their only shared memory — undocumented work is how they overwrite and contradict each other. **A task is NOT complete until the .md files describe what was done.** (Full details: "Documentation upkeep" section below.)
 
+> ## 🚨 NON-NEGOTIABLE — ASK AVI INPUT QUESTIONS **BEFORE** STARTING ANY TASK 🚨
+>
+> **Every agent, every tool, every task: before going off and doing the work, ask Avi as many clarifying input questions as you want/need** — scope, design intent, copy voice, priorities, what "done" looks like — so the task is done to *his* standard, not your assumption of it. Never silently guess on something Avi could settle in one answer.
+>
+> - **For any important or large-scale work** (new pages, redesigns, refactors spanning files, infrastructure/plumbing changes, anything touching many files or hard to undo): **ask a MINIMUM of ~5 meaningful questions and wait for his answers BEFORE starting.** Meaningful = questions whose answers would genuinely change what you build (audience, scope boundaries, visual references, trade-offs, what to leave untouched) — not filler asked to hit the count.
+> - For small/mechanical tasks (a typo, a one-line fix, a clearly specified tweak): the minimum doesn't apply, but still ask anything that's genuinely ambiguous before editing.
+> - Ask the questions **up front in one batch** where possible, not spread mid-task after work has already gone a wrong direction.
+
 Marketing site for **GrowthKit AI** — a market-intelligence engine for founders. The product is software + operator review that produces four deliverables for seed → Series A teams: a **market map**, a **competitor teardown**, a **gap analysis**, and a **90-day plan** (~14 plays). Refreshed monthly. UK-based, serving GB / US / worldwide.
 
 Tagline: *"Markets, dissected — not guessed."*  

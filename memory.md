@@ -10,6 +10,10 @@
 >
 > **No exceptions. Nothing is "too small to document."** Multiple agents share this repo and these .md files are their only shared memory — undocumented work gets overwritten, repeated, or contradicted. **A task is NOT complete until the .md files describe what was done.**
 
+> ## 🚨 NON-NEGOTIABLE — ASK AVI INPUT QUESTIONS **BEFORE** STARTING ANY TASK 🚨
+>
+> **Before doing the work, ask Avi as many clarifying input questions as you want/need** so the task comes out to his standard, not your assumption of it. **For any important or large-scale work** (new pages, redesigns, multi-file refactors, infrastructure/plumbing changes): **minimum ~5 meaningful questions, answered BEFORE you start** — meaningful means the answers would genuinely change what you build, not filler to hit the count. Small/mechanical tasks are exempt from the minimum, but still ask about anything genuinely ambiguous. Batch questions up front rather than mid-task.
+
 A persistent knowledge file for Claude (Cowork + Code) to read before starting any task on this project. Complements `CLAUDE.md`. Update this file whenever something durable changes (new pages, new decisions, broken assumptions, vendor changes, new conventions).
 
 Always read `CLAUDE.md` AND this file before doing any work.
