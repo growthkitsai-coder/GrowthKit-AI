@@ -1,4 +1,6 @@
 .vercel
+.env
+.env.*
 .env*.local
 
 # Client confidentiality: real client briefs and generated deliverables stay
