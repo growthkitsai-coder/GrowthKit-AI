@@ -1,5 +1,15 @@
 # GrowthKit AI — Memory
 
+> ## 🚨 NON-NEGOTIABLE — UPDATE THIS FILE AFTER **EVERY** PIECE OF WORK 🚨
+>
+> **Every agent, every tool (Claude Code, Claude Cowork, Codex, anything else), every task, every time.** The moment ANY work of ANY kind in this folder/codebase is done — before the task is considered finished — you MUST:
+>
+> 1. **Append a dated entry to the "Change log" at the bottom of this file** outlining exactly what you did.
+> 2. **Fix any descriptions above that your work made stale** (page list, infrastructure notes, sharp edges).
+> 3. **Update `CLAUDE.md` too** if the work changed any fact, convention, or workflow it records.
+>
+> **No exceptions. Nothing is "too small to document."** Multiple agents share this repo and these .md files are their only shared memory — undocumented work gets overwritten, repeated, or contradicted. **A task is NOT complete until the .md files describe what was done.**
+
 A persistent knowledge file for Claude (Cowork + Code) to read before starting any task on this project. Complements `CLAUDE.md`. Update this file whenever something durable changes (new pages, new decisions, broken assumptions, vendor changes, new conventions).
 
 Always read `CLAUDE.md` AND this file before doing any work.

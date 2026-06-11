@@ -1,5 +1,15 @@
 # GrowthKit AI
 
+> ## 🚨 NON-NEGOTIABLE — UPDATE THE .md FILES AFTER **EVERY** PIECE OF WORK 🚨
+>
+> **This applies to EVERY agent and EVERY tool — Claude Code, Claude Cowork, Codex, or anything else — doing ANY work of ANY kind anywhere in this folder/codebase.** The moment your work is done — a feature, a bug fix, a copy tweak, a config change, a new file, a one-line edit, *anything* — you MUST, in that same session, **before you consider the task finished**:
+>
+> 1. **Update `memory.md`** — append a dated change-log entry outlining exactly what you did, and fix any page/file descriptions your work made stale.
+> 2. **Update `CLAUDE.md` (this file)** — if the work changed any fact, file, convention, plumbing, or workflow recorded here.
+> 3. **`AGENTS.md`** stays a one-line pointer — touch it only if the pointer itself went stale.
+>
+> **No exceptions. Nothing is "too small to document."** Multiple agents work in this repo and the .md files are their only shared memory — undocumented work is how they overwrite and contradict each other. **A task is NOT complete until the .md files describe what was done.** (Full details: "Documentation upkeep" section below.)
+
 Marketing site for **GrowthKit AI** — a market-intelligence engine for founders. The product is software + operator review that produces four deliverables for seed → Series A teams: a **market map**, a **competitor teardown**, a **gap analysis**, and a **90-day plan** (~14 plays). Refreshed monthly. UK-based, serving GB / US / worldwide.
 
 Tagline: *"Markets, dissected — not guessed."*  
