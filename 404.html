@@ -106,12 +106,48 @@
     color: var(--neon);
     box-shadow: 0 0 18px -6px rgba(62, 245, 159, 0.5);
   }
+
+  /* Blinking cursor after the error code — terminal prompt feel. */
+  :root[data-theme="dark"] .code::after {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 12px;
+    background: var(--neon);
+    margin-left: 8px;
+    vertical-align: -1px;
+    box-shadow: 0 0 10px rgba(62, 245, 159, 0.8);
+    animation: dkBlink 1.1s steps(1) infinite;
+  }
+
+  /* Giant neon-outline ghost numeral behind the card — the manifesto
+     article-ghost treatment. Dark mode only; light is untouched. */
+  .ghost-404 { display: none; }
+  :root[data-theme="dark"] .ghost-404 {
+    display: block;
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(280px, 46vw, 620px);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(62, 245, 159, 0.14);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .code::after { animation: none; }
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="dk-grid" aria-hidden="true"></div>
 <div class="dk-scan" aria-hidden="true"></div>
+<div class="ghost-404" aria-hidden="true">404</div>
 <main>
   <div class="card">
     <div class="code">Error · 404</div>

@@ -423,7 +423,22 @@
   :root[data-theme="dark"] .channel-head .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
   :root[data-theme="dark"] .channel-card:hover .arr { color: var(--neon); }
 
-  /* Meta strip */
+  /* Address lines read as phosphor terminal output */
+  :root[data-theme="dark"] .channel-card .target {
+    color: var(--neon-2);
+    text-shadow: 0 0 14px rgba(62, 245, 159, 0.25);
+  }
+  :root[data-theme="dark"] .channel-card .target::before {
+    content: "> " / "";
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.6);
+  }
+
+  /* Meta strip → instrument readout: green-tinted rules, mono keys
+     in phosphor, serif values glowing where they carry an em. */
+  :root[data-theme="dark"] .meta-strip { border-color: rgba(62, 245, 159, 0.18); }
+  :root[data-theme="dark"] .meta-strip .cell { border-color: rgba(62, 245, 159, 0.14); }
+  :root[data-theme="dark"] .meta-strip .k { color: rgba(143, 255, 201, 0.55); }
   :root[data-theme="dark"] .meta-strip .v em { color: var(--neon); text-shadow: 0 0 18px rgba(62,245,159,0.40); }
 </style>
 <link rel="stylesheet" href="theme.css">

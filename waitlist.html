@@ -506,8 +506,26 @@
   :root[data-theme="dark"] .success-body .back { border-bottom-color: var(--deep-3); }
   :root[data-theme="dark"] .success-body .back:hover { color: var(--neon); border-bottom-color: var(--neon); }
 
+  /* Field labels read as phosphor prompts above the inputs */
+  :root[data-theme="dark"] .field-label { color: rgba(143, 255, 201, 0.55); }
+  :root[data-theme="dark"] .success-body .note { color: rgba(143, 255, 201, 0.55); }
+
+  /* Blinking cursor in the card footer — the manifesto signature-plate
+     tic, on the application card. */
+  :root[data-theme="dark"] .card-foot span:last-child::after {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 12px;
+    background: var(--neon);
+    margin-left: 8px;
+    vertical-align: -2px;
+    box-shadow: 0 0 10px rgba(62, 245, 159, 0.8);
+    animation: dkBlink 1.1s steps(1) infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     :root[data-theme="dark"] .intro .pill .dot { animation: none; }
+    :root[data-theme="dark"] .card-foot span:last-child::after { animation: none; }
   }
 
   /* Honeypot — parked off-screen; humans never see it, bots fill it.

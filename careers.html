@@ -626,6 +626,27 @@
   }
   :root[data-theme="dark"] .channel-head .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
   :root[data-theme="dark"] .channel-card:hover .arr { color: var(--neon); }
+
+  /* Why-us grid → segmented instrument cluster: each cell a deep
+     panel, separated by the deep-green grid lines. */
+  :root[data-theme="dark"] .points .pt {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+  }
+
+  /* Role taglines + section labels read as phosphor annotations */
+  :root[data-theme="dark"] .role-card .tagline { color: rgba(143, 255, 201, 0.65); }
+  :root[data-theme="dark"] .role-card h5 { color: rgba(143, 255, 201, 0.55); }
+
+  /* Application addresses → terminal output */
+  :root[data-theme="dark"] .channel-card .target {
+    color: var(--neon-2);
+    text-shadow: 0 0 14px rgba(62, 245, 159, 0.25);
+  }
+  :root[data-theme="dark"] .channel-card .target::before {
+    content: "> " / "";
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62, 245, 159, 0.6);
+  }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>

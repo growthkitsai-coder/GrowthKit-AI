@@ -792,6 +792,18 @@
   :root[data-theme="dark"] .map-legend .s-you  { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,0.7); }
   :root[data-theme="dark"] .map-legend .s-gap  { border-color: var(--neon); }
 
+  /* Teardown + play rows scan on hover — the manifesto article
+     treatment: a left-to-right neon sweep on deep green. */
+  :root[data-theme="dark"] .play:hover,
+  :root[data-theme="dark"] .tt-row:not(.tt-head):hover {
+    background: linear-gradient(90deg, rgba(62, 245, 159, 0.05), rgba(10, 31, 21, 0.45) 40%, transparent);
+  }
+  :root[data-theme="dark"] .play-list { border-top-color: var(--deep-3); }
+  :root[data-theme="dark"] .play { border-bottom-color: rgba(62, 245, 159, 0.14); }
+  :root[data-theme="dark"] .play .p-meta b { color: var(--neon-2); }
+  :root[data-theme="dark"] .tt-row .c-name small { color: rgba(143, 255, 201, 0.45); }
+  :root[data-theme="dark"] .gap-meter { color: rgba(143, 255, 201, 0.55); }
+
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
     .topbar { transition: none; }

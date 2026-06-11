@@ -425,6 +425,25 @@
     box-shadow: inset 0 1px 0 rgba(143, 255, 201, 0.05);
   }
   :root[data-theme="dark"] .callout .label { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+
+  /* Table of contents → sealed terminal file index. Dark mode only —
+     light keeps the bare sticky list. */
+  :root[data-theme="dark"] .toc {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep-1));
+    border: 1px solid var(--deep-3);
+    border-radius: 8px;
+    padding: 24px 26px;
+    box-shadow:
+      inset 0 1px 0 rgba(143, 255, 201, 0.05),
+      0 0 0 1px rgba(62, 245, 159, 0.08),
+      0 24px 50px -32px rgba(0, 0, 0, 0.7);
+  }
+  :root[data-theme="dark"] .toc .eyebrow { color: rgba(143, 255, 201, 0.65); }
+  :root[data-theme="dark"] .toc ol li a:hover { text-shadow: 0 0 14px rgba(62, 245, 159, 0.35); }
+
+  /* Section h3 subheads get a phosphor tint so the doc scans like a
+     spec sheet rather than a wall of gray. */
+  :root[data-theme="dark"] .doc-body h3 { color: var(--neon-2); }
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>

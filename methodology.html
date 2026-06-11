@@ -1052,6 +1052,15 @@
 
   /* Stats ribbon */
   :root[data-theme="dark"] .stat .v em { color: var(--neon); text-shadow: 0 0 22px rgba(62,245,159,0.40); }
+  :root[data-theme="dark"] .stat .k { color: rgba(143, 255, 201, 0.55); }
+
+  /* Hero-stats plate: mono row numbers + metas read as phosphor */
+  :root[data-theme="dark"] .hero-stats .row .r-num,
+  :root[data-theme="dark"] .hero-stats .row .r-meta { color: rgba(143, 255, 201, 0.55); }
+
+  /* Pillar spec rows: green-tinted rules instead of neutral gray */
+  :root[data-theme="dark"] .pillar ul { border-top-color: var(--deep-3); }
+  :root[data-theme="dark"] .pillar ul li { border-bottom-color: rgba(62, 245, 159, 0.14); }
 
   @media (prefers-reduced-motion: reduce) {
     :root[data-theme="dark"] .mission .sig .dot { animation: none; }

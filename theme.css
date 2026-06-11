@@ -155,18 +155,88 @@
   }
 }
 
-/* The inline rule for `.topbar.scrolled` hard-codes a light rgba —
-   override it with a dark glass equivalent that lets the upper-right
-   glow bleed through the topbar. */
-:root[data-theme="dark"] .topbar.scrolled {
-  background: rgba(5, 7, 8, 0.42);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  backdrop-filter: saturate(180%) blur(24px);
+/* ── Dark-mode topbar: neon console chrome ──────────────────────
+   Each page's inline `.topbar` hard-codes a cream rgba background;
+   on the dark canvas that renders as a washed-out silver strip.
+   Restate the whole chrome as deep-green glass: phosphor hairline
+   along the bottom edge, faint vertical grid ticks (44px — same
+   pitch as the .dk-grid floor), and a soft neon backlight bleeding
+   onto the page below.
+   Background is split into longhands on purpose: the image layers
+   stay identical between resting and scrolled states (gradients
+   can't interpolate, they'd snap mid-morph) while background-color
+   underneath does the animated opacity lift. */
+:root[data-theme="dark"] .topbar {
+  background-image:
+    linear-gradient(90deg, rgba(62, 245, 159, 0.040) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 46, 30, 0.45), rgba(6, 16, 11, 0.15));
+  background-size: 44px 100%, auto;
+  background-color: rgba(5, 12, 8, 0.38);
+  border-bottom: 1px solid rgba(62, 245, 159, 0.16);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 1px 0 rgba(0, 0, 0, 0.45),
-    0 26px 50px -26px rgba(0, 0, 0, 0.6);
+    0 1px 0 rgba(62, 245, 159, 0.05),
+    0 4px 24px -10px rgba(62, 245, 159, 0.16),
+    0 10px 30px -18px rgba(0, 0, 0, 0.60);
+}
+
+/* Scrolled pill: same glass, sealed into a console capsule — neon
+   inset ring, mint top-light, deeper drop + a faint phosphor halo. */
+:root[data-theme="dark"] .topbar.scrolled {
+  background-color: rgba(4, 10, 7, 0.62);
+  -webkit-backdrop-filter: saturate(170%) blur(26px);
+  backdrop-filter: saturate(170%) blur(26px);
+  border-bottom-color: transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(143, 255, 201, 0.12),
+    inset 0 0 0 1px rgba(62, 245, 159, 0.22),
+    0 1px 0 rgba(0, 0, 0, 0.50),
+    0 24px 48px -24px rgba(0, 0, 0, 0.72),
+    0 0 40px -12px rgba(62, 245, 159, 0.25);
+}
+
+/* Brand mark gets a powered-on neon ring; the wordmark gets the
+   manifesto terminal cursor. Scoped to .topbar so footer brands
+   stay quiet. */
+:root[data-theme="dark"] .topbar .brand .logo-mark {
+  box-shadow:
+    0 0 0 1px rgba(62, 245, 159, 0.30),
+    0 0 16px -2px rgba(62, 245, 159, 0.45);
+}
+:root[data-theme="dark"] .topbar .brand > span:last-child::after {
+  content: "_";
+  margin-left: 3px;
+  color: var(--neon);
+  text-shadow: 0 0 12px rgba(62, 245, 159, 0.60);
+  animation: dkBlink 1.2s infinite;
+}
+
+/* Topbar CTA: idle = sealed deep-green key with neon ring + glow
+   (solid background-color so the hover-fill interpolates smoothly);
+   hover = lit neon key. Replaces the white token-flip pill. */
+:root[data-theme="dark"] .nav-cta {
+  background: var(--deep-2);
+  color: var(--neon-2);
+  text-shadow: 0 0 12px rgba(62, 245, 159, 0.35);
+  box-shadow:
+    inset 0 0 0 1px rgba(62, 245, 159, 0.38),
+    inset 0 1px 0 rgba(143, 255, 201, 0.18),
+    0 0 18px -6px rgba(62, 245, 159, 0.55);
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease, text-shadow .2s ease;
+}
+:root[data-theme="dark"] .nav-cta:hover {
+  background: var(--neon);
+  color: #04110A;
+  text-shadow: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(62, 245, 159, 0),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 26px -4px rgba(62, 245, 159, 0.65);
+}
+
+/* Theme toggle reads as console chrome, not a gray ghost. */
+:root[data-theme="dark"] .theme-toggle {
+  border-color: var(--deep-3);
+  background: rgba(62, 245, 159, 0.04);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -354,15 +424,6 @@
   box-shadow: 0 0 18px -6px rgba(62, 245, 159, 0.5);
 }
 
-/* Topbar pill CTA ("Join waitlist") — same logic as btn-primary.
-   In light mode it's --ink (black) on cream. The flipped token makes
-   it white-on-black, which is fine, but the hover-to-accent goes
-   muddy on dark — swap to neon. */
-:root[data-theme="dark"] .nav-cta:hover {
-  background: var(--neon);
-  color: #04110A;
-}
-
 /* Hero pill chip gets a hair of luminance so it reads above the
    matte canvas. */
 :root[data-theme="dark"] .hero-top .pill {
@@ -457,6 +518,26 @@
   text-shadow: 0 0 12px rgba(62, 245, 159, 0.45);
 }
 
+/* Blinking terminal cursor — born on the manifesto signature plate,
+   shared here so any page can attach it to a pseudo-element. */
+@keyframes dkBlink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+
+/* Page chrome hovers go neon. The light-mode hover target is
+   --accent (forest), which the dark token table resolves to a muddy
+   #3D7C5C on near-black — every other accent in dark mode is neon,
+   so the nav, footer links and back-links follow suit. */
+:root[data-theme="dark"] .nav-links a:hover { color: var(--neon); }
+:root[data-theme="dark"] .nav-links a::after {
+  background: var(--neon);
+  box-shadow: 0 0 8px rgba(62, 245, 159, 0.6);
+}
+:root[data-theme="dark"] .nav-back:hover { color: var(--neon); }
+:root[data-theme="dark"] .foot-grid ul a:hover { color: var(--neon); }
+:root[data-theme="dark"] .theme-toggle:hover {
+  border-color: rgba(62, 245, 159, 0.55);
+  color: var(--neon);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme="dark"] .faq-item,
   :root[data-theme="dark"] .stage-card,
@@ -464,4 +545,7 @@
     transition: none !important;
   }
   :root[data-theme="dark"] .dk-scan { display: none; }
+  :root[data-theme="dark"] .topbar .brand > span:last-child::after {
+    animation: none;
+  }
 }
