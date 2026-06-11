@@ -522,6 +522,24 @@
    shared here so any page can attach it to a pseudo-element. */
 @keyframes dkBlink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
 
+/* Live-instrument motion — born page-local on index.html, promoted here
+   when methodology's hero-stats plate needed the same treatment.
+   dkScanDown: CRT readout line sweeping down an instrument panel
+   (the panel must be position:relative + overflow:hidden and carries
+   it on an ::after). dkCaret: hard terminal-caret blink (steps).
+   dkNodeBreathe: a lit node's glow breathing. */
+@keyframes dkScanDown {
+  0%   { transform: translateY(-24px); opacity: 0; }
+  7%   { opacity: 0.9; }
+  76%  { opacity: 0.9; }
+  100% { transform: translateY(460px); opacity: 0; }
+}
+@keyframes dkCaret { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+@keyframes dkNodeBreathe {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(62, 245, 159, 0.12), 0 0 12px rgba(62, 245, 159, 0.45); }
+  50%      { box-shadow: 0 0 0 7px rgba(62, 245, 159, 0.05), 0 0 22px rgba(62, 245, 159, 0.85); }
+}
+
 /* Page chrome hovers go neon. The light-mode hover target is
    --accent (forest), which the dark token table resolves to a muddy
    #3D7C5C on near-black — every other accent in dark mode is neon,
