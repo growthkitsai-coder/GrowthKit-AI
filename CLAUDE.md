@@ -74,7 +74,7 @@ Everything lives at the repo root — no `src/`, no `public/`.
 - `404.html` — minimalist error page, `noindex, follow`. Links back to home + waitlist.
 - `logo.html` — **internal** logo design reference page (five logo variants explored). Not linked from public nav. Not in sitemap.
 - `theme.css`, `theme.js` — shared theme system.
-- `vercel.json` — clean-URL rewrites + redirects + cache headers (**images/fonts: 1 year immutable; css/js: 1 hour + `stale-while-revalidate` 1 day** — `theme.css`/`theme.js` are not fingerprinted, so never restore the old blanket 1-year rule for them) + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
+- `vercel.json` — clean-URL rewrites + redirects + cache headers (**images/fonts: 1 year immutable; css/js: `max-age=0, must-revalidate`** — `theme.css`/`theme.js` are not fingerprinted; the old 1h+SWR rule served day-old CSS after deploys and made shipped dark-mode work look broken, so never loosen this without fingerprinting the files first) + security headers (HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `googlea9dc9b0133a60f51.html`.
 - `waitlist-apps-script.gs` — the Google Apps Script deployed as a Web App. Setup instructions are in the file header. **The repo copy is source, not the deployment** — after editing it, paste the contents into the Apps Script editor (Extensions → Apps Script in the Sheet) and redeploy via "Manage deployments → pencil → New version".
 - `scripts/check-site.mjs` — zero-dependency Node consistency checker (see Guard rails).
