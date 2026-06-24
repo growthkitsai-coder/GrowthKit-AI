@@ -1,10 +1,14 @@
-# Growth Advisor — the live product (Claude-powered)
+# GrowthKit Live (the Advisor) — the live product (Claude-powered)
 
 > Part of the GrowthKit AI docs set. Read [`CLAUDE.md`](../CLAUDE.md) first. This file is the single home for the Advisor — the site's **first server-side code and first API secret**. **Update it whenever the function, prompt, model, or limits change.**
 
 ## What it is
 
-A free, ungated lead-magnet tool at **`/advisor`**: a founder describes their product + competitors + recent competitor moves, and the page streams back an operator-grade growth read from Claude (Opus 4.8) — positioning, three competitor gaps, four growth plays, and an honest note on what the paid monthly deliverable adds. It ends with a CTA to the waitlist / pricing / specimen. It's the public taste of the engine the paid product runs at depth.
+The flagship free product, branded **GrowthKit Live** (working name — the *naming* is a branding call for Avi/Cowork to finalize; it's changeable in a few copy spots). A founder describes their product + competitors + recent moves, and the engine **streams** an operator-grade growth read from Claude (Opus 4.8) — positioning, three competitor gaps, four growth plays, and an honest "what the full teardown adds" — which is then **parsed and rendered as a designed deliverable** (positioning panel, competitor-gap cards, play cards with numbered badges + why-now / first-move / kill-criteria), not raw chat text. Positioned as the free, instant version of the engine; the monthly deliverable is the paid upgrade.
+
+**Two surfaces, one engine:** the standalone page **`/advisor`** (full experience, share-link autorun, Save-as-PDF) and an **embedded live section on the homepage** (`index.html`, `#live`, right after the hero — the prominent "try it now") that shows "Open the full read ↗" instead of PDF. Both reuse the same `/api/advise` endpoint and the shared `advisor.css` + `advisor.js`.
+
+**Ease-of-use:** one-click **example presets** fill the form (HVAC SaaS / AI notetaker / freelancer bookkeeping); after a read, **Copy read** + **Copy share link** (a `/advisor?p=…&c=…&m=…` URL that re-runs the same inputs for the recipient) + **Save as PDF** (print stylesheet, full page only).
 
 ## Architecture — first backend in the repo
 
@@ -22,7 +26,9 @@ browser appends tokens into the phosphor readout panel
 ```
 
 - **`api/advise.js`** — zero npm dependencies (raw `fetch`, parses Anthropic SSE by hand), CommonJS (`module.exports`), so Vercel runs it with no `package.json` / build step — consistent with the rest of the repo. Reads `process.env.ANTHROPIC_API_KEY`; without it, returns a friendly 503 "not configured" (the page shows it as an error, mirroring the waitlist's "not configured" pattern).
-- **`advisor.html`** — standard page chrome (identical head/topbar/footer), full light "Studio" + dark "neon console" treatment. The output panel is a `<pre>` phosphor readout that streams tokens with a blinking caret; a pulsing LED + "analyzing your market_" status shows until the first token; on completion the result CTA block reveals.
+- **`advisor.html`** — standard page chrome, GrowthKit Live product framing, full light "Studio" + dark "neon console". Markup is the shared **advisor.js contract** (`[data-gk-advisor]` root with `data-gk-full="1"`).
+- **Shared `advisor.css` + `advisor.js`** (loaded by both `advisor.html` and `index.html`) — the only component CSS/JS shared beyond `theme.*`, justified because the same complex tool runs on two pages. `advisor.js` streams into a terminal `<pre>` (live feel), then on completion **parses the plain-text read into sections and renders the designed cards** (`gk-pos` / `gk-gaps`+`gk-gap` / `gk-plays`+`gk-play` / `gk-addon`), staged-revealed; if parsing ever fails it keeps the raw streamed text rather than erroring. Auto-inits every `[data-gk-advisor]` on the page.
+- **⚠ Parsing gotcha (fixed 2026-06-12):** the read is parsed with regexes that match the model's fixed skeleton (`01 / …`, `Play NN — …`, `— Why now:` etc.). **Never embed raw em/en-dash bytes in a string-built `new RegExp(...)`** — they're unreliable through tooling/encoding (a literal `/…/` matched, the string-built copy silently didn't). All dash classes use the escaped-unicode `DASH` constant (`—–‒―\-`), and field labels are matched directly (no required leading dash). If you change the system-prompt output format, update the parser in `advisor.js` to match.
 
 ## Setup — REQUIRED before it works (one-time, in the Vercel dashboard)
 

@@ -1999,7 +1999,9 @@
   }
 </style>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="advisor.css">
 <script src="theme.js" defer></script>
+<script src="advisor.js" defer></script>
 </head>
 <body>
 
@@ -2107,6 +2109,9 @@
             <a href="/specimen" class="btn-secondary btn">
               See a real teardown <span class="arr">→</span>
             </a>
+            <a href="#live" class="btn-secondary btn">
+              Try it free <span class="arr">↓</span>
+            </a>
           </div>
         </div>
 
@@ -2126,6 +2131,73 @@
           <div class="item">
             <div class="k">Founded</div>
             <div class="v">2026<small>London · Remote</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== GROWTHKIT LIVE — embedded free product ====== -->
+  <section class="block" id="live">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="reveal">
+          <div class="eyebrow"><span class="num">/</span>GrowthKit Live · free</div>
+          <h2>Point the engine at <em>your</em> market — right now.</h2>
+        </div>
+        <p class="lede reveal">
+          GrowthKit Live is the free, instant version of the product. Describe what you're building and who you're up against — the engine returns a real read in seconds: positioning, where competitors are soft, and the plays to run now. The monthly deliverable goes deeper, on live data, reviewed by an operator.
+        </p>
+      </div>
+
+      <div class="gk-advisor reveal" data-gk-advisor style="max-width: 880px; margin: 8px auto 0;">
+        <div class="gk-console">
+          <div class="gk-console-head">
+            <span><span class="gk-dot" aria-hidden="true"></span>growthkit&nbsp;live · engine</span>
+            <span>opus · streaming</span>
+          </div>
+          <div class="gk-console-body">
+            <div class="gk-presets" data-gk-presets aria-label="Example presets"></div>
+            <form data-gk-form novalidate>
+              <div class="gk-field-group">
+                <label class="gk-label" for="gkh-product">Your product &amp; who it serves</label>
+                <textarea id="gkh-product" class="gk-input gk-tall" data-gk-field="product" required maxlength="2000" placeholder="e.g. A scheduling tool for independent HVAC contractors — books jobs, dispatches, and invoices from a phone. ICP: owner-operators doing $200k–$2M/yr."></textarea>
+              </div>
+              <div class="gk-optional-fields">
+                <div class="gk-field-group" style="margin-bottom:0;">
+                  <label class="gk-label" for="gkh-competitors">Known competitors <span class="gk-opt">— optional, sharpens the read</span></label>
+                  <textarea id="gkh-competitors" class="gk-input" data-gk-field="competitors" maxlength="2000" placeholder="e.g. ServiceTitan (enterprise, pricey), Jobber, Housecall Pro."></textarea>
+                </div>
+                <div class="gk-field-group" style="margin-bottom:0;">
+                  <label class="gk-label" for="gkh-moves">Recent competitor moves <span class="gk-opt">— optional</span></label>
+                  <textarea id="gkh-moves" class="gk-input" data-gk-field="moves" maxlength="2000" placeholder="e.g. Housecall Pro launched an AI dispatcher; ServiceTitan raised prices."></textarea>
+                </div>
+              </div>
+
+              <div class="gk-hp" aria-hidden="true">
+                <label for="gkh-company-url">Company URL</label>
+                <input id="gkh-company-url" data-gk-field="company_url" type="text" tabindex="-1" autocomplete="off">
+              </div>
+
+              <button type="submit" class="gk-run" data-gk-submit>
+                <span data-gk-submit-label>Run the read</span> <span class="gk-arr">→</span>
+              </button>
+              <div class="gk-error" data-gk-error role="alert" aria-live="polite"></div>
+              <p class="gk-note">Free, no signup. What you type is sent to Anthropic's API to generate your read — we don't store it. A fast first cut, not the full monthly deliverable. Don't enter anything confidential.</p>
+            </form>
+
+            <div class="gk-output" data-gk-output>
+              <div class="gk-stream-wrap" data-gk-stream-wrap>
+                <div class="gk-status" data-gk-status></div>
+                <pre class="gk-stream" data-gk-stream></pre>
+              </div>
+              <div class="gk-deliverable" data-gk-deliverable></div>
+              <div class="gk-actions" data-gk-actions></div>
+            </div>
+          </div>
+          <div class="gk-console-foot">
+            <span>one read at a time</span>
+            <span>free · growthkit live</span>
           </div>
         </div>
       </div>

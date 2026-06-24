@@ -19,6 +19,11 @@
 (function () {
   'use strict';
 
+  // Dash code points (em, en, figure, horizontal-bar, hyphen) listed as escaped
+  // unicode — raw dash bytes inside string-built RegExps are unreliable through
+  // tooling/encoding, so never embed them literally in a pattern string.
+  var DASH = '\\u2014\\u2013\\u2012\\u2015\\-';
+
   var PRESETS = [
     {
       label: 'HVAC field-service SaaS',
@@ -60,11 +65,12 @@
       var to = (i + 1 < marks.length) ? marks[i + 1].start : text.length;
       sec[marks[i].key] = text.slice(marks[i].end, to).trim();
     }
+    var stripRe = new RegExp('^[' + DASH + '\\*\\u2022]\\s+');
     var gaps = (sec['02'] || '').split('\n')
       .map(function (l) { return l.trim(); })
-      .filter(function (l) { return /^[—–-]\s+/.test(l); })
-      .map(function (l) { return l.replace(/^[—–-]\s+/, '').trim(); })
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter(function (l) { return stripRe.test(l); })
+      .map(function (l) { return l.replace(stripRe, '').trim(); });
     var plays = parsePlays(sec['03'] || '');
     var out = { positioning: sec['01'] || '', gaps: gaps, plays: plays, addon: sec['04'] || '' };
     if (!out.positioning && !gaps.length && !plays.length) return null;
@@ -72,7 +78,7 @@
   }
 
   function parsePlays(block) {
-    var re = /^[ \t]*Play[ \t]+(\d+)[ \t]*[—–-][ \t]*(.+)$/gm;
+    var re = new RegExp('^[ \\t]*Play[ \\t]+(\\d+)[ \\t]*[' + DASH + '][ \\t]*(.+)$', 'gm');
     var heads = [], m;
     while ((m = re.exec(block)) !== null) heads.push({ num: m[1], name: m[2].trim(), start: m.index, end: re.lastIndex });
     var out = [];
@@ -88,7 +94,9 @@
     return out;
   }
   function grabLabel(body, label) {
-    var r = new RegExp('[—–-]\\s*' + label + '\\s*:?\\s*(.+)', 'i');
+    // Match the label directly (separators after it may be ':', a dash, or space);
+    // don't require a leading dash — that part is encoding-fragile and unnecessary.
+    var r = new RegExp(label + '[\\s:' + DASH + ']*([^\\n]+)', 'i');
     var mm = body.match(r);
     return mm ? mm[1].trim() : '';
   }
