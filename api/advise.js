@@ -28,19 +28,46 @@ const MODEL = 'claude-opus-4-8';
 const MAX_TOKENS = 4000;
 const FIELD_CAP = 2000; // per-field input character cap
 const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
-const RATE_MAX = 6; // accepted runs per window, per IP, per warm instance
+const RATE_MAX = 6; // accepted runs per IP per window
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 
-// Best-effort in-memory rate limiter. Lives only as long as the warm instance.
-const hits = new Map(); // ip -> [timestamps]
+// ── Durable rate limiting (preferred) ──────────────────────────────────────
+// Uses Redis over Upstash's REST API when a KV store is connected — shared
+// across every serverless instance and surviving cold starts. Works with
+// Vercel KV / the Vercel Marketplace Upstash integration (KV_REST_API_URL +
+// KV_REST_API_TOKEN) or a direct Upstash integration (UPSTASH_REDIS_REST_URL +
+// _TOKEN). No store connected → transparently falls back to the in-memory
+// limiter below. Connecting a store is a 2-click Marketplace add; no code
+// change needed. See docs/advisor.md.
+function kvConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return url && token ? { url: url.replace(/\/+$/, ''), token } : null;
+}
 
-function rateLimited(ip) {
+// Fixed-window counter, bucketed into the key so it auto-resets. One HTTP
+// round trip (INCR + EXPIRE pipelined).
+async function rateLimitedDurable(cfg, ip) {
+  const windowSec = Math.floor(RATE_WINDOW_MS / 1000);
+  const bucket = Math.floor(Date.now() / 1000 / windowSec);
+  const key = `gk:advise:rl:${ip}:${bucket}`;
+  const r = await fetch(cfg.url + '/pipeline', {
+    method: 'POST',
+    headers: { authorization: 'Bearer ' + cfg.token, 'content-type': 'application/json' },
+    body: JSON.stringify([['INCR', key], ['EXPIRE', key, windowSec * 2]])
+  });
+  if (!r.ok) throw new Error('kv ' + r.status);
+  const out = await r.json(); // [{ result: N }, { result: 1 }]
+  const count = Array.isArray(out) && out[0] ? Number(out[0].result) : 0;
+  return count > RATE_MAX;
+}
+
+// ── In-memory fallback (best-effort; per warm instance only) ────────────────
+const hits = new Map(); // ip -> [timestamps]
+function rateLimitedMemory(ip) {
   const now = Date.now();
   const arr = (hits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
-  if (arr.length >= RATE_MAX) {
-    hits.set(ip, arr);
-    return true;
-  }
+  if (arr.length >= RATE_MAX) { hits.set(ip, arr); return true; }
   arr.push(now);
   hits.set(ip, arr);
   // opportunistic cleanup so the Map can't grow unbounded
@@ -50,6 +77,15 @@ function rateLimited(ip) {
     }
   }
   return false;
+}
+
+async function isRateLimited(ip) {
+  const cfg = kvConfig();
+  if (cfg) {
+    try { return await rateLimitedDurable(cfg, ip); }
+    catch (_) { /* KV hiccup — fall through to the in-memory backstop */ }
+  }
+  return rateLimitedMemory(ip);
 }
 
 const clean = (v) => String(v == null ? '' : v).slice(0, FIELD_CAP).trim();
@@ -142,7 +178,7 @@ module.exports = async function handler(req, res) {
   }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  if (rateLimited(ip)) {
+  if (await isRateLimited(ip)) {
     res.status(429).json({ error: "You've run a few reads in a row — give it a couple of minutes and try again." });
     return;
   }

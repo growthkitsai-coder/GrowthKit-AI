@@ -32,6 +32,8 @@ browser appends tokens into the phosphor readout panel
 
 Until the key is set, `/advisor` loads fine but every run returns "The advisor is not configured yet."
 
+**Status (2026-06-12):** `ANTHROPIC_API_KEY` is **set** for Production + Development via the Vercel CLI (`vercel env add`, value piped from local `.env`). **Preview is NOT set** — the CLI plugin wrapper refused the non-interactive preview add; set it in the dashboard if PR preview deployments need the Advisor working. The repo is now CLI-linked to `avi-aggarwal14s-projects/growthkit-ai` (`.vercel/` created, gitignored).
+
 ## Model & prompt
 
 - **Model: `claude-opus-4-8`**, `output_config: { effort: "high" }`, no extended thinking (keeps latency predictable under the 60s function ceiling; the system prompt forbids leaked reasoning / preamble). `max_tokens: 4000`.
@@ -41,16 +43,20 @@ Until the key is set, `/advisor` loads fine but every run returns "The advisor i
 
 - **`maxDuration: 60`** set in `vercel.json` `functions` (Hobby ceiling; Pro allows up to 300). The scoped prompt + capped `max_tokens` finish well inside it; streaming keeps the wait tolerable.
 - **Every run costs Opus tokens** — real money. Inputs are capped at 2000 chars/field server-side; `max_tokens` bounds the output.
-- **Abuse protection (best-effort):** hidden `company_url` honeypot (silent drop), `t` minimum-fill-time (2.5s, silent drop), and an **in-memory per-IP rate limit** (6 runs / 10 min). ⚠ The rate limit is per warm instance — it resets on cold start and isn't shared across instances. **For durable limiting, add Vercel KV / Upstash** keyed by IP; this is the main hardening follow-up before heavy promotion.
+- **Abuse protection:** hidden `company_url` honeypot (silent drop), `t` minimum-fill-time (2.5s, silent drop), and a **per-IP rate limit** (6 runs / 10 min). The limiter is **durable-capable**: if a KV store is connected (env vars `KV_REST_API_URL` + `KV_REST_API_TOKEN` from Vercel KV / the Vercel Marketplace Upstash integration, or `UPSTASH_REDIS_REST_URL` + `_TOKEN`), it uses a Redis fixed-window counter shared across all instances and surviving cold starts (one pipelined INCR+EXPIRE round trip). With **no** store connected it transparently falls back to an in-memory per-warm-instance counter. **To make it durable: add Upstash via the Vercel dashboard → Storage / Marketplace (2 clicks) — no code change needed**, the env vars appear automatically and the function picks them up. Until then it's best-effort in-memory (fine for launch traffic; upgrade before any hard promotion).
 - The function sets `Cache-Control: no-store`.
 
 ## Analytics events
 
 `advisor_run` (on submit, flags whether competitors/moves were filled), `advisor_complete` (chars returned), `advisor_error` (message). Same `window.va` system as the rest of the site — Pro/Enterprise-only recording (see [`docs/infrastructure.md`](infrastructure.md)).
 
-## Privacy note (open follow-up)
+## Privacy / legal disclosure
 
-The Advisor sends the founder's typed market description to **Anthropic's API** — a new third-party data flow the static site never had. The page states this inline ("sent to Anthropic's API to generate your read — we don't store it") and nothing is persisted server-side. **`privacy.html` should be updated to name Anthropic as a sub-processor** and `security.html`'s data-inventory/architecture section should mention the Advisor endpoint — flagged as a copy task (legal wording → Cowork) so the honest-by-design legal pages stay accurate.
+The Advisor sends the founder's typed market description to **Anthropic's API** — a third-party data flow the static site never had. The page states this inline ("sent to Anthropic's API to generate your read — we don't store it") and nothing is persisted server-side.
+
+- **`privacy.html` (v1.1, 2026-06-12):** updated — §03 lists "Growth Advisor inputs"; §04 notes inputs are sent to the AI provider to generate the result; §06 names **Anthropic, PBC** as the AI sub-processor (not used to train their models per their commercial terms). No new anchors (woven into existing sections), so the checker stays green.
+- **`terms.html` (2026-06-12):** updated — §08 "Your content & inputs" adds a Free Growth Advisor clause (inputs go to Anthropic; don't submit confidential info; we may rate-limit/withdraw it); §15 "Disclaimers" notes the free Advisor is an illustrative automated read, not the operator-reviewed paid deliverable.
+- **Still open:** `security.html`'s data-inventory / architecture readout doesn't yet mention the `/api/advise` endpoint or the Anthropic flow — update it when next touching that page so the honest security posture stays accurate.
 
 ## Local dev
 
