@@ -39,7 +39,9 @@ Brand positioning: *consulting-grade work at SaaS prices.*
 
 ## Stack
 
-**Plain static site** — no build step, no framework, no package.json. Per-page CSS is inlined in each page's `<head>`; the only shared files are `theme.css` (theme system) and `theme.js` (toggle). GSAP/ScrollTrigger/Lenis load on `index.html` only (jsDelivr). Fonts: Instrument Serif / Inter / JetBrains Mono (Google Fonts). Hosted on Vercel; **pushing to `main` auto-deploys to growthkitai.com**.
+**Plain static site + one serverless function.** No build step, no framework, no package.json. Per-page CSS is inlined in each page's `<head>`; the only shared files are `theme.css` (theme system) and `theme.js` (toggle). GSAP/ScrollTrigger/Lenis load on `index.html` only (jsDelivr). Fonts: Instrument Serif / Inter / JetBrains Mono (Google Fonts). Hosted on Vercel; **pushing to `main` auto-deploys to growthkitai.com**.
+
+**The one exception to "static":** `api/advise.js` — a Vercel serverless function powering the Growth Advisor (`/advisor`), the live Claude-powered product. It's the repo's only server code and only API secret (`ANTHROPIC_API_KEY`, a Vercel env var — **never in git; the repo is public**). Still zero npm deps, no build step. Full detail: `docs/advisor.md`. **Set the env var in the Vercel dashboard or the Advisor returns "not configured".**
 
 ## The docs set — where everything lives
 
@@ -52,6 +54,7 @@ This file holds the **rules**. The deep reference material lives in five topic f
 | [`docs/infrastructure.md`](docs/infrastructure.md) | Hosting/accounts, analytics events, `vercel.json` (clean URLs, cache, security headers), SEO plumbing, the consistency checker + CI, workflow, new-page checklist |
 | [`docs/forms-and-data.md`](docs/forms-and-data.md) | Waitlist + onboarding pipelines, both Apps Scripts, `SCRIPT_URL` rules, Sheets as system of record, anti-spam |
 | [`docs/deliverable-pipeline.md`](docs/deliverable-pipeline.md) | Phase 4 product code: generator, template, `clients/`, `d/`, token URLs, the repo-is-public security model |
+| [`docs/advisor.md`](docs/advisor.md) | The live product: the `/advisor` page + `api/advise.js` serverless function, Claude model/prompt, `ANTHROPIC_API_KEY` setup, streaming, rate limiting, cost |
 
 `memory.md` holds the **dated change log** (append after every task), sharp edges/gotchas, and open action items. `AGENTS.md` is a pointer for non-Claude agents.
 
@@ -64,7 +67,7 @@ This file holds the **rules**. The deep reference material lives in five topic f
 - **SEO:** every public page has canonical, OG (+ `og-card.png`), Twitter card, JSON-LD, sitemap entry — the checker enforces it.
 - **Chrome is duplicated, not templated:** topbar/footer/`<head>` blocks repeat on every page. Chrome changes mean editing ALL pages; the checker enforces identical footer grids. Canonical grids: `docs/pages.md`.
 - **Run `node scripts/check-site.mjs` before committing** any change to HTML / `sitemap.xml` / `vercel.json`. CI re-runs it plus an external-link check on every push, but **CI does not gate deploys** — red ✗ means the live site shipped broken. Details: `docs/infrastructure.md`.
-- **Never commit secrets:** `.env*`, `.vercel/`, credentials, client data (`clients/*`, `d/*` are gitignored except demos). Every .md file here is committed to a public repo — treat them as public.
+- **Never commit secrets:** `.env*`, `.vercel/`, credentials, the `ANTHROPIC_API_KEY` (it lives only as a Vercel env var), client data (`clients/*`, `d/*` are gitignored except demos). Every .md file here is committed to a public repo — treat them as public.
 
 ## Working with Cowork and Claude Code
 

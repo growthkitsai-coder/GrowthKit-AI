@@ -15,7 +15,8 @@
     { "source": "/status.html", "destination": "/status", "permanent": true },
     { "source": "/specimen.html", "destination": "/specimen", "permanent": true },
     { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
-    { "source": "/onboarding.html", "destination": "/onboarding", "permanent": true }
+    { "source": "/onboarding.html", "destination": "/onboarding", "permanent": true },
+    { "source": "/advisor.html", "destination": "/advisor", "permanent": true }
   ],
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
@@ -29,8 +30,12 @@
     { "source": "/status", "destination": "/status.html" },
     { "source": "/specimen", "destination": "/specimen.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
-    { "source": "/onboarding", "destination": "/onboarding.html" }
+    { "source": "/onboarding", "destination": "/onboarding.html" },
+    { "source": "/advisor", "destination": "/advisor.html" }
   ],
+  "functions": {
+    "api/advise.js": { "maxDuration": 60 }
+  },
   "headers": [
     {
       "source": "/d/(.*)",
