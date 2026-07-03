@@ -38,7 +38,14 @@ browser appends tokens into the phosphor readout panel
 
 Until the key is set, `/advisor` loads fine but every run returns "The advisor is not configured yet."
 
-**Status (2026-06-12):** `ANTHROPIC_API_KEY` is **set** for Production + Development via the Vercel CLI (`vercel env add`, value piped from local `.env`). **Preview is NOT set** — the CLI plugin wrapper refused the non-interactive preview add; set it in the dashboard if PR preview deployments need the Advisor working. The repo is now CLI-linked to `avi-aggarwal14s-projects/growthkit-ai` (`.vercel/` created, gitignored).
+**Status (2026-07-03): the key is set on the WRONG Vercel project — production is still unconfigured.** Diagnosis of the live "API error": `POST https://growthkitai.com/api/advise` → 307 to `www.growthkitai.com` → **503 `"The advisor is not configured yet — no API key set on the server."`**. There are **two Vercel projects named `growthkit-ai` on two different accounts**:
+
+| | Serves growthkitai.com? | Has `ANTHROPIC_API_KEY`? |
+|---|---|---|
+| **Original** — `prj_q14WI5uJEqAJQzg63ZVEbaPHovzQ` on org `team_wbjFESk88zLTz0UjMUI3SlRz` (the GitHub-connected project that auto-deploys on push) | **YES** (holds the domains) | **NO** ← the bug |
+| **Duplicate** — `prj_rS1BidALX24zStAipzNYnHSXFQS4` on `avi-aggarwal14s-projects` (`team_xOX0K5nPR32wWQGoox2F1GIv`), auto-created ~2026-06-24 when the CLI (`vercel link`, logged in as `avi-aggarwal14`) couldn't see the original team | NO (zero deployments, zero domains) | Yes (Production + Development — wasted there) |
+
+The local `.vercel/project.json` and the Vercel CLI/MCP connection both point at the **duplicate**; the `avi-aggarwal14` login cannot see the original team at all, so agents **cannot fix this from the repo**. **Fix (Avi, ~2 min, in the dashboard of the account that owns the original project):** ① Settings → Environment Variables → add `ANTHROPIC_API_KEY` for Production (+ Preview if wanted); the value is in console.anthropic.com, or copyable from the duplicate project's env settings. ② Redeploy (env vars only apply to new deployments). ③ While there, Domains: make `growthkitai.com` the primary and `www` the redirect — it's currently backwards (apex 307s to www, contradicting every canonical URL).
 
 ## Model & prompt
 
