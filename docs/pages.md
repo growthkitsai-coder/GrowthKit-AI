@@ -22,6 +22,14 @@ All pages live at the repo root. Every public page is self-contained: inline `<s
 - **`advisor.html`** — **the flagship free product, "GrowthKit Live"** (`/advisor`): a founder describes product + competitors + recent moves; the engine **streams** a growth read from Claude Opus 4.8, then **parses it into a designed deliverable** (positioning panel, competitor-gap cards, play cards with badges + why-now/first-move/kill-criteria). Example presets, Copy/Share-link/Save-as-PDF, share-link autorun. Free, ungated. POSTs to **`/api/advise`**; uses the shared **`advisor.css` + `advisor.js`**. Full architecture, model, prompt, the **required `ANTHROPIC_API_KEY` setup**, and the parser gotcha in [`docs/advisor.md`](advisor.md). The **same tool is embedded on the homepage** at `#live` (see `index.html`). Honeypot `company_url`; emits `advisor_run`/`advisor_complete`/`advisor_error`. (Product *name* "GrowthKit Live" is a working name — branding to be finalized by Avi/Cowork.)
 - **`404.html`** — minimalist error page, `noindex, follow`, links to home + waitlist. No footer (intentional). Dark mode: giant neon-outline ghost "404" + blinking cursor after "Error · 404". Loads theme.css (it didn't until 2026-06-10 — dark mode silently no-op'd).
 
+## Auth / app pages (noindex, out of sitemap — see [`docs/auth.md`](auth.md))
+
+- **`login.html`** (`/login`) — email + password + "Continue with Google", remember-me, forgot-password link. On success → `/four`.
+- **`signup.html`** (`/signup`) — email + password (8+) + Google; with email confirmation on, shows a "check your email" state. On success → `/four`.
+- **`reset.html`** (`/reset`) — password reset: request-a-link form, and (when arriving from the emailed link) a set-new-password form.
+- **`four.html`** (`/four`) — placeholder "You're in" landing shown after login (real dashboard TODO); shows the signed-in email + Sign out, redirects to `/login` if not signed in.
+- All four: `noindex`, no footer, minimal top bar; Supabase Auth via CDN; shared `auth.css` + `auth.js` + `auth-config.js`. **Sign-in is inactive until Supabase keys are pasted into `auth-config.js`** (pages show a "not configured" notice until then).
+
 ## Internal / non-public
 
 - **`logo.html`** — internal logo design reference (five variants explored). **Never** link from public pages, nav, or sitemap. The checker enforces this.

@@ -16,7 +16,11 @@
     { "source": "/specimen.html", "destination": "/specimen", "permanent": true },
     { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
     { "source": "/onboarding.html", "destination": "/onboarding", "permanent": true },
-    { "source": "/advisor.html", "destination": "/advisor", "permanent": true }
+    { "source": "/advisor.html", "destination": "/advisor", "permanent": true },
+    { "source": "/login.html", "destination": "/login", "permanent": true },
+    { "source": "/signup.html", "destination": "/signup", "permanent": true },
+    { "source": "/reset.html", "destination": "/reset", "permanent": true },
+    { "source": "/four.html", "destination": "/four", "permanent": true }
   ],
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
@@ -31,7 +35,11 @@
     { "source": "/specimen", "destination": "/specimen.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/onboarding", "destination": "/onboarding.html" },
-    { "source": "/advisor", "destination": "/advisor.html" }
+    { "source": "/advisor", "destination": "/advisor.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/signup", "destination": "/signup.html" },
+    { "source": "/reset", "destination": "/reset.html" },
+    { "source": "/four", "destination": "/four.html" }
   ],
   "functions": {
     "api/advise.js": { "maxDuration": 60 }

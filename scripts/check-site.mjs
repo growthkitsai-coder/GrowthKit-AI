@@ -30,8 +30,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = 'https://growthkitai.com';
 const INTERNAL_PAGES = ['logo.html', 'googlea9dc9b0133a60f51.html']; // never public, never in sitemap
-const NO_FOOTER = ['waitlist.html', '404.html']; // footer intentionally absent
-const NO_SITEMAP = ['404.html', 'onboarding.html']; // public but noindex
+const NO_FOOTER = ['waitlist.html', '404.html', 'login.html', 'signup.html', 'reset.html', 'four.html']; // footer intentionally absent
+const NO_SITEMAP = ['404.html', 'onboarding.html', 'login.html', 'signup.html', 'reset.html', 'four.html']; // public but noindex (auth = app pages)
 
 const failures = [];
 const fail = (msg) => failures.push(msg);
