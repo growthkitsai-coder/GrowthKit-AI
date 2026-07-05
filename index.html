@@ -1724,6 +1724,30 @@
      ───────────────────────────────────────────────────────────── */
   main, footer { position: relative; z-index: 1; }
 
+  /* Local token fallback (same values as theme.css — keep in sync).
+     A stale or failed theme.css otherwise kills every var(--neon)/
+     var(--deep-*) below while this block's literal rgba() rules keep
+     applying — the page half-renders in a confusing way (seen live
+     2026-07-05: unfilled meters, hollow gap dot). The pioneer pages
+     (manifesto/security/status) carry the same duplication. */
+  :root[data-theme="dark"] {
+    --neon:   #3EF59F;
+    --neon-2: #8FFFC9;
+    --deep-1: #06140D;
+    --deep-2: #0A1F15;
+    --deep-3: #143524;
+  }
+  :root[data-theme="dark"] body {
+    background:
+      radial-gradient(ellipse 720px 580px at  92%  -6%, rgba( 96, 168, 124, 0.32), transparent 60%),
+      radial-gradient(ellipse 540px 660px at 108%  46%, rgba( 58, 116,  87, 0.22), transparent 65%),
+      radial-gradient(ellipse 680px 480px at  98% 110%, rgba( 46,  98,  73, 0.18), transparent 60%),
+      radial-gradient(ellipse 460px 540px at  -6%  18%, rgba( 31,  71,  50, 0.10), transparent 60%),
+      radial-gradient(ellipse 520px 420px at  -5% 102%, rgba( 31,  71,  50, 0.12), transparent 55%),
+      #050708 !important;
+    background-attachment: fixed !important;
+  }
+
   /* Hero glow goes phosphor */
   :root[data-theme="dark"] .hero .hero-glow {
     background:
