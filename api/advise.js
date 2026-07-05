@@ -47,8 +47,10 @@ const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
 const RATE_MAX = 6; // accepted runs per IP per window
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 
-// Per-field input character caps (company is short; the optional fields add context).
-const CAP = { company: 160, website: 300, about: 800 };
+// Per-field input character caps. Two onboarding modes feed the same engine:
+//   short — company + website + known competitors + recent moves
+//   long  — company + website + a formatted founder-profile text block
+const CAP = { company: 160, website: 300, competitors: 1200, moves: 1200, profile: 8000 };
 
 // ── Durable rate limiting (preferred) ──────────────────────────────────────
 // Uses Redis over Upstash's REST API when a KV store is connected — shared
@@ -115,13 +117,14 @@ const clean = (v, cap) => String(v == null ? '' : v).slice(0, cap || 200).trim()
 //   x = price per seat (0 = cheapest / free, 100 = most expensive)
 //   y = workflow depth (0 = shallow point tool, 100 = deep end-to-end platform)
 const SYSTEM_PROMPT = [
-  "You are the GrowthKit AI market-intelligence engine. A signed-in founder gives you their company name (and maybe a website and a one-line description). You have a web_search tool. Use it to find and dissect that company's REAL competitors, then return one specimen-grade deliverable.",
+  "You are the GrowthKit AI market-intelligence engine. A signed-in founder gives you their company name — and possibly a website, known competitors, recent competitor moves, or a detailed startup profile. You have a web_search tool. Use it to find and dissect that company's REAL competitors, then return one specimen-grade deliverable.",
   "",
   "GrowthKit AI turns market and competitor signal into decisions for seed and Series A founders. Voice: confident, operator-grade, specific, no fluff — but every claim is grounded in what you actually found on the web, not invented. You are talking to a founder with a live product and limited time.",
   "",
   "HOW TO WORK (be fast — you are on a strict time budget):",
   "- Run AT MOST " + WEB_SEARCH_MAX_USES + " web searches, total. Spend them well: identify the category and the real named competitors; check a couple of competitors' positioning/pricing; find the gap. Do not over-explore.",
-  "- Use the company's website/description to pin down WHICH company this is (names can be ambiguous) and its actual segment. If you genuinely cannot identify the company or its market from the name + web, still produce your best-effort read of the most likely category and say so honestly in the positioning line.",
+  "- Use the company's website/profile to pin down WHICH company this is (names can be ambiguous) and its actual segment. If you genuinely cannot identify the company or its market from the name + web, still produce your best-effort read of the most likely category and say so honestly in the positioning line.",
+  "- If the founder listed competitors (or a market leader), treat them as strong hints — verify them and expand the set with search, don't just accept the list. If they gave a detailed profile (traction, pricing, ICP, stage), ground the positioning, gaps and plan in it specifically.",
   "- Prefer real, named competitors you found. Pricing and market numbers are best-effort estimates from what you read — reasonable, not fabricated precision. It is fine to write a price as a range or 'est.'",
   "",
   "OUTPUT: return ONLY a single JSON object — no prose before or after, no markdown, no code fences. It MUST match this shape exactly (all fields required unless marked optional):",
@@ -146,16 +149,18 @@ const SYSTEM_PROMPT = [
   "Rules: valid JSON only (double-quoted keys/strings, no trailing commas, no comments). Do not escape the <em> tags — write them literally inside the relevant string values. Keep every string tight and skimmable. Be specific to THIS company's real market; never generic advice that would fit any startup."
 ].join('\n');
 
-function buildUserMessage({ company, website, about }) {
+function buildUserMessage({ company, website, competitors, moves, profile }) {
   const parts = [
     'Produce the deliverable for this company. Search the web to identify it and its real competitors.',
     '',
     'COMPANY NAME: ' + company,
-    'WEBSITE: ' + (website || '(not provided)'),
-    'WHAT THEY DO: ' + (about || '(not provided — infer it from the name and the web)'),
-    '',
-    'Return only the JSON object.'
+    'WEBSITE: ' + (website || '(not provided)')
   ];
+  if (competitors) parts.push('', 'KNOWN COMPETITORS (hints — verify and expand with search): ' + competitors);
+  if (moves) parts.push('', 'RECENT COMPETITOR MOVES THEY HAVE NOTICED: ' + moves);
+  if (profile) parts.push('', 'FOUNDER PROFILE (ground the read in this):', profile);
+  if (!competitors && !moves && !profile) parts.push('', '(No extra context provided — infer the segment and competitors from the name and the web.)');
+  parts.push('', 'Return only the JSON object.');
   return parts.join('\n');
 }
 
@@ -242,7 +247,9 @@ module.exports = async function handler(req, res) {
 
   const company = clean(body.company, CAP.company);
   const website = clean(body.website, CAP.website);
-  const about = clean(body.about, CAP.about);
+  const competitors = clean(body.competitors, CAP.competitors);
+  const moves = clean(body.moves, CAP.moves);
+  const profile = clean(body.profile_text, CAP.profile);
   if (!company) {
     res.status(400).json({ error: 'Enter your company name to generate a deliverable.' });
     return;
@@ -270,7 +277,7 @@ module.exports = async function handler(req, res) {
         output_config: { effort: 'medium' },
         tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: WEB_SEARCH_MAX_USES }],
         system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: buildUserMessage({ company, website, about }) }]
+        messages: [{ role: 'user', content: buildUserMessage({ company, website, competitors, moves, profile }) }]
       })
     });
   } catch (err) {

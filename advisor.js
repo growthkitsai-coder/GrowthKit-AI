@@ -27,12 +27,63 @@
 
   var DASH = '\\u2014\\u2013\\u2012\\u2015\\-'; // legacy-read dash class (escaped unicode)
 
-  // Real companies as example inputs — the engine profiles whatever you enter
-  // and finds ITS competitors, so presets are real names, not fictional ICPs.
+  // Real companies as example inputs for the QUICK read — the engine profiles
+  // whatever you enter and finds ITS competitors, so presets are real names.
   var PRESETS = [
-    { label: 'Jobber', company: 'Jobber', website: 'getjobber.com', about: 'Field-service management software for home-service businesses — scheduling, invoicing, and payments from a phone.' },
-    { label: 'Otter.ai', company: 'Otter.ai', website: 'otter.ai', about: 'An AI meeting notetaker that joins calls, transcribes them, and writes the summary and action items.' },
-    { label: 'Ramp', company: 'Ramp', website: 'ramp.com', about: 'Corporate cards and spend management for finance teams — cards, bill pay, and expense automation.' }
+    { label: 'Jobber', company: 'Jobber', website: 'getjobber.com', competitors: 'ServiceTitan, Housecall Pro, FieldEdge', moves: '' },
+    { label: 'Otter.ai', company: 'Otter.ai', website: 'otter.ai', competitors: 'Fireflies, Fathom, plus native Zoom/Teams summaries', moves: '' },
+    { label: 'Ramp', company: 'Ramp', website: 'ramp.com', competitors: 'Brex, Bill.com, Airbase', moves: '' }
+  ];
+
+  // Long-onboarding profile — grouped, all optional. Single source of truth for
+  // the form (advisor.js builds it), for collection, and for the text sent to
+  // the engine. { k:key, l:label, ph:placeholder, t:1 → textarea }.
+  var PROFILE_GROUPS = [
+    { title: 'Company', fields: [
+      { k: 'startup_name', l: 'Startup name', ph: 'e.g. Crewline' },
+      { k: 'website', l: 'Website', ph: 'e.g. crewline.io' },
+      { k: 'one_sentence', l: 'Your startup in one sentence', ph: 'What you do, in a line' },
+      { k: 'how_long', l: 'How long have you been building it?', ph: 'e.g. 8 months' },
+      { k: 'problem', l: 'What problem are you solving?', t: 1 },
+      { k: 'industry', l: 'What industry?', ph: 'e.g. HVAC field service' },
+      { k: 'stage', l: 'What stage is the product?', ph: 'idea / MVP / launched / scaling' }
+    ] },
+    { title: 'Team & founders', fields: [
+      { k: 'founders', l: 'Solo founder or co-founders?', ph: 'e.g. 2 co-founders' },
+      { k: 'employees', l: 'How many employees?', ph: 'e.g. 3' },
+      { k: 'background', l: 'Founder background', ph: 'technical / repeat founder / non-technical' },
+      { k: 'hours', l: 'Hours a week dedicated?', ph: 'e.g. full-time, 60h' }
+    ] },
+    { title: 'Product', fields: [
+      { k: 'walkthrough', l: "Walk me through the product as if I'm the customer", t: 1 },
+      { k: 'differentiator', l: 'The one thing you do better than anything else', t: 1 },
+      { k: 'access', l: 'How do customers access it?', ph: 'web app / mobile / API / …' }
+    ] },
+    { title: 'Customers & ICP', fields: [
+      { k: 'ideal_customer', l: 'Describe your ideal customer', t: 1 },
+      { k: 'b2b', l: 'If B2B: company size, industry, buyer vs. user', t: 1 },
+      { k: 'b2c', l: 'If B2C: age, income, lifestyle, where they hang out online', t: 1 },
+      { k: 'customer_convos', l: 'Talked to customers? How many, and what did they say?', t: 1 }
+    ] },
+    { title: 'Traction', fields: [
+      { k: 'users_signups', l: 'Users / signups', ph: 'e.g. 1,200 signups' },
+      { k: 'mrr_arr', l: 'MRR and ARR', ph: 'e.g. $4k MRR' },
+      { k: 'paying', l: 'Paying customers?', ph: 'e.g. 38' },
+      { k: 'churn', l: 'Monthly churn', ph: 'how many leave each month' },
+      { k: 'proof_point', l: 'Biggest proof point', t: 1 }
+    ] },
+    { title: 'Market & competition', fields: [
+      { k: 'competitors', l: 'Top 3 competitors', t: 1 },
+      { k: 'market_leader', l: 'Who is the market leader?', ph: 'e.g. ServiceTitan' },
+      { k: 'adjacent', l: 'Any adjacent markets?' },
+      { k: 'marketing_channels', l: 'Current marketing channels', t: 1 }
+    ] },
+    { title: 'Pricing & fundraising', fields: [
+      { k: 'pricing_model', l: 'Pricing model', ph: 'e.g. $30/seat/mo' },
+      { k: 'pricing_tested', l: 'Tested different pricing?', t: 1 },
+      { k: 'raised_funding', l: 'Have you raised funding?', ph: 'e.g. pre-seed $300k' },
+      { k: 'want_vc', l: 'Do you want to raise VC?', ph: 'yes / no / later' }
+    ] }
   ];
 
   function esc(s) {
@@ -50,6 +101,56 @@
   function richPara(t) { return richEm(String(t || '').trim()).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, ' '); }
   function num(v, d) { var n = Number(v); return isFinite(n) ? n : (d || 0); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  // ── Long onboarding: build / collect / serialize the profile ──
+  function longFormHtml() {
+    var h = '';
+    for (var g = 0; g < PROFILE_GROUPS.length; g++) {
+      var grp = PROFILE_GROUPS[g], fh = '';
+      for (var i = 0; i < grp.fields.length; i++) {
+        var f = grp.fields[i];
+        var input = f.t
+          ? '<textarea class="gk-input" data-gk-pfield="' + f.k + '" maxlength="600" placeholder="' + esc(f.ph || '') + '"></textarea>'
+          : '<input class="gk-input" data-gk-pfield="' + f.k + '" maxlength="240" placeholder="' + esc(f.ph || '') + '" autocomplete="off">';
+        fh += '<div class="gk-field-group"><label class="gk-label">' + esc(f.l) + '</label>' + input + '</div>';
+      }
+      h += '<details class="gk-group"' + (g === 0 ? ' open' : '') + '><summary class="gk-group-head">'
+        + '<span class="gk-group-title">' + esc(grp.title) + '</span>'
+        + '<span class="gk-group-n">' + grp.fields.length + ' fields</span>'
+        + '<span class="gk-group-caret" aria-hidden="true">▾</span></summary>'
+        + '<div class="gk-group-body">' + fh + '</div></details>';
+    }
+    return h;
+  }
+  function collectProfile(mount) {
+    var out = {}, els = mount.querySelectorAll('[data-gk-pfield]');
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute('data-gk-pfield'), v = (els[i].value || '').trim();
+      if (v) out[k] = v;
+    }
+    return out;
+  }
+  function prefillProfile(mount, data) {
+    if (!data) return;
+    var els = mount.querySelectorAll('[data-gk-pfield]');
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute('data-gk-pfield');
+      if (data[k] != null) els[i].value = data[k];
+    }
+  }
+  // Serialize the filled profile into the labelled text block sent to the engine.
+  function profileToText(obj) {
+    var out = [];
+    for (var g = 0; g < PROFILE_GROUPS.length; g++) {
+      var grp = PROFILE_GROUPS[g], seg = [];
+      for (var i = 0; i < grp.fields.length; i++) {
+        var f = grp.fields[i];
+        if (obj[f.k]) seg.push('- ' + f.l + ': ' + obj[f.k]);
+      }
+      if (seg.length) { out.push(grp.title.toUpperCase(), seg.join('\n'), ''); }
+    }
+    return out.join('\n').trim();
+  }
 
   // ── Market map: plot vendors into the specimen's SVG geometry ──
   // viewBox 0 0 880 560; plot area x:90→810 (720w), y:60(top)→480(bottom, 420h).
@@ -240,10 +341,22 @@
     var deliverableEl = q('[data-gk-deliverable]');
     var actionsEl = q('[data-gk-actions]');
     var presetsEl = q('[data-gk-presets]');
+    // Onboarding chooser + panels (new). Degrade gracefully if absent.
+    var modesEl = q('[data-gk-modes]');
+    var consoleEl = q('[data-gk-console]');
+    var shortPanel = q('[data-gk-panel="short"]');
+    var longPanel = q('[data-gk-panel="long"]');
+    var longMount = q('[data-gk-long-mount]');
     var loadedAt = Date.now();
     var running = false;
-    var lastJson = null; // the deliverable object (for save + actions)
+    var lastJson = null;   // the deliverable object (for save + actions)
+    var currentMode = null;
+    var profileLoaded = false;
 
+    // Build the long-onboarding form once (so prefill has targets).
+    if (longMount) longMount.innerHTML = longFormHtml();
+
+    // Quick-read presets.
     if (presetsEl) {
       for (var i = 0; i < PRESETS.length; i++) {
         (function (preset) {
@@ -253,12 +366,70 @@
           b.addEventListener('click', function () {
             if (field('company')) field('company').value = preset.company;
             if (field('website')) field('website').value = preset.website;
-            if (field('about')) field('about').value = preset.about;
+            if (field('competitors')) field('competitors').value = preset.competitors;
+            if (field('moves')) field('moves').value = preset.moves;
             if (field('company')) field('company').focus();
           });
           presetsEl.appendChild(b);
         })(PRESETS[i]);
       }
+    }
+
+    // ── Mode chooser ──
+    function setMode(m, opts) {
+      opts = opts || {};
+      currentMode = m;
+      if (modesEl) modesEl.style.display = 'none';
+      if (consoleEl) consoleEl.style.display = '';
+      if (shortPanel) shortPanel.style.display = (m === 'short') ? '' : 'none';
+      if (longPanel) longPanel.style.display = (m === 'long') ? '' : 'none';
+      if (submitLabel) submitLabel.textContent = 'Generate deliverable';
+      if (m === 'long') { ensureProfile(); if (!opts.silent) focusFirst(longMount); }
+      else if (!opts.silent && field('company')) field('company').focus();
+      if (window.va) window.va('event', { name: 'advisor_mode', data: { mode: m } });
+    }
+    function toChooser() {
+      currentMode = null;
+      if (consoleEl) consoleEl.style.display = 'none';
+      if (modesEl) modesEl.style.display = '';
+    }
+    function focusFirst(scope) { try { var el = scope && scope.querySelector('input, textarea'); if (el) el.focus(); } catch (e) {} }
+
+    var modeBtns = root.querySelectorAll('[data-gk-mode]');
+    for (var mb = 0; mb < modeBtns.length; mb++) {
+      (function (btn) { btn.addEventListener('click', function () { setMode(btn.getAttribute('data-gk-mode')); }); })(modeBtns[mb]);
+    }
+    var switchBtns = root.querySelectorAll('[data-gk-switch]');
+    for (var sb = 0; sb < switchBtns.length; sb++) { switchBtns[sb].addEventListener('click', function () { toChooser(); }); }
+    // No chooser in the markup → behave as a plain short console.
+    if (!modesEl && consoleEl) { setMode('short', { silent: true }); }
+    else if (!modesEl) { currentMode = 'short'; }
+
+    // ── Saved profile (Supabase `profiles`) ──
+    function getUid() {
+      return (window.GKAuth && window.GKAuth.client)
+        ? window.GKAuth.client.auth.getSession().then(function (s) { return (s && s.data && s.data.session && s.data.session.user) ? s.data.session.user.id : null; }).catch(function () { return null; })
+        : Promise.resolve(null);
+    }
+    function ensureProfile() {
+      if (profileLoaded || !longMount) return;
+      profileLoaded = true;
+      if (!(window.GKAuth && window.GKAuth.client)) return;
+      getUid().then(function (uid) {
+        if (!uid) return;
+        try {
+          window.GKAuth.client.from('profiles').select('data').eq('user_id', uid).maybeSingle().then(function (r) {
+            if (r && !r.error && r.data && r.data.data) prefillProfile(longMount, r.data.data);
+          });
+        } catch (e) {}
+      });
+    }
+    function saveProfile(obj) {
+      if (!obj || !Object.keys(obj).length || !(window.GKAuth && window.GKAuth.client)) return;
+      getUid().then(function (uid) {
+        if (!uid) return;
+        try { window.GKAuth.client.from('profiles').upsert({ user_id: uid, data: obj, updated_at: new Date().toISOString() }).then(function () {}); } catch (e) {}
+      });
     }
 
     function setStatus(t) { if (statusEl) statusEl.innerHTML = t; }
@@ -282,10 +453,23 @@
     async function run(opts) {
       opts = opts || {};
       if (running) return;
-      var company = field('company') ? field('company').value.trim() : '';
+      var mode = currentMode || 'short';
+      var company = '', website = '', competitors = '', moves = '', profileText = '', profileObj = null;
+      if (mode === 'long') {
+        profileObj = collectProfile(longMount);
+        company = (profileObj.startup_name || '').trim();
+        website = (profileObj.website || '').trim();
+        profileText = profileToText(profileObj);
+      } else {
+        company = field('company') ? field('company').value.trim() : '';
+        website = field('website') ? field('website').value.trim() : '';
+        competitors = field('competitors') ? field('competitors').value.trim() : '';
+        moves = field('moves') ? field('moves').value.trim() : '';
+      }
       if (!company) {
-        if (errorEl) errorEl.textContent = 'Enter your company name to generate a deliverable.';
-        if (field('company')) field('company').focus();
+        if (errorEl) errorEl.textContent = (mode === 'long') ? 'Add your startup name (top of the Company section) to generate a deliverable.' : 'Enter your company name to generate a deliverable.';
+        if (mode === 'long') { if (longMount) { var sn = longMount.querySelector('[data-gk-pfield="startup_name"]'); if (sn) { var det = sn.closest('details'); if (det) det.open = true; sn.focus(); } } }
+        else if (field('company')) field('company').focus();
         return;
       }
       if (errorEl) errorEl.textContent = '';
@@ -300,12 +484,11 @@
       setStatus('reading your company<span class="gk-blink">_</span>');
       log('→ reading your company…');
 
-      var website = field('website') ? field('website').value.trim() : '';
-      var about = field('about') ? field('about').value.trim() : '';
-      if (window.va) window.va('event', { name: 'advisor_run', data: { surface: full ? 'page' : 'home', hasWebsite: !!website, hasAbout: !!about } });
+      if (window.va) window.va('event', { name: 'advisor_run', data: { surface: full ? 'page' : 'home', mode: mode, hasWebsite: !!website, hasContext: !!(competitors || moves || profileText) } });
 
       var payload = {
-        company: company, website: website, about: about,
+        mode: mode, company: company, website: website,
+        competitors: competitors, moves: moves, profile_text: profileText,
         company_url: field('company_url') ? field('company_url').value || '' : '',
         t: opts.auto ? '6000' : String(Date.now() - loadedAt)
       };
@@ -352,9 +535,11 @@
           deliverableEl.innerHTML = renderDeliverable(lastJson);
           root.classList.add('is-done'); // hides the progress log, reveals the deliverable
         }
-        renderActions(company, website, about);
-        saveRead(company, website, about, lastJson);
-        if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', vendors: (lastJson.market_map && lastJson.market_map.vendors ? lastJson.market_map.vendors.length : 0) } });
+        renderActions(company, website, competitors, moves);
+        // Long mode: persist the profile so it pre-fills next time.
+        if (mode === 'long') saveProfile(profileObj);
+        saveRead(company, mode === 'long' ? (profileObj.competitors || '') : competitors, mode === 'long' ? '' : moves, lastJson);
+        if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', mode: mode, vendors: (lastJson.market_map && lastJson.market_map.vendors ? lastJson.market_map.vendors.length : 0) } });
       } catch (err) {
         fail((err && err.message) ? err.message : 'Something went wrong — please try again.');
       }
@@ -365,14 +550,14 @@
       root.classList.remove('is-running');
     }
 
-    // Persist to the signed-in user's account (Supabase `reads` table). We reuse
-    // the existing columns: product=company name (the history label), competitors
-    // =website, moves=about one-liner, output=the deliverable JSON string.
-    function saveRead(company, website, about, deliverable) {
+    // Persist to the signed-in user's account (Supabase `reads` table). Columns
+    // reused: product=company (the history label), competitors + moves hold the
+    // quick-read context, output=the deliverable JSON string.
+    function saveRead(company, competitors, moves, deliverable) {
       if (!window.GK_SAVE_READS || !window.GKAuth || !window.GKAuth.client) return;
       try {
         window.GKAuth.client.from('reads').insert({
-          product: company, competitors: website, moves: about, output: JSON.stringify(deliverable)
+          product: company, competitors: competitors, moves: moves, output: JSON.stringify(deliverable)
         }).then(function (r) {
           if (!r || r.error) return;
           if (typeof window.GK_RELOAD_READS === 'function') window.GK_RELOAD_READS();
@@ -380,19 +565,20 @@
       } catch (e) {}
     }
 
-    function shareUrl(company, website, about) {
+    function shareUrl(company, website, competitors, moves) {
       var qs = '?co=' + encodeURIComponent(company);
       if (website) qs += '&w=' + encodeURIComponent(website);
-      if (about) qs += '&a=' + encodeURIComponent(about);
+      if (competitors) qs += '&c=' + encodeURIComponent(competitors);
+      if (moves) qs += '&m=' + encodeURIComponent(moves);
       return location.origin + '/four' + qs;
     }
 
-    function renderActions(company, website, about) {
+    function renderActions(company, website, competitors, moves) {
       if (!actionsEl) return;
       actionsEl.innerHTML = '';
       var mk = function (lbl, cls) { var b = document.createElement('button'); b.type = 'button'; b.className = 'gk-act ' + (cls || ''); b.innerHTML = lbl; actionsEl.appendChild(b); return b; };
       var cLink = mk('Copy share link');
-      cLink.addEventListener('click', function () { copy(shareUrl(company, website, about), cLink, 'Copy share link'); });
+      cLink.addEventListener('click', function () { copy(shareUrl(company, website, competitors, moves), cLink, 'Copy share link'); });
       var pdf = mk('Save as PDF');
       pdf.addEventListener('click', function () { window.print(); });
     }
@@ -408,14 +594,16 @@
 
     form.addEventListener('submit', function (e) { e.preventDefault(); run(); });
 
-    // Share-link prefill (full page) → fill + auto-run.
+    // Share-link prefill (full page) → quick read, fill + auto-run.
     if (full) {
       try {
         var sp = new URLSearchParams(location.search), co = sp.get('co');
-        if (co && field('company')) {
-          field('company').value = co;
+        if (co) {
+          setMode('short', { silent: true });
+          if (field('company')) field('company').value = co;
           if (sp.get('w') && field('website')) field('website').value = sp.get('w');
-          if (sp.get('a') && field('about')) field('about').value = sp.get('a');
+          if (sp.get('c') && field('competitors')) field('competitors').value = sp.get('c');
+          if (sp.get('m') && field('moves')) field('moves').value = sp.get('m');
           run({ auto: true });
         }
       } catch (e) {}
