@@ -1826,23 +1826,36 @@
   }
   :root[data-theme="dark"] .engine .feat-specimen .spec-num { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.5); }
   :root[data-theme="dark"] .spec-bars .row .top .val { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,0.45); }
-  :root[data-theme="dark"] .spec-bars .row .bar { background: rgba(255, 255, 255, 0.06); }
+  /* The supporting marks (tracks, competitor columns/dots, ticks) must
+     stay clearly visible on the deep-green panels — dim mint, not
+     --deep-3, which vanishes into the panel gradient and killed each
+     card's message (fixed 2026-07-05). Neon stays reserved for the
+     data: fills, "you", the gap, milestones. */
+  :root[data-theme="dark"] .spec-bars .row .bar { background: rgba(143, 255, 201, 0.14); }
   :root[data-theme="dark"] .spec-bars .row .bar::after {
     background: var(--neon);
     box-shadow: 0 0 10px rgba(62, 245, 159, 0.6);
   }
-  :root[data-theme="dark"] .spec-stack .col { background: rgba(62, 245, 159, 0.12); }
+  :root[data-theme="dark"] .spec-stack .col {
+    background: rgba(143, 255, 201, 0.20);
+    box-shadow: inset 0 1px 0 rgba(143, 255, 201, 0.30);
+  }
+  :root[data-theme="dark"] .spec-stack .col::after { color: rgba(143, 255, 201, 0.60); }
   :root[data-theme="dark"] .spec-stack .col.you {
     background: var(--neon);
     box-shadow: 0 0 16px rgba(62, 245, 159, 0.5);
   }
   :root[data-theme="dark"] .spec-stack .col.you::after { color: var(--neon); }
-  :root[data-theme="dark"] .spec-scatter .dot { background: var(--deep-3); }
+  :root[data-theme="dark"] .spec-scatter .dot {
+    background: rgba(143, 255, 201, 0.60);
+    box-shadow: 0 0 8px rgba(62, 245, 159, 0.30);
+  }
   :root[data-theme="dark"] .spec-scatter .dot.gap {
     background: var(--neon);
     box-shadow: 0 0 0 6px rgba(62, 245, 159, 0.12), 0 0 18px rgba(62, 245, 159, 0.8);
   }
-  :root[data-theme="dark"] .spec-timeline .tick { background: var(--deep-3); }
+  :root[data-theme="dark"] .spec-timeline .axis { background: rgba(143, 255, 201, 0.18); }
+  :root[data-theme="dark"] .spec-timeline .tick { background: rgba(143, 255, 201, 0.40); }
   :root[data-theme="dark"] .spec-timeline .tick.mile {
     background: var(--neon);
     box-shadow: 0 0 10px rgba(62, 245, 159, 0.6);
