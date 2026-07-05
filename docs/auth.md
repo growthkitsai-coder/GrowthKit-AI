@@ -44,6 +44,21 @@ create policy "own reads - select" on public.reads for select using (auth.uid() 
 create policy "own reads - insert" on public.reads for insert with check (auth.uid() = user_id);
 ```
 
+**6b. Create the `profiles` table** (stores each user's **long-onboarding** startup profile as one JSON row, so it pre-fills on return; row-level security so users only touch their own). Supabase → **SQL Editor** → run:
+
+```sql
+create table public.profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  updated_at timestamptz not null default now(),
+  data jsonb not null default '{}'::jsonb
+);
+alter table public.profiles enable row level security;
+create policy "own profile - all" on public.profiles
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
+The `reads` and `profiles` tables are independent; the tool works without `profiles` (the long form just won't persist/pre-fill), but add it so onboarding sticks.
+
 **7. Paste the two values into `auth-config.js`, commit, deploy.** Sign-in + the gated tool are now live.
 
 **8. (Recommended) Gate the API too.** So `/api/advise` can't be run anonymously, add the same two values as **Vercel env vars** (Project → Settings → Environment Variables): **`SUPABASE_URL`** and **`SUPABASE_ANON_KEY`**. When present, the function requires a valid Supabase token on every call (it verifies via Supabase's `/auth/v1/user`). When absent, the API stays open — so set these once auth is working. ⚠ Make sure they're on the **same Vercel project that serves growthkitai.com** (there's a known duplicate-project trap — see `docs/advisor.md`).
@@ -55,6 +70,7 @@ create policy "own reads - insert" on public.reads for insert with check (auth.u
 - **Already signed in** on `/login` or `/signup` → auto-redirect to `/four`.
 - **Reset:** `resetPasswordForEmail(email,{redirectTo: origin+'/reset'})` → `/reset` detects `PASSWORD_RECOVERY` → set-new-password → `updateUser({password})`.
 - **`/four` (gated):** `getSession()`; if signed in → reveal the tool + email + Sign out, set `window.GK_SAVE_READS=true`, and load the user's saved reads (most recent 12) into the history panel; if not → redirect to `/login`. Clicking a saved read re-renders it via `GKAdvisor.render`.
+- **`/four` onboarding (added 2026-07-05):** the signed-in user first picks **Quick read** (company + optional website / known competitors / moves) or **Full profile** (a ~30-field grouped startup profile — all optional). Both end in one "Generate deliverable" button → the web-searching engine. `advisor.js` builds the long form from its `PROFILE_GROUPS` config, serializes filled fields into a labelled text block for the engine, and **upserts the profile to Supabase `profiles`** (one JSON row per user) so it pre-fills next time. See [`docs/advisor.md`](advisor.md).
 - **Every read** is inserted into `reads` (user_id defaults to `auth.uid()`); `/api/advise` is called with `Authorization: Bearer <supabase access token>`.
 - **Remember me** routes the session to `localStorage` (default) vs `sessionStorage`; `flowType:'implicit'`.
 
