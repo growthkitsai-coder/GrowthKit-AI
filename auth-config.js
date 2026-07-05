@@ -17,6 +17,6 @@
    ────────────────────────────────────────────────────────────────────────── */
 window.GK_AUTH_CONFIG = {
   SUPABASE_URL: 'https://kytvdrzfygjfqmklxfyr.supabase.co',
-  SUPABASE_ANON_KEY: '',       // ← paste your anon (publishable) key
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5dHZkcnpmeWdqZnFta2x4ZnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjc2NjMsImV4cCI6MjA5ODg0MzY2M30.yFkObAEd8oMhYHg2q0XSuTzMralAF6d5zTQP57pFrvg',
   REDIRECT_AFTER_LOGIN: '/four'
 };
