@@ -3,6 +3,10 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Auth safety net: if a Supabase OAuth token lands on the landing page (its Site URL
+     fallback) instead of /four, forward it — token preserved in the hash — so login
+     still completes. Only fires when an access_token/error hash is present. -->
+<script>(function(){try{var h=location.hash||'';if(/[#&](access_token|error)=/.test(h)){var p=location.pathname;if(p==='/'||p===''||p==='/index.html'){location.replace((/type=recovery/.test(h)?'/reset':'/four')+location.search+h);return;}}}catch(e){}})();</script>
 <meta name="google-site-verification" content="5aliFhE-YHt8uIXEJOdUgDIjx4CQDIhBnpXbwbnXzwM" />
 <script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
 <link rel="icon" type="image/png" sizes="512x512" href="/logo-mark-512.png">
