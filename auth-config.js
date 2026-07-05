@@ -16,7 +16,7 @@
    Full setup (enable Email + Google providers, redirect URLs): docs/auth.md
    ────────────────────────────────────────────────────────────────────────── */
 window.GK_AUTH_CONFIG = {
-  SUPABASE_URL: '',            // ← paste your Project URL
+  SUPABASE_URL: 'https://kytvdrzfygjfqmklxfyr.supabase.co',
   SUPABASE_ANON_KEY: '',       // ← paste your anon (publishable) key
   REDIRECT_AFTER_LOGIN: '/four'
 };
