@@ -75,32 +75,65 @@
       <div class="four-head">
         <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
         <h1>Point the engine at <em>your</em> market.</h1>
-        <p class="lede">Give it your company name — the engine searches the live web for your real competitors, dissects them, and returns a full deliverable: a plotted market map, a competitor teardown, gap analysis, and a 90-day plan. A website and one line of context sharpen it. Every deliverable is saved to your account below.</p>
+        <p class="lede">The engine searches the live web for your real competitors, dissects them, and returns a full deliverable: a plotted market map, a competitor teardown, gap analysis, and a 90-day plan. Start with a <strong>quick read</strong> (just your company name) or build a <strong>full profile</strong> for the sharpest cut — either way, every deliverable is saved to your account below.</p>
       </div>
 
       <div class="gk-advisor" data-gk-advisor data-gk-full="1">
-        <div class="gk-console">
+
+        <!-- Onboarding chooser -->
+        <div class="gk-modes" data-gk-modes>
+          <button type="button" class="gk-mode-card" data-gk-mode="short">
+            <span class="gk-mode-tag">Quick read</span>
+            <span class="gk-mode-title">Just the <em>essentials</em></span>
+            <span class="gk-mode-desc">Your company name — plus known competitors and a URL if you have them. The fastest path to a deliverable; the engine finds the rest on the web.</span>
+            <span class="gk-mode-go">Start quick <span class="gk-arr">→</span></span>
+          </button>
+          <button type="button" class="gk-mode-card" data-gk-mode="long">
+            <span class="gk-mode-tag">Full profile</span>
+            <span class="gk-mode-title">The <em>sharpest</em> cut</span>
+            <span class="gk-mode-desc">Tell the engine about your product, traction, ICP, pricing and market — every field optional, saved to your account. The more you share, the sharper the read.</span>
+            <span class="gk-mode-go">Build my profile <span class="gk-arr">→</span></span>
+          </button>
+        </div>
+
+        <!-- Engine console (hidden until a mode is chosen) -->
+        <div class="gk-console" data-gk-console style="display:none">
           <div class="gk-console-head">
             <span><span class="gk-dot" aria-hidden="true"></span>growthkit&nbsp;live · engine</span>
-            <span>opus · web search</span>
+            <button type="button" class="gk-switch" data-gk-switch>↤ change onboarding</button>
           </div>
           <div class="gk-console-body">
-            <div class="gk-presets" data-gk-presets aria-label="Example presets"></div>
             <form data-gk-form novalidate>
-              <div class="gk-field-group">
-                <label class="gk-label" for="gk-company">Your company name</label>
-                <input id="gk-company" class="gk-input" data-gk-field="company" required maxlength="160" placeholder="e.g. Jobber" autocomplete="off">
-              </div>
-              <div class="gk-optional-fields">
-                <div class="gk-field-group" style="margin-bottom:0;">
-                  <label class="gk-label" for="gk-website">Website <span class="gk-opt">— optional, pins down which company</span></label>
-                  <input id="gk-website" class="gk-input" data-gk-field="website" maxlength="300" placeholder="e.g. getjobber.com" autocomplete="off">
+
+              <!-- SHORT onboarding -->
+              <div data-gk-panel="short">
+                <div class="gk-presets" data-gk-presets aria-label="Example companies"></div>
+                <div class="gk-field-group">
+                  <label class="gk-label" for="gk-company">Your company name</label>
+                  <input id="gk-company" class="gk-input" data-gk-field="company" maxlength="160" placeholder="e.g. Jobber" autocomplete="off">
                 </div>
-                <div class="gk-field-group" style="margin-bottom:0;">
-                  <label class="gk-label" for="gk-about">One line on what you do <span class="gk-opt">— optional, sharpens the read</span></label>
-                  <textarea id="gk-about" class="gk-input" data-gk-field="about" maxlength="800" placeholder="e.g. Field-service software for home-service businesses — scheduling, invoicing, payments."></textarea>
+                <div class="gk-optional-fields">
+                  <div class="gk-field-group" style="margin-bottom:0;">
+                    <label class="gk-label" for="gk-website">Website <span class="gk-opt">— optional, pins down which company</span></label>
+                    <input id="gk-website" class="gk-input" data-gk-field="website" maxlength="300" placeholder="e.g. getjobber.com" autocomplete="off">
+                  </div>
+                  <div class="gk-field-group" style="margin-bottom:0;">
+                    <label class="gk-label" for="gk-competitors">Known competitors <span class="gk-opt">— optional, sharpens the read</span></label>
+                    <textarea id="gk-competitors" class="gk-input" data-gk-field="competitors" maxlength="1200" placeholder="e.g. ServiceTitan, Housecall Pro, FieldEdge"></textarea>
+                  </div>
+                  <div class="gk-field-group" style="margin-bottom:0;">
+                    <label class="gk-label" for="gk-moves">Recent competitor moves <span class="gk-opt">— optional</span></label>
+                    <textarea id="gk-moves" class="gk-input" data-gk-field="moves" maxlength="1200" placeholder="e.g. Housecall Pro launched an AI dispatcher; ServiceTitan raised prices"></textarea>
+                  </div>
                 </div>
               </div>
+
+              <!-- LONG onboarding (form groups built by advisor.js) -->
+              <div data-gk-panel="long" style="display:none">
+                <p class="gk-long-intro">Every field is optional and saved to your account — fill what you can, skip the rest. Start with your <strong>startup name</strong> at the top of Company.</p>
+                <div data-gk-long-mount></div>
+              </div>
+
               <div class="gk-hp" aria-hidden="true">
                 <label for="gk-company-url">Company URL</label>
                 <input id="gk-company-url" data-gk-field="company_url" type="text" tabindex="-1" autocomplete="off">
