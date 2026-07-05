@@ -219,8 +219,17 @@
       };
 
       try {
+        // Attach the signed-in user's Supabase token so the (gated) API accepts it.
+        var headers = { 'Content-Type': 'application/json' };
+        try {
+          if (window.GKAuth && window.GKAuth.client) {
+            var sess = await window.GKAuth.client.auth.getSession();
+            var tok = sess && sess.data && sess.data.session && sess.data.session.access_token;
+            if (tok) headers['Authorization'] = 'Bearer ' + tok;
+          }
+        } catch (e) {}
         var res = await fetch('/api/advise', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+          method: 'POST', headers: headers, body: JSON.stringify(payload)
         });
         if (!res.ok) {
           var msg = 'The read failed — please try again.';
@@ -249,6 +258,7 @@
           root.classList.remove('is-running');
         }
         renderActions(product, competitors, moves);
+        saveRead(product, competitors, moves, lastText);
         if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', chars: lastText.length, parsed: !!parsed } });
       } catch (err) {
         fail((err && err.message) ? err.message : 'Something went wrong — please try again.');
@@ -260,8 +270,21 @@
       root.classList.remove('is-running');
     }
 
+    // Persist the read to the signed-in user's account (Supabase `reads` table).
+    // No-ops when not signed in / not enabled; ignores errors (e.g. table not set
+    // up yet) so a save problem never breaks the read.
+    function saveRead(product, competitors, moves, output) {
+      if (!window.GK_SAVE_READS || !window.GKAuth || !window.GKAuth.client) return;
+      try {
+        window.GKAuth.client.from('reads').insert({ product: product, competitors: competitors, moves: moves, output: output }).then(function (res) {
+          if (!res || res.error) return;
+          if (typeof window.GK_RELOAD_READS === 'function') window.GK_RELOAD_READS();
+        });
+      } catch (e) {}
+    }
+
     function shareUrl(product, competitors, moves) {
-      var base = location.origin + '/advisor';
+      var base = location.origin + '/four';
       var qs = '?p=' + encodeURIComponent(product);
       if (competitors) qs += '&c=' + encodeURIComponent(competitors);
       if (moves) qs += '&m=' + encodeURIComponent(moves);
@@ -327,5 +350,15 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  window.GKAdvisor = { init: init };
+  // Render a previously-saved read (raw engine text) into a container as the
+  // designed deliverable — used by /four's history panel to re-view past reads.
+  function renderInto(container, rawText) {
+    if (!container) return false;
+    var p = parseRead(rawText);
+    if (!p) { container.textContent = rawText || ''; return false; }
+    container.innerHTML = renderDeliverable(p);
+    return true;
+  }
+
+  window.GKAdvisor = { init: init, render: renderInto };
 })();

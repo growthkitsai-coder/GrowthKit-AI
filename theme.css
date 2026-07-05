@@ -11,6 +11,15 @@
   align-items: center;
   gap: 14px;
 }
+.nav-login {
+  font-size: 14px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition: color .2s ease;
+}
+.nav-login:hover { color: var(--accent); }
+:root[data-theme="dark"] .nav-login:hover { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.4); }
+@media (max-width: 560px) { .nav-login { display: none; } }
 
 /* ── Toggle button ──────────────────────────────────────────── */
 .theme-toggle {

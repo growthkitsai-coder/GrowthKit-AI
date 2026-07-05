@@ -160,3 +160,42 @@
 :root[data-theme="dark"] .four-actions .btn-line:hover { border-color: var(--neon); color: var(--neon); }
 :root[data-theme="dark"] .four-actions .btn-line.solid { background: var(--neon); color: #04110A; border-color: var(--neon); }
 :root[data-theme="dark"] .four-actions .btn-line.solid:hover { background: var(--neon-2); color: #04110A; }
+
+/* ════════════════ /four — the gated tool page ════════════════ */
+.four-main { flex: 1; padding: 40px 0 90px; position: relative; z-index: 1; }
+.four-checking { text-align: center; color: var(--muted); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.6; padding: 80px 22px; max-width: 44ch; margin: 0 auto; }
+.four-checking .mono { font-family: inherit; }
+.four-user { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: var(--ink-2); max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.four-user .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(31,71,50,0.12); flex-shrink: 0; }
+.four-signout { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 13px; cursor: pointer; transition: border-color .2s ease, color .2s ease; }
+.four-signout:hover { border-color: var(--accent); color: var(--accent); }
+.four-head { text-align: center; max-width: 640px; margin: 8px auto 30px; }
+.four-eyebrow { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.four-eyebrow .num { color: var(--accent); margin-right: 8px; }
+.four-head h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(34px, 5.4vw, 60px); line-height: 1.0; letter-spacing: -0.025em; margin: 0 0 16px; color: var(--ink); }
+.four-head h1 em { font-style: italic; color: var(--accent); }
+.four-head .lede { font-size: 16px; line-height: 1.55; color: var(--ink-2); margin: 0 auto; max-width: 52ch; }
+.four-app > .gk-advisor { max-width: 820px; margin: 0 auto; }
+
+.reads { max-width: 820px; margin: 46px auto 0; }
+.reads-head { text-align: center; margin-bottom: 20px; }
+.reads-head h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(24px, 3vw, 34px); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+.reads-empty { text-align: center; color: var(--muted); font-size: 14.5px; padding: 10px 0; }
+.reads-list { display: grid; gap: 8px; }
+.reads-item { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; text-align: left; width: 100%; background: var(--paper); border: 1px solid var(--line-2); border-radius: 8px; padding: 13px 16px; cursor: pointer; font-family: 'Inter', sans-serif; transition: border-color .2s ease, box-shadow .2s ease; }
+.reads-item:hover { border-color: var(--accent); box-shadow: 0 12px 30px -22px rgba(31,71,50,0.3); }
+.reads-when { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.reads-title { font-size: 14.5px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reads-arr { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--muted); transition: color .2s ease, transform .2s ease; }
+.reads-item:hover .reads-arr { color: var(--accent); transform: translate(2px, -2px); }
+.reads-viewer { margin-top: 22px; }
+
+:root[data-theme="dark"] .four-user .dot { background: var(--neon); box-shadow: 0 0 0 3px rgba(62,245,159,0.16), 0 0 14px rgba(62,245,159,0.75); }
+:root[data-theme="dark"] .four-signout { border-color: var(--deep-3); color: rgba(143,255,201,0.85); }
+:root[data-theme="dark"] .four-signout:hover { border-color: var(--neon); color: var(--neon); }
+:root[data-theme="dark"] .four-eyebrow .num { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.45); }
+:root[data-theme="dark"] .four-head h1 em { color: var(--neon); text-shadow: 0 0 22px rgba(62,245,159,0.4); }
+:root[data-theme="dark"] .reads-item { background: rgba(255,255,255,0.02); border-color: var(--deep-3); }
+:root[data-theme="dark"] .reads-item:hover { border-color: rgba(62,245,159,0.5); box-shadow: 0 0 0 1px rgba(62,245,159,0.16), 0 0 30px -10px rgba(62,245,159,0.28); }
+:root[data-theme="dark"] .reads-title { color: #ECFBF3; }
+:root[data-theme="dark"] .reads-item:hover .reads-arr { color: var(--neon); }

@@ -154,6 +154,33 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Require a signed-in user — the tool lives behind login. Enforced only when
+  // Supabase is configured on the server (SUPABASE_URL + SUPABASE_ANON_KEY env
+  // vars), so nothing breaks before auth is wired up. Verifies the caller's
+  // Supabase access token by asking Supabase who it belongs to.
+  const sbUrl = process.env.SUPABASE_URL;
+  const sbAnon = process.env.SUPABASE_ANON_KEY;
+  if (sbUrl && sbAnon) {
+    const authz = req.headers['authorization'] || '';
+    const token = authz.indexOf('Bearer ') === 0 ? authz.slice(7).trim() : '';
+    if (!token) {
+      res.status(401).json({ error: 'Please sign in to use the advisor.' });
+      return;
+    }
+    try {
+      const ur = await fetch(sbUrl.replace(/\/+$/, '') + '/auth/v1/user', {
+        headers: { authorization: 'Bearer ' + token, apikey: sbAnon }
+      });
+      if (!ur.ok) {
+        res.status(401).json({ error: 'Your session has expired — please sign in again.' });
+        return;
+      }
+    } catch (e) {
+      res.status(401).json({ error: 'Could not verify your session — please sign in again.' });
+      return;
+    }
+  }
+
   const body = (req.body && typeof req.body === 'object') ? req.body : {};
 
   // Honeypot: a hidden field humans never fill. Drop silently with a 200.

@@ -8,8 +8,8 @@
 <link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
 <link rel="apple-touch-icon" sizes="512x512" href="/logo-mark-512.png">
-<title>You're in — GrowthKit AI</title>
-<meta name="description" content="Your GrowthKit AI account.">
+<title>GrowthKit Live — GrowthKit AI</title>
+<meta name="description" content="GrowthKit Live — your market, dissected.">
 <meta name="theme-color" content="#1F4732">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://growthkitai.com/four">
@@ -28,10 +28,12 @@
   a { color: inherit; text-decoration: none; }
   ::selection { background: var(--accent); color: var(--bg); }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+  .wrap.narrow { max-width: 900px; }
   @media (max-width: 720px) { .wrap { padding: 0 22px; } }
-  .auth-top, .auth-wrap { position: relative; z-index: 1; }
+  .auth-top, .four-main { position: relative; z-index: 1; }
 </style>
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="advisor.css">
 <link rel="stylesheet" href="auth.css">
 <script src="theme.js" defer></script>
 </head>
@@ -54,6 +56,8 @@
       <span>GrowthKit AI</span>
     </a>
     <div class="auth-top-end">
+      <span class="four-user"><span class="dot" aria-hidden="true"></span><span data-auth-email>…</span></span>
+      <button class="four-signout" type="button" data-auth-signout>Sign out</button>
       <button class="theme-toggle" type="button" aria-label="Switch theme" aria-pressed="false">
         <svg class="theme-icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5"/><path d="M12 19.5V21"/><path d="M3 12h1.5"/><path d="M19.5 12H21"/><path d="m5.6 5.6 1.06 1.06"/><path d="m17.34 17.34 1.06 1.06"/><path d="m5.6 18.4 1.06-1.06"/><path d="m17.34 6.66 1.06-1.06"/></svg>
         <svg class="theme-icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -62,26 +66,87 @@
   </div>
 </header>
 
-<main class="auth-wrap">
-  <div class="auth-card four-card">
-    <div class="stamp" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+<main class="four-main">
+  <div class="wrap narrow">
+
+    <div class="four-checking" data-four-checking>Checking your session…</div>
+
+    <div class="four-app" data-four-app style="display:none">
+      <div class="four-head">
+        <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
+        <h1>Point the engine at <em>your</em> market.</h1>
+        <p class="lede">Describe what you're building and who you're up against — the engine returns a real read in seconds: positioning, where competitors are soft, and the plays to run now. Every read is saved to your account below.</p>
+      </div>
+
+      <div class="gk-advisor" data-gk-advisor data-gk-full="1">
+        <div class="gk-console">
+          <div class="gk-console-head">
+            <span><span class="gk-dot" aria-hidden="true"></span>growthkit&nbsp;live · engine</span>
+            <span>opus · streaming</span>
+          </div>
+          <div class="gk-console-body">
+            <div class="gk-presets" data-gk-presets aria-label="Example presets"></div>
+            <form data-gk-form novalidate>
+              <div class="gk-field-group">
+                <label class="gk-label" for="gk-product">Your product &amp; who it serves</label>
+                <textarea id="gk-product" class="gk-input gk-tall" data-gk-field="product" required maxlength="2000" placeholder="e.g. A scheduling tool for independent HVAC contractors — books jobs, dispatches, and invoices from a phone. ICP: owner-operators doing $200k–$2M/yr."></textarea>
+              </div>
+              <div class="gk-optional-fields">
+                <div class="gk-field-group" style="margin-bottom:0;">
+                  <label class="gk-label" for="gk-competitors">Known competitors <span class="gk-opt">— optional, sharpens the read</span></label>
+                  <textarea id="gk-competitors" class="gk-input" data-gk-field="competitors" maxlength="2000" placeholder="e.g. ServiceTitan (enterprise, pricey), Jobber, Housecall Pro."></textarea>
+                </div>
+                <div class="gk-field-group" style="margin-bottom:0;">
+                  <label class="gk-label" for="gk-moves">Recent competitor moves <span class="gk-opt">— optional</span></label>
+                  <textarea id="gk-moves" class="gk-input" data-gk-field="moves" maxlength="2000" placeholder="e.g. Housecall Pro launched an AI dispatcher; ServiceTitan raised prices."></textarea>
+                </div>
+              </div>
+              <div class="gk-hp" aria-hidden="true">
+                <label for="gk-company-url">Company URL</label>
+                <input id="gk-company-url" data-gk-field="company_url" type="text" tabindex="-1" autocomplete="off">
+              </div>
+              <button type="submit" class="gk-run" data-gk-submit>
+                <span data-gk-submit-label>Run the read</span> <span class="gk-arr">→</span>
+              </button>
+              <div class="gk-error" data-gk-error role="alert" aria-live="polite"></div>
+              <p class="gk-note">A fast first cut, not the full monthly deliverable. What you type is sent to Anthropic's API to generate your read; it's saved to your account. Don't enter anything confidential.</p>
+            </form>
+
+            <div class="gk-output" data-gk-output>
+              <div class="gk-stream-wrap" data-gk-stream-wrap>
+                <div class="gk-status" data-gk-status></div>
+                <pre class="gk-stream" data-gk-stream></pre>
+              </div>
+              <div class="gk-deliverable" data-gk-deliverable></div>
+              <div class="gk-actions" data-gk-actions></div>
+            </div>
+          </div>
+          <div class="gk-console-foot">
+            <span>signed in · saved to your account</span>
+            <span>growthkit live</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="reads" data-reads style="display:none">
+        <div class="reads-head">
+          <div class="four-eyebrow"><span class="num">/</span>Your reads</div>
+          <h2>Saved reads.</h2>
+        </div>
+        <div class="reads-empty" data-reads-empty style="display:none">Your saved reads will appear here after your first run.</div>
+        <div class="reads-list" data-reads-list></div>
+        <div class="reads-viewer" data-reads-viewer style="display:none">
+          <div class="gk-advisor is-done"><div class="gk-deliverable" data-reads-viewer-body style="display:block"></div></div>
+        </div>
+      </section>
     </div>
-    <div class="auth-eyebrow" style="text-align:center"><span class="num">/</span>Signed in</div>
-    <h1>You're <em>in</em>.</h1>
-    <p class="auth-sub" style="text-align:center;margin-bottom:6px">Signed in as</p>
-    <p class="four-email" data-auth-email>…</p>
-    <p class="auth-sub" style="text-align:center;margin-top:16px">Your dashboard is coming soon — the four deliverables (market map, competitor teardown, gap analysis, 90-day plan) will live here. For now, this is a placeholder.</p>
-    <div class="four-actions">
-      <a class="btn-line solid" href="/advisor">Open GrowthKit Live →</a>
-      <a class="btn-line" href="/">Back to site</a>
-      <button class="btn-line" type="button" data-auth-signout>Sign out</button>
-    </div>
+
   </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth-config.js"></script>
 <script src="auth.js"></script>
+<script src="advisor.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body></html>
