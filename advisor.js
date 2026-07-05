@@ -1,48 +1,38 @@
 /* ──────────────────────────────────────────────────────────────────────────
-   GrowthKit Live — Advisor logic (shared).
-   Streams /api/advise, then parses the read into a DESIGNED deliverable
-   (positioning panel, competitor-gap cards, play cards). Handles presets,
-   copy / share-link / print, and share-link prefill. No dependencies.
+   GrowthKit Live — the engine (shared, used on /four).
+   Takes a company name (+ optional website / one-liner), streams /api/advise
+   (which web-searches for real competitors and returns ONE JSON deliverable),
+   shows a live progress log while it works, then renders the full specimen
+   deliverable: subject brief, positioning, a plotted market-map SVG, a
+   competitor teardown table, gap-analysis cards with score meters, a 90-day
+   plan, and the sources it used. Handles presets, copy / share-link / PDF, and
+   share-link prefill. Saves each deliverable to the signed-in user's account.
+   No dependencies. ES5-style for broad browser support (no build step).
+
+   Wire protocol from /api/advise: newline-delimited JSON (NDJSON), one object
+   per line — {type:"status",stage:"search"|"writing",n} while it works, then a
+   terminal {type:"done", deliverable:{…}} or {type:"error", message}.
 
    Markup contract — a root with [data-gk-advisor] containing:
-     [data-gk-presets]      (optional) preset buttons render here
-     form[data-gk-form] with:
-       [data-gk-field="product"|"competitors"|"moves"|"company_url"]
+     [data-gk-presets]  form[data-gk-form] with
+       [data-gk-field="company"|"website"|"about"|"company_url"]
        [data-gk-submit]  [data-gk-error]
-     [data-gk-output] with:
+     [data-gk-output] with
        [data-gk-stream-wrap] > [data-gk-status], [data-gk-stream]
-       [data-gk-deliverable]
-       [data-gk-actions]
-   Root attrs: data-gk-full="1" → enables Save-as-PDF + share-link autorun.
-   Auto-inits every [data-gk-advisor] on DOMContentLoaded.
+       [data-gk-deliverable]  [data-gk-actions]
+   Root attr data-gk-full="1" → Save-as-PDF + share-link autorun.
    ────────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
 
-  // Dash code points (em, en, figure, horizontal-bar, hyphen) listed as escaped
-  // unicode — raw dash bytes inside string-built RegExps are unreliable through
-  // tooling/encoding, so never embed them literally in a pattern string.
-  var DASH = '\\u2014\\u2013\\u2012\\u2015\\-';
+  var DASH = '\\u2014\\u2013\\u2012\\u2015\\-'; // legacy-read dash class (escaped unicode)
 
+  // Real companies as example inputs — the engine profiles whatever you enter
+  // and finds ITS competitors, so presets are real names, not fictional ICPs.
   var PRESETS = [
-    {
-      label: 'HVAC field-service SaaS',
-      product: "A scheduling and dispatch app for independent HVAC contractors — one- to five-person crews book jobs, dispatch techs, and invoice from their phone. ICP: owner-operators doing $200k–$2M/yr who currently run on whiteboards and texts.",
-      competitors: "ServiceTitan (enterprise, expensive, long onboarding), Jobber, Housecall Pro, plus a few regional point tools.",
-      moves: "Housecall Pro just launched an AI dispatcher; ServiceTitan keeps moving upmarket and raised prices; Jobber has been quiet on product."
-    },
-    {
-      label: 'AI meeting notetaker',
-      product: "An AI notetaker that joins calls, writes the summary, and pushes action items into the tools a team already uses. ICP: 10–50-person B2B sales and CS teams.",
-      competitors: "Otter, Fireflies, Gong (enterprise), plus the native summaries now baked into Zoom and Teams.",
-      moves: "Zoom and Teams are bundling AI summaries for free; Gong is pushing 'revenue intelligence' upmarket; Fireflies is competing on price."
-    },
-    {
-      label: 'Bookkeeping for freelancers',
-      product: "Automated bookkeeping and tax-set-aside for solo freelancers and creators — connects their bank, categorizes income, and tells them what to put away for tax. ICP: US 1099 earners making $40k–$200k.",
-      competitors: "QuickBooks Solopreneur, Found, Lili, plus spreadsheets and 'my accountant'.",
-      moves: "QuickBooks is pushing its solopreneur tier hard; Found raised and is expanding banking; a few new AI-tax startups just launched."
-    }
+    { label: 'Jobber', company: 'Jobber', website: 'getjobber.com', about: 'Field-service management software for home-service businesses — scheduling, invoicing, and payments from a phone.' },
+    { label: 'Otter.ai', company: 'Otter.ai', website: 'otter.ai', about: 'An AI meeting notetaker that joins calls, transcribes them, and writes the summary and action items.' },
+    { label: 'Ramp', company: 'Ramp', website: 'ramp.com', about: 'Corporate cards and spend management for finance teams — cards, bill pay, and expense automation.' }
   ];
 
   function esc(s) {
@@ -50,105 +40,198 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
+  // Escape everything, then allow a literal <em>…</em> back through (titles use it).
+  function richEm(s) {
+    return esc(s).replace(/&lt;em&gt;/g, '<em>').replace(/&lt;\/em&gt;/g, '</em>');
+  }
   function pad2(n) { n = parseInt(n, 10); if (isNaN(n)) n = 0; return (n < 10 ? '0' : '') + n; }
-  function para(text) { return esc(String(text || '').trim()).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, ' '); }
+  function para(t) { return esc(String(t || '').trim()).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, ' '); }
+  // Like para(), but lets a literal <em>…</em> through (positioning may emphasize).
+  function richPara(t) { return richEm(String(t || '').trim()).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, ' '); }
+  function num(v, d) { var n = Number(v); return isFinite(n) ? n : (d || 0); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-  // ── Parse the streamed plain-text read into structured sections ──
-  function parseRead(raw) {
-    var text = String(raw || '').replace(/\r\n/g, '\n').trim();
-    var re = /^[ \t]*(0[1-4])[ \t]*\/[ \t]*.+$/gm;
-    var marks = [], m;
-    while ((m = re.exec(text)) !== null) marks.push({ key: m[1], start: m.index, end: re.lastIndex });
-    if (marks.length < 2) return null;
-    var sec = {};
-    for (var i = 0; i < marks.length; i++) {
-      var to = (i + 1 < marks.length) ? marks[i + 1].start : text.length;
-      sec[marks[i].key] = text.slice(marks[i].end, to).trim();
+  // ── Market map: plot vendors into the specimen's SVG geometry ──
+  // viewBox 0 0 880 560; plot area x:90→810 (720w), y:60(top)→480(bottom, 420h).
+  // Input coords are 0–100: x = price (0 cheap → 100 dear), y = depth (0 → 100).
+  function px(x) { return 90 + clamp(num(x), 0, 100) / 100 * 720; }
+  function py(y) { return 480 - clamp(num(y), 0, 100) / 100 * 420; }
+
+  function buildMap(m, subjectName) {
+    if (!m) return '';
+    var s = '<svg class="map-svg" viewBox="0 0 880 560" role="img" aria-label="Market map: price versus workflow depth, competitors plotted against the subject company.">';
+    // gridlines
+    var gx = [90, 270, 450, 630, 810], gy = [60, 165, 270, 375, 480];
+    for (var i = 0; i < gx.length; i++) s += '<line class="gridline" x1="' + gx[i] + '" y1="60" x2="' + gx[i] + '" y2="480"/>';
+    for (var j = 0; j < 4; j++) s += '<line class="gridline" x1="90" y1="' + gy[j] + '" x2="810" y2="' + gy[j] + '"/>';
+    // axes + caps + labels
+    s += '<line class="axis" x1="90" y1="480" x2="810" y2="480"/><line class="axis" x1="90" y1="60" x2="90" y2="480"/>';
+    s += '<polygon class="axis-cap" points="810,475 822,480 810,485"/><polygon class="axis-cap" points="85,60 90,48 95,60"/>';
+    s += '<text class="axis-label" x="450" y="530" text-anchor="middle">' + esc(m.x_axis || 'price per seat / month →') + '</text>';
+    s += '<text class="axis-label" x="-270" y="40" transform="rotate(-90)" text-anchor="middle">' + esc(m.y_axis || 'workflow depth →') + '</text>';
+    var ticks = (m.x_ticks && m.x_ticks.length === 5) ? m.x_ticks : ['$0', '$50', '$120', '$220', '$350+'];
+    for (var k = 0; k < 5; k++) s += '<text class="tick-label" x="' + gx[k] + '" y="503" text-anchor="middle">' + esc(ticks[k]) + '</text>';
+    // gap zone (x,y = bottom-left corner in 0–100)
+    if (m.gap) {
+      var gX = px(m.gap.x), gW = clamp(num(m.gap.w), 4, 100) / 100 * 720;
+      var gBottom = py(m.gap.y), gH = clamp(num(m.gap.h), 4, 100) / 100 * 420, gY = gBottom - gH;
+      if (gX + gW > 810) gW = 810 - gX; if (gY < 60) { gH -= (60 - gY); gY = 60; }
+      s += '<rect class="gap-zone" x="' + gX.toFixed(0) + '" y="' + gY.toFixed(0) + '" width="' + gW.toFixed(0) + '" height="' + gH.toFixed(0) + '" rx="10"/>';
+      s += '<text class="gap-label" x="' + (gX + 20).toFixed(0) + '" y="' + (gY + 30).toFixed(0) + '">' + esc(m.gap.label || 'the gap') + '</text>';
+      if (m.gap.sub) s += '<text class="dot-sub" x="' + (gX + 20).toFixed(0) + '" y="' + (gY + 48).toFixed(0) + '">' + esc(m.gap.sub) + '</text>';
     }
-    var stripRe = new RegExp('^[' + DASH + '\\*\\u2022]\\s+');
-    var gaps = (sec['02'] || '').split('\n')
-      .map(function (l) { return l.trim(); })
-      .filter(Boolean)
-      .filter(function (l) { return stripRe.test(l); })
-      .map(function (l) { return l.replace(stripRe, '').trim(); });
-    var plays = parsePlays(sec['03'] || '');
-    var out = { positioning: sec['01'] || '', gaps: gaps, plays: plays, addon: sec['04'] || '' };
-    if (!out.positioning && !gaps.length && !plays.length) return null;
-    return out;
+    // competitors
+    var v = (m.vendors || []).slice(0, 11);
+    for (var d = 0; d < v.length; d++) {
+      var cx = px(v[d].x), cy = py(v[d].y);
+      var right = cx <= 660, lx = right ? cx + 17 : cx - 16, anc = right ? 'start' : 'end';
+      s += '<circle class="dot" cx="' + cx.toFixed(0) + '" cy="' + cy.toFixed(0) + '" r="8"/>';
+      s += '<text class="dot-label" x="' + lx.toFixed(0) + '" y="' + (cy - 2).toFixed(0) + '" text-anchor="' + anc + '">' + esc(v[d].name) + '</text>';
+      if (v[d].sub) s += '<text class="dot-sub" x="' + lx.toFixed(0) + '" y="' + (cy + 13).toFixed(0) + '" text-anchor="' + anc + '">' + esc(v[d].sub) + '</text>';
+    }
+    // the subject
+    if (m.subject_point) {
+      var sx = px(m.subject_point.x), sy = py(m.subject_point.y);
+      s += '<circle class="you-ring" cx="' + sx.toFixed(0) + '" cy="' + sy.toFixed(0) + '" r="17"/>';
+      s += '<circle class="you-dot" cx="' + sx.toFixed(0) + '" cy="' + sy.toFixed(0) + '" r="9"/>';
+      s += '<text class="dot-label you-label" x="' + sx.toFixed(0) + '" y="' + (sy + 34).toFixed(0) + '" text-anchor="middle">' + esc(String(subjectName || 'YOU').toUpperCase()) + '</text>';
+    }
+    s += '</svg>';
+    var legend = '<div class="map-legend"><span><i class="swatch s-comp"></i>competitor</span><span><i class="swatch s-you"></i>' + esc(subjectName || 'your company') + '</span><span><i class="swatch s-gap"></i>identified gap zone</span></div>';
+    return '<div class="gk-map in"><div class="map-svg-wrap">' + s + '</div>' + legend + '</div>';
   }
 
-  function parsePlays(block) {
-    var re = new RegExp('^[ \\t]*Play[ \\t]+(\\d+)[ \\t]*[' + DASH + '][ \\t]*(.+)$', 'gm');
-    var heads = [], m;
-    while ((m = re.exec(block)) !== null) heads.push({ num: m[1], name: m[2].trim(), start: m.index, end: re.lastIndex });
-    var out = [];
-    for (var i = 0; i < heads.length; i++) {
-      var body = block.slice(heads[i].end, (i + 1 < heads.length) ? heads[i + 1].start : block.length);
-      out.push({
-        num: heads[i].num, name: heads[i].name,
-        why: grabLabel(body, 'Why now'),
-        first: grabLabel(body, 'First move'),
-        kill: grabLabel(body, 'Kill criteria')
-      });
-    }
-    return out;
-  }
-  function grabLabel(body, label) {
-    // Match the label directly (separators after it may be ':', a dash, or space);
-    // don't require a leading dash — that part is encoding-fragile and unnecessary.
-    var r = new RegExp(label + '[\\s:' + DASH + ']*([^\\n]+)', 'i');
-    var mm = body.match(r);
-    return mm ? mm[1].trim() : '';
-  }
+  // ── Render the full JSON deliverable ──
+  function renderDeliverable(d) {
+    if (!d || !d.subject) return '';
+    var n = 0;
+    function label(t) { n++; return '<div class="gk-dv-label"><span class="gk-n">' + pad2(n) + '</span>' + esc(t) + '</div>'; }
+    function sec(t, inner, cls) { return '<div class="gk-dv-sec ' + (cls || '') + '">' + label(t) + inner + '</div>'; }
 
-  // ── Render the designed deliverable ──
-  function renderDeliverable(p) {
-    var html = '', order = 0;
-    function sec(label, inner, cls) {
-      order++;
-      return '<div class="gk-sec gk-reveal ' + (cls || '') + '" style="animation-delay:' + (order * 80) + 'ms">'
-        + '<div class="gk-sec-label"><span class="gk-n">' + pad2(order) + '</span>' + esc(label) + '</div>'
-        + inner + '</div>';
+    var html = '<div class="gk-dv">';
+
+    // Header — subject brief + draft badge
+    html += '<div class="gk-dv-head">'
+      + '<div class="gk-dv-brief">'
+      + '<div class="gk-dv-eyebrow"><span class="num">/</span>Deliverable · ' + esc(d.subject.segment || 'market read') + '</div>'
+      + '<h2>' + esc(d.subject.name) + '</h2>'
+      + (d.subject.one_liner ? '<p class="gk-dv-oneliner">' + esc(d.subject.one_liner) + '</p>' : '')
+      + '</div>'
+      + '<div class="gk-dv-badge" title="Generated from live web research — check key numbers before acting.">AI research draft — verify key numbers</div>'
+      + '</div>';
+
+    // 01 Positioning
+    if (d.positioning) html += sec('Positioning read', '<div class="gk-pos"><p>' + richPara(d.positioning) + '</p></div>');
+
+    // 02 Market map
+    if (d.market_map) html += sec('Market map', buildMap(d.market_map, d.subject.name));
+
+    // 03 Teardown
+    if (d.teardown && d.teardown.length) {
+      var rows = '<div class="tt-row tt-head"><div>Competitor</div><div>Wedge &amp; motion</div><div>Pricing</div><div>Where they\'re soft</div></div>';
+      for (var i = 0; i < d.teardown.length; i++) {
+        var t = d.teardown[i];
+        rows += '<div class="tt-row">'
+          + '<div class="c-name">' + esc(t.name) + (t.tag ? '<small>' + esc(t.tag) + '</small>' : '') + '</div>'
+          + '<div class="c-body">' + esc(t.wedge) + '</div>'
+          + '<div class="c-price">' + esc(t.price || '—') + (t.price_note ? '<small>' + esc(t.price_note) + '</small>' : '') + '</div>'
+          + '<div class="c-soft"><strong>Soft underneath:</strong> ' + esc(t.soft) + '</div>'
+          + '</div>';
+      }
+      html += sec('Competitor teardown', '<div class="gk-panel">' + rows + '</div>');
     }
-    if (p.positioning) html += sec('Positioning', '<div class="gk-pos"><p>' + para(p.positioning) + '</p></div>');
-    if (p.gaps.length) {
+
+    // 04 Gap analysis
+    if (d.gaps && d.gaps.length) {
       var cards = '';
-      for (var i = 0; i < p.gaps.length; i++) {
-        cards += '<div class="gk-gap gk-reveal" style="animation-delay:' + (order * 80 + 120 + i * 70) + 'ms">'
-          + '<span class="gk-gap-n">' + pad2(i + 1) + '</span>'
-          + '<div class="gk-gap-tag">Gap ' + pad2(i + 1) + '</div>'
-          + '<div class="gk-gap-body">' + esc(p.gaps[i]) + '</div></div>';
+      for (var g = 0; g < d.gaps.length; g++) {
+        var c = d.gaps[g], w = clamp(num(c.meter, 60), 0, 100);
+        cards += '<div class="gap-card in" style="--w:' + w + '%">'
+          + '<div class="ghost" aria-hidden="true">' + pad2(g + 1) + '</div>'
+          + '<div class="top-row"><span class="tag">' + esc(c.tag || ('Gap ' + pad2(g + 1))) + '</span>'
+          + (c.score ? '<span class="score">' + esc(c.score) + '<small>' + esc(c.score_label || 'score') + '</small></span>' : '') + '</div>'
+          + '<h3>' + richEm(c.title) + '</h3>'
+          + '<p>' + esc(c.body) + '</p>'
+          + '<div class="gap-meter"><span>opening</span><span class="bar"><i></i></span><span>' + w + '</span></div>'
+          + '</div>';
       }
-      html += sec('Competitor gaps', '<div class="gk-gaps">' + cards + '</div>');
+      html += sec('Gap analysis', '<div class="gap-grid">' + cards + '</div>');
     }
-    if (p.plays.length) {
-      var pcards = '';
-      for (var j = 0; j < p.plays.length; j++) {
-        var pl = p.plays[j], rows = '';
-        if (pl.why) rows += row('Why now', pl.why, '');
-        if (pl.first) rows += row('First move', pl.first, '');
-        if (pl.kill) rows += row('Kill criteria', pl.kill, 'gk-kill');
-        pcards += '<div class="gk-play gk-reveal" style="animation-delay:' + (order * 80 + 120 + j * 80) + 'ms">'
-          + '<div class="gk-play-badge">' + pad2(pl.num || (j + 1)) + '</div>'
-          + '<div><div class="gk-play-name">' + esc(pl.name) + '</div>' + rows + '</div></div>';
+
+    // 05 90-day plan
+    if (d.plan && d.plan.length) {
+      var plays = '';
+      for (var p = 0; p < d.plan.length; p++) {
+        var pl = d.plan[p];
+        plays += '<div class="play">'
+          + '<div class="p-num">' + pad2(p + 1) + '</div>'
+          + '<div><h3>' + richEm(pl.title) + '</h3>' + (pl.body ? '<p>' + esc(pl.body) + '</p>' : '') + '</div>'
+          + '<div class="p-meta">'
+          + (pl.horizon ? '<div><b>When</b> ' + esc(pl.horizon) + '</div>' : '')
+          + (pl.first_move ? '<div><b>First move</b> ' + esc(pl.first_move) + '</div>' : '')
+          + (pl.kill ? '<div class="kill"><b>Kill criteria</b> ' + esc(pl.kill) + '</div>' : '')
+          + '</div></div>';
       }
-      html += sec('Growth plays', '<div class="gk-plays">' + pcards + '</div>');
+      html += sec('90-day plan', '<div class="play-list">' + plays + '</div>');
     }
-    if (p.addon) html += sec('What the full teardown adds', '<div class="gk-addon"><p>' + para(p.addon) + '</p></div>');
+
+    // 06 Sources + honesty note
+    var footInner = '';
+    if (d.citations && d.citations.length) {
+      var cites = '';
+      for (var s2 = 0; s2 < d.citations.length; s2++) {
+        var ct = d.citations[s2], url = String(ct.url || '');
+        if (!/^https?:\/\//i.test(url)) continue;
+        var host = '';
+        try { host = url.replace(/^https?:\/\//i, '').split('/')[0].replace(/^www\./, ''); } catch (e) {}
+        cites += '<li><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer nofollow"><span class="cite-host">' + esc(host) + '</span>' + esc(ct.title || url) + '<span class="cite-arr">↗</span></a></li>';
+      }
+      if (cites) footInner += '<ul class="gk-cites">' + cites + '</ul>';
+    }
+    if (d.note) footInner += '<p class="gk-dv-honest">' + esc(d.note) + '</p>';
+    if (footInner) html += sec('Sources & honesty', footInner, 'gk-dv-foot');
+
+    html += '</div>';
     return html;
   }
-  function row(k, v, cls) {
-    return '<div class="gk-play-row ' + (cls || '') + '"><div class="gk-play-k">' + esc(k) + '</div><div class="gk-play-v">' + esc(v) + '</div></div>';
+
+  // ── Legacy: render an old-format text read (01/02/03/04 sections) ──
+  // Kept so reads saved before the JSON deliverable still open cleanly.
+  function parseLegacy(raw) {
+    var text = String(raw || '').replace(/\r\n/g, '\n').trim();
+    var re = /^[ \t]*(0[1-4])[ \t]*\/[ \t]*.+$/gm, marks = [], m;
+    while ((m = re.exec(text)) !== null) marks.push({ key: m[1], start: m.index, end: re.lastIndex });
+    if (marks.length < 2) return null;
+    var secn = {};
+    for (var i = 0; i < marks.length; i++) secn[marks[i].key] = text.slice(marks[i].end, (i + 1 < marks.length) ? marks[i + 1].start : text.length).trim();
+    var stripRe = new RegExp('^[' + DASH + '\\*\\u2022]\\s+');
+    var gaps = (secn['02'] || '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean)
+      .filter(function (l) { return stripRe.test(l); }).map(function (l) { return l.replace(stripRe, '').trim(); });
+    return { positioning: secn['01'] || '', gaps: gaps, plays: secn['03'] || '', addon: secn['04'] || '' };
+  }
+  function renderLegacy(raw) {
+    var p = parseLegacy(raw);
+    if (!p) return '<pre class="gk-stream" style="white-space:pre-wrap">' + esc(raw) + '</pre>';
+    var h = '<div class="gk-dv">';
+    if (p.positioning) h += '<div class="gk-dv-sec"><div class="gk-dv-label"><span class="gk-n">01</span>Positioning</div><div class="gk-pos"><p>' + para(p.positioning) + '</p></div></div>';
+    if (p.gaps.length) {
+      var cc = '';
+      for (var i = 0; i < p.gaps.length; i++) cc += '<div class="gap-card in" style="--w:60%"><div class="top-row"><span class="tag">Gap ' + pad2(i + 1) + '</span></div><p>' + esc(p.gaps[i]) + '</p></div>';
+      h += '<div class="gk-dv-sec"><div class="gk-dv-label"><span class="gk-n">02</span>Competitor gaps</div><div class="gap-grid">' + cc + '</div></div>';
+    }
+    if (p.plays) h += '<div class="gk-dv-sec"><div class="gk-dv-label"><span class="gk-n">03</span>Growth plays</div><div class="gk-pos"><p>' + para(p.plays) + '</p></div></div>';
+    if (p.addon) h += '<div class="gk-dv-sec"><div class="gk-dv-label"><span class="gk-n">04</span>What the full teardown adds</div><div class="gk-pos"><p>' + para(p.addon) + '</p></div></div>';
+    return h + '</div>';
   }
 
-  // ── Init one advisor instance ──
+  // ── Init one engine instance ──
   function init(root) {
     if (root.__gkInit) return; root.__gkInit = true;
     var full = root.getAttribute('data-gk-full') === '1';
     var form = root.querySelector('[data-gk-form]');
     if (!form) return;
-    var q = function (sel) { return root.querySelector(sel); };
-    var field = function (n) { return root.querySelector('[data-gk-field="' + n + '"]'); };
+    var q = function (s) { return root.querySelector(s); };
+    var field = function (nm) { return root.querySelector('[data-gk-field="' + nm + '"]'); };
     var submit = q('[data-gk-submit]');
     var submitLabel = submit ? (submit.querySelector('[data-gk-submit-label]') || submit) : null;
     var errorEl = q('[data-gk-error]');
@@ -159,21 +242,19 @@
     var presetsEl = q('[data-gk-presets]');
     var loadedAt = Date.now();
     var running = false;
-    var lastText = '';
+    var lastJson = null; // the deliverable object (for save + actions)
 
-    // Presets
     if (presetsEl) {
       for (var i = 0; i < PRESETS.length; i++) {
         (function (preset) {
           var b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'gk-preset';
+          b.type = 'button'; b.className = 'gk-preset';
           b.innerHTML = '<span class="gk-preset-tag">try</span>' + esc(preset.label);
           b.addEventListener('click', function () {
-            if (field('product')) field('product').value = preset.product;
-            if (field('competitors')) field('competitors').value = preset.competitors;
-            if (field('moves')) field('moves').value = preset.moves;
-            if (field('product')) field('product').focus();
+            if (field('company')) field('company').value = preset.company;
+            if (field('website')) field('website').value = preset.website;
+            if (field('about')) field('about').value = preset.about;
+            if (field('company')) field('company').focus();
           });
           presetsEl.appendChild(b);
         })(PRESETS[i]);
@@ -181,45 +262,55 @@
     }
 
     function setStatus(t) { if (statusEl) statusEl.innerHTML = t; }
+    function log(line) { if (streamEl) { streamEl.textContent += (streamEl.textContent ? '\n' : '') + line; streamEl.scrollTop = streamEl.scrollHeight; } }
     function fail(msg) {
       root.classList.remove('is-running');
       if (errorEl) errorEl.textContent = msg;
       if (window.va) window.va('event', { name: 'advisor_error', data: { surface: full ? 'page' : 'home', message: String(msg).slice(0, 120) } });
     }
 
+    function onStatus(evt) {
+      if (evt.stage === 'search') {
+        if (evt.n <= 1) { setStatus('scanning the web for competitors<span class="gk-blink">_</span>'); log('→ scanning the web for competitors…'); }
+        else { setStatus('cross-checking sources · pass ' + evt.n + '<span class="gk-blink">_</span>'); log('→ cross-checking sources (pass ' + evt.n + ')…'); }
+      } else if (evt.stage === 'writing') {
+        setStatus('dissecting competitors · plotting the map<span class="gk-blink">_</span>');
+        log('→ dissecting competitors, plotting the market map, drafting the plan…');
+      }
+    }
+
     async function run(opts) {
       opts = opts || {};
       if (running) return;
-      var product = field('product') ? field('product').value.trim() : '';
-      if (!product) {
-        if (errorEl) errorEl.textContent = 'Tell us what your product is and who it serves to get a read.';
-        if (field('product')) field('product').focus();
+      var company = field('company') ? field('company').value.trim() : '';
+      if (!company) {
+        if (errorEl) errorEl.textContent = 'Enter your company name to generate a deliverable.';
+        if (field('company')) field('company').focus();
         return;
       }
       if (errorEl) errorEl.textContent = '';
-      running = true;
+      running = true; lastJson = null;
       if (submit) submit.disabled = true;
-      if (submitLabel) submitLabel.textContent = 'Reading…';
+      if (submitLabel) submitLabel.textContent = 'Working…';
       if (streamEl) streamEl.textContent = '';
       if (deliverableEl) deliverableEl.innerHTML = '';
       if (actionsEl) actionsEl.innerHTML = '';
       root.classList.remove('is-done');
       root.classList.add('is-running');
-      setStatus('analyzing your market<span class="gk-blink">_</span>');
+      setStatus('reading your company<span class="gk-blink">_</span>');
+      log('→ reading your company…');
 
-      var competitors = field('competitors') ? field('competitors').value.trim() : '';
-      var moves = field('moves') ? field('moves').value.trim() : '';
-      if (window.va) window.va('event', { name: 'advisor_run', data: { surface: full ? 'page' : 'home', hasCompetitors: !!competitors, hasMoves: !!moves } });
+      var website = field('website') ? field('website').value.trim() : '';
+      var about = field('about') ? field('about').value.trim() : '';
+      if (window.va) window.va('event', { name: 'advisor_run', data: { surface: full ? 'page' : 'home', hasWebsite: !!website, hasAbout: !!about } });
 
       var payload = {
-        product: product, competitors: competitors, moves: moves,
+        company: company, website: website, about: about,
         company_url: field('company_url') ? field('company_url').value || '' : '',
-        // share-link autoruns are legitimate humans — clear the min-fill gate
         t: opts.auto ? '6000' : String(Date.now() - loadedAt)
       };
 
       try {
-        // Attach the signed-in user's Supabase token so the (gated) API accepts it.
         var headers = { 'Content-Type': 'application/json' };
         try {
           if (window.GKAuth && window.GKAuth.client) {
@@ -228,115 +319,103 @@
             if (tok) headers['Authorization'] = 'Bearer ' + tok;
           }
         } catch (e) {}
-        var res = await fetch('/api/advise', {
-          method: 'POST', headers: headers, body: JSON.stringify(payload)
-        });
+
+        var res = await fetch('/api/advise', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
         if (!res.ok) {
-          var msg = 'The read failed — please try again.';
-          try { var d = await res.json(); if (d && d.error) msg = d.error; } catch (e) {}
+          var msg = 'The run failed — please try again.';
+          try { var er = await res.json(); if (er && er.error) msg = er.error; } catch (e) {}
           throw new Error(msg);
         }
         if (!res.body) throw new Error('Streaming is not supported in this browser.');
-        setStatus('reading the field<span class="gk-blink">_</span>');
-        var reader = res.body.getReader();
-        var dec = new TextDecoder();
-        lastText = '';
+
+        // Read NDJSON: split on newlines, JSON.parse each complete line.
+        var reader = res.body.getReader(), dec = new TextDecoder(), buf = '', done = false, terminalErr = null;
         for (;;) {
           var c = await reader.read();
           if (c.done) break;
-          var chunk = dec.decode(c.value, { stream: true });
-          if (chunk) { lastText += chunk; if (streamEl) { streamEl.textContent = lastText; streamEl.scrollTop = streamEl.scrollHeight; } }
+          buf += dec.decode(c.value, { stream: true });
+          var nl;
+          while ((nl = buf.indexOf('\n')) !== -1) {
+            var line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1);
+            if (!line) continue;
+            var evt; try { evt = JSON.parse(line); } catch (e) { continue; }
+            if (evt.type === 'status') onStatus(evt);
+            else if (evt.type === 'done') { lastJson = evt.deliverable; done = true; }
+            else if (evt.type === 'error') terminalErr = evt.message || 'Something went wrong.';
+          }
         }
-        if (!lastText.trim()) throw new Error('The engine returned an empty read — give it another go.');
 
-        var parsed = parseRead(lastText);
-        if (parsed && deliverableEl) {
-          deliverableEl.innerHTML = renderDeliverable(parsed);
-          root.classList.add('is-done'); // hides the stream, reveals the deliverable
-        } else {
-          // Parsing fell through — keep the streamed text visible rather than fail.
-          root.classList.remove('is-running');
+        if (terminalErr && !done) throw new Error(terminalErr);
+        if (!done || !lastJson || !lastJson.subject) throw new Error('The engine returned an empty deliverable — give it another go.');
+
+        if (deliverableEl) {
+          deliverableEl.innerHTML = renderDeliverable(lastJson);
+          root.classList.add('is-done'); // hides the progress log, reveals the deliverable
         }
-        renderActions(product, competitors, moves);
-        saveRead(product, competitors, moves, lastText);
-        if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', chars: lastText.length, parsed: !!parsed } });
+        renderActions(company, website, about);
+        saveRead(company, website, about, lastJson);
+        if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', vendors: (lastJson.market_map && lastJson.market_map.vendors ? lastJson.market_map.vendors.length : 0) } });
       } catch (err) {
         fail((err && err.message) ? err.message : 'Something went wrong — please try again.');
       }
 
       running = false;
       if (submit) submit.disabled = false;
-      if (submitLabel) submitLabel.textContent = 'Run another read';
+      if (submitLabel) submitLabel.textContent = 'Run another';
       root.classList.remove('is-running');
     }
 
-    // Persist the read to the signed-in user's account (Supabase `reads` table).
-    // No-ops when not signed in / not enabled; ignores errors (e.g. table not set
-    // up yet) so a save problem never breaks the read.
-    function saveRead(product, competitors, moves, output) {
+    // Persist to the signed-in user's account (Supabase `reads` table). We reuse
+    // the existing columns: product=company name (the history label), competitors
+    // =website, moves=about one-liner, output=the deliverable JSON string.
+    function saveRead(company, website, about, deliverable) {
       if (!window.GK_SAVE_READS || !window.GKAuth || !window.GKAuth.client) return;
       try {
-        window.GKAuth.client.from('reads').insert({ product: product, competitors: competitors, moves: moves, output: output }).then(function (res) {
-          if (!res || res.error) return;
+        window.GKAuth.client.from('reads').insert({
+          product: company, competitors: website, moves: about, output: JSON.stringify(deliverable)
+        }).then(function (r) {
+          if (!r || r.error) return;
           if (typeof window.GK_RELOAD_READS === 'function') window.GK_RELOAD_READS();
         });
       } catch (e) {}
     }
 
-    function shareUrl(product, competitors, moves) {
-      var base = location.origin + '/four';
-      var qs = '?p=' + encodeURIComponent(product);
-      if (competitors) qs += '&c=' + encodeURIComponent(competitors);
-      if (moves) qs += '&m=' + encodeURIComponent(moves);
-      return base + qs;
+    function shareUrl(company, website, about) {
+      var qs = '?co=' + encodeURIComponent(company);
+      if (website) qs += '&w=' + encodeURIComponent(website);
+      if (about) qs += '&a=' + encodeURIComponent(about);
+      return location.origin + '/four' + qs;
     }
 
-    function renderActions(product, competitors, moves) {
+    function renderActions(company, website, about) {
       if (!actionsEl) return;
       actionsEl.innerHTML = '';
-      var mk = function (label, cls) {
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'gk-act ' + (cls || '');
-        b.innerHTML = label; actionsEl.appendChild(b); return b;
-      };
-      var copyText = mk('Copy read');
-      copyText.addEventListener('click', function () { copy(lastText, copyText, 'Copy read'); });
-      var copyLink = mk('Copy share link');
-      copyLink.addEventListener('click', function () { copy(shareUrl(product, competitors, moves), copyLink, 'Copy share link'); });
-      if (full) {
-        var pdf = mk('Save as PDF');
-        pdf.addEventListener('click', function () { window.print(); });
-      } else {
-        var a = document.createElement('a');
-        a.className = 'gk-act gk-act-go'; a.href = shareUrl(product, competitors, moves);
-        a.innerHTML = 'Open the full read <span class="gk-arr">↗</span>';
-        actionsEl.appendChild(a);
-      }
+      var mk = function (lbl, cls) { var b = document.createElement('button'); b.type = 'button'; b.className = 'gk-act ' + (cls || ''); b.innerHTML = lbl; actionsEl.appendChild(b); return b; };
+      var cLink = mk('Copy share link');
+      cLink.addEventListener('click', function () { copy(shareUrl(company, website, about), cLink, 'Copy share link'); });
+      var pdf = mk('Save as PDF');
+      pdf.addEventListener('click', function () { window.print(); });
     }
 
     function copy(text, btn, original) {
       var done = function () { btn.innerHTML = 'Copied ✓'; setTimeout(function () { btn.innerHTML = original; }, 1600); };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
-      } else { fallbackCopy(text); done(); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+      else { fallbackCopy(text); done(); }
     }
     function fallbackCopy(text) {
-      try {
-        var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-      } catch (e) {}
+      try { var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } catch (e) {}
     }
 
     form.addEventListener('submit', function (e) { e.preventDefault(); run(); });
 
-    // Share-link prefill (full page only) → fill + auto-run.
+    // Share-link prefill (full page) → fill + auto-run.
     if (full) {
       try {
-        var sp = new URLSearchParams(location.search);
-        var pp = sp.get('p');
-        if (pp && field('product')) {
-          field('product').value = pp;
-          if (sp.get('c') && field('competitors')) field('competitors').value = sp.get('c');
-          if (sp.get('m') && field('moves')) field('moves').value = sp.get('m');
+        var sp = new URLSearchParams(location.search), co = sp.get('co');
+        if (co && field('company')) {
+          field('company').value = co;
+          if (sp.get('w') && field('website')) field('website').value = sp.get('w');
+          if (sp.get('a') && field('about')) field('about').value = sp.get('a');
           run({ auto: true });
         }
       } catch (e) {}
@@ -350,13 +429,14 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  // Render a previously-saved read (raw engine text) into a container as the
-  // designed deliverable — used by /four's history panel to re-view past reads.
-  function renderInto(container, rawText) {
+  // Render a previously-saved read into a container — used by /four's history
+  // panel. New reads are the deliverable JSON; older reads are plain engine text.
+  function renderInto(container, raw) {
     if (!container) return false;
-    var p = parseRead(rawText);
-    if (!p) { container.textContent = rawText || ''; return false; }
-    container.innerHTML = renderDeliverable(p);
+    var obj = null;
+    try { obj = JSON.parse(raw); } catch (e) {}
+    if (obj && obj.subject) { container.innerHTML = renderDeliverable(obj); return true; }
+    container.innerHTML = renderLegacy(raw || '');
     return true;
   }
 

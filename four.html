@@ -75,30 +75,30 @@
       <div class="four-head">
         <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
         <h1>Point the engine at <em>your</em> market.</h1>
-        <p class="lede">Describe what you're building and who you're up against — the engine returns a real read in seconds: positioning, where competitors are soft, and the plays to run now. Every read is saved to your account below.</p>
+        <p class="lede">Give it your company name — the engine searches the live web for your real competitors, dissects them, and returns a full deliverable: a plotted market map, a competitor teardown, gap analysis, and a 90-day plan. A website and one line of context sharpen it. Every deliverable is saved to your account below.</p>
       </div>
 
       <div class="gk-advisor" data-gk-advisor data-gk-full="1">
         <div class="gk-console">
           <div class="gk-console-head">
             <span><span class="gk-dot" aria-hidden="true"></span>growthkit&nbsp;live · engine</span>
-            <span>opus · streaming</span>
+            <span>opus · web search</span>
           </div>
           <div class="gk-console-body">
             <div class="gk-presets" data-gk-presets aria-label="Example presets"></div>
             <form data-gk-form novalidate>
               <div class="gk-field-group">
-                <label class="gk-label" for="gk-product">Your product &amp; who it serves</label>
-                <textarea id="gk-product" class="gk-input gk-tall" data-gk-field="product" required maxlength="2000" placeholder="e.g. A scheduling tool for independent HVAC contractors — books jobs, dispatches, and invoices from a phone. ICP: owner-operators doing $200k–$2M/yr."></textarea>
+                <label class="gk-label" for="gk-company">Your company name</label>
+                <input id="gk-company" class="gk-input" data-gk-field="company" required maxlength="160" placeholder="e.g. Jobber" autocomplete="off">
               </div>
               <div class="gk-optional-fields">
                 <div class="gk-field-group" style="margin-bottom:0;">
-                  <label class="gk-label" for="gk-competitors">Known competitors <span class="gk-opt">— optional, sharpens the read</span></label>
-                  <textarea id="gk-competitors" class="gk-input" data-gk-field="competitors" maxlength="2000" placeholder="e.g. ServiceTitan (enterprise, pricey), Jobber, Housecall Pro."></textarea>
+                  <label class="gk-label" for="gk-website">Website <span class="gk-opt">— optional, pins down which company</span></label>
+                  <input id="gk-website" class="gk-input" data-gk-field="website" maxlength="300" placeholder="e.g. getjobber.com" autocomplete="off">
                 </div>
                 <div class="gk-field-group" style="margin-bottom:0;">
-                  <label class="gk-label" for="gk-moves">Recent competitor moves <span class="gk-opt">— optional</span></label>
-                  <textarea id="gk-moves" class="gk-input" data-gk-field="moves" maxlength="2000" placeholder="e.g. Housecall Pro launched an AI dispatcher; ServiceTitan raised prices."></textarea>
+                  <label class="gk-label" for="gk-about">One line on what you do <span class="gk-opt">— optional, sharpens the read</span></label>
+                  <textarea id="gk-about" class="gk-input" data-gk-field="about" maxlength="800" placeholder="e.g. Field-service software for home-service businesses — scheduling, invoicing, payments."></textarea>
                 </div>
               </div>
               <div class="gk-hp" aria-hidden="true">
@@ -106,10 +106,10 @@
                 <input id="gk-company-url" data-gk-field="company_url" type="text" tabindex="-1" autocomplete="off">
               </div>
               <button type="submit" class="gk-run" data-gk-submit>
-                <span data-gk-submit-label>Run the read</span> <span class="gk-arr">→</span>
+                <span data-gk-submit-label>Generate deliverable</span> <span class="gk-arr">→</span>
               </button>
               <div class="gk-error" data-gk-error role="alert" aria-live="polite"></div>
-              <p class="gk-note">A fast first cut, not the full monthly deliverable. What you type is sent to Anthropic's API to generate your read; it's saved to your account. Don't enter anything confidential.</p>
+              <p class="gk-note">The engine searches the live web and can take up to a minute. Numbers it reports are AI research estimates — verify before you act. Your inputs are sent to Anthropic's API and the deliverable is saved to your account. Don't enter anything confidential.</p>
             </form>
 
             <div class="gk-output" data-gk-output>

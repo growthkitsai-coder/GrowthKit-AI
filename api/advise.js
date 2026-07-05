@@ -1,35 +1,54 @@
 /**
- * GrowthKit AI — Advisor endpoint (the product, v1).
+ * GrowthKit AI — Advisor endpoint (the live product).
  *
  * A Vercel serverless function: the ONLY server-side code in the repo, and the
- * only place an API key is read. It takes a founder's description of their
- * product + competitors and streams back an operator-grade growth read from
- * Claude (Opus 4.8). Zero npm dependencies — raw fetch against the Anthropic
- * Messages API, parsed SSE forwarded to the browser as a plain-text stream.
+ * only place an API key is read. The signed-in user gives us a company name
+ * (plus optional website + one-liner) and Claude (Opus 4.8) actually SEARCHES
+ * THE WEB — Anthropic's built-in web_search tool — to find and dissect that
+ * company's real competitors, then returns a full specimen-grade deliverable as
+ * one JSON object: a plotted market map, a competitor teardown, gap analysis,
+ * a 90-day plan, and the sources it used. The browser renders that JSON into
+ * the designed deliverable (see advisor.js).
+ *
+ * Zero npm dependencies — raw fetch against the Anthropic Messages API. We parse
+ * Anthropic's SSE server-side and forward a small NDJSON progress stream to the
+ * browser (one JSON object per line): {type:"status"} events while it searches
+ * and writes, then a final {type:"done", deliverable:{...}} (or {type:"error"}).
+ * Streaming keeps the connection alive so a slow run doesn't hit a timeout.
  *
  * ── Setup (one-time, in the Vercel dashboard — NOT in this repo) ──
  *   Project → Settings → Environment Variables → add `ANTHROPIC_API_KEY`
  *   (Production + Preview). Redeploy. The repo is PUBLIC — never commit the key.
  *   Without the env var the endpoint returns a friendly "not configured" error.
+ *   ⚠ It must be on the SAME Vercel project that serves growthkitai.com — see the
+ *   two-accounts / duplicate-project trap in docs/advisor.md.
  *
  * ── Limits to know ──
- *   - maxDuration is set to 60s in vercel.json (Hobby ceiling). The prompt is
- *     scoped + max_tokens capped so Opus finishes well inside it.
- *   - Rate limiting is in-memory per warm instance (best-effort; resets on cold
- *     start, not shared across instances). Durable limiting needs Vercel KV /
- *     Upstash — see docs/advisor.md. Honeypot + min-fill-time stop casual bots.
- *   - Every call costs money (Opus tokens). Inputs are length-capped and
- *     max_tokens is bounded to keep per-call cost predictable.
+ *   - maxDuration is 60s in vercel.json (Hobby ceiling). Web search + a full
+ *     deliverable is genuinely tight: searches are capped (WEB_SEARCH_MAX_USES),
+ *     effort is 'medium', and the prompt asks Claude to be efficient so it lands
+ *     inside the window. A slow run can still time out — the browser surfaces a
+ *     "took too long, try again" message. If it bites often, move to Vercel Pro
+ *     (maxDuration 300) and this file needs no change beyond vercel.json.
+ *   - Each run costs real money: Opus tokens + web searches (~$10 / 1k searches).
+ *     Inputs are length-capped, searches capped, max_tokens bounded, and the tool
+ *     is behind login + rate-limited to keep per-call and abuse cost predictable.
+ *   - Numbers Claude reports are web-researched estimates and can be wrong; the
+ *     deliverable is presented as an "AI research draft — verify key numbers"
+ *     with its sources shown. See docs/advisor.md.
  */
 
 'use strict';
 
 const MODEL = 'claude-opus-4-8';
-const MAX_TOKENS = 4000;
-const FIELD_CAP = 2000; // per-field input character cap
+const MAX_TOKENS = 8000;
+const WEB_SEARCH_MAX_USES = 4; // cap live searches to stay inside the 60s window
 const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
 const RATE_MAX = 6; // accepted runs per IP per window
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+
+// Per-field input character caps (company is short; the optional fields add context).
+const CAP = { company: 160, website: 300, about: 800 };
 
 // ── Durable rate limiting (preferred) ──────────────────────────────────────
 // Uses Redis over Upstash's REST API when a KV store is connected — shared
@@ -88,56 +107,81 @@ async function isRateLimited(ip) {
   return rateLimitedMemory(ip);
 }
 
-const clean = (v) => String(v == null ? '' : v).slice(0, FIELD_CAP).trim();
+const clean = (v, cap) => String(v == null ? '' : v).slice(0, cap || 200).trim();
 
+// ── The deliverable contract ────────────────────────────────────────────────
+// Claude returns ONE JSON object shaped like this. The browser renders it into
+// the specimen deliverable. Coordinates are 0–100 in both axes:
+//   x = price per seat (0 = cheapest / free, 100 = most expensive)
+//   y = workflow depth (0 = shallow point tool, 100 = deep end-to-end platform)
 const SYSTEM_PROMPT = [
-  "You are the GrowthKit AI market-intelligence engine, producing a fast, focused growth read for a founder based on what they tell you about their product and what their competitors are doing.",
+  "You are the GrowthKit AI market-intelligence engine. A signed-in founder gives you their company name (and maybe a website and a one-line description). You have a web_search tool. Use it to find and dissect that company's REAL competitors, then return one specimen-grade deliverable.",
   "",
-  "GrowthKit AI turns market and competitor signal into decisions for seed and Series A founders. Voice: confident, operator-grade, specific, no fluff. Use em-dashes for asides. Never corporate-speak, never hype. You are talking to a founder who has a live product and limited time.",
+  "GrowthKit AI turns market and competitor signal into decisions for seed and Series A founders. Voice: confident, operator-grade, specific, no fluff — but every claim is grounded in what you actually found on the web, not invented. You are talking to a founder with a live product and limited time.",
   "",
-  "What this read IS: a sharp, opinionated first cut grounded in what the founder described and your knowledge of how markets like theirs behave. What it is NOT: the full GrowthKit deliverable — that one is built on live demand data, mined competitor complaints, and operator review, and refreshes monthly. Be honest about that line. If the founder's input is thin, say what you'd need to go deeper rather than inventing specifics.",
+  "HOW TO WORK (be fast — you are on a strict time budget):",
+  "- Run AT MOST " + WEB_SEARCH_MAX_USES + " web searches, total. Spend them well: identify the category and the real named competitors; check a couple of competitors' positioning/pricing; find the gap. Do not over-explore.",
+  "- Use the company's website/description to pin down WHICH company this is (names can be ambiguous) and its actual segment. If you genuinely cannot identify the company or its market from the name + web, still produce your best-effort read of the most likely category and say so honestly in the positioning line.",
+  "- Prefer real, named competitors you found. Pricing and market numbers are best-effort estimates from what you read — reasonable, not fabricated precision. It is fine to write a price as a range or 'est.'",
   "",
-  "Hard rules:",
-  "- Be specific to THEIR market. Name the competitors they gave you. React to the moves they described. Never produce generic advice that would apply to any startup ('do content marketing', 'improve onboarding') — every play must be defensible from something they told you or a real dynamic of their category.",
-  "- No preamble, no sign-off, no meta-commentary about being an AI. Output ONLY the structured read below.",
-  "- Plain text, terminal-readout style. Use the exact section headers shown. Use '— ' dashes for bullets. No markdown bold/italics, no tables, no code fences.",
-  "- Keep it tight and skimmable. Every line earns its place.",
+  "OUTPUT: return ONLY a single JSON object — no prose before or after, no markdown, no code fences. It MUST match this shape exactly (all fields required unless marked optional):",
+  "{",
+  '  "subject": { "name": string, "one_liner": string (what they do, one line), "segment": string (the market/category, e.g. "HVAC field-service SaaS") },',
+  '  "positioning": string (2–3 sentences: where this company actually sits today and the one positioning truth the founder most needs to hear),',
+  '  "market_map": {',
+  '    "x_axis": string (label for the price axis, e.g. "price per seat / month →"),',
+  '    "y_axis": string (label for the depth axis, e.g. "workflow depth →"),',
+  '    "x_ticks": [string, string, string, string, string] (5 left→right price ticks, e.g. ["$0","$50","$120","$220","$350+"]),',
+  '    "vendors": [ { "name": string, "sub": string (2–4 word descriptor), "x": number 0–100 (price), "y": number 0–100 (workflow depth) } ]  (6–10 real competitors),',
+  '    "subject_point": { "x": number 0–100, "y": number 0–100 } (where the founder\'s company sits),',
+  '    "gap": { "label": string (short, e.g. "the gap"), "sub": string (one line, e.g. "deep workflow · owner-operator price"), "x": number 0–100 (left edge), "y": number 0–100 (bottom edge), "w": number 0–100 (width), "h": number 0–100 (height) }',
+  '  },',
+  '  "teardown": [ { "name": string, "tag": string (2–4 word label, e.g. "enterprise incumbent"), "wedge": string (1–2 sentences: their wedge and go-to-market motion), "price": string (short, e.g. "$129/seat/mo"), "price_note": string (e.g. "monthly, per-seat"), "soft": string (1–2 sentences: the specific opening they leave — where they are soft, slow, or over-serving) } ]  (4–6 competitors),',
+  '  "gaps": [ { "tag": string (e.g. "Gap 01"), "title": string (a sharp headline, may wrap one key word in <em>…</em> for emphasis), "body": string (2–3 sentences on the opening and why it is real), "score": string (e.g. "7.4"), "score_label": string (e.g. "opportunity"), "meter": number 0–100 (fill for the strength bar) } ]  (3–4 gaps),',
+  '  "plan": [ { "horizon": string (e.g. "Days 1–30"), "title": string (the play, may use <em>…</em>), "body": string (1–2 sentences on the move), "first_move": string (the concrete first action), "kill": string (the signal that says stop) } ]  (6–8 plays across the 90 days),',
+  '  "citations": [ { "title": string, "url": string } ]  (3–8 of the actual sources you used),',
+  '  "note": string (one honest line: this is an AI first-draft from live web research — verify key numbers — and what the full monthly GrowthKit deliverable adds beyond it)',
+  "}",
   "",
-  "Output EXACTLY these sections, in this order:",
-  "",
-  "01 / POSITIONING READ",
-  "Two or three sentences: where this product actually sits in its market today, and the one positioning truth the founder most needs to hear.",
-  "",
-  "02 / COMPETITOR GAPS",
-  "Three gaps — places where the named competitors are soft, slow, or over-serving — each as a '— ' bullet naming the competitor and the specific opening it leaves.",
-  "",
-  "03 / GROWTH PLAYS",
-  "Four plays, numbered 01–04. For each, on its own lines:",
-  "  Play NN — <one-line name>",
-  "  — Why now: <tied to a specific competitor move or market dynamic>",
-  "  — First move: <the concrete first action this week>",
-  "  — Kill criteria: <the signal that says stop>",
-  "",
-  "04 / WHAT THE FULL TEARDOWN ADDS",
-  "Two or three sentences, honest: what the paid GrowthKit deliverable (market map, competitor teardown, gap analysis, 90-day plan with ~14 plays, refreshed monthly, operator-reviewed) would add beyond this fast read — given specifically what was thin in their input."
+  "Rules: valid JSON only (double-quoted keys/strings, no trailing commas, no comments). Do not escape the <em> tags — write them literally inside the relevant string values. Keep every string tight and skimmable. Be specific to THIS company's real market; never generic advice that would fit any startup."
 ].join('\n');
 
-function buildUserMessage({ product, competitors, moves }) {
+function buildUserMessage({ company, website, about }) {
   const parts = [
-    'A founder wants a growth read. Here is what they told us:',
+    'Produce the deliverable for this company. Search the web to identify it and its real competitors.',
     '',
-    'PRODUCT / ICP:',
-    product || '(not provided)',
+    'COMPANY NAME: ' + company,
+    'WEBSITE: ' + (website || '(not provided)'),
+    'WHAT THEY DO: ' + (about || '(not provided — infer it from the name and the web)'),
     '',
-    'KNOWN COMPETITORS:',
-    competitors || '(none named — work from the product description and the category)',
-    '',
-    'RECENT COMPETITOR MOVES THEY HAVE NOTICED:',
-    moves || '(none provided)',
-    '',
-    'Produce the structured read now.'
+    'Return only the JSON object.'
   ];
   return parts.join('\n');
+}
+
+// Pull the first balanced top-level JSON object out of the model's text. The
+// model is told to emit only JSON, but this is defensive against a stray word
+// or a code fence sneaking in.
+function extractJson(text) {
+  if (!text) return null;
+  let s = String(text).trim();
+  s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  const start = s.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < s.length; i++) {
+    const ch = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === '\\') esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth === 0) { s = s.slice(start, i + 1); break; } }
+  }
+  try { return JSON.parse(s); } catch (_) { return null; }
 }
 
 module.exports = async function handler(req, res) {
@@ -150,7 +194,7 @@ module.exports = async function handler(req, res) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    res.status(503).json({ error: 'The advisor is not configured yet — no API key set on the server.' });
+    res.status(503).json({ error: 'The engine is not configured yet — no API key set on the server.' });
     return;
   }
 
@@ -164,7 +208,7 @@ module.exports = async function handler(req, res) {
     const authz = req.headers['authorization'] || '';
     const token = authz.indexOf('Bearer ') === 0 ? authz.slice(7).trim() : '';
     if (!token) {
-      res.status(401).json({ error: 'Please sign in to use the advisor.' });
+      res.status(401).json({ error: 'Please sign in to use the engine.' });
       return;
     }
     try {
@@ -184,7 +228,7 @@ module.exports = async function handler(req, res) {
   const body = (req.body && typeof req.body === 'object') ? req.body : {};
 
   // Honeypot: a hidden field humans never fill. Drop silently with a 200.
-  if (clean(body.company_url)) {
+  if (clean(body.company_url, 400)) {
     res.status(200).end('');
     return;
   }
@@ -196,17 +240,17 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const product = clean(body.product);
-  const competitors = clean(body.competitors);
-  const moves = clean(body.moves);
-  if (!product) {
-    res.status(400).json({ error: 'Tell us what your product is and who it serves to get a read.' });
+  const company = clean(body.company, CAP.company);
+  const website = clean(body.website, CAP.website);
+  const about = clean(body.about, CAP.about);
+  if (!company) {
+    res.status(400).json({ error: 'Enter your company name to generate a deliverable.' });
     return;
   }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (await isRateLimited(ip)) {
-    res.status(429).json({ error: "You've run a few reads in a row — give it a couple of minutes and try again." });
+    res.status(429).json({ error: "You've run a few deliverables in a row — give it a couple of minutes and try again." });
     return;
   }
 
@@ -223,9 +267,10 @@ module.exports = async function handler(req, res) {
         model: MODEL,
         max_tokens: MAX_TOKENS,
         stream: true,
-        output_config: { effort: 'high' },
+        output_config: { effort: 'medium' },
+        tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: WEB_SEARCH_MAX_USES }],
         system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: buildUserMessage({ product, competitors, moves }) }]
+        messages: [{ role: 'user', content: buildUserMessage({ company, website, about }) }]
       })
     });
   } catch (err) {
@@ -241,14 +286,19 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Stream Anthropic's SSE, forward only the text deltas to the browser as
-  // a plain-text stream. The page reads response.body and appends.
-  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  // From here we always 200 and stream NDJSON progress events. The browser reads
+  // response.body line by line: {type:"status"} while it works, then a terminal
+  // {type:"done", deliverable} or {type:"error", message}.
+  res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
   res.status(200);
+  const send = (obj) => { try { res.write(JSON.stringify(obj) + '\n'); } catch (_) {} };
 
   const reader = upstream.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let answer = '';        // accumulated final text (the JSON)
+  let searchCount = 0;
+  let announcedWriting = false;
 
   try {
     for (;;) {
@@ -266,17 +316,34 @@ module.exports = async function handler(req, res) {
         if (!payload || payload === '[DONE]') continue;
         let evt;
         try { evt = JSON.parse(payload); } catch (_) { continue; }
-        if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
-          res.write(evt.delta.text);
+
+        if (evt.type === 'content_block_start' && evt.content_block) {
+          const t = evt.content_block.type;
+          if (t === 'server_tool_use' && evt.content_block.name === 'web_search') {
+            searchCount++;
+            send({ type: 'status', stage: 'search', n: searchCount });
+          } else if (t === 'text' && !announcedWriting) {
+            announcedWriting = true;
+            send({ type: 'status', stage: 'writing' });
+          }
+        } else if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
+          answer += evt.delta.text;
         } else if (evt.type === 'error') {
-          res.write('\n\n[the engine stopped early — please try again]');
+          send({ type: 'error', message: 'The engine stopped early — please try again.' });
         }
       }
     }
   } catch (err) {
-    // If the stream breaks mid-flight the client still keeps what arrived.
-    try { res.write('\n\n[connection interrupted — partial read above]'); } catch (_) {}
+    send({ type: 'error', message: 'The connection was interrupted — please try again.' });
+    res.end();
+    return;
   }
 
+  const deliverable = extractJson(answer);
+  if (deliverable && deliverable.subject) {
+    send({ type: 'done', deliverable: deliverable });
+  } else {
+    send({ type: 'error', message: 'The engine could not finish a full deliverable in time — please try again.' });
+  }
   res.end();
 };

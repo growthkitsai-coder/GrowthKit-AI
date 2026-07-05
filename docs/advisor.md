@@ -1,78 +1,92 @@
-# GrowthKit Live (the Advisor) — the live product (Claude-powered)
+# GrowthKit Live (the Advisor) — the live product (Claude-powered, web-searching)
 
-> Part of the GrowthKit AI docs set. Read [`CLAUDE.md`](../CLAUDE.md) first. This file is the single home for the Advisor — the site's **first server-side code and first API secret**. **Update it whenever the function, prompt, model, or limits change.**
+> Part of the GrowthKit AI docs set. Read [`CLAUDE.md`](../CLAUDE.md) first. This file is the single home for the Advisor — the site's **first server-side code and first API secret**. **Update it whenever the function, prompt, model, deliverable schema, or limits change.**
 
 ## What it is
 
-The product, branded **GrowthKit Live** (working name — the *naming* is a branding call for Avi/Cowork). A founder describes their product + competitors + recent moves, and the engine **streams** an operator-grade growth read from Claude (Opus 4.8) — positioning, three competitor gaps, four growth plays, "what the full teardown adds" — then **parsed and rendered as a designed deliverable** (positioning panel, competitor-gap cards, play cards with badges + why-now / first-move / kill-criteria), not raw chat text.
+The product, branded **GrowthKit Live**, lives **behind login at `/four`** (see [`docs/auth.md`](auth.md)). A signed-in founder enters **just their company name** (plus an optional website and one-line description) and the engine **actually searches the live web** (Anthropic's built-in `web_search` tool) to find and dissect that company's **real** competitors, then returns a **full specimen-grade deliverable** — the same shape as [`specimen.html`](../specimen.html):
 
-> **As of 2026-06-12 the tool lives BEHIND LOGIN at `/four`** (see [`docs/auth.md`](auth.md)). It is no longer embedded on the homepage and the public `/advisor` page is retired (redirects to `/four`). `advisor.css`/`advisor.js` are now loaded only by `four.html`. Signed-in users get their reads **saved to their account** (Supabase `reads` table); `advisor.js` attaches the Supabase token to `/api/advise` and the endpoint **requires a valid token when `SUPABASE_URL`+`SUPABASE_ANON_KEY` env vars are set** on the server. The homepage now shows a "create a free account / log in" CTA where the tool used to be.
+1. **Subject brief** — company name, one-liner, segment.
+2. **Positioning read** — where they sit + the one truth they need to hear.
+3. **Market map** — a plotted **SVG scatter** (price × workflow depth) with real competitors, the subject highlighted, and an identified gap zone. Coordinates are computed by Claude (0–100 on each axis) and drawn into the specimen's SVG geometry client-side.
+4. **Competitor teardown** — a table: wedge & motion, pricing, and where each rival is soft.
+5. **Gap analysis** — cards with score meters.
+6. **90-day plan** — a timeline of 6–8 plays (when / first move / kill criteria).
+7. **Sources** — the actual pages Claude cited, plus an honesty note.
 
-**Two surfaces, one engine:** the standalone page **`/advisor`** (full experience, share-link autorun, Save-as-PDF) and an **embedded live section on the homepage** (`index.html`, `#live`, right after the hero — the prominent "try it now") that shows "Open the full read ↗" instead of PDF. Both reuse the same `/api/advise` endpoint and the shared `advisor.css` + `advisor.js`.
+Presented **confident + cited** (like the specimen) with a small **"AI research draft — verify key numbers"** badge, because numbers are web-researched estimates. Every deliverable is **saved to the user's account** (Supabase `reads`). `/advisor` (the old public page) is retired → redirects to `/four`; the homepage shows a "create a free account / log in" CTA.
 
-**Ease-of-use:** one-click **example presets** fill the form (HVAC SaaS / AI notetaker / freelancer bookkeeping); after a read, **Copy read** + **Copy share link** (a `/advisor?p=…&c=…&m=…` URL that re-runs the same inputs for the recipient) + **Save as PDF** (print stylesheet, full page only).
+**Ease-of-use:** one-click **example presets** fill the form with real companies (Jobber / Otter.ai / Ramp); after a run, **Copy share link** (a `/four?co=…&w=…&a=…` URL that re-runs the same inputs) + **Save as PDF** (print stylesheet).
 
 ## Architecture — first backend in the repo
 
 ```
-advisor.html  (static page, neon-console UI, form + streaming console panel)
-   |  POST /api/advise  { product, competitors, moves, company_url(honeypot), t }
+four.html  (gated page; neon-console UI; form + live progress log + deliverable)
+   |  POST /api/advise  { company, website, about, company_url(honeypot), t }
+   |  Authorization: Bearer <supabase access token>
    v
 api/advise.js  (Vercel serverless function — the ONLY server code, the ONLY secret reader)
    |  ANTHROPIC_API_KEY (Vercel env var; NEVER in git — repo is public)
+   |  model claude-opus-4-8, effort medium, stream:true, tools:[web_search_20260209 max_uses 4]
    v
-Anthropic Messages API  (model: claude-opus-4-8, stream: true, effort: high)
-   |  SSE text deltas forwarded as a plain-text stream
+Anthropic Messages API  (Claude runs the search loop server-side, then emits ONE JSON deliverable)
+   |  advise.js parses Anthropic's SSE and forwards a small NDJSON PROGRESS stream:
+   |    {"type":"status","stage":"search"|"writing",...}  ← while it works
+   |    {"type":"done","deliverable":{…}}  |  {"type":"error","message":…}
    v
-browser appends tokens into the phosphor readout panel
+advisor.js  reads NDJSON → shows a live progress log → renders the JSON deliverable
+            (buildMap SVG, teardown table, gap meters, plan, citations) → saves to Supabase
 ```
 
-- **`api/advise.js`** — zero npm dependencies (raw `fetch`, parses Anthropic SSE by hand), CommonJS (`module.exports`), so Vercel runs it with no `package.json` / build step — consistent with the rest of the repo. Reads `process.env.ANTHROPIC_API_KEY`; without it, returns a friendly 503 "not configured" (the page shows it as an error, mirroring the waitlist's "not configured" pattern).
-- **`advisor.html`** — standard page chrome, GrowthKit Live product framing, full light "Studio" + dark "neon console". Markup is the shared **advisor.js contract** (`[data-gk-advisor]` root with `data-gk-full="1"`).
-- **Shared `advisor.css` + `advisor.js`** (loaded by both `advisor.html` and `index.html`) — the only component CSS/JS shared beyond `theme.*`, justified because the same complex tool runs on two pages. `advisor.js` streams into a terminal `<pre>` (live feel), then on completion **parses the plain-text read into sections and renders the designed cards** (`gk-pos` / `gk-gaps`+`gk-gap` / `gk-plays`+`gk-play` / `gk-addon`), staged-revealed; if parsing ever fails it keeps the raw streamed text rather than erroring. Auto-inits every `[data-gk-advisor]` on the page.
-- **⚠ Parsing gotcha (fixed 2026-06-12):** the read is parsed with regexes that match the model's fixed skeleton (`01 / …`, `Play NN — …`, `— Why now:` etc.). **Never embed raw em/en-dash bytes in a string-built `new RegExp(...)`** — they're unreliable through tooling/encoding (a literal `/…/` matched, the string-built copy silently didn't). All dash classes use the escaped-unicode `DASH` constant (`—–‒―\-`), and field labels are matched directly (no required leading dash). If you change the system-prompt output format, update the parser in `advisor.js` to match.
+- **`api/advise.js`** — zero npm dependencies (raw `fetch`, hand-parses Anthropic SSE), CommonJS, no build step. Reads `process.env.ANTHROPIC_API_KEY`; without it, returns a 503 "not configured". Requires a valid Supabase token when `SUPABASE_URL`+`SUPABASE_ANON_KEY` are set on the server. It **accumulates the model's final text server-side, extracts the JSON object** (`extractJson` — tolerant of code fences / trailing prose / braces-in-strings), and sends it as one `done` event. It does **not** stream tokens to the browser — the browser can't render partial JSON — instead it streams progress events so a slow run keeps the connection alive. `stop_reason: "pause_turn"` (server tool loop cap) is not continued in v1; if it ever fires the run ends with an error and the user retries.
+- **`advisor.js`** — the shared engine (ES5, no deps), loaded only by `four.html`. Reads the NDJSON stream, appends each status to a **live progress log** (terminal-readout feel), then on `done` calls `renderDeliverable(json)` which builds the whole designed deliverable as a string. `buildMap()` maps 0–100 vendor coords into the specimen SVG geometry (viewBox `0 0 880 560`; plot area x:90→810, y:480(bottom)→60(top)). Titles/positioning may contain a literal `<em>…</em>` (allowed through `richEm`/`richPara`; everything else is HTML-escaped). Saves the deliverable JSON to Supabase and exposes `GKAdvisor.render(container, raw)` — **JSON-aware, with a legacy fallback** so reads saved before this change (plain `01/02/03/04` engine text) still open.
+- **`advisor.css`** — the console shell + the deliverable component styles. The deliverable classes **mirror `specimen.html`** (`.map-svg`+dots/axes/gap-zone, `.tt-row`, `.gap-card`+`.gap-meter`, `.play`+`.p-meta`) so generated output matches the sample. Map dots "plot themselves" and gap meters fill via CSS entrance animations (`gkPlot`/`gkFill`), with reduced-motion + print fallbacks.
+- **The `reads` columns are repurposed** (no schema change): `product`=company name (the history label), `competitors`=website, `moves`=about, `output`=the **deliverable JSON string**. See [`docs/auth.md`](auth.md).
 
 ## Setup — REQUIRED before it works (one-time, in the Vercel dashboard)
 
-1. Vercel → project `growthkit-ai` → Settings → Environment Variables → add **`ANTHROPIC_API_KEY`** (Production + Preview), value = an Anthropic API key from console.anthropic.com.
-2. Redeploy (push or "Redeploy" in the dashboard) so the function picks up the env var.
-3. **Never put the key in the repo** — every file here is public. It lives only as a Vercel env var. `.env`/`.env.*` are gitignored for local `vercel dev` use.
+1. Vercel → the project that serves growthkitai.com → Settings → Environment Variables → add **`ANTHROPIC_API_KEY`** (Production + Preview), value = an Anthropic API key from console.anthropic.com. **The key must have web-search / server-tools access** (standard keys do).
+2. Redeploy so the function picks up the env var.
+3. **Never put the key in the repo** — every file here is public. `.env`/`.env.*` are gitignored for local `vercel dev`.
 
-Until the key is set, `/advisor` loads fine but every run returns "The advisor is not configured yet."
+**Status (2026-07-05): Avi reports he added `ANTHROPIC_API_KEY` to the Vercel project himself.** If production still 503s "not configured", it's the two-accounts trap below — the key must be on the project that actually serves the domain, not the empty duplicate. Re-verify with `curl -s https://growthkitai.com/api/advise -X POST -H 'content-type: application/json' -d '{"company":"x","t":"6000"}'` (expect a 401 "please sign in" when Supabase gating is on, or an NDJSON stream — **not** a 503).
 
-**Status (2026-07-03): the key is set on the WRONG Vercel project — production is still unconfigured.** Diagnosis of the live "API error": `POST https://growthkitai.com/api/advise` → 307 to `www.growthkitai.com` → **503 `"The advisor is not configured yet — no API key set on the server."`**. There are **two Vercel projects named `growthkit-ai` on two different accounts**:
+### ⚠ The two-Vercel-projects trap (still worth knowing)
 
-| | Serves growthkitai.com? | Has `ANTHROPIC_API_KEY`? |
+There have been **two Vercel projects named `growthkit-ai` on two different accounts**. Only one serves the domain; env vars set on the other do nothing.
+
+| | Serves growthkitai.com? | Where the key must live |
 |---|---|---|
-| **Original** — `prj_q14WI5uJEqAJQzg63ZVEbaPHovzQ` on org `team_wbjFESk88zLTz0UjMUI3SlRz` (the GitHub-connected project that auto-deploys on push) | **YES** (holds the domains) | **NO** ← the bug |
-| **Duplicate** — `prj_rS1BidALX24zStAipzNYnHSXFQS4` on `avi-aggarwal14s-projects` (`team_xOX0K5nPR32wWQGoox2F1GIv`), auto-created ~2026-06-24 when the CLI (`vercel link`, logged in as `avi-aggarwal14`) couldn't see the original team | NO (zero deployments, zero domains) | Yes (Production + Development — wasted there) |
+| **Original** — `prj_q14WI5uJEqAJQzg63ZVEbaPHovzQ`, org `team_wbjFESk88zLTz0UjMUI3SlRz` (GitHub-connected, auto-deploys on push) | **YES** (holds the domains) | **HERE** |
+| **Duplicate** — `prj_rS1BidALX24zStAipzNYnHSXFQS4` on `avi-aggarwal14s-projects` — auto-created when the CLI (logged in as `avi-aggarwal14`) couldn't see the original team | NO (zero deployments/domains) | wasted here |
 
-The local `.vercel/project.json` and the Vercel CLI/MCP connection both point at the **duplicate**; the `avi-aggarwal14` login cannot see the original team at all, so agents **cannot fix this from the repo**. **Fix (Avi, ~2 min, in the dashboard of the account that owns the original project):** ① Settings → Environment Variables → add `ANTHROPIC_API_KEY` for Production (+ Preview if wanted); the value is in console.anthropic.com, or copyable from the duplicate project's env settings. ② Redeploy (env vars only apply to new deployments). ③ While there, Domains: make `growthkitai.com` the primary and `www` the redirect — it's currently backwards (apex 307s to www, contradicting every canonical URL).
+The local `.vercel/project.json` + the Vercel CLI/MCP point at the **duplicate**; that login can't see the original team, so **agents can't fix env vars from the repo** — it's a dashboard action for Avi on the account owning the original project. While there, also make apex `growthkitai.com` the **primary** and `www` the redirect (currently backwards — apex 307s to www, contradicting every canonical URL, and can cause flaky asset fetches).
 
-## Model & prompt
+## Model, prompt & the deliverable contract
 
-- **Model: `claude-opus-4-8`**, `output_config: { effort: "high" }`, no extended thinking (keeps latency predictable under the 60s function ceiling; the system prompt forbids leaked reasoning / preamble). `max_tokens: 4000`.
-- **System prompt** (in `api/advise.js`) makes Claude the GrowthKit engine: operator-grade voice, specific to the founder's named competitors, no generic startup advice, honest about being a fast read vs. the full monthly deliverable. Fixed output skeleton: `01 / POSITIONING READ`, `02 / COMPETITOR GAPS`, `03 / GROWTH PLAYS` (4 plays, each with why-now / first-move / kill-criteria), `04 / WHAT THE FULL TEARDOWN ADDS`. Plain-text terminal style — renders natively in the phosphor panel, no markdown parser needed.
+- **Model: `claude-opus-4-8`**, `output_config: { effort: "medium" }` (medium for speed under the 60s ceiling), `stream: true`, `max_tokens: 8000`, `tools: [{ type:"web_search_20260209", name:"web_search", max_uses: 4 }]`.
+- **System prompt** (in `api/advise.js`) makes Claude the GrowthKit engine and **defines the exact JSON schema** it must return (subject / positioning / market_map{vendors,subject_point,gap} / teardown / gaps / plan / citations / note). It is told to **run at most 4 searches**, be efficient, prefer real named competitors, treat numbers as best-effort estimates, and emit **only** the JSON object (no prose/markdown/code fences). `<em>` is allowed literally inside title strings.
+- **Changing the schema:** if you edit the schema in the system prompt, update `renderDeliverable()` / `buildMap()` in `advisor.js` to match. Coordinates are 0–100: x = price (0 cheap → 100 dear), y = workflow depth (0 shallow → 100 deep); the gap rect's `x,y` is its **bottom-left** corner.
 
 ## Limits, cost & abuse protection
 
-- **`maxDuration: 60`** set in `vercel.json` `functions` (Hobby ceiling; Pro allows up to 300). The scoped prompt + capped `max_tokens` finish well inside it; streaming keeps the wait tolerable.
-- **Every run costs Opus tokens** — real money. Inputs are capped at 2000 chars/field server-side; `max_tokens` bounds the output.
-- **Abuse protection:** hidden `company_url` honeypot (silent drop), `t` minimum-fill-time (2.5s, silent drop), and a **per-IP rate limit** (6 runs / 10 min). The limiter is **durable-capable**: if a KV store is connected (env vars `KV_REST_API_URL` + `KV_REST_API_TOKEN` from Vercel KV / the Vercel Marketplace Upstash integration, or `UPSTASH_REDIS_REST_URL` + `_TOKEN`), it uses a Redis fixed-window counter shared across all instances and surviving cold starts (one pipelined INCR+EXPIRE round trip). With **no** store connected it transparently falls back to an in-memory per-warm-instance counter. **To make it durable: add Upstash via the Vercel dashboard → Storage / Marketplace (2 clicks) — no code change needed**, the env vars appear automatically and the function picks them up. Until then it's best-effort in-memory (fine for launch traffic; upgrade before any hard promotion).
+- **`maxDuration: 60`** in `vercel.json` (Hobby ceiling; Pro allows 300). **This is the tight constraint:** web search + a full deliverable is genuinely close to 60s. Searches are capped at 4, effort is `medium`, and the prompt asks Claude to be efficient — but a **slow run can still time out**, in which case the browser shows "took too long — try again". If timeouts become common, move to **Vercel Pro** and bump `maxDuration` to ~120–180 in `vercel.json` (no code change needed) — that's the clean fix for full-fidelity depth.
+- **Every run costs real money:** Opus tokens **plus web searches** (~$10 / 1,000 searches; up to 4 per run). Inputs are capped (company 160 / website 300 / about 800 chars), `max_tokens` bounded, searches capped, and the tool is **behind login + rate-limited**.
+- **Abuse protection:** hidden `company_url` honeypot (silent drop), `t` minimum-fill-time (2.5s, silent drop), and a **per-IP rate limit** (6 runs / 10 min). The limiter is **durable-capable**: connect a KV store (Vercel KV / Upstash via the Vercel Marketplace — env vars `KV_REST_API_URL`+`KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL`+`_TOKEN`) and it uses a shared Redis fixed-window counter; with no store it falls back to per-warm-instance in-memory. **Connect Upstash before any hard promotion** (2-click Marketplace add, no code change) — web searches make each run pricier than before.
 - The function sets `Cache-Control: no-store`.
 
 ## Analytics events
 
-`advisor_run` (on submit, flags whether competitors/moves were filled), `advisor_complete` (chars returned), `advisor_error` (message). Same `window.va` system as the rest of the site — Pro/Enterprise-only recording (see [`docs/infrastructure.md`](infrastructure.md)).
+`advisor_run` (on submit; flags whether website/about were filled), `advisor_complete` (vendor count on the map), `advisor_error` (message). Same `window.va` system as the rest of the site — Pro/Enterprise-only recording (see [`docs/infrastructure.md`](infrastructure.md)).
 
 ## Privacy / legal disclosure
 
-The Advisor sends the founder's typed market description to **Anthropic's API** — a third-party data flow the static site never had. The page states this inline ("sent to Anthropic's API to generate your read — we don't store it") and nothing is persisted server-side.
+The engine sends the founder's inputs to **Anthropic's API** and Claude **searches the public web**. The page states inputs go to Anthropic and the deliverable is saved to the account; nothing beyond that is persisted by us.
 
-- **`privacy.html` (v1.1, 2026-06-12):** updated — §03 lists "Growth Advisor inputs"; §04 notes inputs are sent to the AI provider to generate the result; §06 names **Anthropic, PBC** as the AI sub-processor (not used to train their models per their commercial terms). No new anchors (woven into existing sections), so the checker stays green.
-- **`terms.html` (2026-06-12):** updated — §08 "Your content & inputs" adds a Free Growth Advisor clause (inputs go to Anthropic; don't submit confidential info; we may rate-limit/withdraw it); §15 "Disclaimers" notes the free Advisor is an illustrative automated read, not the operator-reviewed paid deliverable.
-- **Still open:** `security.html`'s data-inventory / architecture readout doesn't yet mention the `/api/advise` endpoint or the Anthropic flow — update it when next touching that page so the honest security posture stays accurate.
+- **`privacy.html` (v1.1):** §03 lists Advisor inputs; §04 notes inputs go to the AI provider; §06 names **Anthropic, PBC** as the AI sub-processor. **Still open:** privacy/terms predate the web-search behavior — when next touched, note that Claude performs live web searches to generate the deliverable and that reported numbers are AI estimates, not verified facts.
+- **`terms.html`:** §08 free-Advisor clause (inputs go to Anthropic; don't submit confidential info); §15 notes the free tool is an illustrative automated read, not the operator-reviewed paid deliverable — **now doubly true** (web-researched estimates; add a "verify before acting" line when next editing).
+- **Still open:** `security.html`'s data-inventory doesn't yet mention the `/api/advise` endpoint, the Anthropic flow, or the web-search egress — update when next touching that page.
 
 ## Local dev
 
-`vercel dev` runs the function locally; put `ANTHROPIC_API_KEY=...` in a local `.env` (gitignored). Opening `advisor.html` as a plain file won't reach `/api/advise` — you need `vercel dev` for the function route.
+`vercel dev` runs the function locally; put `ANTHROPIC_API_KEY=...` in a local `.env` (gitignored). Opening `four.html` as a plain file won't reach `/api/advise`. Quick offline checks: `node --check api/advise.js && node --check advisor.js`; the renderer + `extractJson` are pure functions and can be unit-tested by stubbing a minimal `document` and calling `window.GKAdvisor.render`.

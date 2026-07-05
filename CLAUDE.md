@@ -41,7 +41,7 @@ Brand positioning: *consulting-grade work at SaaS prices.*
 
 **Plain static site + one serverless function.** No build step, no framework, no package.json. Per-page CSS is inlined in each page's `<head>`; shared files are `theme.css` + `theme.js` (theme system), `advisor.css` + `advisor.js` (the GrowthKit Live tool — now **behind login on `/four`**; see `docs/advisor.md`), and `auth.css` + `auth.js` + `auth-config.js` (the `/login` `/signup` `/reset` `/four` pages, Supabase Auth via CDN, Google + GitHub — see `docs/auth.md`). **The tool is gated: `/advisor` is retired (→ `/four`), every top bar has a "Log in" link.** GSAP/ScrollTrigger/Lenis load on `index.html` only (jsDelivr), as does `threads.js` (zero-dep vanilla-WebGL dark-hero effect — see `docs/design-system.md`). Fonts: Instrument Serif / Inter / JetBrains Mono (Google Fonts). Hosted on Vercel; **pushing to `main` auto-deploys to growthkitai.com**.
 
-**The one exception to "static":** `api/advise.js` — a Vercel serverless function powering the Growth Advisor (`/advisor`), the live Claude-powered product. It's the repo's only server code and only API secret (`ANTHROPIC_API_KEY`, a Vercel env var — **never in git; the repo is public**). Still zero npm deps, no build step. Full detail: `docs/advisor.md`. **Set the env var in the Vercel dashboard or the Advisor returns "not configured".**
+**The one exception to "static":** `api/advise.js` — a Vercel serverless function powering **GrowthKit Live** (the gated tool on `/four`), the live Claude-powered product. Given a company name it uses Claude's **web_search** tool to find + dissect that company's real competitors and returns a **specimen-grade JSON deliverable** (market map, teardown, gaps, 90-day plan, sources). It's the repo's only server code and only API secret (`ANTHROPIC_API_KEY`, a Vercel env var — **never in git; the repo is public**). Still zero npm deps, no build step. Full detail: `docs/advisor.md`. **Set the env var in the Vercel dashboard or the tool returns "not configured".**
 
 ## The docs set — where everything lives
 
@@ -54,7 +54,7 @@ This file holds the **rules**. The deep reference material lives in five topic f
 | [`docs/infrastructure.md`](docs/infrastructure.md) | Hosting/accounts, analytics events, `vercel.json` (clean URLs, cache, security headers), SEO plumbing, the consistency checker + CI, workflow, new-page checklist |
 | [`docs/forms-and-data.md`](docs/forms-and-data.md) | Waitlist + onboarding pipelines, both Apps Scripts, `SCRIPT_URL` rules, Sheets as system of record, anti-spam |
 | [`docs/deliverable-pipeline.md`](docs/deliverable-pipeline.md) | Phase 4 product code: generator, template, `clients/`, `d/`, token URLs, the repo-is-public security model |
-| [`docs/advisor.md`](docs/advisor.md) | The live product: the `/advisor` page + `api/advise.js` serverless function, Claude model/prompt, `ANTHROPIC_API_KEY` setup, streaming, rate limiting, cost |
+| [`docs/advisor.md`](docs/advisor.md) | The live product: the gated tool on `/four` + `api/advise.js` serverless function, Claude model/prompt, **web search + the JSON deliverable schema**, `ANTHROPIC_API_KEY` setup, NDJSON progress stream, rate limiting, cost |
 | [`docs/auth.md`](docs/auth.md) | User auth: the `/login` `/signup` `/reset` `/four` pages, Supabase setup (incl. Google OAuth), `auth-config.js`, the shared `auth.css`/`auth.js` |
 
 `memory.md` holds the **dated change log** (append after every task), sharp edges/gotchas, and open action items. `AGENTS.md` is a pointer for non-Claude agents.
