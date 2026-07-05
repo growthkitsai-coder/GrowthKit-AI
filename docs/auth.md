@@ -4,13 +4,13 @@
 
 ## What it is
 
-Custom-designed **`/login`** and **`/signup`** (email + password **and** Google **and** Microsoft), **`/reset`** (password reset), and **`/four`** — which is now **the product itself, behind login**: the GrowthKit Live tool, gated so only signed-in users reach it, with each user's past reads saved to their account. Auth is **Supabase Auth**, loaded from a CDN — no build step, no auth server of ours. Supabase stores every user, hashes passwords, manages sessions, sends the confirmation + reset emails, and runs the Google/Microsoft OAuth flows. All four pages are `noindex` and out of the sitemap. The public tool page `/advisor` is **retired** — it now redirects to `/four`, and the homepage shows a "create a free account / log in" CTA instead of the embedded tool.
+Custom-designed **`/login`** and **`/signup`** (email + password **and** Google **and** GitHub), **`/reset`** (password reset), and **`/four`** — which is now **the product itself, behind login**: the GrowthKit Live tool, gated so only signed-in users reach it, with each user's past reads saved to their account. Auth is **Supabase Auth**, loaded from a CDN — no build step, no auth server of ours. Supabase stores every user, hashes passwords, manages sessions, sends the confirmation + reset emails, and runs the Google/GitHub OAuth flows. All four pages are `noindex` and out of the sitemap. The public tool page `/advisor` is **retired** — it now redirects to `/four`, and the homepage shows a "create a free account / log in" CTA instead of the embedded tool. (Microsoft/Azure was dropped 2026-07-05 — personal-MSA tenant setup was too painful; the OAuth wiring is generic `data-auth-oauth`, so any Supabase provider can be re-added by dropping in a button.)
 
 ## Files
 
 - `login.html` / `signup.html` / `reset.html` / `four.html` — pages (`<body data-auth-page="…">`). No footer; minimal top bar.
 - **`auth.css`** — shared card/form styling + the `/four` tool-page + read-history styling (light + dark).
-- **`auth.js`** — creates the Supabase client; wires each page by `data-auth-page`; email/password sign-up + sign-in; **OAuth via `data-auth-oauth="google|azure"`**; password reset; remember-me; **redirect-if-already-signed-in** (login/signup bounce to `/four`); and on `/four` the **gate** (redirect to `/login` if not signed in, reveal the app if signed in) + **loads the user's saved reads**.
+- **`auth.js`** — creates the Supabase client; wires each page by `data-auth-page`; email/password sign-up + sign-in; **OAuth via `data-auth-oauth="google|github"`** (generic — any Supabase provider works by adding a button); password reset; remember-me; **redirect-if-already-signed-in** (login/signup bounce to `/four`); and on `/four` the **gate** (redirect to `/login` if not signed in, reveal the app if signed in) + **loads the user's saved reads**.
 - **`advisor.js` / `advisor.css`** — the tool itself, reused on `/four`. `advisor.js` now attaches the Supabase access token to `/api/advise`, **saves each read** to Supabase (`window.GK_SAVE_READS`), and exposes `GKAdvisor.render()` so `/four` can re-view a saved read.
 - **`auth-config.js`** — paste `SUPABASE_URL` + `SUPABASE_ANON_KEY` (+ `REDIRECT_AFTER_LOGIN='/four'`). **Until filled, pages show "not configured" and disable the forms.**
 - Supabase SDK per page from `cdn.jsdelivr.net/npm/@supabase/supabase-js@2` (before `auth-config.js`, then `auth.js`, then `advisor.js` on `/four`).
@@ -23,7 +23,7 @@ Custom-designed **`/login`** and **`/signup`** (email + password **and** Google 
 
 **3. Google.** Google Cloud Console → APIs & Services → OAuth consent screen (External) → Credentials → **Create OAuth client ID → Web application** → Authorized redirect URI **`https://<project-ref>.supabase.co/auth/v1/callback`** (copy it from Supabase's Google screen). Then Supabase → Authentication → Providers → **Google** → enable, paste Client ID + secret.
 
-**4. Microsoft.** [Azure Portal](https://portal.azure.com) → Microsoft Entra ID → **App registrations → New registration**. Supported accounts: "Accounts in any organizational directory and personal Microsoft accounts". **Redirect URI (Web):** `https://<project-ref>.supabase.co/auth/v1/callback`. Then **Certificates & secrets → New client secret** (copy the *Value*). Copy the **Application (client) ID**. In Supabase → Authentication → Providers → **Azure** → enable, paste the client ID + secret; set **Azure Tenant URL** to `https://login.microsoftonline.com/common` (for personal + work accounts).
+**4. GitHub.** GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**. Application name `GrowthKit AI`; Homepage URL `https://growthkitai.com`; **Authorization callback URL** `https://<project-ref>.supabase.co/auth/v1/callback`. Register → copy the **Client ID**, then **Generate a new client secret** and copy it. In Supabase → Authentication → Providers → **GitHub** → enable, paste the Client ID + secret. (No special scopes needed — Supabase requests `user:email` so private-email GitHub accounts still return an email.)
 
 **5. URL configuration.** Supabase → Authentication → **URL Configuration** → **Site URL** `https://growthkitai.com`; **Redirect URLs**: add `https://growthkitai.com/four` and `https://growthkitai.com/reset` (+ `http://localhost:3000/*` for `vercel dev`).
 
@@ -51,7 +51,7 @@ create policy "own reads - insert" on public.reads for insert with check (auth.u
 ## Flows (auth.js / advisor.js)
 
 - **Sign up:** `signUp({email,password,options:{emailRedirectTo: origin+'/four'}})`; with Confirm-email on → "check your email" state; link lands on `/four`.
-- **Log in / Google / Microsoft:** `signInWithPassword` / `signInWithOAuth({provider:'google'|'azure', options:{redirectTo: origin+'/four'}})` → `/four`. Azure requests `email openid profile` scopes.
+- **Log in / Google / GitHub:** `signInWithPassword` / `signInWithOAuth({provider:'google'|'github', options:{redirectTo: origin+'/four'}})` → `/four`.
 - **Already signed in** on `/login` or `/signup` → auto-redirect to `/four`.
 - **Reset:** `resetPasswordForEmail(email,{redirectTo: origin+'/reset'})` → `/reset` detects `PASSWORD_RECOVERY` → set-new-password → `updateUser({password})`.
 - **`/four` (gated):** `getSession()`; if signed in → reveal the tool + email + Sign out, set `window.GK_SAVE_READS=true`, and load the user's saved reads (most recent 12) into the history panel; if not → redirect to `/login`. Clicking a saved read re-renders it via `GKAdvisor.render`.
