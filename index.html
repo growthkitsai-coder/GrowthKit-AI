@@ -1988,6 +1988,19 @@
     animation: dkNodeBreathe 3.4s ease-in-out infinite;
   }
 
+  /* Landing-page banner: solid black in dark mode (per Avi) — overrides
+     theme.css's translucent deep-green glass, which greys out over the
+     light hero. `body` bumps specificity past the theme.css rule (that
+     file loads after this block). Grid ticks + neon hairline stay. */
+  :root[data-theme="dark"] body .topbar {
+    background-image: linear-gradient(90deg, rgba(62, 245, 159, 0.040) 1px, transparent 1px);
+    background-size: 44px 100%;
+    background-color: #000;
+  }
+  :root[data-theme="dark"] body .topbar.scrolled {
+    background-color: #000;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     :root[data-theme="dark"] .pill .dot,
     :root[data-theme="dark"] .spec-plate .plate-foot .dot,
