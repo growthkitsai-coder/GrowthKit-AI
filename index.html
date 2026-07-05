@@ -1988,6 +1988,27 @@
     animation: dkNodeBreathe 3.4s ease-in-out infinite;
   }
 
+  /* Hero threads: WebGL flowing neon lines (threads.js), dark-only.
+     The mount is empty + hidden in light mode; threads.js only creates
+     the canvas when data-theme="dark" and motion is allowed. Masked so
+     the lines dissolve before the hero's edges instead of hard-clipping. */
+  .gk-threads { display: none; }
+  :root[data-theme="dark"] .gk-threads {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.42;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 70%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 70%, transparent 100%);
+  }
+  :root[data-theme="dark"] .gk-threads canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
   /* Landing-page banner: solid black in dark mode (per Avi) — overrides
      theme.css's translucent deep-green glass, which greys out over the
      light hero. `body` bumps specificity past the theme.css rule (that
@@ -2002,6 +2023,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    :root[data-theme="dark"] .gk-threads { display: none; }
     :root[data-theme="dark"] .pill .dot,
     :root[data-theme="dark"] .spec-plate .plate-foot .dot,
     :root[data-theme="dark"] .spec-plate .plate-title .sub::after,
@@ -2013,6 +2035,7 @@
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
+<script src="threads.js" defer></script>
 </head>
 <body>
 
@@ -2056,6 +2079,7 @@
   <!-- ====== HERO ====== -->
   <section class="hero">
     <div class="hero-glow" aria-hidden="true"></div>
+    <div class="gk-threads" data-gk-threads aria-hidden="true"></div>
     <div class="wrap">
       <div class="hero-top reveal">
         <span class="pill">
