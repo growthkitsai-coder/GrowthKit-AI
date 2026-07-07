@@ -529,7 +529,7 @@
         }
 
         if (terminalErr && !done) throw new Error(terminalErr);
-        if (!done || !lastJson || !lastJson.subject) throw new Error('The engine returned an empty deliverable — give it another go.');
+        if (!done || !lastJson || !lastJson.subject) throw new Error('The run was cut off before it finished (the engine hit the server time limit). Try again — a well-known company usually completes faster.');
 
         if (deliverableEl) {
           deliverableEl.innerHTML = renderDeliverable(lastJson);

@@ -41,8 +41,8 @@
 'use strict';
 
 const MODEL = 'claude-opus-4-8';
-const MAX_TOKENS = 8000;
-const WEB_SEARCH_MAX_USES = 4; // cap live searches to stay inside the 60s window
+const MAX_TOKENS = 6000;
+const WEB_SEARCH_MAX_USES = 2; // each live search is a round trip; 2 keeps the run inside the 60s Hobby ceiling
 const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
 const RATE_MAX = 6; // accepted runs per IP per window
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
@@ -121,8 +121,8 @@ const SYSTEM_PROMPT = [
   "",
   "GrowthKit AI turns market and competitor signal into decisions for seed and Series A founders. Voice: confident, operator-grade, specific, no fluff — but every claim is grounded in what you actually found on the web, not invented. You are talking to a founder with a live product and limited time.",
   "",
-  "HOW TO WORK (be fast — you are on a strict time budget):",
-  "- Run AT MOST " + WEB_SEARCH_MAX_USES + " web searches, total. Spend them well: identify the category and the real named competitors; check a couple of competitors' positioning/pricing; find the gap. Do not over-explore.",
+  "HOW TO WORK (be fast — you are on a HARD ~55-second budget and WILL be cut off if you run long):",
+  "- Run AT MOST " + WEB_SEARCH_MAX_USES + " web searches, total, and be decisive: one search to identify the company + its real named competitors and segment, one to sanity-check a couple of competitors' pricing/positioning. Do NOT over-search or over-deliberate — a fast, grounded read beats a slow, exhaustive one. As soon as you have enough to plot the map and name the gaps, write the JSON.",
   "- Use the company's website/profile to pin down WHICH company this is (names can be ambiguous) and its actual segment. If you genuinely cannot identify the company or its market from the name + web, still produce your best-effort read of the most likely category and say so honestly in the positioning line.",
   "- If the founder listed competitors (or a market leader), treat them as strong hints — verify them and expand the set with search, don't just accept the list. If they gave a detailed profile (traction, pricing, ICP, stage), ground the positioning, gaps and plan in it specifically.",
   "- Prefer real, named competitors you found. Pricing and market numbers are best-effort estimates from what you read — reasonable, not fabricated precision. It is fine to write a price as a range or 'est.'",
@@ -135,13 +135,13 @@ const SYSTEM_PROMPT = [
   '    "x_axis": string (label for the price axis, e.g. "price per seat / month →"),',
   '    "y_axis": string (label for the depth axis, e.g. "workflow depth →"),',
   '    "x_ticks": [string, string, string, string, string] (5 left→right price ticks, e.g. ["$0","$50","$120","$220","$350+"]),',
-  '    "vendors": [ { "name": string, "sub": string (2–4 word descriptor), "x": number 0–100 (price), "y": number 0–100 (workflow depth) } ]  (6–10 real competitors),',
+  '    "vendors": [ { "name": string, "sub": string (2–4 word descriptor), "x": number 0–100 (price), "y": number 0–100 (workflow depth) } ]  (6–8 real competitors),',
   '    "subject_point": { "x": number 0–100, "y": number 0–100 } (where the founder\'s company sits),',
   '    "gap": { "label": string (short, e.g. "the gap"), "sub": string (one line, e.g. "deep workflow · owner-operator price"), "x": number 0–100 (left edge), "y": number 0–100 (bottom edge), "w": number 0–100 (width), "h": number 0–100 (height) }',
   '  },',
-  '  "teardown": [ { "name": string, "tag": string (2–4 word label, e.g. "enterprise incumbent"), "wedge": string (1–2 sentences: their wedge and go-to-market motion), "price": string (short, e.g. "$129/seat/mo"), "price_note": string (e.g. "monthly, per-seat"), "soft": string (1–2 sentences: the specific opening they leave — where they are soft, slow, or over-serving) } ]  (4–6 competitors),',
-  '  "gaps": [ { "tag": string (e.g. "Gap 01"), "title": string (a sharp headline, may wrap one key word in <em>…</em> for emphasis), "body": string (2–3 sentences on the opening and why it is real), "score": string (e.g. "7.4"), "score_label": string (e.g. "opportunity"), "meter": number 0–100 (fill for the strength bar) } ]  (3–4 gaps),',
-  '  "plan": [ { "horizon": string (e.g. "Days 1–30"), "title": string (the play, may use <em>…</em>), "body": string (1–2 sentences on the move), "first_move": string (the concrete first action), "kill": string (the signal that says stop) } ]  (6–8 plays across the 90 days),',
+  '  "teardown": [ { "name": string, "tag": string (2–4 word label, e.g. "enterprise incumbent"), "wedge": string (1–2 sentences: their wedge and go-to-market motion), "price": string (short, e.g. "$129/seat/mo"), "price_note": string (e.g. "monthly, per-seat"), "soft": string (1–2 sentences: the specific opening they leave — where they are soft, slow, or over-serving) } ]  (exactly 4 competitors),',
+  '  "gaps": [ { "tag": string (e.g. "Gap 01"), "title": string (a sharp headline, may wrap one key word in <em>…</em> for emphasis), "body": string (2–3 sentences on the opening and why it is real), "score": string (e.g. "7.4"), "score_label": string (e.g. "opportunity"), "meter": number 0–100 (fill for the strength bar) } ]  (exactly 3 gaps),',
+  '  "plan": [ { "horizon": string (e.g. "Days 1–30"), "title": string (the play, may use <em>…</em>), "body": string (1–2 sentences on the move), "first_move": string (the concrete first action), "kill": string (the signal that says stop) } ]  (exactly 6 plays across the 90 days),',
   '  "citations": [ { "title": string, "url": string } ]  (3–8 of the actual sources you used),',
   '  "note": string (one honest line: this is an AI first-draft from live web research — verify key numbers — and what the full monthly GrowthKit deliverable adds beyond it)',
   "}",
@@ -274,7 +274,7 @@ module.exports = async function handler(req, res) {
         model: MODEL,
         max_tokens: MAX_TOKENS,
         stream: true,
-        output_config: { effort: 'medium' },
+        output_config: { effort: 'low' },
         tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: WEB_SEARCH_MAX_USES }],
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: buildUserMessage({ company, website, competitors, moves, profile }) }]
