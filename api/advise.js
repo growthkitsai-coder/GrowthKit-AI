@@ -306,6 +306,8 @@ module.exports = async function handler(req, res) {
   let answer = '';        // accumulated final text (the JSON)
   let searchCount = 0;
   let announcedWriting = false;
+  let stopReason = null;  // captured for diagnostics
+  let apiError = null;    // an Anthropic stream error, if any
 
   try {
     for (;;) {
@@ -335,8 +337,10 @@ module.exports = async function handler(req, res) {
           }
         } else if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
           answer += evt.delta.text;
+        } else if (evt.type === 'message_delta' && evt.delta && evt.delta.stop_reason) {
+          stopReason = evt.delta.stop_reason;
         } else if (evt.type === 'error') {
-          send({ type: 'error', message: 'The engine stopped early — please try again.' });
+          apiError = (evt.error && (evt.error.message || evt.error.type)) || 'stream error';
         }
       }
     }
@@ -350,7 +354,16 @@ module.exports = async function handler(req, res) {
   if (deliverable && deliverable.subject) {
     send({ type: 'done', deliverable: deliverable });
   } else {
-    send({ type: 'error', message: 'The engine could not finish a full deliverable in time — please try again.' });
+    // Self-diagnosing failure: say WHY, and attach the raw signals so a screenshot
+    // of the error tells us whether it was a timeout, a truncation, a bad-JSON run,
+    // or an upstream API error — instead of a generic "empty deliverable".
+    let message;
+    if (apiError) message = 'The engine hit an API error — please try again.';
+    else if (stopReason === 'max_tokens') message = 'The engine ran out of output room before finishing — please try again.';
+    else if (stopReason === 'pause_turn') message = 'The engine needed more search steps than allowed — please try again.';
+    else if (answer.length) message = 'The engine finished but did not return a complete deliverable — please try again.';
+    else message = 'The run was cut off before producing anything (most likely the 60s server limit) — try a well-known company, or a longer server limit is needed.';
+    send({ type: 'error', message: message, debug: { chars: answer.length, searches: searchCount, stop_reason: stopReason || null, api_error: apiError || null } });
   }
   res.end();
 };
