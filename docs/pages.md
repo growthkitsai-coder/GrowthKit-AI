@@ -27,7 +27,7 @@ All pages live at the repo root. Every public page is self-contained: inline `<s
 - **`login.html`** (`/login`) — email + password + "Continue with Google", remember-me, forgot-password link. On success → `/four`.
 - **`signup.html`** (`/signup`) — email + password (8+) + Google; with email confirmation on, shows a "check your email" state. On success → `/four`.
 - **`reset.html`** (`/reset`) — password reset: request-a-link form, and (when arriving from the emailed link) a set-new-password form.
-- **`four.html`** (`/four`) — **the gated product**: after login this IS the GrowthKit Live tool (reuses `advisor.css`/`advisor.js`, `data-gk-full`), plus a **"Your reads"** history panel loaded from the user's Supabase `reads` table (click a past read to re-view it). Redirects to `/login` if not signed in; top bar shows the signed-in email + Sign out.
+- **`four.html`** (`/four`) — **the gated product**: after login this IS the GrowthKit Live tool (reuses `advisor.css`/`advisor.js`, `data-gk-full`). Onboarding is an **adaptive multi-step wizard** (redesigned 2026-07-08; multiple-choice cards/chips that branch on industry + stage, a fast-track shortcut, and a premium animated loading sequence — see [`docs/advisor.md`](advisor.md)), plus a **"Your reads"** history panel loaded from the user's Supabase `reads` table (click a past read to re-view it). Redirects to `/login` if not signed in; top bar shows the signed-in email + Sign out.
 - All four: `noindex`, no footer, minimal top bar; Supabase Auth via CDN; shared `auth.css` + `auth.js` + `auth-config.js`. **Sign-in is inactive until Supabase keys are pasted into `auth-config.js`** (pages show a "not configured" notice until then).
 
 ## Internal / non-public

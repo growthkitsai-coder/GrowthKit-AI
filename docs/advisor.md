@@ -4,7 +4,7 @@
 
 ## What it is
 
-The product, branded **GrowthKit Live**, lives **behind login at `/four`** (see [`docs/auth.md`](auth.md)). A signed-in founder first picks an **onboarding mode** — **Quick read** (company name + optional website / known competitors / recent moves) or **Full profile** (a ~30-field grouped startup profile, all optional, saved to their account) — then the engine **actually searches the live web** (Anthropic's built-in `web_search` tool) to find and dissect that company's **real** competitors and returns a **full specimen-grade deliverable** — the same shape as [`specimen.html`](../specimen.html). More context (competitors, traction, ICP, pricing) just makes the deliverable sharper; the engine underneath is identical for both modes.
+The product, branded **GrowthKit Live**, lives **behind login at `/four`** (see [`docs/auth.md`](auth.md)). A signed-in founder is taken through a **premium, adaptive onboarding wizard** (redesigned 2026-07-08) — one question per screen, progress bar, mostly **multiple-choice cards + chips** with only a couple of text fields — that **adapts to previous answers** (the business-model step swaps options by industry; the growth-focus step swaps entirely between "what are you validating?" for pre-revenue and "where is growth stuck?" for established). A **fast-track** link on the first screen lets people in a hurry generate from just a company name. Either way the engine **actually searches the live web** (built-in `web_search` tool) to find and dissect that company's **real** competitors and returns a **full specimen-grade deliverable** — the same shape as [`specimen.html`](../specimen.html). More context (industry, stage, model, focus, channels, one-liner, edge, known competitors) just makes the deliverable sharper; the engine underneath is identical for the wizard and the fast-track.
 
 The deliverable has:
 
@@ -18,13 +18,15 @@ The deliverable has:
 
 Presented **confident + cited** (like the specimen) with a small **"AI research draft — verify key numbers"** badge, because numbers are web-researched estimates. Every deliverable is **saved to the user's account** (Supabase `reads`). `/advisor` (the old public page) is retired → redirects to `/four`; the homepage shows a "create a free account / log in" CTA.
 
-**Ease-of-use:** one-click **example presets** fill the form with real companies (Jobber / Otter.ai / Ramp); after a run, **Copy share link** (a `/four?co=…&w=…&a=…` URL that re-runs the same inputs) + **Save as PDF** (print stylesheet).
+**Ease-of-use:** one-click **example presets** fill the first step with real companies (Jobber / Otter.ai / Ramp); after a run, **Analyse another company** (resets the wizard), **Copy share link** (a `/four?co=…&w=…&c=…&m=…` URL that re-runs the same inputs via fast-track), and **Save as PDF** (print stylesheet).
 
 ## Architecture — first backend in the repo
 
 ```
-four.html  (gated page; onboarding chooser → short/long form; progress log + deliverable)
+four.html  (gated page; adaptive onboarding WIZARD → premium loading sequence → deliverable)
    |  POST /api/advise  { mode, company, website, competitors, moves, profile_text, company_url, t }
+   |    (mode='wizard' or 'short' for the fast-track — the API ignores mode; wizard answers
+   |     are serialized client-side into profile_text; known-competitors ride in `competitors`)
    |  Authorization: Bearer <supabase access token>
    v
 api/advise.js  (Vercel serverless function — the ONLY server code, the ONLY secret reader)
@@ -36,15 +38,16 @@ Anthropic Messages API  (Claude runs the search loop server-side, then emits ONE
    |    {"type":"status","stage":"search"|"writing",...}  ← while it works
    |    {"type":"done","deliverable":{…}}  |  {"type":"error","message":…}
    v
-advisor.js  reads NDJSON → shows a live progress log → renders the JSON deliverable
+advisor.js  reads NDJSON → shows a premium scripted RESEARCH SEQUENCE (animated status
+            checklist, not the raw events) → on `done` renders the JSON deliverable
             (buildMap SVG, teardown table, gap meters, plan, citations) → saves to Supabase
 ```
 
 - **`api/advise.js`** — zero npm dependencies (raw `fetch`, hand-parses Anthropic SSE), CommonJS, no build step. Reads `process.env.ANTHROPIC_API_KEY`; without it, returns a 503 "not configured". Requires a valid Supabase token when `SUPABASE_URL`+`SUPABASE_ANON_KEY` are set on the server. It **accumulates the model's final text server-side, extracts the JSON object** (`extractJson` — tolerant of code fences / trailing prose / braces-in-strings), and sends it as one `done` event. It does **not** stream tokens to the browser — the browser can't render partial JSON — instead it streams progress events so a slow run keeps the connection alive. `stop_reason: "pause_turn"` (server tool loop cap) is not continued in v1; if it ever fires the run ends with an error and the user retries.
-- **`advisor.js`** — the shared engine (ES5, no deps), loaded only by `four.html`. Reads the NDJSON stream, appends each status to a **live progress log** (terminal-readout feel), then on `done` calls `renderDeliverable(json)` which builds the whole designed deliverable as a string. `buildMap()` maps 0–100 vendor coords into the specimen SVG geometry (viewBox `0 0 880 560`; plot area x:90→810, y:480(bottom)→60(top)). Titles/positioning may contain a literal `<em>…</em>` (allowed through `richEm`/`richPara`; everything else is HTML-escaped). Saves the deliverable JSON to Supabase and exposes `GKAdvisor.render(container, raw)` — **JSON-aware, with a legacy fallback** so reads saved before this change (plain `01/02/03/04` engine text) still open.
+- **`advisor.js`** — the shared engine (ES5, no deps), loaded only by `four.html`. Owns the **wizard state machine** (config-driven, mirroring the old `PROFILE_GROUPS` pattern: `STEPS` + `INDUSTRY_OPTS`/`STAGE_OPTS`/`MODEL_BY_INDUSTRY`/`FOCUS_PRE`/`FOCUS_EST`/`CHANNELS`/`SHARPEN_FIELDS`; single-select cards auto-advance, multi-select chips + Continue, a review screen with per-answer Edit). Serializes answers → labelled `profile_text` via `answersToProfileText()`. On generate it reads the NDJSON stream but **ignores the status events** — the loading UI is a **scripted research sequence** (`LOADING_PHRASES`, an animated checklist + progress bar that eases to ~92% and completes honestly on the real `done`; phrases personalize with the website host + industry; reduced-motion falls back to a static list). Then `renderDeliverable(json)` builds the whole designed deliverable as a string — **unchanged**. `buildMap()` maps 0–100 vendor coords into the specimen SVG geometry (viewBox `0 0 880 560`; plot area x:90→810, y:480(bottom)→60(top)). Titles/positioning may contain a literal `<em>…</em>` (allowed through `richEm`/`richPara`; everything else is HTML-escaped). Saves the deliverable JSON to Supabase and exposes `GKAdvisor.render(container, raw)` — **JSON-aware, with a legacy fallback** so reads saved before all this (plain `01/02/03/04` engine text) still open.
 - **`advisor.css`** — the console shell + the deliverable component styles. The deliverable classes **mirror `specimen.html`** (`.map-svg`+dots/axes/gap-zone, `.tt-row`, `.gap-card`+`.gap-meter`, `.play`+`.p-meta`) so generated output matches the sample. Map dots "plot themselves" and gap meters fill via CSS entrance animations (`gkPlot`/`gkFill`), with reduced-motion + print fallbacks.
-- **Onboarding (short/long):** `four.html` shows a **chooser** (Quick read / Full profile); `advisor.js` builds the long form from its `PROFILE_GROUPS` config into `[data-gk-long-mount]`, serializes filled fields into the labelled `profile_text` sent to the engine, and **upserts the long profile to Supabase `profiles`** (one JSON `data` row per `user_id`, RLS-protected) so it pre-fills on return. Quick-read presets (Jobber / Otter.ai / Ramp) fill the short fields. `mode` rides in the payload and analytics.
-- **The `reads` columns are repurposed** (no schema change): `product`=company name (the history label), `competitors`+`moves`=the quick-read context (empty in long mode), `output`=the **deliverable JSON string**. The `profiles` table (long-onboarding profile) is separate. See [`docs/auth.md`](auth.md).
+- **Onboarding (the wizard):** `four.html` mounts the wizard into `[data-gk-wizard]` inside the console; `advisor.js` renders each step from its `STEPS` config, keeps an `answers` object, and on generate serializes it into a labelled `profile_text` (`BUSINESS PROFILE` / `GROWTH CONTEXT` blocks). Only `company`, `website`, and `competitors` (from the optional "known competitors" sharpen field) map to their own payload fields — **everything else lives in `profile_text`**, so no backend change was needed. The full `answers` object is **upserted to Supabase `profiles`** (one JSON `data` row per `user_id`, RLS-protected) and **pre-fills the wizard on return**. `mode` (`wizard`/`short`) rides in the payload for analytics only (the API ignores it). Trust copy names GrowthKit's **proprietary market-intelligence models** — no AI provider is named in the UI (2026-07-08).
+- **The `reads` columns are repurposed** (no schema change): `product`=company name (the history label), `competitors`=known competitors (if given) / `moves`=empty, `output`=the **deliverable JSON string**. The `profiles` table (the wizard answers) is separate. See [`docs/auth.md`](auth.md).
 
 ## Setup — REQUIRED before it works (one-time, in the Vercel dashboard)
 

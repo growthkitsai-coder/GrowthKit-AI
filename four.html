@@ -80,76 +80,34 @@
 
       <div class="gk-advisor" data-gk-advisor data-gk-full="1">
 
-        <!-- Onboarding chooser -->
-        <div class="gk-modes" data-gk-modes>
-          <button type="button" class="gk-mode-card" data-gk-mode="short">
-            <span class="gk-mode-tag">Quick read</span>
-            <span class="gk-mode-title">Just the <em>essentials</em></span>
-            <span class="gk-mode-desc">Your company name — plus known competitors and a URL if you have them. The fastest path to a deliverable; the engine finds the rest on the web.</span>
-            <span class="gk-mode-go">Start quick <span class="gk-arr">→</span></span>
-          </button>
-          <button type="button" class="gk-mode-card" data-gk-mode="long">
-            <span class="gk-mode-tag">Full profile</span>
-            <span class="gk-mode-title">The <em>sharpest</em> cut</span>
-            <span class="gk-mode-desc">Tell the engine about your product, traction, ICP, pricing and market — every field optional, saved to your account. The more you share, the sharper the read.</span>
-            <span class="gk-mode-go">Build my profile <span class="gk-arr">→</span></span>
-          </button>
-        </div>
-
-        <!-- Engine console (hidden until a mode is chosen) -->
-        <div class="gk-console" data-gk-console style="display:none">
+        <!-- Engine console — the adaptive onboarding wizard lives inside -->
+        <div class="gk-console" data-gk-console>
           <div class="gk-console-head">
             <span><span class="gk-dot" aria-hidden="true"></span>growthkit&nbsp;live · engine</span>
-            <button type="button" class="gk-switch" data-gk-switch>↤ change onboarding</button>
+            <button type="button" class="gk-switch" data-gk-restart hidden>↺ start over</button>
           </div>
           <div class="gk-console-body">
+
+            <!-- Progress -->
+            <div class="gk-progress" data-gk-progress>
+              <div class="gk-progress-track"><i class="gk-progress-fill" data-gk-progress-fill></i></div>
+              <div class="gk-progress-meta"><span data-gk-progress-label>Step 1</span><span class="gk-progress-brand">consultation</span></div>
+            </div>
+
             <form data-gk-form novalidate>
-
-              <!-- SHORT onboarding -->
-              <div data-gk-panel="short">
-                <div class="gk-presets" data-gk-presets aria-label="Example companies"></div>
-                <div class="gk-field-group">
-                  <label class="gk-label" for="gk-company">Your company name</label>
-                  <input id="gk-company" class="gk-input" data-gk-field="company" maxlength="160" placeholder="e.g. Jobber" autocomplete="off">
-                </div>
-                <div class="gk-optional-fields">
-                  <div class="gk-field-group" style="margin-bottom:0;">
-                    <label class="gk-label" for="gk-website">Website <span class="gk-opt">— optional, pins down which company</span></label>
-                    <input id="gk-website" class="gk-input" data-gk-field="website" maxlength="300" placeholder="e.g. getjobber.com" autocomplete="off">
-                  </div>
-                  <div class="gk-field-group" style="margin-bottom:0;">
-                    <label class="gk-label" for="gk-competitors">Known competitors <span class="gk-opt">— optional, sharpens the read</span></label>
-                    <textarea id="gk-competitors" class="gk-input" data-gk-field="competitors" maxlength="1200" placeholder="e.g. ServiceTitan, Housecall Pro, FieldEdge"></textarea>
-                  </div>
-                  <div class="gk-field-group" style="margin-bottom:0;">
-                    <label class="gk-label" for="gk-moves">Recent competitor moves <span class="gk-opt">— optional</span></label>
-                    <textarea id="gk-moves" class="gk-input" data-gk-field="moves" maxlength="1200" placeholder="e.g. Housecall Pro launched an AI dispatcher; ServiceTitan raised prices"></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- LONG onboarding (form groups built by advisor.js) -->
-              <div data-gk-panel="long" style="display:none">
-                <p class="gk-long-intro">Every field is optional and saved to your account — fill what you can, skip the rest. Start with your <strong>startup name</strong> at the top of Company.</p>
-                <div data-gk-long-mount></div>
-              </div>
+              <!-- The wizard steps render here (advisor.js) -->
+              <div class="gk-wizard" data-gk-wizard></div>
 
               <div class="gk-hp" aria-hidden="true">
                 <label for="gk-company-url">Company URL</label>
                 <input id="gk-company-url" data-gk-field="company_url" type="text" tabindex="-1" autocomplete="off">
               </div>
-              <button type="submit" class="gk-run" data-gk-submit>
-                <span data-gk-submit-label>Generate deliverable</span> <span class="gk-arr">→</span>
-              </button>
               <div class="gk-error" data-gk-error role="alert" aria-live="polite"></div>
-              <p class="gk-note">The engine searches the live web and can take up to a minute. Numbers it reports are AI research estimates — verify before you act. Your inputs are sent to Anthropic's API and the deliverable is saved to your account. Don't enter anything confidential.</p>
+              <p class="gk-note">Your responses are analysed by GrowthKit AI's proprietary market-intelligence models — trained to read industries, competitors, positioning, and growth opportunities. The engine also searches the live web, so a run can take up to a minute; figures are research estimates, verify before you act. Every deliverable is saved to your account — don't enter anything confidential.</p>
             </form>
 
             <div class="gk-output" data-gk-output>
-              <div class="gk-stream-wrap" data-gk-stream-wrap>
-                <div class="gk-status" data-gk-status></div>
-                <pre class="gk-stream" data-gk-stream></pre>
-              </div>
+              <div class="gk-loading" data-gk-loading></div>
               <div class="gk-deliverable" data-gk-deliverable></div>
               <div class="gk-actions" data-gk-actions></div>
             </div>
