@@ -40,6 +40,16 @@
 
 'use strict';
 
+// ── KILL SWITCH ─────────────────────────────────────────────────────────────
+// Product temporarily PAUSED by Avi (2026-07-07) to stop ALL Anthropic API calls
+// and costs while the 60s-timeout issue is worked out. While paused, the endpoint
+// returns a friendly "paused" message and NEVER contacts Anthropic (or Supabase) —
+// guaranteeing zero API spend. It also honours the Vercel env var
+// GK_ADVISOR_DISABLED=1 as an instant dashboard override.
+// ▶ TO RE-ENABLE (only when Avi says so): set ADVISOR_ENABLED = true, commit, push
+//   (auto-deploys), and clear GK_ADVISOR_DISABLED in Vercel if it was set.
+const ADVISOR_ENABLED = false;
+
 const MODEL = 'claude-opus-4-8';
 const MAX_TOKENS = 6000;
 const WEB_SEARCH_MAX_USES = 2; // each live search is a round trip; 2 keeps the run inside the 60s Hobby ceiling
@@ -194,6 +204,12 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed.' });
+    return;
+  }
+
+  // Kill switch — return before any external call (no Anthropic, no Supabase, no cost).
+  if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') {
+    res.status(503).json({ error: "GrowthKit Live is paused right now while we upgrade the engine — please check back soon." });
     return;
   }
 
