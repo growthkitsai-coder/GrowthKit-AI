@@ -2,6 +2,9 @@
 
 > Part of the GrowthKit AI docs set. Read [`CLAUDE.md`](../CLAUDE.md) first. This file is the single home for the Advisor — the site's **first server-side code and first API secret**. **Update it whenever the function, prompt, model, deliverable schema, or limits change.**
 
+> ## ⏸ PAUSED (2026-07-07) — kill switch ON, zero API cost
+> `api/advise.js` has **`ADVISOR_ENABLED = false`**: every call returns a 503 "paused" message **before any Anthropic or Supabase request**, so no tokens/web-search charges can accrue. It also honours the Vercel env var `GK_ADVISOR_DISABLED=1`. **Why paused:** a live test proved the engine can't finish web-search + a full deliverable inside Vercel's **60s Hobby ceiling** — it ran ~61s (2 searches, no result) and was cut off every time, even slimmed. **To RE-ENABLE (only when Avi says so):** set `ADVISOR_ENABLED = true`, commit, push (auto-deploys); clear `GK_ADVISOR_DISABLED` in Vercel if set. The durable fix to actually make it work is **Vercel Pro + raise `maxDuration` to ~180 in `vercel.json`**, then restore full quality (effort `medium`, `max_uses` 3–4, `max_tokens` 8000 — see the Model section).
+
 ## What it is
 
 The product, branded **GrowthKit Live**, lives **behind login at `/four`** (see [`docs/auth.md`](auth.md)). A signed-in founder first picks an **onboarding mode** — **Quick read** (company name + optional website / known competitors / recent moves) or **Full profile** (a ~30-field grouped startup profile, all optional, saved to their account) — then the engine **actually searches the live web** (Anthropic's built-in `web_search` tool) to find and dissect that company's **real** competitors and returns a **full specimen-grade deliverable** — the same shape as [`specimen.html`](../specimen.html). More context (competitors, traction, ICP, pricing) just makes the deliverable sharper; the engine underneath is identical for both modes.
