@@ -808,6 +808,19 @@
     to   { transform: translate3d(-50%, 0, 0); }
   }
   .marquee:hover .marquee-track { animation-play-state: paused; }
+
+  /* ── Integrated with — scrolling logo strip ── */
+  .logos { padding: 34px 0 38px; background: var(--bg); border-bottom: 1px solid var(--line); overflow: hidden; }
+  .logos-label { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 22px; }
+  .logos-viewport { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, #000 110px, #000 calc(100% - 110px), transparent); mask-image: linear-gradient(to right, transparent, #000 110px, #000 calc(100% - 110px), transparent); }
+  .logos-track { display: inline-flex; align-items: center; gap: 60px; white-space: nowrap; animation: logos 48s linear infinite; will-change: transform; }
+  .logos:hover .logos-track { animation-play-state: paused; }
+  .logo-item { display: inline-flex; align-items: center; gap: 12px; color: var(--ink-2); opacity: 0.42; transition: opacity 0.3s ease, color 0.3s ease; }
+  .logo-item:hover { opacity: 1; color: var(--accent); }
+  .logo-item svg { width: 27px; height: 27px; flex: none; }
+  .logo-item > span { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  @keyframes logos { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+
   .stage-card .card-body {
     position: relative;
     z-index: 1;
@@ -1693,6 +1706,7 @@
     .stage-card .card-title .framed-word .fr-r { transform: scaleY(1); transition: none; }
     .stage-card .card-tag { animation: none; }
     .marquee-track { animation: none; }
+    .logos-track { animation: none; flex-wrap: wrap; justify-content: center; gap: 28px 44px; white-space: normal; }
     .process-flow .wave-path { stroke-dashoffset: 0; transition: none; }
     .process-flow .wave-group { animation: none; }
     .process-flow .node-dot { background: var(--accent); border-color: var(--accent); transition: none; }
@@ -1935,6 +1949,11 @@
   }
   :root[data-theme="dark"] .marquee::before { background: linear-gradient(to right, var(--deep-2), rgba(10, 31, 21, 0)); }
   :root[data-theme="dark"] .marquee::after  { background: linear-gradient(to left,  var(--deep-2), rgba(10, 31, 21, 0)); }
+
+  /* Integrations strip — muted mint marks that go full neon on hover */
+  :root[data-theme="dark"] .logos { background: var(--deep-1); border-bottom-color: var(--deep-3); }
+  :root[data-theme="dark"] .logo-item { color: var(--neon-2); opacity: 0.32; }
+  :root[data-theme="dark"] .logo-item:hover { color: var(--neon); opacity: 1; }
 
   /* Engine — module tags go neon (manifesto article-tag analog), rows
      read as log entries: dashed neon separators + the signature
@@ -2210,6 +2229,42 @@
             <div class="v">2026<small>London · Remote</small></div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== INTEGRATED WITH — scrolling logo strip ====== -->
+  <svg class="gkl-sprite" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="gkl-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol>
+    <symbol id="gkl-stripe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="4.6"/><path d="M14.4 9.4c0-1-.9-1.5-2-1.5-1.5 0-2.6.8-2.6 2 0 2.5 4.9 1.7 4.9 3.9 0 1.2-1.1 2-2.6 2-1.3 0-2.4-.6-2.8-1.4" stroke-linecap="round" stroke-linejoin="round"/></g></symbol>
+    <symbol id="gkl-claude" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.6V21.4"/><path d="M2.6 12H21.4"/><path d="M5.35 5.35 18.65 18.65"/><path d="M18.65 5.35 5.35 18.65"/></g></symbol>
+    <symbol id="gkl-chatgpt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="12" rx="9.3" ry="3.9"/><ellipse cx="12" cy="12" rx="9.3" ry="3.9" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.3" ry="3.9" transform="rotate(120 12 12)"/></g></symbol>
+    <symbol id="gkl-notion" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><rect x="3.3" y="3" width="17.4" height="18" rx="2.4"/><path d="M8 16.4V8l8 8.4V8"/></g></symbol>
+    <symbol id="gkl-slack" viewBox="0 0 24 24"><g fill="currentColor"><rect x="8.4" y="2" width="3.4" height="9.6" rx="1.7"/><rect x="12.2" y="12.4" width="3.4" height="9.6" rx="1.7"/><rect x="12.4" y="8.4" width="9.6" height="3.4" rx="1.7"/><rect x="2" y="12.2" width="9.6" height="3.4" rx="1.7"/></g></symbol>
+    <symbol id="gkl-linear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3.4" y="3.4" width="17.2" height="17.2" rx="4.6"/><path d="M6.2 12 12 6.2"/><path d="M6.2 16.6 16.6 6.2" opacity=".7"/><path d="M9.2 18 18 9.2" opacity=".45"/></g></symbol>
+    <symbol id="gkl-hubspot" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1.7" fill="none"><circle cx="12" cy="13.2" r="3.1"/><path d="M12 10.1V4.7" stroke-linecap="round"/><path d="M9.8 15.1 6.2 18.4" stroke-linecap="round"/><path d="M14.2 15.1 17.8 18.4" stroke-linecap="round"/><circle cx="12" cy="3.4" r="1.9" fill="currentColor" stroke="none"/><circle cx="5.2" cy="19.3" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.8" cy="19.3" r="1.7" fill="currentColor" stroke="none"/></g></symbol>
+  </svg>
+  <section class="logos" aria-label="Integrated with">
+    <div class="logos-label">Integrated with</div>
+    <div class="logos-viewport">
+      <div class="logos-track">
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-stripe"/></svg><span>Stripe</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-github"/></svg><span>GitHub</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-claude"/></svg><span>Claude</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-chatgpt"/></svg><span>ChatGPT</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-notion"/></svg><span>Notion</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-slack"/></svg><span>Slack</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-linear"/></svg><span>Linear</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-hubspot"/></svg><span>HubSpot</span></span>
+        <!-- duplicated for seamless loop -->
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-stripe"/></svg><span>Stripe</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-github"/></svg><span>GitHub</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-claude"/></svg><span>Claude</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-chatgpt"/></svg><span>ChatGPT</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-notion"/></svg><span>Notion</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-slack"/></svg><span>Slack</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-linear"/></svg><span>Linear</span></span>
+        <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-hubspot"/></svg><span>HubSpot</span></span>
       </div>
     </div>
   </section>
