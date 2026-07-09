@@ -39,9 +39,13 @@
   ];
 
   // ── Wizard config — the single source of truth for the adaptive onboarding.
-  // Answers are stored by key (single/multi hold option VALUES; text holds the
-  // string). Labels are resolved from these option lists at serialize time, so
-  // the text sent to the engine always reads in plain English.
+  // Answers are stored by key: single-choice holds an option VALUE, multi holds
+  // an array of VALUES, text/textarea holds the string. Labels are resolved from
+  // the option lists at serialize time, so the text sent to the engine reads in
+  // plain English. Steps are one of: 'text' (company), 'single' (a full-screen
+  // choice-card question, auto-advances), 'multi' (full-screen chips), 'group'
+  // (a themed screen with several sub-fields — each single/multi/text/textarea),
+  // or 'review'. The full ~25-question profile lives in the 'group' steps.
   var INDUSTRY_OPTS = [
     { v: 'saas', l: 'SaaS / B2B software', d: 'Software sold to other businesses' },
     { v: 'ecommerce', l: 'Ecommerce / DTC', d: 'Selling physical or digital goods online' },
@@ -59,7 +63,7 @@
     { v: 'growing', l: 'Growing', d: 'Revenue climbing, repeatable' },
     { v: 'scaling', l: 'Scaling', d: 'Pouring fuel on what works' }
   ];
-  // Step 4 adapts to the chosen industry.
+  // The business-model step adapts to the chosen industry.
   var MODEL_BY_INDUSTRY = {
     saas:        { title: 'How do you go to market?',       opts: [ { v: 'plg', l: 'Product-led / self-serve' }, { v: 'sales', l: 'Sales-led' }, { v: 'hybrid', l: 'Hybrid' }, { v: 'unsure', l: 'Still figuring it out' } ] },
     ecommerce:   { title: 'What best describes your model?', opts: [ { v: 'dtc', l: 'Single-brand DTC' }, { v: 'sub', l: 'Subscription / replenishment' }, { v: 'multi', l: 'Multi-brand or marketplace' }, { v: 'wholesale', l: 'Wholesale + DTC' } ] },
@@ -70,37 +74,71 @@
     hardware:    { title: 'How do you sell it?',             opts: [ { v: 'dtc', l: 'Direct-to-consumer' }, { v: 'retail', l: 'Retail / distribution' }, { v: 'b2b', l: 'B2B / wholesale' }, { v: 'hybrid', l: 'Hybrid' } ] },
     other:       { title: 'How do you make money?',          opts: [ { v: 'sub', l: 'Subscription' }, { v: 'transactional', l: 'Transactional / per-use' }, { v: 'onetime', l: 'One-time sales' }, { v: 'unsure', l: 'Not sure yet' } ] }
   };
-  // Step 5 swaps entirely on stage — pre-revenue validates, established unblocks.
-  var FOCUS_PRE = { title: 'What are you trying to validate right now?', sub: 'Pick all that matter — this shapes the plan.', opts: [
-    { v: 'demand', l: 'Real demand' }, { v: 'pricing', l: 'Pricing / willingness to pay' }, { v: 'icp', l: 'Ideal customer (ICP)' },
-    { v: 'channel', l: 'The right channel' }, { v: 'positioning', l: 'Positioning / messaging' }, { v: 'retention', l: 'Early retention' } ] };
-  var FOCUS_EST = { title: 'Where is growth stuck?', sub: 'Pick all that apply — this shapes the plan.', opts: [
-    { v: 'acq', l: 'Acquisition — top of funnel' }, { v: 'activation', l: 'Activation — first value' }, { v: 'retention', l: 'Retention — churn' },
-    { v: 'monet', l: 'Monetization — pricing / expansion' }, { v: 'referral', l: 'Referrals / virality' }, { v: 'segments', l: 'New segments or markets' } ] };
   var CHANNELS = { title: 'Which channels are you using today?', sub: 'Multi-select — even “nothing yet” is a useful signal.', opts: [
     { v: 'seo', l: 'SEO / content' }, { v: 'paid', l: 'Paid ads' }, { v: 'outbound', l: 'Outbound / sales' }, { v: 'social', l: 'Social / community' },
     { v: 'referral', l: 'Referrals / word of mouth' }, { v: 'partner', l: 'Partnerships' }, { v: 'marketplace', l: 'Marketplaces / app stores' }, { v: 'none', l: 'Nothing yet' } ] };
-  var SHARPEN_FIELDS = [
-    { k: 'one_liner', l: 'Your startup in one sentence', ph: 'What you do, in a line' },
-    { k: 'edge', l: 'The one thing you do better than anyone', ph: 'Your unfair advantage', t: 1 },
-    { k: 'competitors', l: 'Competitors you already know of', ph: 'e.g. ServiceTitan, Housecall Pro', t: 1 }
-  ];
-  function isPreRev(a) { return a.stage === 'prelaunch' || a.stage === 'early_users'; }
+  // Option sets for the multiple-choice sub-fields inside the grouped steps.
+  var OPT = {
+    how_long:   [ { v: 'lt3', l: 'Under 3 months' }, { v: '3-6', l: '3–6 months' }, { v: '6-12', l: '6–12 months' }, { v: '1-2y', l: '1–2 years' }, { v: '2y+', l: '2+ years' } ],
+    founders:   [ { v: 'solo', l: 'Solo founder' }, { v: '2', l: '2 co-founders' }, { v: '3+', l: '3+ co-founders' } ],
+    employees:  [ { v: '0', l: 'Just us' }, { v: '2-5', l: '2–5' }, { v: '6-10', l: '6–10' }, { v: '11+', l: '11+' } ],
+    background: [ { v: 'technical', l: 'Technical' }, { v: 'nontechnical', l: 'Non-technical' }, { v: 'repeat', l: 'Repeat founder' }, { v: 'domain', l: 'Domain expert' } ],
+    hours:      [ { v: 'ft', l: 'Full-time' }, { v: 'pt', l: 'Part-time' }, { v: 'nights', l: 'Nights & weekends' } ],
+    access:     [ { v: 'web', l: 'Web app' }, { v: 'mobile', l: 'Mobile app' }, { v: 'api', l: 'API' }, { v: 'physical', l: 'Physical product' }, { v: 'multiple', l: 'Multiple' } ],
+    convos:     [ { v: 'many', l: 'Yes — many' }, { v: 'few', l: 'A few' }, { v: 'notyet', l: 'Not yet' } ],
+    pricing:    [ { v: 'sub', l: 'Subscription' }, { v: 'seat', l: 'Per-seat' }, { v: 'usage', l: 'Usage-based' }, { v: 'onetime', l: 'One-time' }, { v: 'freemium', l: 'Freemium' }, { v: 'notset', l: 'Not set yet' } ],
+    funding:    [ { v: 'boot', l: 'Bootstrapped' }, { v: 'preseed', l: 'Pre-seed' }, { v: 'seed', l: 'Seed' }, { v: 'seriesa', l: 'Series A+' }, { v: 'raising', l: 'Raising now' } ],
+    want_vc:    [ { v: 'yes', l: 'Yes' }, { v: 'no', l: 'No' }, { v: 'maybe', l: 'Maybe later' } ]
+  };
   function modelCfg(a) { return MODEL_BY_INDUSTRY[a.industry] || MODEL_BY_INDUSTRY.other; }
-  function focusCfg(a) { return isPreRev(a) ? FOCUS_PRE : FOCUS_EST; }
 
   // The step sequence. title/sub/options may be functions of the answers so the
-  // wizard adapts. `when(a)` (optional) gates a step in/out — all shown today.
+  // wizard adapts. Grouped steps carry `fields:[{k,l,type,options?,ph?}]`.
   var STEPS = [
     { id: 'company', kind: 'text' },
-    { id: 'industry', kind: 'single', title: 'What kind of business are you building?', sub: 'This tunes every question that follows.', options: INDUSTRY_OPTS },
-    { id: 'stage', kind: 'single', title: 'What stage are you at?', sub: 'So the plan matches where you actually are.', options: STAGE_OPTS },
-    { id: 'model', kind: 'single', title: function (a) { return modelCfg(a).title; }, sub: 'Pick the closest — it sharpens the competitor cut.', options: function (a) { return modelCfg(a).opts; } },
-    { id: 'focus', kind: 'multi', title: function (a) { return focusCfg(a).title; }, sub: function (a) { return focusCfg(a).sub; }, options: function (a) { return focusCfg(a).opts; } },
-    { id: 'channels', kind: 'multi', title: CHANNELS.title, sub: CHANNELS.sub, options: CHANNELS.opts },
-    { id: 'sharpen', kind: 'sharpen', title: 'Sharpen the read', sub: 'All optional — the more you share, the sharper the cut.', fields: SHARPEN_FIELDS },
+    { id: 'industry', kind: 'single', title: 'What industry are you in?', sub: 'This tunes every question that follows.', options: INDUSTRY_OPTS, slabel: 'Industry' },
+    { id: 'stage', kind: 'single', title: 'What stage is the product?', sub: 'So the plan matches where you actually are.', options: STAGE_OPTS, slabel: 'Stage' },
+    { id: 'nutshell', kind: 'group', title: 'Your startup in a nutshell', sub: 'The essentials — a line or two each is plenty.', fields: [
+      { k: 'one_sentence', l: 'Your startup in one sentence', type: 'text', ph: 'What you do, in a line' },
+      { k: 'problem', l: 'What problem are you solving?', type: 'textarea', ph: 'The pain you remove' },
+      { k: 'how_long', l: 'How long have you been working on it?', type: 'single', options: OPT.how_long }
+    ] },
+    { id: 'team', kind: 'group', title: 'You & the team', sub: 'Who is building this.', fields: [
+      { k: 'founders', l: 'Solo founder or co-founders?', type: 'single', options: OPT.founders },
+      { k: 'employees', l: 'How many employees?', type: 'single', options: OPT.employees },
+      { k: 'background', l: 'Founder background', type: 'multi', options: OPT.background },
+      { k: 'hours', l: 'Hours a week dedicated?', type: 'single', options: OPT.hours }
+    ] },
+    { id: 'product', kind: 'group', title: 'The product', fields: [
+      { k: 'walkthrough', l: "Walk me through the product as if I'm the customer", type: 'textarea', ph: 'From first click to the aha moment' },
+      { k: 'access', l: 'How do customers access it?', type: 'single', options: OPT.access }
+    ] },
+    { id: 'customers', kind: 'group', title: 'Your customers', fields: [
+      { k: 'ideal_customer', l: 'Describe your ideal customer', type: 'textarea', ph: 'Who they are, what they need' },
+      { k: 'customer_convos', l: 'Have you talked to customers?', type: 'single', options: OPT.convos },
+      { k: 'convos_detail', l: 'If so — how many, and what did they say?', type: 'textarea', ph: 'The signal you heard' }
+    ] },
+    { id: 'traction', kind: 'group', title: 'Traction', sub: 'Rough numbers are fine — skip what you do not have yet.', fields: [
+      { k: 'users_signups', l: 'Users / signups', type: 'text', ph: 'e.g. 1,200 signups' },
+      { k: 'mrr_arr', l: 'MRR and ARR', type: 'text', ph: 'e.g. $4k MRR' },
+      { k: 'paying', l: 'Paying customers?', type: 'text', ph: 'e.g. 38' },
+      { k: 'churn', l: 'Monthly churn (how many leave each month)', type: 'text', ph: 'e.g. ~5% / 6 accounts' },
+      { k: 'proof_point', l: 'Your biggest proof point', type: 'textarea', ph: 'The thing that makes people believe' }
+    ] },
+    { id: 'market', kind: 'group', title: 'Market & competition', fields: [
+      { k: 'competitors', l: 'Your top 3 competitors', type: 'textarea', ph: 'e.g. ServiceTitan, Housecall Pro, FieldEdge' },
+      { k: 'market_leader', l: 'Who is the market leader?', type: 'text', ph: 'e.g. ServiceTitan' }
+    ] },
+    { id: 'model', kind: 'single', title: function (a) { return modelCfg(a).title; }, sub: 'Pick the closest — it sharpens the competitor cut.', options: function (a) { return modelCfg(a).opts; }, slabel: 'Business model / motion' },
+    { id: 'pricing', kind: 'group', title: 'Pricing & funding', fields: [
+      { k: 'pricing_model', l: 'Pricing model', type: 'single', options: OPT.pricing },
+      { k: 'raised_funding', l: 'Have you raised funding?', type: 'single', options: OPT.funding },
+      { k: 'want_vc', l: 'Do you want to raise VC?', type: 'single', options: OPT.want_vc }
+    ] },
+    { id: 'channels', kind: 'multi', title: CHANNELS.title, sub: CHANNELS.sub, options: CHANNELS.opts, slabel: 'Current marketing channels' },
     { id: 'review', kind: 'review', title: 'Ready when you are.', sub: 'A quick look before the engine runs.' }
   ];
+  function stepById(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return STEPS[i]; return null; }
 
   // Premium loading — a scripted research sequence. Advances on a timer and
   // completes honestly when the real deliverable lands.
@@ -137,27 +175,47 @@
   function labelOf(opts, v) { for (var i = 0; i < opts.length; i++) if (opts[i].v === v) return opts[i].l; return ''; }
   function labelsOf(opts, arr) { var o = []; for (var i = 0; i < (arr || []).length; i++) { var l = labelOf(opts, arr[i]); if (l) o.push(l); } return o; }
 
+  // ── Resolve a single answer to its human-readable value (for serialize + review).
+  // Step-level single/multi read `options`; grouped sub-fields carry their own.
+  function fieldValue(field, a) {
+    var v = a[field.k];
+    if (v == null || v === '' || (isArr(v) && !v.length)) return '';
+    if (field.type === 'multi') return labelsOf(field.options, v).join(', ');
+    if (field.type === 'single') return labelOf(field.options, v);
+    return String(v); // text / textarea
+  }
+  function isArr(x) { return Object.prototype.toString.call(x) === '[object Array]'; }
+
   // ── Serialize the wizard answers into the labelled text sent to the engine.
-  // company / website / competitors map to their own payload fields; everything
-  // else becomes the FOUNDER PROFILE block (well under the 8000-char cap).
+  // company / website / competitors map to their own payload fields; every other
+  // answer (all ~25 profile questions) becomes the FOUNDER PROFILE text, grouped
+  // by section, well under the 8000-char cap.
   function answersToProfileText(a) {
-    var industryLabel = labelOf(INDUSTRY_OPTS, a.industry);
-    var stageLabel = labelOf(STAGE_OPTS, a.stage);
-    var modelLabel = labelOf(modelCfg(a).opts, a.model);
-    var focusLabels = labelsOf(focusCfg(a).opts, a.focus);
-    var channelLabels = labelsOf(CHANNELS.opts, a.channels);
-    var biz = [];
-    if (industryLabel) biz.push('- Industry: ' + industryLabel);
-    if (stageLabel) biz.push('- Stage: ' + stageLabel);
-    if (modelLabel) biz.push('- Business model / motion: ' + modelLabel);
-    if (a.one_liner) biz.push('- In one sentence: ' + a.one_liner);
-    if (a.edge) biz.push('- Their edge / differentiator: ' + a.edge);
-    var growth = [];
-    if (focusLabels.length) growth.push('- Priorities / where growth is stuck: ' + focusLabels.join(', '));
-    if (channelLabels.length) growth.push('- Current acquisition channels: ' + channelLabels.join(', '));
     var out = [];
+    // Step-level single/multi choices → one BUSINESS PROFILE block.
+    var biz = [];
+    for (var s = 0; s < STEPS.length; s++) {
+      var st = STEPS[s];
+      if ((st.kind === 'single' || st.kind === 'multi') && st.slabel) {
+        var opts = resolve(st.options, a);
+        var lab = (st.kind === 'multi') ? labelsOf(opts, a[st.id]).join(', ') : labelOf(opts, a[st.id]);
+        if (lab) biz.push('- ' + st.slabel + ': ' + lab);
+      }
+    }
     if (biz.length) out.push('BUSINESS PROFILE', biz.join('\n'), '');
-    if (growth.length) out.push('GROWTH CONTEXT', growth.join('\n'), '');
+    // Grouped steps → one block each, under the step title.
+    for (var g = 0; g < STEPS.length; g++) {
+      var grp = STEPS[g];
+      if (grp.kind !== 'group') continue;
+      var lines = [];
+      for (var f = 0; f < grp.fields.length; f++) {
+        var fld = grp.fields[f];
+        if (fld.k === 'competitors') continue; // rides in the payload `competitors` field
+        var val = fieldValue(fld, a);
+        if (val) lines.push('- ' + fld.l + ': ' + val);
+      }
+      if (lines.length) out.push(grp.title.toUpperCase(), lines.join('\n'), '');
+    }
     return out.join('\n').trim();
   }
 
@@ -392,7 +450,7 @@
       if (step.kind === 'text') return companyBody();
       if (step.kind === 'single') return choiceBody(step);
       if (step.kind === 'multi') return chipBody(step);
-      if (step.kind === 'sharpen') return sharpenBody(step);
+      if (step.kind === 'group') return groupBody(step);
       if (step.kind === 'review') return reviewBody();
       return '';
     }
@@ -437,34 +495,50 @@
       return h + '</div>';
     }
 
-    function sharpenBody(step) {
+    // A themed screen of several sub-questions (each single/multi/text/textarea).
+    function groupBody(step) {
       var h = '';
       for (var i = 0; i < step.fields.length; i++) {
-        var f = step.fields[i], val = esc(answers[f.k] || '');
-        var input = f.t
-          ? '<textarea class="gk-input" data-gk-input="' + f.k + '" maxlength="600" placeholder="' + esc(f.ph || '') + '">' + val + '</textarea>'
-          : '<input class="gk-input" data-gk-input="' + f.k + '" maxlength="240" placeholder="' + esc(f.ph || '') + '" autocomplete="off" value="' + val + '">';
-        h += '<div class="gk-field-group"><label class="gk-label">' + esc(f.l) + ' <span class="gk-opt">— optional</span></label>' + input + '</div>';
+        var f = step.fields[i], val = esc(answers[f.k] || ''), ctrl = '';
+        if (f.type === 'single' || f.type === 'multi') {
+          var opts = f.options || [], sel = f.type === 'multi' ? (answers[f.k] || []) : null;
+          ctrl = '<div class="gk-pills">';
+          for (var o = 0; o < opts.length; o++) {
+            var on = f.type === 'multi' ? (sel.indexOf(opts[o].v) !== -1) : (answers[f.k] === opts[o].v);
+            ctrl += '<button type="button" class="gk-pill' + (on ? ' is-selected' : '') + '" data-field="' + esc(f.k) + '" data-ftype="' + f.type + '" data-v="' + esc(opts[o].v) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + esc(opts[o].l) + '</button>';
+          }
+          ctrl += '</div>';
+        } else if (f.type === 'textarea') {
+          ctrl = '<textarea class="gk-input" data-gk-input="' + f.k + '" maxlength="600" placeholder="' + esc(f.ph || '') + '">' + val + '</textarea>';
+        } else {
+          ctrl = '<input class="gk-input" data-gk-input="' + f.k + '" maxlength="240" placeholder="' + esc(f.ph || '') + '" autocomplete="off" value="' + val + '">';
+        }
+        h += '<div class="gk-qfield"><label class="gk-qlabel">' + esc(f.l) + '</label>' + ctrl + '</div>';
       }
       return h;
     }
 
+    // Review lists every answered field, grouped by step, each row editable.
     function reviewBody() {
+      var rows = [];
       var website = answers.website ? (' · ' + answers.website) : '';
-      var rows = [
-        { id: 'company', k: 'Company', v: (answers.company || '') + website },
-        { id: 'industry', k: 'Industry', v: labelOf(INDUSTRY_OPTS, answers.industry) },
-        { id: 'stage', k: 'Stage', v: labelOf(STAGE_OPTS, answers.stage) },
-        { id: 'model', k: 'Model', v: labelOf(modelCfg(answers).opts, answers.model) },
-        { id: 'focus', k: (isPreRev(answers) ? 'Validating' : 'Growth focus'), v: labelsOf(focusCfg(answers).opts, answers.focus).join(', ') },
-        { id: 'channels', k: 'Channels', v: labelsOf(CHANNELS.opts, answers.channels).join(', ') },
-        { id: 'sharpen', k: 'One-liner', v: answers.one_liner || '' },
-        { id: 'sharpen', k: 'Edge', v: answers.edge || '' },
-        { id: 'sharpen', k: 'Known competitors', v: answers.competitors || '' }
-      ];
+      rows.push({ id: 'company', k: 'Company', v: (answers.company || '') + website });
+      for (var s = 0; s < STEPS.length; s++) {
+        var st = STEPS[s];
+        if (st.kind === 'single' || st.kind === 'multi') {
+          if (!st.slabel) continue;
+          var opts = resolve(st.options, answers);
+          var v = (st.kind === 'multi') ? labelsOf(opts, answers[st.id]).join(', ') : labelOf(opts, answers[st.id]);
+          if (v) rows.push({ id: st.id, k: st.slabel, v: v });
+        } else if (st.kind === 'group') {
+          for (var f = 0; f < st.fields.length; f++) {
+            var val = fieldValue(st.fields[f], answers);
+            if (val) rows.push({ id: st.id, k: st.fields[f].l, v: val });
+          }
+        }
+      }
       var h = '<div class="gk-review">';
       for (var i = 0; i < rows.length; i++) {
-        if (!rows[i].v) continue;
         h += '<div class="gk-review-row"><div class="gk-review-k">' + esc(rows[i].k) + '</div>'
           + '<div class="gk-review-v">' + esc(rows[i].v) + '</div>'
           + '<button type="button" class="gk-review-edit" data-edit="' + esc(rows[i].id) + '">Edit</button></div>';
@@ -540,8 +614,34 @@
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
           });
         })(mbtns[mm]);
-      } else if (step.kind === 'sharpen') {
-        for (var f = 0; f < step.fields.length; f++) bindInput(step.fields[f].k);
+      } else if (step.kind === 'group') {
+        for (var f = 0; f < step.fields.length; f++) {
+          var fk = step.fields[f];
+          if (fk.type === 'text' || fk.type === 'textarea') bindInput(fk.k);
+        }
+        var pills = wizardEl.querySelectorAll('.gk-pill');
+        for (var pi = 0; pi < pills.length; pi++) (function (btn) {
+          btn.addEventListener('click', function () {
+            var k = btn.getAttribute('data-field'), ftype = btn.getAttribute('data-ftype'), v = btn.getAttribute('data-v');
+            touchOn();
+            if (ftype === 'multi') {
+              if (!answers[k]) answers[k] = [];
+              var arr = answers[k], at = arr.indexOf(v);
+              if (at === -1) arr.push(v); else arr.splice(at, 1);
+              var on = arr.indexOf(v) !== -1;
+              btn.classList.toggle('is-selected', on);
+              btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            } else { // single (radio within the field)
+              answers[k] = v;
+              var sibs = wizardEl.querySelectorAll('.gk-pill[data-field="' + k + '"]');
+              for (var s = 0; s < sibs.length; s++) {
+                var isMe = sibs[s] === btn;
+                sibs[s].classList.toggle('is-selected', isMe);
+                sibs[s].setAttribute('aria-pressed', isMe ? 'true' : 'false');
+              }
+            }
+          });
+        })(pills[pi]);
       } else if (step.kind === 'review') {
         var ebtns = wizardEl.querySelectorAll('[data-edit]');
         for (var e = 0; e < ebtns.length; e++) (function (btn) {
