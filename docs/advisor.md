@@ -32,7 +32,7 @@ four.html  (gated page; onboarding chooser → short/long form; progress log + d
    v
 api/advise.js  (Vercel serverless function — the ONLY server code, the ONLY secret reader)
    |  ANTHROPIC_API_KEY (Vercel env var; NEVER in git — repo is public)
-   |  model claude-opus-4-8, effort medium, stream:true, tools:[web_search_20260209 max_uses 4]
+   |  model claude-sonnet-5, effort low, stream:true, tools:[web_search_20260209 max_uses 2]
    v
 Anthropic Messages API  (Claude runs the search loop server-side, then emits ONE JSON deliverable)
    |  advise.js parses Anthropic's SSE and forwards a small NDJSON PROGRESS stream:
@@ -70,7 +70,7 @@ The local `.vercel/project.json` + the Vercel CLI/MCP point at the **duplicate**
 
 ## Model, prompt & the deliverable contract
 
-- **Model: `claude-opus-4-8`**, `output_config: { effort: "low" }`, `stream: true`, `max_tokens: 6000`, `tools: [{ type:"web_search_20260209", name:"web_search", max_uses: 2 }]`. **Tuned 2026-07-07 to fit the 60s Hobby ceiling** — the first version (effort `medium`, `max_uses 4`, `max_tokens 8000`) **consistently timed out** in production, surfacing as the client's "run was cut off" message (the stream ends with no `done`/`error` event). Dropping to `low` effort + 2 searches + trimmed output counts (below) is the free "fit-in-60s" fix Avi chose over Vercel Pro. If depth suffers, the durable fix is Pro + `maxDuration` ~180 in `vercel.json` (no other change).
+- **Model: `claude-sonnet-5`** (switched from `claude-opus-4-8` on 2026-07-07 — Sonnet is ~2× faster/cheaper, better odds inside 60s; supports the same `web_search_20260209` tool + `effort`), `output_config: { effort: "low" }`, `stream: true`, `max_tokens: 6000`, `tools: [{ type:"web_search_20260209", name:"web_search", max_uses: 2 }]`. **Tuned 2026-07-07 to fit the 60s Hobby ceiling** — the first version (effort `medium`, `max_uses 4`, `max_tokens 8000`) **consistently timed out** in production, surfacing as the client's "run was cut off" message (the stream ends with no `done`/`error` event). Dropping to `low` effort + 2 searches + trimmed output counts (below) is the free "fit-in-60s" fix Avi chose over Vercel Pro. If depth suffers, the durable fix is Pro + `maxDuration` ~180 in `vercel.json` (no other change).
 - **System prompt** (in `api/advise.js`) makes Claude the GrowthKit engine and **defines the exact JSON schema** it must return (subject / positioning / market_map{vendors,subject_point,gap} / teardown / gaps / plan / citations / note), with **fixed counts to bound generation time**: 6–8 vendors, exactly 4 teardown rows, exactly 3 gaps, exactly 6 plays. It is told it has a **hard ~55s budget**, to **run at most 2 searches** and write the JSON as soon as it can plot the map, prefer real named competitors, treat numbers as best-effort estimates, and emit **only** the JSON object (no prose/markdown/code fences). `<em>` is allowed literally inside title strings.
 - **Changing the schema:** if you edit the schema in the system prompt, update `renderDeliverable()` / `buildMap()` in `advisor.js` to match. Coordinates are 0–100: x = price (0 cheap → 100 dear), y = workflow depth (0 shallow → 100 deep); the gap rect's `x,y` is its **bottom-left** corner.
 

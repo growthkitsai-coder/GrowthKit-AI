@@ -3,7 +3,7 @@
  *
  * A Vercel serverless function: the ONLY server-side code in the repo, and the
  * only place an API key is read. The signed-in user gives us a company name
- * (plus optional website + one-liner) and Claude (Opus 4.8) actually SEARCHES
+ * (plus optional website + one-liner) and Claude (Sonnet) actually SEARCHES
  * THE WEB — Anthropic's built-in web_search tool — to find and dissect that
  * company's real competitors, then returns a full specimen-grade deliverable as
  * one JSON object: a plotted market map, a competitor teardown, gap analysis,
@@ -50,7 +50,7 @@
 //   (auto-deploys), and clear GK_ADVISOR_DISABLED in Vercel if it was set.
 const ADVISOR_ENABLED = false;
 
-const MODEL = 'claude-opus-4-8';
+const MODEL = 'claude-sonnet-5'; // Sonnet: ~2x faster/cheaper than Opus — better odds inside the 60s ceiling
 const MAX_TOKENS = 6000;
 const WEB_SEARCH_MAX_USES = 2; // each live search is a round trip; 2 keeps the run inside the 60s Hobby ceiling
 const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
