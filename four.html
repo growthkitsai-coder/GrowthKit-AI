@@ -80,76 +80,34 @@
 
       <div class="gk-advisor" data-gk-advisor data-gk-full="1">
 
-        <!-- Onboarding chooser -->
-        <div class="gk-modes" data-gk-modes>
-          <button type="button" class="gk-mode-card" data-gk-mode="short">
-            <span class="gk-mode-tag">Quick read</span>
-            <span class="gk-mode-title">Just the <em>essentials</em></span>
-            <span class="gk-mode-desc">Your company name — plus known competitors and a URL if you have them. The fastest path to a deliverable; the engine finds the rest on the web.</span>
-            <span class="gk-mode-go">Start quick <span class="gk-arr">→</span></span>
-          </button>
-          <button type="button" class="gk-mode-card" data-gk-mode="long">
-            <span class="gk-mode-tag">Full profile</span>
-            <span class="gk-mode-title">The <em>sharpest</em> cut</span>
-            <span class="gk-mode-desc">Tell the engine about your product, traction, ICP, pricing and market — every field optional, saved to your account. The more you share, the sharper the read.</span>
-            <span class="gk-mode-go">Build my profile <span class="gk-arr">→</span></span>
-          </button>
-        </div>
-
-        <!-- Engine console (hidden until a mode is chosen) -->
-        <div class="gk-console" data-gk-console style="display:none">
+        <!-- Engine console — the adaptive onboarding wizard lives inside -->
+        <div class="gk-console" data-gk-console>
           <div class="gk-console-head">
             <span><span class="gk-dot" aria-hidden="true"></span>growthkit&nbsp;live · engine</span>
-            <button type="button" class="gk-switch" data-gk-switch>↤ change onboarding</button>
+            <button type="button" class="gk-switch" data-gk-restart hidden>↺ start over</button>
           </div>
           <div class="gk-console-body">
+
+            <!-- Progress -->
+            <div class="gk-progress" data-gk-progress>
+              <div class="gk-progress-track"><i class="gk-progress-fill" data-gk-progress-fill></i></div>
+              <div class="gk-progress-meta"><span data-gk-progress-label>Step 1</span><span class="gk-progress-brand">consultation</span></div>
+            </div>
+
             <form data-gk-form novalidate>
-
-              <!-- SHORT onboarding -->
-              <div data-gk-panel="short">
-                <div class="gk-presets" data-gk-presets aria-label="Example companies"></div>
-                <div class="gk-field-group">
-                  <label class="gk-label" for="gk-company">Your company name</label>
-                  <input id="gk-company" class="gk-input" data-gk-field="company" maxlength="160" placeholder="e.g. Jobber" autocomplete="off">
-                </div>
-                <div class="gk-optional-fields">
-                  <div class="gk-field-group" style="margin-bottom:0;">
-                    <label class="gk-label" for="gk-website">Website <span class="gk-opt">— optional, pins down which company</span></label>
-                    <input id="gk-website" class="gk-input" data-gk-field="website" maxlength="300" placeholder="e.g. getjobber.com" autocomplete="off">
-                  </div>
-                  <div class="gk-field-group" style="margin-bottom:0;">
-                    <label class="gk-label" for="gk-competitors">Known competitors <span class="gk-opt">— optional, sharpens the read</span></label>
-                    <textarea id="gk-competitors" class="gk-input" data-gk-field="competitors" maxlength="1200" placeholder="e.g. ServiceTitan, Housecall Pro, FieldEdge"></textarea>
-                  </div>
-                  <div class="gk-field-group" style="margin-bottom:0;">
-                    <label class="gk-label" for="gk-moves">Recent competitor moves <span class="gk-opt">— optional</span></label>
-                    <textarea id="gk-moves" class="gk-input" data-gk-field="moves" maxlength="1200" placeholder="e.g. Housecall Pro launched an AI dispatcher; ServiceTitan raised prices"></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- LONG onboarding (form groups built by advisor.js) -->
-              <div data-gk-panel="long" style="display:none">
-                <p class="gk-long-intro">Every field is optional and saved to your account — fill what you can, skip the rest. Start with your <strong>startup name</strong> at the top of Company.</p>
-                <div data-gk-long-mount></div>
-              </div>
+              <!-- The wizard steps render here (advisor.js) -->
+              <div class="gk-wizard" data-gk-wizard></div>
 
               <div class="gk-hp" aria-hidden="true">
                 <label for="gk-company-url">Company URL</label>
                 <input id="gk-company-url" data-gk-field="company_url" type="text" tabindex="-1" autocomplete="off">
               </div>
-              <button type="submit" class="gk-run" data-gk-submit>
-                <span data-gk-submit-label>Generate deliverable</span> <span class="gk-arr">→</span>
-              </button>
               <div class="gk-error" data-gk-error role="alert" aria-live="polite"></div>
-              <p class="gk-note">The engine searches the live web and can take up to a minute. Numbers it reports are AI research estimates — verify before you act. Your inputs are sent to Anthropic's API and the deliverable is saved to your account. Don't enter anything confidential.</p>
+              <p class="gk-note">Your responses are analysed by GrowthKit AI's proprietary market-intelligence models — trained to read industries, competitors, positioning, and growth opportunities. The engine also searches the live web, so a run can take up to a minute; figures are research estimates, verify before you act. Every deliverable is saved to your account — don't enter anything confidential.</p>
             </form>
 
             <div class="gk-output" data-gk-output>
-              <div class="gk-stream-wrap" data-gk-stream-wrap>
-                <div class="gk-status" data-gk-status></div>
-                <pre class="gk-stream" data-gk-stream></pre>
-              </div>
+              <div class="gk-loading" data-gk-loading></div>
               <div class="gk-deliverable" data-gk-deliverable></div>
               <div class="gk-actions" data-gk-actions></div>
             </div>
@@ -158,6 +116,34 @@
             <span>signed in · saved to your account</span>
             <span>growthkit live</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Integrations — coming soon -->
+      <svg class="gkl-sprite" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+        <symbol id="gkl-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol>
+        <symbol id="gkl-stripe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="4.6"/><path d="M14.4 9.4c0-1-.9-1.5-2-1.5-1.5 0-2.6.8-2.6 2 0 2.5 4.9 1.7 4.9 3.9 0 1.2-1.1 2-2.6 2-1.3 0-2.4-.6-2.8-1.4" stroke-linecap="round" stroke-linejoin="round"/></g></symbol>
+        <symbol id="gkl-claude" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.6V21.4"/><path d="M2.6 12H21.4"/><path d="M5.35 5.35 18.65 18.65"/><path d="M18.65 5.35 5.35 18.65"/></g></symbol>
+        <symbol id="gkl-chatgpt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="12" rx="9.3" ry="3.9"/><ellipse cx="12" cy="12" rx="9.3" ry="3.9" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.3" ry="3.9" transform="rotate(120 12 12)"/></g></symbol>
+        <symbol id="gkl-notion" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><rect x="3.3" y="3" width="17.4" height="18" rx="2.4"/><path d="M8 16.4V8l8 8.4V8"/></g></symbol>
+        <symbol id="gkl-slack" viewBox="0 0 24 24"><g fill="currentColor"><rect x="8.4" y="2" width="3.4" height="9.6" rx="1.7"/><rect x="12.2" y="12.4" width="3.4" height="9.6" rx="1.7"/><rect x="12.4" y="8.4" width="9.6" height="3.4" rx="1.7"/><rect x="2" y="12.2" width="9.6" height="3.4" rx="1.7"/></g></symbol>
+        <symbol id="gkl-linear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3.4" y="3.4" width="17.2" height="17.2" rx="4.6"/><path d="M6.2 12 12 6.2"/><path d="M6.2 16.6 16.6 6.2" opacity=".7"/><path d="M9.2 18 18 9.2" opacity=".45"/></g></symbol>
+        <symbol id="gkl-hubspot" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1.7" fill="none"><circle cx="12" cy="13.2" r="3.1"/><path d="M12 10.1V4.7" stroke-linecap="round"/><path d="M9.8 15.1 6.2 18.4" stroke-linecap="round"/><path d="M14.2 15.1 17.8 18.4" stroke-linecap="round"/><circle cx="12" cy="3.4" r="1.9" fill="currentColor" stroke="none"/><circle cx="5.2" cy="19.3" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.8" cy="19.3" r="1.7" fill="currentColor" stroke="none"/></g></symbol>
+      </svg>
+      <div class="integ-soon">
+        <div class="integ-soon-top">
+          <span class="integ-soon-label">Integrated with</span>
+          <span class="integ-soon-tag">Coming soon</span>
+        </div>
+        <div class="integ-soon-row">
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-stripe"/></svg><span>Stripe</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-github"/></svg><span>GitHub</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-claude"/></svg><span>Claude</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-chatgpt"/></svg><span>ChatGPT</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-notion"/></svg><span>Notion</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-slack"/></svg><span>Slack</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-linear"/></svg><span>Linear</span></span>
+          <span class="logo-item"><svg aria-hidden="true"><use href="#gkl-hubspot"/></svg><span>HubSpot</span></span>
         </div>
       </div>
 
