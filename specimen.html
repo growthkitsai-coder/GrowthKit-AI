@@ -8,8 +8,8 @@
 <link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
 <link rel="apple-touch-icon" sizes="512x512" href="/logo-mark-512.png">
-<title>Specimen — a sample market teardown — GrowthKit AI</title>
-<meta name="description" content="A real GrowthKit AI deliverable, run on a fictional company: market map, competitor teardown, gap analysis, and 90-day plan — redacted where your market gets specific.">
+<title>Physiqal Performance — market &amp; GTM intelligence — GrowthKit AI</title>
+<meta name="description" content="The market read behind Physiqal — an app that scores your lifting form from an uploaded video or your live camera. Positioning map, TAM/SAM/SOM, GTM and a sealed 90-day roadmap — a live GrowthKit AI deliverable.">
 <meta name="theme-color" content="#1F4732">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 <meta name="author" content="GrowthKit AI">
@@ -17,18 +17,18 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GrowthKit AI">
-<meta property="og:title" content="Specimen — a sample market teardown — GrowthKit AI">
-<meta property="og:description" content="The actual deliverable, run on a fictional company. Market map, teardown, gap analysis, 90-day plan — see the rigor before you sign up.">
+<meta property="og:title" content="Physiqal Performance — market &amp; GTM intelligence — GrowthKit AI">
+<meta property="og:description" content="A live GrowthKit AI deliverable on Physiqal — the AI form-check app. Positioning, TAM, GTM and a 90-day roadmap. See the rigor before you sign up.">
 <meta property="og:url" content="https://growthkitai.com/specimen">
 <meta property="og:image" content="https://growthkitai.com/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="GrowthKit AI — Markets, dissected — not guessed.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Specimen — a sample market teardown — GrowthKit AI">
-<meta name="twitter:description" content="The actual deliverable, run on a fictional company. See the rigor before you sign up.">
+<meta name="twitter:title" content="Physiqal Performance — market &amp; GTM intelligence — GrowthKit AI">
+<meta name="twitter:description" content="A live GrowthKit AI deliverable on Physiqal, the AI form-check app. See the rigor before you sign up.">
 <meta name="twitter:image" content="https://growthkitai.com/og-card.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://growthkitai.com/specimen#webpage","url":"https://growthkitai.com/specimen","name":"Specimen — a sample market teardown — GrowthKit AI","isPartOf":{"@id":"https://growthkitai.com/#site"},"inLanguage":"en","description":"A real GrowthKit AI deliverable, run on a fictional company: market map, competitor teardown, gap analysis, and 90-day plan — redacted where your market gets specific.","breadcrumb":{"@id":"https://growthkitai.com/specimen#breadcrumb"}},{"@type":"BreadcrumbList","@id":"https://growthkitai.com/specimen#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://growthkitai.com/"},{"@type":"ListItem","position":2,"name":"Specimen","item":"https://growthkitai.com/specimen"}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://growthkitai.com/specimen#webpage","url":"https://growthkitai.com/specimen","name":"Physiqal Performance — market & GTM intelligence — GrowthKit AI","isPartOf":{"@id":"https://growthkitai.com/#site"},"inLanguage":"en","description":"The market read behind Physiqal — an app that scores your lifting form from an uploaded video or your live camera. Positioning map, TAM/SAM/SOM, GTM and a sealed 90-day roadmap — a live GrowthKit AI deliverable.","breadcrumb":{"@id":"https://growthkitai.com/specimen#breadcrumb"}},{"@type":"BreadcrumbList","@id":"https://growthkitai.com/specimen#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://growthkitai.com/"},{"@type":"ListItem","position":2,"name":"Specimen","item":"https://growthkitai.com/specimen"}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
@@ -1291,6 +1291,188 @@
     :root[data-theme="dark"] .panel.in .map-svg .you-dot,
     :root[data-theme="dark"] .redact-card .bars i { animation: none; }
   }
+
+  /* ============================================================
+     PHYSIQAL DASHBOARD — added components (cream+forest / neon)
+     ============================================================ */
+  .cite { display: block; font-size: 12px; line-height: 1.5; color: var(--muted); margin-top: 10px; }
+  .cite b { color: var(--ink-2); font-weight: 600; }
+  .badge-live { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 9px; }
+  .badge-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* Market overview cards */
+  .mkt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .mkt-card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 22px 22px 20px; }
+  .mkt-card .mkt-k { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .mkt-card .mkt-v { font-family: 'Instrument Serif', serif; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.05; color: var(--ink); margin: 8px 0 4px; }
+  .mkt-card .mkt-v em { font-style: italic; color: var(--accent); }
+  .mkt-card p { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); margin: 8px 0 0; }
+  .gap-callout { margin-top: 18px; border: 1px solid var(--line-2); border-left: 3px solid var(--accent); border-radius: 10px; padding: 18px 22px; background: var(--bg-2); font-size: 15px; line-height: 1.6; color: var(--ink-2); }
+  .gap-callout strong { color: var(--ink); }
+
+  /* Kill criteria */
+  .kill-list { display: grid; gap: 10px; }
+  .kill-item { display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: start; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+  .kill-when { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); padding-top: 2px; }
+  .kill-text { font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+  .kill-text b { color: var(--ink); font-weight: 700; }
+
+  /* TAM / SAM / SOM */
+  .tss-wrap { display: grid; grid-template-columns: 420px 1fr; gap: 30px; align-items: center; }
+  .tss-rows { display: grid; gap: 14px; }
+  .tss-row .tss-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .tss-row .tss-val { font-family: 'Instrument Serif', serif; font-size: clamp(22px, 2.6vw, 30px); color: var(--ink); margin: 2px 0 4px; }
+  .tss-row .tss-val em { font-style: italic; color: var(--accent); }
+  .tss-row p { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0; }
+
+  /* Segments */
+  .seg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .seg-card { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px 20px 56px; }
+  .seg-n { position: absolute; left: 18px; top: 20px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--bg); background: var(--accent); }
+  .seg-card h3 { font-family: 'Inter', sans-serif; font-size: 15.5px; font-weight: 600; margin: 0 0 6px; color: var(--ink); }
+  .seg-card p { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); margin: 0; }
+  .seg-note { margin-top: 16px; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+  .seg-note strong { color: var(--ink-2); }
+
+  /* KPI tiles */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .kpi { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .kpi .kpi-k { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .kpi .kpi-v { font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1.05; color: var(--ink); margin: 8px 0 2px; }
+  .kpi .kpi-wow { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--accent-soft); }
+  .kpi .kpi-wow.down { color: #B4552E; }
+
+  /* Radar legend */
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 14px; font-size: 12.5px; color: var(--muted); }
+  .chart-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .chart-legend i { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+  .lg-a { background: var(--ink-2); }
+  .lg-b { background: var(--accent); }
+  .lg-c { background: var(--accent-soft); }
+
+  /* Heat map */
+  .heat-grid { display: grid; gap: 8px; }
+  .heat-row { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: center; }
+  .heat-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .heat-cells { display: flex; flex-wrap: wrap; gap: 8px; }
+  .heat-cell { font-size: 13px; padding: 8px 14px; border-radius: 8px; border: 1px solid transparent; }
+  .heat-hot  { background: rgba(46,98,73,0.12);  border-color: rgba(46,98,73,0.35);  color: var(--accent); }
+  .heat-warm { background: rgba(176,134,46,0.12); border-color: rgba(176,134,46,0.34); color: #8A6620; }
+  .heat-cold { background: rgba(180,68,46,0.10);  border-color: rgba(180,68,46,0.30);  color: #9C3E28; }
+  .heat-key { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: var(--muted); }
+  .heat-key span { display: inline-flex; align-items: center; gap: 7px; }
+  .heat-key i { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* Revenue simulator (static) */
+  .sim-grid { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: start; }
+  .sim-levers { display: grid; gap: 16px; }
+  .sim-lever .sim-l-k { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-bottom: 7px; }
+  .sim-lever .sim-l-k b { color: var(--accent); font-weight: 600; }
+  .sim-track { position: relative; height: 6px; border-radius: 3px; background: var(--line); }
+  .sim-track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--accent); }
+  .sim-track .sim-knob { position: absolute; top: 50%; width: 15px; height: 15px; border-radius: 50%; background: var(--paper); border: 2px solid var(--accent); transform: translate(-50%, -50%); }
+  .sim-formula { margin-top: 20px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.9; color: var(--ink-2); background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; }
+  .sim-formula b { color: var(--accent); }
+  .sim-hint { font-size: 12px; color: var(--muted); margin-top: 10px; font-style: italic; }
+
+  /* Window of opportunity */
+  .win-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .win-card { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 22px; }
+  .win-card .win-n { font-family: 'Instrument Serif', serif; font-size: 34px; color: var(--accent-pale); line-height: 1; }
+  .win-card h3 { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; margin: 6px 0 8px; color: var(--ink); }
+  .win-card p { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0; }
+  .win-risk { margin-top: 18px; border: 1px solid rgba(180,68,46,0.3); border-left: 3px solid #B4442E; border-radius: 10px; padding: 16px 20px; background: rgba(180,68,46,0.05); font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+  .win-risk strong { color: #9C3E28; }
+
+  /* Chart series (SVG) — reuse .map-svg axis/gridline/tick classes */
+  .map-svg .ser-a { fill: none; stroke: var(--ink-2); stroke-width: 2.5; opacity: 0.75; }
+  .map-svg .ser-b { fill: none; stroke: var(--accent); stroke-width: 3; }
+  .map-svg .ser-c { fill: none; stroke: var(--accent-soft); stroke-width: 2; stroke-dasharray: 5 5; opacity: 0.8; }
+  .map-svg .area-a { fill: var(--ink-2); opacity: 0.05; }
+  .map-svg .area-b { fill: var(--accent); opacity: 0.08; }
+  .map-svg .ser-dot { fill: var(--accent-soft); }
+  .map-svg .cross-note { fill: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; }
+  .map-svg .cross-ring { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .map-svg .radar-web { fill: none; stroke: var(--line-2); stroke-width: 1; }
+  .map-svg .radar-axis { stroke: var(--line-2); stroke-width: 1; }
+  .map-svg .radar-a { fill: var(--ink-2); opacity: 0.10; stroke: var(--ink-2); stroke-width: 2; }
+  .map-svg .radar-b { fill: var(--accent); opacity: 0.14; stroke: var(--accent); stroke-width: 2.5; }
+  .map-svg .radar-label { fill: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .map-svg .tss-ring { fill: none; stroke-width: 2; }
+  .map-svg .q-line { fill: none; stroke-width: 2.5; }
+
+  /* Premium (blur-locked) sections — reuse redact pattern at section scale */
+  .premium .lede .prem-tag { display: inline-block; margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
+
+  @media (max-width: 860px) {
+    .mkt-grid, .kpi-grid, .win-grid { grid-template-columns: 1fr 1fr; }
+    .tss-wrap, .sim-grid { grid-template-columns: 1fr; }
+    .seg-grid { grid-template-columns: 1fr; }
+    .heat-row { grid-template-columns: 1fr; gap: 6px; }
+    .kill-item { grid-template-columns: 1fr; gap: 6px; }
+  }
+  @media (max-width: 560px) { .mkt-grid, .kpi-grid, .win-grid { grid-template-columns: 1fr; } }
+
+  /* ---- Dark (neon console) ---- */
+  :root[data-theme="dark"] .cite b { color: var(--neon-2); }
+  :root[data-theme="dark"] .badge-live { color: var(--neon); border-color: var(--deep-3); }
+  :root[data-theme="dark"] .badge-live::before { background: var(--neon); box-shadow: 0 0 8px var(--neon); }
+  :root[data-theme="dark"] .mkt-card,
+  :root[data-theme="dark"] .kill-item,
+  :root[data-theme="dark"] .seg-card,
+  :root[data-theme="dark"] .kpi,
+  :root[data-theme="dark"] .win-card { background: rgba(255,255,255,0.02); border-color: var(--deep-3); }
+  :root[data-theme="dark"] .mkt-card .mkt-v,
+  :root[data-theme="dark"] .kpi .kpi-v,
+  :root[data-theme="dark"] .tss-row .tss-val,
+  :root[data-theme="dark"] .seg-card h3,
+  :root[data-theme="dark"] .mkt-card .mkt-v em,
+  :root[data-theme="dark"] .tss-row .tss-val em { color: #ECFBF3; }
+  :root[data-theme="dark"] .mkt-card .mkt-v em,
+  :root[data-theme="dark"] .tss-row .tss-val em { color: var(--neon); }
+  :root[data-theme="dark"] .gap-callout { background: rgba(62,245,159,0.05); border-color: var(--deep-3); border-left-color: var(--neon); }
+  :root[data-theme="dark"] .gap-callout strong { color: #ECFBF3; }
+  :root[data-theme="dark"] .kill-when,
+  :root[data-theme="dark"] .kpi .kpi-wow { color: var(--neon); }
+  :root[data-theme="dark"] .kill-text b,
+  :root[data-theme="dark"] .kill-text,
+  :root[data-theme="dark"] .seg-card p,
+  :root[data-theme="dark"] .mkt-card p,
+  :root[data-theme="dark"] .win-card p,
+  :root[data-theme="dark"] .tss-row p { color: rgba(220,235,225,0.8); }
+  :root[data-theme="dark"] .seg-n { background: var(--neon); color: #04110A; box-shadow: 0 0 14px -3px var(--neon); }
+  :root[data-theme="dark"] .win-card .win-n { color: rgba(62,245,159,0.4); }
+  :root[data-theme="dark"] .kpi .kpi-wow.down { color: #FFB59C; }
+  :root[data-theme="dark"] .heat-hot  { background: rgba(62,245,159,0.10); border-color: rgba(62,245,159,0.35); color: var(--neon); }
+  :root[data-theme="dark"] .heat-warm { background: rgba(230,190,90,0.10); border-color: rgba(230,190,90,0.34); color: #E6C25A; }
+  :root[data-theme="dark"] .heat-cold { background: rgba(255,138,102,0.09); border-color: rgba(255,138,102,0.30); color: #FFB59C; }
+  :root[data-theme="dark"] .sim-track { background: rgba(255,255,255,0.08); }
+  :root[data-theme="dark"] .sim-track i { background: var(--neon); }
+  :root[data-theme="dark"] .sim-track .sim-knob { background: var(--deep-1); border-color: var(--neon); }
+  :root[data-theme="dark"] .sim-lever .sim-l-k b { color: var(--neon); }
+  :root[data-theme="dark"] .sim-formula { background: rgba(255,255,255,0.03); border-color: var(--deep-3); color: rgba(220,235,225,0.8); }
+  :root[data-theme="dark"] .sim-formula b { color: var(--neon); }
+  :root[data-theme="dark"] .win-risk { background: rgba(255,138,102,0.07); border-color: rgba(255,138,102,0.3); border-left-color: #FF8A66; }
+  :root[data-theme="dark"] .win-risk strong { color: #FFB59C; }
+  :root[data-theme="dark"] .map-svg .ser-a { stroke: #DDD9D0; }
+  :root[data-theme="dark"] .map-svg .ser-b { stroke: var(--neon); }
+  :root[data-theme="dark"] .map-svg .ser-c { stroke: var(--neon-2); }
+  :root[data-theme="dark"] .map-svg .area-a { fill: #DDD9D0; opacity: 0.04; }
+  :root[data-theme="dark"] .map-svg .area-b { fill: var(--neon); opacity: 0.09; }
+  :root[data-theme="dark"] .map-svg .ser-dot,
+  :root[data-theme="dark"] .map-svg .cross-note,
+  :root[data-theme="dark"] .map-svg .cross-ring { fill: var(--neon); stroke: var(--neon); }
+  :root[data-theme="dark"] .map-svg .cross-note { stroke: none; }
+  :root[data-theme="dark"] .map-svg .radar-web,
+  :root[data-theme="dark"] .map-svg .radar-axis { stroke: var(--deep-3); }
+  :root[data-theme="dark"] .map-svg .radar-a { fill: #DDD9D0; stroke: #DDD9D0; opacity: 0.12; }
+  :root[data-theme="dark"] .map-svg .radar-b { fill: var(--neon); stroke: var(--neon); opacity: 0.16; }
+  :root[data-theme="dark"] .map-svg .radar-label { fill: rgba(143,255,201,0.6); }
+  :root[data-theme="dark"] .chart-legend .lg-a { background: #DDD9D0; }
+  :root[data-theme="dark"] .chart-legend .lg-b { background: var(--neon); }
+  :root[data-theme="dark"] .chart-legend .lg-c { background: var(--neon-2); }
+  :root[data-theme="dark"] .premium .lede .prem-tag { color: var(--neon); border-color: var(--deep-3); }
+
 </style>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js" defer></script>
@@ -1338,401 +1520,772 @@
   <!-- ====== PAGE HERO ====== -->
   <section class="page-hero">
     <div class="wrap">
-      <span class="hero-ghost" aria-hidden="true">№02</span>
-      <div class="hero-stamp" aria-hidden="true"><span>sample copy</span><span>partially redacted</span></div>
+      <span class="hero-ghost" aria-hidden="true">PQ</span>
+      <div class="hero-stamp" aria-hidden="true"><span>live intelligence</span><span>updated jul 2026</span></div>
       <div class="reveal in">
-        <div class="eyebrow"><span class="num">/</span>Specimen №02 — sample deliverable</div>
-        <h1>This is the <em>specimen</em>.</h1>
+        <div class="eyebrow"><span class="num">/</span>Physiqal · founder intelligence dashboard</div>
+        <h1>Physiqal <em>Performance</em>.</h1>
         <p class="lede">
-          Every claim on this site is unverifiable until you see the work. So here it is — an actual GrowthKit deliverable, run end-to-end on a fictional company in a real category. The structure, depth, and method are exactly what subscribers receive. The parts that get specific to <em>your</em> market are redacted.
+          The market read behind an app that watches you lift and tells you what's wrong — from a video upload or your live camera. Below: where Physiqal sits, who it's up against, the corner nobody's guarding, and the plays to take it. Charts are hardcoded from July-2026 research; the three sealed sections at the end unlock on Pro.
         </p>
         <div class="hero-meta">
-          <span class="chip"><span class="dot" aria-hidden="true"></span>Live format — refreshed monthly</span>
-          <span class="chip">Subject: fictional</span>
-          <span class="chip">Method: real</span>
+          <span class="chip"><span class="dot" aria-hidden="true"></span>Live market &amp; GTM intelligence</span>
+          <span class="chip">Category: CV fitness coaching</span>
+          <span class="chip">Stage: pre-seed</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ====== BRIEF ====== -->
+  <!-- ====== 01 · COMPANY SNAPSHOT ====== -->
   <section class="brief">
     <div class="wrap">
       <div class="brief-plate reveal">
         <div class="plate-head">
-          <span><span class="num">/</span>subject brief</span>
-          <span>prepared — june 2026</span>
+          <span><span class="num">/</span>01 · company snapshot</span>
+          <span>compiled — jul 2026</span>
         </div>
         <div class="brief-grid">
           <div class="cell">
             <div class="k">Company</div>
-            <div class="v">Crewline <em>(fictional)</em></div>
+            <div class="v">Physiqal</div>
           </div>
           <div class="cell">
             <div class="k">Category</div>
-            <div class="v">Field-service software — independent HVAC contractors</div>
+            <div class="v">Consumer fitness · <em>computer-vision coaching</em></div>
+          </div>
+          <div class="cell">
+            <div class="k">Format</div>
+            <div class="v">Mobile app · video-upload + live-camera pose analysis</div>
           </div>
           <div class="cell">
             <div class="k">Stage</div>
-            <div class="v">Seed · live product</div>
+            <div class="v">Pre-seed / early build</div>
           </div>
           <div class="cell">
-            <div class="k">Traction</div>
-            <div class="v">$41k MRR <em>(illustrative)</em></div>
+            <div class="k">One-liner</div>
+            <div class="v">AI that watches you lift and tells you what's wrong.</div>
           </div>
           <div class="cell">
-            <div class="k">Geography</div>
-            <div class="v">United States</div>
-          </div>
-          <div class="cell">
-            <div class="k">Deliverables</div>
-            <div class="v">Map · Teardown · Gaps · 90-day plan</div>
+            <div class="k">Core loop</div>
+            <div class="v">Record → pose model scores form → timestamped cues → track score over time</div>
           </div>
         </div>
         <div class="brief-note">
-          <strong>Honesty note.</strong> Crewline does not exist; the competitors below are invented composites and every number is illustrative. We chose a fictional subject so we could show the full anatomy of a deliverable without exposing a paying customer's market intelligence. The pipeline that produced this page is the one that runs on real subscriptions.
+          <strong>Adjacency note.</strong> Physiqal sits next to digital MSK (Sword, Hinge) and connected fitness (Tempo, Tonal) but plays neither game: it's the consumer-grade, self-serve, video-native version of movement analysis that the clinical tier sells to employers for thousands of dollars a head — repriced as a $10–20/mo app a lifter downloads after a bad squat session.
         </div>
         <div class="plate-foot">
           <span><i class="led" aria-hidden="true"></i>compiled by the growthkit engine</span>
-          <span>operator-reviewed · rev 03</span>
+          <span>operator-reviewed · rev 01</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ====== 01 · MARKET MAP ====== -->
-  <section class="sect" id="map">
-    <span class="sect-ghost" aria-hidden="true">01</span>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <div>
-          <div class="eyebrow"><span class="num">01</span>Market map</div>
-          <h2>Eleven players, one <em>unguarded</em> corner.</h2>
-        </div>
-        <p class="lede">
-          We position every competitor on the two axes that actually decide purchase in this category: how much workflow the product owns, and what it costs an owner-operator to run it. The map below is hand-checked by an operator before it ships.
-        </p>
-      </div>
-
-      <div class="panel reveal">
-        <div class="panel-head">
-          <span><span class="num">/</span>positioning — workflow depth × price</span>
-          <span>n = 11 vendors · jun 2026</span>
-        </div>
-        <div class="map-svg-wrap">
-          <svg class="map-svg" viewBox="0 0 880 560" role="img" aria-label="Market map: workflow depth versus price per seat. Ten fictional competitors plotted; Crewline sits in a highlighted gap zone of deep workflow at owner-operator pricing.">
-            <!-- gridlines -->
-            <line class="gridline" x1="90"  y1="60"  x2="90"  y2="480"/>
-            <line class="gridline" x1="270" y1="60"  x2="270" y2="480"/>
-            <line class="gridline" x1="450" y1="60"  x2="450" y2="480"/>
-            <line class="gridline" x1="630" y1="60"  x2="630" y2="480"/>
-            <line class="gridline" x1="810" y1="60"  x2="810" y2="480"/>
-            <line class="gridline" x1="90"  y1="60"  x2="810" y2="60"/>
-            <line class="gridline" x1="90"  y1="165" x2="810" y2="165"/>
-            <line class="gridline" x1="90"  y1="270" x2="810" y2="270"/>
-            <line class="gridline" x1="90"  y1="375" x2="810" y2="375"/>
-
-            <!-- axes with arrow caps -->
-            <line class="axis" x1="90" y1="480" x2="810" y2="480"/>
-            <line class="axis" x1="90" y1="60"  x2="90"  y2="480"/>
-            <polygon class="axis-cap" points="810,475 822,480 810,485"/>
-            <polygon class="axis-cap" points="85,60 90,48 95,60"/>
-            <text class="axis-label" x="450" y="530" text-anchor="middle">price per seat / month →</text>
-            <text class="axis-label" x="-270" y="40" transform="rotate(-90)" text-anchor="middle">workflow depth →</text>
-            <text class="tick-label" x="90"  y="503" text-anchor="middle">$0</text>
-            <text class="tick-label" x="270" y="503" text-anchor="middle">$50</text>
-            <text class="tick-label" x="450" y="503" text-anchor="middle">$120</text>
-            <text class="tick-label" x="630" y="503" text-anchor="middle">$220</text>
-            <text class="tick-label" x="810" y="503" text-anchor="middle">$350+</text>
-
-            <!-- quadrant annotations -->
-            <text class="quad-label" x="800" y="78"  text-anchor="end">enterprise territory</text>
-            <text class="quad-label" x="800" y="466" text-anchor="end">shallow &amp; expensive — the dead zone</text>
-
-            <!-- gap zone -->
-            <rect class="gap-zone" x="130" y="95" width="230" height="160" rx="10"/>
-            <text class="gap-label" x="150" y="125">the gap</text>
-            <text class="dot-sub" x="150" y="143">deep workflow · owner-operator price</text>
-
-            <!-- competitors (fictional composites) -->
-            <circle class="dot" cx="700" cy="108" r="9"/>
-            <text class="dot-label" x="718" y="106">Atlas FSM</text>
-            <text class="dot-sub"   x="718" y="121">enterprise suite</text>
-
-            <circle class="dot" cx="585" cy="150" r="8"/>
-            <text class="dot-label" x="602" y="148">DispatchPro</text>
-            <text class="dot-sub"   x="602" y="163">mid-market all-in-one</text>
-
-            <circle class="dot" cx="455" cy="205" r="8"/>
-            <text class="dot-label" x="472" y="203">FieldHive</text>
-            <text class="dot-sub"   x="472" y="218">SMB all-in-one</text>
-
-            <circle class="dot" cx="350" cy="330" r="7"/>
-            <text class="dot-label" x="366" y="328">Wrenchly</text>
-            <text class="dot-sub"   x="366" y="343">invoicing point tool</text>
-
-            <circle class="dot" cx="250" cy="385" r="7"/>
-            <text class="dot-label" x="266" y="383">RouteOwl</text>
-            <text class="dot-sub"   x="266" y="398">scheduling point tool</text>
-
-            <circle class="dot" cx="475" cy="300" r="7"/>
-            <text class="dot-label" x="491" y="298">ServiceDeck</text>
-            <text class="dot-sub"   x="491" y="313">horizontal CRM, retrofitted</text>
-
-            <circle class="dot" cx="660" cy="250" r="7"/>
-            <text class="dot-label" x="676" y="248">TradeStack</text>
-            <text class="dot-sub"   x="676" y="263">multi-trade platform</text>
-
-            <circle class="dot" cx="180" cy="416" r="7"/>
-            <text class="dot-label" x="196" y="414">QuoteHammer</text>
-            <text class="dot-sub"   x="196" y="429">quoting only</text>
-
-            <circle class="dot" cx="125" cy="455" r="7"/>
-            <text class="dot-label" x="141" y="453">Spreadsheets</text>
-            <text class="dot-sub"   x="141" y="468">status quo — 61% of segment</text>
-
-            <circle class="dot" cx="545" cy="355" r="7"/>
-            <text class="dot-label" x="561" y="353">JobLedger</text>
-            <text class="dot-sub"   x="561" y="368">accounting-first</text>
-
-            <!-- the subject -->
-            <circle class="you-ring" cx="245" cy="175" r="17"/>
-            <circle class="you-dot"  cx="245" cy="175" r="9"/>
-            <text class="dot-label you-label" x="245" y="212" text-anchor="middle">CREWLINE</text>
-          </svg>
-        </div>
-        <div class="map-legend">
-          <span><i class="swatch s-comp"></i>competitor (fictional composite)</span>
-          <span><i class="swatch s-you"></i>subject company</span>
-          <span><i class="swatch s-gap"></i>identified gap zone</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ====== 02 · COMPETITOR TEARDOWN ====== -->
-  <section class="sect" id="teardown">
+  <!-- ====== 02 · MARKET OVERVIEW ====== -->
+  <section class="sect" id="market">
     <span class="sect-ghost" aria-hidden="true">02</span>
     <div class="wrap">
       <div class="section-head reveal">
         <div>
-          <div class="eyebrow"><span class="num">02</span>Competitor teardown</div>
-          <h2>Where each rival <em>wins</em> — and where they've gone soft.</h2>
+          <div class="eyebrow"><span class="num">02</span>Market overview</div>
+          <h2>Three markets, priced <em>wildly</em> differently.</h2>
         </div>
         <p class="lede">
-          Pricing pages taken apart line by line, review-site complaints mined and clustered, positioning read against what buyers actually search. Three of six entries shown; the rest behave the same way, about different companies.
+          Physiqal sits where consumer fitness, AI-native coaching, and clinical movement analysis overlap. All three are growing — but a lifter pays $15/mo where an insurer pays thousands. The whole thesis lives in that gap.
+        </p>
+      </div>
+
+      <div class="mkt-grid reveal">
+        <div class="mkt-card">
+          <div class="mkt-k">Fitness apps (broad)</div>
+          <div class="mkt-v">$12.1B <em>→ $34–45B</em></div>
+          <p>2025 → 2033–35, ~13–14% CAGR. The legacy category — trackers, programs, content.</p>
+          <span class="cite"><b>Grand View / Towards Healthcare:</b> est. $12.12B in 2025, ~$33.58B by 2033 at 13.40% CAGR; a second estimate puts 2026 at $13.81B → $45.45B by 2035.</span>
+        </div>
+        <div class="mkt-card">
+          <div class="mkt-k">AI in fitness &amp; wellness</div>
+          <div class="mkt-v">$10.68B <em>→ $57.8B</em></div>
+          <p>2025 → 2035 at a steep 19.3% CAGR. The fastest-growing slice — and the one Physiqal is native to.</p>
+          <span class="cite"><b>Segmented into</b> AI-enabled apps, AI wearables, virtual trainers, and smart gym equipment. Physiqal is an AI-enabled app.</span>
+        </div>
+        <div class="mkt-card">
+          <div class="mkt-k">Digital MSK / clinical</div>
+          <div class="mkt-v">Sword <em>~$4.15B</em></div>
+          <p>Few players, enormous capital. Proves people &amp; insurers pay real money for movement analysis — but it's enterprise B2B2C.</p>
+          <span class="cite"><b>Comparables:</b> Sword Health ~$4.15B on a ~$240M revenue run-rate; Hinge Health raised $600M at a $6.2B valuation before going public.</span>
+        </div>
+      </div>
+
+      <div class="gap-callout reveal">
+        <strong>The gap:</strong> nobody has taken the consumer-grade, self-serve, video-native version of what Sword and Hinge charge employers thousands per head for and made it a $10–20/mo app a lifter downloads on a Tuesday night after a bad squat session.
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 03 · COMPETITOR POSITIONING ====== -->
+  <section class="sect" id="positioning">
+    <span class="sect-ghost" aria-hidden="true">03</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">03</span>Competitor positioning</div>
+          <h2>The top-left corner is <em>nearly empty</em>.</h2>
+        </div>
+        <p class="lede">
+          Every real competitor plotted on the two axes that decide this category: who they sell to, and whether feedback is post-hoc or live. The consumer, self-serve, live-and-mobile quadrant — no hardware — is Physiqal's lane. Kemtai is the closest occupant, and it's still webcam/desktop-first.
         </p>
       </div>
 
       <div class="panel reveal">
         <div class="panel-head">
-          <span><span class="num">/</span>teardown — 6 vendors dissected</span>
-          <span>3 shown · 3 redacted</span>
+          <span><span class="num">/</span>positioning — business model × feedback mode</span>
+          <span>n = 11 companies · jul 2026</span>
         </div>
-        <div class="tt-row tt-head">
-          <div>Competitor</div>
-          <div>Wedge &amp; motion</div>
-          <div>Pricing</div>
-          <div>Where they're soft</div>
+        <div class="map-svg-wrap">
+          <svg class="map-svg" viewBox="0 0 880 560" role="img" aria-label="Positioning map: business model (consumer self-serve to enterprise clinical) versus feedback mode (post-hoc video review to live real-time coaching). Physiqal sits in a near-empty top-left gap zone: consumer, self-serve, live, mobile, no hardware.">
+            <line class="gridline" x1="90" y1="60" x2="90" y2="480"/>
+            <line class="gridline" x1="270" y1="60" x2="270" y2="480"/>
+            <line class="gridline" x1="450" y1="60" x2="450" y2="480"/>
+            <line class="gridline" x1="630" y1="60" x2="630" y2="480"/>
+            <line class="gridline" x1="810" y1="60" x2="810" y2="480"/>
+            <line class="gridline" x1="90" y1="60" x2="810" y2="60"/>
+            <line class="gridline" x1="90" y1="165" x2="810" y2="165"/>
+            <line class="gridline" x1="90" y1="270" x2="810" y2="270"/>
+            <line class="gridline" x1="90" y1="375" x2="810" y2="375"/>
+
+            <line class="axis" x1="90" y1="480" x2="810" y2="480"/>
+            <line class="axis" x1="90" y1="60" x2="90" y2="480"/>
+            <polygon class="axis-cap" points="810,475 822,480 810,485"/>
+            <polygon class="axis-cap" points="85,60 90,48 95,60"/>
+            <text class="axis-label" x="450" y="530" text-anchor="middle">consumer self-serve → enterprise / clinical B2B →</text>
+            <text class="axis-label" x="-270" y="40" transform="rotate(-90)" text-anchor="middle">post-hoc review → live real-time coaching →</text>
+            <text class="tick-label" x="150" y="503" text-anchor="middle">consumer</text>
+            <text class="tick-label" x="450" y="503" text-anchor="middle">hybrid / hardware</text>
+            <text class="tick-label" x="780" y="503" text-anchor="middle">enterprise</text>
+
+            <text class="quad-label" x="800" y="78" text-anchor="end">clinical / insurer territory</text>
+            <text class="quad-label" x="800" y="466" text-anchor="end">upload-only point tools</text>
+
+            <rect class="gap-zone" x="108" y="92" width="212" height="176" rx="10"/>
+            <text class="gap-label" x="126" y="122">the gap</text>
+            <text class="dot-sub" x="126" y="140">consumer · live · mobile · no hardware</text>
+
+            <!-- competitors -->
+            <circle class="dot" cx="320" cy="120" r="8"/>
+            <text class="dot-label" x="336" y="118">Kemtai</text>
+            <text class="dot-sub" x="336" y="133">webcam, scores /100</text>
+
+            <circle class="dot" cx="360" cy="140" r="8"/>
+            <text class="dot-label" x="376" y="152">Tempo</text>
+            <text class="dot-sub" x="376" y="167">$2,495 sensor console</text>
+
+            <circle class="dot" cx="418" cy="165" r="8"/>
+            <text class="dot-label" x="434" y="177">Tonal</text>
+            <text class="dot-sub" x="434" y="192">cable hardware</text>
+
+            <circle class="dot" cx="270" cy="298" r="7"/>
+            <text class="dot-label" x="286" y="296">Zing Coach</text>
+            <text class="dot-sub" x="286" y="311">Palta-backed, $10M A</text>
+
+            <circle class="dot" cx="150" cy="432" r="7"/>
+            <text class="dot-label" x="166" y="430">FormCheck AI</text>
+            <text class="dot-sub" x="166" y="445">upload-only</text>
+
+            <circle class="dot" cx="196" cy="382" r="7"/>
+            <text class="dot-label" x="212" y="380">Formax</text>
+            <text class="dot-sub" x="212" y="395">colour-coded timeline</text>
+
+            <circle class="dot" cx="234" cy="446" r="7"/>
+            <text class="dot-label" x="250" y="444">Form Fix</text>
+            <text class="dot-sub" x="250" y="459">iPad-first</text>
+
+            <circle class="dot" cx="592" cy="152" r="7"/>
+            <text class="dot-label" x="608" y="150">Kaia Health</text>
+            <text class="dot-sub" x="608" y="165">acq. by Sword, $285M</text>
+
+            <circle class="dot" cx="772" cy="112" r="9"/>
+            <text class="dot-label" x="756" y="100" text-anchor="end">Sword Health</text>
+            <text class="dot-sub" x="756" y="115" text-anchor="end">$4.15B, insurer-sold</text>
+
+            <circle class="dot" cx="792" cy="158" r="9"/>
+            <text class="dot-label" x="776" y="176" text-anchor="end">Hinge Health</text>
+            <text class="dot-sub" x="776" y="191" text-anchor="end">public, $6.2B peak</text>
+
+            <!-- subject -->
+            <circle class="you-ring" cx="168" cy="208" r="17"/>
+            <circle class="you-dot" cx="168" cy="208" r="9"/>
+            <text class="dot-label you-label" x="168" y="245" text-anchor="middle">PHYSIQAL</text>
+          </svg>
         </div>
-        <div class="tt-row">
-          <div class="c-name">Atlas FSM<small>enterprise incumbent</small></div>
-          <div class="c-body">Owns the multi-truck fleet segment with a sales-led motion and a 6-week onboarding. The brand every contractor knows — and most can't afford.</div>
-          <div class="c-price">$298/seat/mo<small>annual contract, setup fee</small></div>
-          <div class="c-soft"><strong>Soft underneath:</strong> 1–3 truck shops churn in trials — onboarding assumes an office manager the owner-operator doesn't have.</div>
-        </div>
-        <div class="tt-row">
-          <div class="c-name">DispatchPro<small>mid-market all-in-one</small></div>
-          <div class="c-body">All-in-one for 5–20 tech shops, growth via franchise partnerships. Strong scheduling; everything else is acquired modules stitched together.</div>
-          <div class="c-price">$129/seat/mo<small>monthly, per-seat</small></div>
-          <div class="c-soft"><strong>Soft underneath:</strong> complaint mining shows "invoice sync" as the top recurring grievance for 14 straight months — an integration wound that hasn't closed.</div>
-        </div>
-        <div class="tt-row">
-          <div class="c-name">FieldHive<small>SMB all-in-one</small></div>
-          <div class="c-body">Closest to the gap zone. PLG motion, free trial, good mobile app. Spreads across all trades — landscaping to locksmiths — so HVAC-specific workflow stalls in the backlog.</div>
-          <div class="c-price">$89/seat/mo<small>monthly, add-on heavy</small></div>
-          <div class="c-soft"><strong>Soft underneath:</strong> add-on pricing crosses $140 effective once permits + maintenance contracts are bolted on. Buyers notice; reviews say so.</div>
-        </div>
-        <div class="redacted-block">
-          <div class="redacted" aria-hidden="true">
-            <div class="tt-row">
-              <div class="c-name">ServiceDeck<small>horizontal CRM</small></div>
-              <div class="c-body">Generic pipeline tooling retrofitted for trades; partner-led distribution through accounting software marketplaces.</div>
-              <div class="c-price">$74/seat/mo</div>
-              <div class="c-soft"><strong>Soft underneath:</strong> no native dispatch — relies on a third-party calendar bridge buyers describe as fragile.</div>
-            </div>
-            <div class="tt-row">
-              <div class="c-name">TradeStack<small>multi-trade platform</small></div>
-              <div class="c-body">Roll-up strategy, buying point tools and cross-selling the bundle into an installed base of 11k shops.</div>
-              <div class="c-price">$185/seat/mo</div>
-              <div class="c-soft"><strong>Soft underneath:</strong> integration debt from four acquisitions in two years; support response times doubled.</div>
-            </div>
-            <div class="tt-row">
-              <div class="c-name">JobLedger<small>accounting-first</small></div>
-              <div class="c-body">Wedges in through bookkeeping, expands to quoting. Loved by accountants, tolerated by the techs who have to use it.</div>
-              <div class="c-price">$59/seat/mo</div>
-              <div class="c-soft"><strong>Soft underneath:</strong> mobile experience is the worst-rated in the category — 2.9 stars and falling.</div>
-            </div>
-          </div>
-          <div class="redact-overlay">
-            <div class="redact-card">
-              <div class="bars" aria-hidden="true"><i></i><i></i><i></i></div>
-              <div class="lock">redacted — 3 of 6 entries</div>
-              <h3>The other half is <em>yours</em>.</h3>
-              <p>In a live deliverable these rows hold your actual competitors — pricing dissected, complaints clustered, weaknesses named.</p>
-              <div class="actions">
-                <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
-              </div>
-            </div>
-          </div>
+        <div class="map-legend">
+          <span><i class="swatch s-comp"></i>competitor (real, positioned from research)</span>
+          <span><i class="swatch s-you"></i>Physiqal</span>
+          <span><i class="swatch s-gap"></i>near-empty gap zone</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ====== 03 · GAP ANALYSIS ====== -->
-  <section class="sect" id="gaps">
-    <span class="sect-ghost" aria-hidden="true">03</span>
-    <div class="wrap">
-      <div class="section-head reveal">
-        <div>
-          <div class="eyebrow"><span class="num">03</span>Gap analysis</div>
-          <h2>Four gaps, ranked by how hard they <em>compound</em>.</h2>
-        </div>
-        <p class="lede">
-          A gap only matters if it's reachable, defensible, and big enough to care about. Each one is scored on those three axes and paired with the evidence that surfaced it. Two of four shown.
-        </p>
-      </div>
-
-      <div class="gap-grid">
-        <div class="gap-card reveal">
-          <span class="ghost" aria-hidden="true">01</span>
-          <div class="top-row">
-            <div class="tag">Gap 01 / wedge</div>
-            <div class="score">92<small>/ 100</small></div>
-          </div>
-          <h3>Deep HVAC workflow at <em>owner-operator</em> pricing.</h3>
-          <p>Every vendor with real workflow depth prices for fleets. Every vendor priced for 1–3 truck shops is a point tool. 61% of the segment still runs on spreadsheets — not because they love them, but because nothing serious is priced for them. The corner is open.</p>
-          <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="--w:92%"></i></div></div>
-        </div>
-        <div class="gap-card reveal">
-          <span class="ghost" aria-hidden="true">02</span>
-          <div class="top-row">
-            <div class="tag">Gap 02 / trust</div>
-            <div class="score">78<small>/ 100</small></div>
-          </div>
-          <h3>Nobody owns the <em>permit</em> headache.</h3>
-          <p>Complaint mining across review sites puts permit tracking in the top three grievances for every competitor that touches it — and most don't. It's unglamorous, jurisdiction-specific work, which is exactly why it's still unclaimed and exactly why it retains.</p>
-          <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="--w:78%"></i></div></div>
-        </div>
-        <div class="redacted-block gap-span">
-          <div class="gap-grid redacted" aria-hidden="true">
-            <div class="gap-card">
-              <span class="ghost" aria-hidden="true">03</span>
-              <div class="top-row">
-                <div class="tag">Gap 03 / channel</div>
-                <div class="score">71<small>/ 100</small></div>
-              </div>
-              <h3>The distributor <em>counter</em> as a channel.</h3>
-              <p>Supply-house counters see every contractor in a region weekly. No software vendor has built for that relationship; two regional distributors already run informal referral programs that convert.</p>
-              <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="--w:71%"></i></div></div>
-            </div>
-            <div class="gap-card">
-              <span class="ghost" aria-hidden="true">04</span>
-              <div class="top-row">
-                <div class="tag">Gap 04 / pricing</div>
-                <div class="score">64<small>/ 100</small></div>
-              </div>
-              <h3>Flat-rate books are <em>stale</em> everywhere.</h3>
-              <p>Every competitor ships a static flat-rate pricing book updated annually. Material costs moved 22% in eighteen months. A live-updating book is a wedge nobody has priced.</p>
-              <div class="gap-meter"><span>Compounding</span><div class="bar"><i style="--w:64%"></i></div></div>
-            </div>
-          </div>
-          <div class="redact-overlay">
-            <div class="redact-card">
-              <div class="bars" aria-hidden="true"><i></i><i></i><i></i></div>
-              <div class="lock">redacted — 2 of 4 gaps</div>
-              <h3>Gaps 03 and 04 stay <em>sealed</em>.</h3>
-              <p>Channel and pricing gaps are the most market-specific intelligence in the deliverable — the part that would be worth copying.</p>
-              <div class="actions">
-                <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ====== 04 · 90-DAY PLAN ====== -->
-  <section class="sect" id="plan">
+  <!-- ====== 04 · KILL CRITERIA ====== -->
+  <section class="sect" id="kill">
     <span class="sect-ghost" aria-hidden="true">04</span>
     <div class="wrap">
       <div class="section-head reveal">
         <div>
-          <div class="eyebrow"><span class="num">04</span>The 90-day plan</div>
-          <h2>Fourteen plays. Each with a <em>kill-criterion</em>.</h2>
+          <div class="eyebrow"><span class="num">04</span>Kill criteria</div>
+          <h2>Hard stop/pivot triggers — <em>not</em> vibes.</h2>
         </div>
         <p class="lede">
-          Sequenced, sized, and built to keep deciding for you in week four when the launch adrenaline is gone. Every play states the evidence it rests on, the effort it costs, and the number that kills it if it isn't working. Three of fourteen shown.
+          Each is checked at a defined checkpoint. Trust is the entire product; one bad rep-score going viral is an existential risk this early, so the bar is deliberately unsentimental.
         </p>
       </div>
 
-      <div class="play-list">
-        <div class="play reveal">
-          <div class="p-num">01</div>
-          <div>
-            <h3>Reposition the homepage around the <em>1–3 truck</em> shop.</h3>
-            <p>Crewline's current copy says "for HVAC teams of every size" — which reads as "for nobody." Gap 01 says the open corner is owner-operators priced out of Atlas and underserved by point tools. Name them in the headline, show their price, and let the fleets self-select out.</p>
-          </div>
-          <div class="p-meta">
-            <span>Channel — <b>website / positioning</b></span>
-            <span>Effort — <b>3 days</b></span>
-            <span class="kill">Kill if — trial starts don't lift 15% in 21 days</span>
-          </div>
-        </div>
-        <div class="play reveal">
-          <div class="p-num">02</div>
-          <div>
-            <h3>Ship the permit tracker as a <em>free</em> standalone tool.</h3>
-            <p>Gap 02's complaint clusters show permit tracking is felt weekly and owned by no one. A free, jurisdiction-aware permit tracker is cheap to build, ranks for long-tail searches competitors ignore, and puts a Crewline login in the shop before the sales conversation starts.</p>
-          </div>
-          <div class="p-meta">
-            <span>Channel — <b>product-led / SEO</b></span>
-            <span>Effort — <b>2 weeks</b></span>
-            <span class="kill">Kill if — &lt;200 activations by day 45</span>
-          </div>
-        </div>
-        <div class="play reveal">
-          <div class="p-num">03</div>
-          <div>
-            <h3>Run the <em>invoice-sync</em> comparison page against DispatchPro.</h3>
-            <p>Fourteen months of the same top complaint is not a bug, it's a moat invitation. A direct comparison page targeting "DispatchPro invoice sync" search terms meets switchers at the exact moment of frustration — with migration tooling waiting.</p>
-          </div>
-          <div class="p-meta">
-            <span>Channel — <b>comparison SEO</b></span>
-            <span>Effort — <b>1 week</b></span>
-            <span class="kill">Kill if — page converts &lt;2% of qualified visits</span>
-          </div>
-        </div>
+      <div class="kill-list reveal">
+        <div class="kill-item"><div class="kill-when">Day 90</div><div class="kill-text">If fewer than <b>15%</b> of users who complete one video analysis return for a second within 14 days, the core loop isn't sticky — fix the feedback format before spending on acquisition.</div></div>
+        <div class="kill-item"><div class="kill-when">Day 90</div><div class="kill-text">If pose-estimation error rate (vs a biomechanist-labelled set) exceeds threshold on any of the <b>big 3 lifts</b> (squat, deadlift, bench) — kill that exercise, don't ship it half-working.</div></div>
+        <div class="kill-item"><div class="kill-when">Month 6</div><div class="kill-text">If <b>D30 retention &lt; 10%</b> with no improving trend across two iteration cycles, treat it as a retention problem, not acquisition — stop paid spend.</div></div>
+        <div class="kill-item"><div class="kill-when">Month 6</div><div class="kill-text">If CAC payback exceeds <b>12 months</b> on any paid channel after optimization, cut that channel.</div></div>
+        <div class="kill-item"><div class="kill-when">Month 9</div><div class="kill-text">If organic / community-driven signups (Reddit, TikTok, referral) never exceed <b>20%</b> of total, the product isn't earning word-of-mouth — a real risk signal in a category that lives on shareable proof.</div></div>
+        <div class="kill-item"><div class="kill-when">Month 12</div><div class="kill-text">If no operator will pay for a B2B / white-label variant after outbound to <b>50+</b> prospects, drop the enterprise upsell thesis and stay pure consumer.</div></div>
+      </div>
+    </div>
+  </section>
 
-        <div class="redacted-block">
-          <div class="redacted" aria-hidden="true">
-            <div class="play"><div class="p-num">04</div><div><h3>The distributor-counter referral pilot.</h3><p>Two regional supply houses, a co-branded one-pager, and a revenue share that costs nothing until it works. The channel nobody in the category has built for.</p></div><div class="p-meta"><span>Channel — <b>partnerships</b></span><span>Effort — <b>2 weeks</b></span><span class="kill">Kill if — no signed pilot by day 30</span></div></div>
-            <div class="play"><div class="p-num">05</div><div><h3>Live flat-rate book as the pricing wedge.</h3><p>Material costs moved 22% in eighteen months and every competitor's book is annual. Ship the live book to maintenance-plan customers first.</p></div><div class="p-meta"><span>Channel — <b>product</b></span><span>Effort — <b>3 weeks</b></span><span class="kill">Kill if — attach rate &lt;25%</span></div></div>
-            <div class="play"><div class="p-num">06</div><div><h3>The trade-school instructor program.</h3><p>Apprentices learn on whatever their instructor demos. Forty programs, free licenses, a generation of muscle memory.</p></div><div class="p-meta"><span>Channel — <b>community</b></span><span>Effort — <b>ongoing</b></span><span class="kill">Kill if — &lt;8 programs onboard by day 60</span></div></div>
-            <div class="play"><div class="p-num">07</div><div><h3>Seasonal switch-window campaign.</h3><p>Shops change software in the shoulder seasons — April and October. The campaign calendar is built backwards from that.</p></div><div class="p-meta"><span>Channel — <b>lifecycle</b></span><span>Effort — <b>1 week</b></span><span class="kill">Kill if — open rate &lt;30%</span></div></div>
+  <!-- ====== 05 · TAM / SAM / SOM ====== -->
+  <section class="sect" id="tss">
+    <span class="sect-ghost" aria-hidden="true">05</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">05</span>TAM / SAM / SOM</div>
+          <h2>A credible seed-to-A path, <em>not</em> a category-definer.</h2>
+        </div>
+        <p class="lede">
+          Top-down category, narrowed to English-first resistance-trainers who'd want form feedback, grounded against the fitness-app category's own reported ARPU.
+        </p>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <span><span class="num">/</span>addressable market — nested</span>
+          <span>usd · jul 2026</span>
+        </div>
+        <div class="tss-wrap">
+          <svg class="map-svg" viewBox="0 0 440 440" role="img" aria-label="Concentric market rings: TAM $10.68B AI-fitness, SAM roughly $1.8 to 2.2B mobile no-hardware form feedback, SOM $1 to 3M ARR in years one to three.">
+            <circle class="tss-ring" cx="220" cy="220" r="200" style="stroke:var(--line-2)"/>
+            <circle class="tss-ring" cx="220" cy="278" r="125" style="stroke:var(--accent-soft)"/>
+            <circle class="tss-ring" cx="220" cy="338" r="55" style="stroke:var(--accent)"/>
+            <text x="220" y="52" text-anchor="middle" class="radar-label" style="fill:var(--muted)">TAM · $10.68B</text>
+            <text x="220" y="188" text-anchor="middle" class="radar-label" style="fill:var(--accent-soft)">SAM · ~$2B</text>
+            <text x="220" y="332" text-anchor="middle" class="radar-label" style="fill:var(--accent)">SOM</text>
+            <text x="220" y="352" text-anchor="middle" class="radar-label" style="fill:var(--accent)">$1–3M ARR</text>
+          </svg>
+          <div class="tss-rows">
+            <div class="tss-row">
+              <div class="tss-tag">TAM</div>
+              <div class="tss-val">$10.68B <em>→ $57.8B</em></div>
+              <p>Full AI-fitness category (apps, wearables, virtual trainers, smart equipment), globally, at 19.3% CAGR to 2035.</p>
+            </div>
+            <div class="tss-row">
+              <div class="tss-tag">SAM</div>
+              <div class="tss-val">~$1.8–2.2B</div>
+              <p>Bottom-up: the "exercise &amp; weight-loss" segment (53.7% of the ~$12.1B fitness-app market ≈ $6.5B), narrowed to English-first resistance-trainers who'd want form feedback (≈ a third), mobile, no hardware.</p>
+            </div>
+            <div class="tss-row">
+              <div class="tss-tag">SOM</div>
+              <div class="tss-val">$1–3M <em>ARR</em>, yrs 1–3</div>
+              <p>Category ARPU is $22.55/yr; Physiqal prices above pure trackers (~$80–120/yr). 15k–25k paying subs in year 2–3 lands SOM in the low-single-digit millions — seed-to-A, not category-defining.</p>
+            </div>
           </div>
-          <div class="redact-overlay">
-            <div class="redact-card">
-              <div class="bars" aria-hidden="true"><i></i><i></i><i></i></div>
-              <div class="lock">redacted — plays 04–14</div>
-              <h3>Eleven plays, <em>sealed</em>.</h3>
-              <p>This is where the plan stops being a sample and starts being a strategy. Yours arrives sequenced for your market, refreshed monthly as conditions move.</p>
-              <div class="actions">
-                <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
-                <a href="/pricing" class="btn-secondary">See pricing</a>
-              </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 06 · SEGMENTS ====== -->
+  <section class="sect" id="segments">
+    <span class="sect-ghost" aria-hidden="true">06</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">06</span>Segments to target</div>
+          <h2>Start where the behaviour <em>already</em> exists.</h2>
+        </div>
+        <p class="lede">
+          In priority order — highest intent and lowest CAC first, natural LTV bridges last.
+        </p>
+      </div>
+
+      <div class="seg-grid reveal">
+        <div class="seg-card"><span class="seg-n">1</span><h3>Self-coached lifters</h3><p>Already filming lifts and posting to Reddit/Discord for feedback. Highest intent, lowest CAC — validating the behaviour for free.</p></div>
+        <div class="seg-card"><span class="seg-n">2</span><h3>Injury-anxious beginners</h3><p>Newly lifting, scared of getting hurt, would pay for 1–2 PT sessions just to "get checked." Physiqal replaces that first session.</p></div>
+        <div class="seg-card"><span class="seg-n">3</span><h3>Home-gym owners</h3><p>No live human in the room to check them; highest willingness to pay for a substitute feedback loop.</p></div>
+        <div class="seg-card"><span class="seg-n">4</span><h3>Returning post-injury lifters</h3><p>Smaller but higher-intent, higher-LTV — the natural bridge toward a future rehab-adjacent line without becoming a clinical MSK company.</p></div>
+      </div>
+      <p class="seg-note reveal"><strong>Deprioritize for v1:</strong> gyms/trainers as a B2B channel (real, but a distraction from the core consumer loop — revisit post-PMF per the Month-12 kill criterion) and elite powerlifters (small market, already coached, hardest to satisfy with a generalist model).</p>
+    </div>
+  </section>
+
+  <!-- ====== 07 · MARKET TREND ====== -->
+  <section class="sect" id="trend">
+    <span class="sect-ghost" aria-hidden="true">07</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">07</span>Market trend</div>
+          <h2>AI-native fitness <em>overtakes</em> legacy, ~2029.</h2>
+        </div>
+        <p class="lede">
+          Three curves on one timeline. The AI slope (19.3%) is steep enough to cross above the broad fitness-app line (~13–14%) around the end of the decade — the structural tailwind under Physiqal's category.
+        </p>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <span><span class="num">/</span>market size 2020–2035</span>
+          <span>usd billions</span>
+        </div>
+        <div class="map-svg-wrap">
+          <svg class="map-svg" viewBox="0 0 880 480" role="img" aria-label="Market size 2020 to 2035: AI in fitness rises from $10.68B toward $57.8B and overtakes the broad fitness-app market around 2029; a dotted digital-MSK marker series runs lower.">
+            <line class="gridline" x1="90" y1="60" x2="810" y2="60"/>
+            <line class="gridline" x1="90" y1="200" x2="810" y2="200"/>
+            <line class="gridline" x1="90" y1="340" x2="810" y2="340"/>
+            <line class="axis" x1="90" y1="440" x2="810" y2="440"/>
+            <line class="axis" x1="90" y1="60" x2="90" y2="440"/>
+            <text class="tick-label" x="82" y="444" text-anchor="end">$0</text>
+            <text class="tick-label" x="82" y="344" text-anchor="end">$20B</text>
+            <text class="tick-label" x="82" y="204" text-anchor="end">$40B</text>
+            <text class="tick-label" x="82" y="64" text-anchor="end">$60B</text>
+            <text class="tick-label" x="90" y="462" text-anchor="middle">2020</text>
+            <text class="tick-label" x="330" y="462" text-anchor="middle">2025</text>
+            <text class="tick-label" x="570" y="462" text-anchor="middle">2030</text>
+            <text class="tick-label" x="810" y="462" text-anchor="middle">2035</text>
+
+            <!-- area fills -->
+            <polygon class="area-b" points="90,414 330,365 520,300 810,45 810,440 90,440"/>
+            <polygon class="area-a" points="90,377 330,355 520,318 810,160 810,440 90,440"/>
+
+            <!-- series C: digital MSK dotted markers -->
+            <polyline class="ser-c" points="138,426 378,411"/>
+            <circle class="ser-dot" cx="138" cy="426" r="4"/>
+            <circle class="ser-dot" cx="378" cy="411" r="4"/>
+            <text class="dot-sub" x="386" y="408" style="font-size:11px">MSK: Sword $2B→$4.15B</text>
+
+            <!-- series A: broad fitness apps -->
+            <polyline class="ser-a" points="90,377 330,355 520,318 810,160"/>
+            <text class="dot-label" x="812" y="158" style="font-size:13px">Fitness apps</text>
+
+            <!-- series B: AI fitness -->
+            <polyline class="ser-b" points="90,414 330,365 520,300 810,45"/>
+            <text class="dot-label" x="812" y="52" style="font-size:13px">AI fitness</text>
+
+            <!-- crossover -->
+            <circle class="cross-ring" cx="470" cy="322" r="13"/>
+            <text class="cross-note" x="486" y="300">AI-native overtakes legacy · ~2029</text>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <span><i class="lg-b"></i>AI in fitness &amp; wellness ($10.68B → $57.8B)</span>
+          <span><i class="lg-a"></i>Fitness apps, broad ($12.1B → $34–45B)</span>
+          <span><i class="lg-c"></i>Digital MSK (Sword valuation, context)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 08 · WEEKLY METRICS ====== -->
+  <section class="sect" id="kpis">
+    <span class="sect-ghost" aria-hidden="true">08</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">08</span>Weekly metrics</div>
+          <h2>The tiles that get checked <em>every</em> Monday.</h2>
+        </div>
+        <p class="lede">
+          Videos analyzed — not sessions — is the core engagement unit. Values below are illustrative placeholders; in your workspace they populate live from real cohort data.
+        </p>
+      </div>
+
+      <div class="kpi-grid reveal">
+        <div class="kpi"><div class="kpi-k">New signups</div><div class="kpi-v">1,240</div><div class="kpi-wow">+18% WoW</div></div>
+        <div class="kpi"><div class="kpi-k">Videos analyzed</div><div class="kpi-v">8,930</div><div class="kpi-wow">3.1 / active user</div></div>
+        <div class="kpi"><div class="kpi-k">Avg form score (squat)</div><div class="kpi-v">72<small style="font-size:14px;color:var(--muted)">/100</small></div><div class="kpi-wow">+2 WoW</div></div>
+        <div class="kpi"><div class="kpi-k">D7 / D30 retention</div><div class="kpi-v">41% / 19%</div><div class="kpi-wow">cohort: this week</div></div>
+        <div class="kpi"><div class="kpi-k">Trial → paid</div><div class="kpi-v">6.2%</div><div class="kpi-wow">+0.4pt WoW</div></div>
+        <div class="kpi"><div class="kpi-k">Weekly churn</div><div class="kpi-v">4.8%</div><div class="kpi-wow down">−0.3pt WoW</div></div>
+        <div class="kpi"><div class="kpi-k">CAC (blended)</div><div class="kpi-v">$14</div><div class="kpi-wow">by channel below</div></div>
+        <div class="kpi"><div class="kpi-k">NPS (rolling 30d)</div><div class="kpi-v">47</div><div class="kpi-wow">+3 WoW</div></div>
+        <div class="kpi"><div class="kpi-k">% who share a result</div><div class="kpi-v">22%</div><div class="kpi-wow">virality proxy</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 09 · GTM STRATEGY ====== -->
+  <section class="sect" id="gtm">
+    <span class="sect-ghost" aria-hidden="true">09</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">09</span>GTM strategy</div>
+          <h2>Don't create the behaviour — <em>intercept</em> it.</h2>
+        </div>
+        <p class="lede">
+          Lifters already post form-check videos to Reddit, Discord and TikTok asking strangers "is my squat okay?". That's the single biggest GTM insight: the demand is organic, unpaid, and pre-existing.
+        </p>
+      </div>
+
+      <div class="play-list reveal">
+        <div class="play"><div class="p-num">01</div><div><h3>Seed the exact behaviour with the product itself.</h3><p>Post before/after form-check content (blurred timeline overlays, joint-angle annotations) under the "#formcheck" pattern lifters already search — a proven genre, not one to invent.</p></div><div class="p-meta"><span>Channel — <b>TikTok / Reels</b></span><span>Cost — <b>low</b></span><span class="kill">Wins when — share rate &gt; 20%</span></div></div>
+        <div class="play"><div class="p-num">02</div><div><h3>Reddit-native, not Reddit-spam.</h3><p>r/formcheck and exercise-specific subs exist for exactly this. Genuinely useful comments (tool used transparently) convert far better than any paid unit here.</p></div><div class="p-meta"><span>Channel — <b>Reddit</b></span><span>Cost — <b>time</b></span><span class="kill">Watch — mod goodwill</span></div></div>
+        <div class="play"><div class="p-num">03</div><div><h3>Make the score card the acquisition unit.</h3><p>Every analysis produces a shareable artifact (form score + annotated clip). Build the share target as the growth loop, not an afterthought.</p></div><div class="p-meta"><span>Channel — <b>referral loop</b></span><span>Cost — <b>product</b></span><span class="kill">Kill if — k-factor &lt; 0.2</span></div></div>
+        <div class="play"><div class="p-num">04</div><div><h3>Own App Store search terms.</h3><p>FormCheck AI, Formax and Form Fix prove standing demand for "form checker", "AI workout analyzer", "lift form". Own them with better creative and reviews.</p></div><div class="p-meta"><span>Channel — <b>ASO</b></span><span>Cost — <b>low</b></span><span class="kill">Target — top-3 for cluster</span></div></div>
+        <div class="play"><div class="p-num">05</div><div><h3>Seed mid-tier lifting creators.</h3><p>A 20k-follower powerlifting-form creator has far more purchase-intent-relevant reach per dollar than a celebrity fitness influencer.</p></div><div class="p-meta"><span>Channel — <b>influencer</b></span><span>Cost — <b>per-conversion</b></span><span class="kill">Kill if — CAC &gt; $50</span></div></div>
+        <div class="play"><div class="p-num">06</div><div><h3>Injury-prevention framing for beginners.</h3><p>Partner content with beginner-lifting creators on "don't get hurt in your first month", tied directly to Segment 2.</p></div><div class="p-meta"><span>Channel — <b>partner content</b></span><span>Cost — <b>low</b></span><span class="kill">Segment — injury-anxious</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 10 · FUNDING LANDSCAPE RADAR ====== -->
+  <section class="sect" id="funding">
+    <span class="sect-ghost" aria-hidden="true">10</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">10</span>Funding landscape radar</div>
+          <h2>What this category's investors <em>reward</em>.</h2>
+        </div>
+        <p class="lede">
+          Six axes investors score, plotted for Physiqal today versus a targeted post-seed profile. The weak edges — differentiation and capital efficiency — are exactly what a raise narrative has to close.
+        </p>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <span><span class="num">/</span>investor scorecard — 0 to 10</span>
+          <span>current vs targeted post-seed</span>
+        </div>
+        <div class="map-svg-wrap">
+          <svg class="map-svg" viewBox="0 0 560 480" role="img" aria-label="Radar chart across six investor axes: market size, differentiation, capital efficiency, distribution, team credibility, regulatory exposure. Physiqal current versus targeted post-seed profile.">
+            <polygon class="radar-web" points="280,70 422.9,152.5 422.9,317.5 280,400 137.1,317.5 137.1,152.5"/>
+            <polygon class="radar-web" points="280,125 375.3,180 375.3,290 280,345 184.7,290 184.7,180"/>
+            <polygon class="radar-web" points="280,180 327.6,207.5 327.6,262.5 280,290 232.4,262.5 232.4,207.5"/>
+            <line class="radar-axis" x1="280" y1="235" x2="280" y2="70"/>
+            <line class="radar-axis" x1="280" y1="235" x2="422.9" y2="152.5"/>
+            <line class="radar-axis" x1="280" y1="235" x2="422.9" y2="317.5"/>
+            <line class="radar-axis" x1="280" y1="235" x2="280" y2="400"/>
+            <line class="radar-axis" x1="280" y1="235" x2="137.1" y2="317.5"/>
+            <line class="radar-axis" x1="280" y1="235" x2="137.1" y2="152.5"/>
+
+            <polygon class="radar-a" points="280,86.5 351.4,193.75 365.7,284.5 280,350.5 194.3,284.5 165.7,169"/>
+            <polygon class="radar-b" points="280,86.5 380,177.25 380,292.75 280,367 180,292.75 165.7,169"/>
+
+            <text class="radar-label" x="280" y="58" text-anchor="middle">Market size</text>
+            <text class="radar-label" x="430" y="148" text-anchor="start">Differentiation</text>
+            <text class="radar-label" x="430" y="332" text-anchor="start">Capital efficiency</text>
+            <text class="radar-label" x="280" y="420" text-anchor="middle">Distribution</text>
+            <text class="radar-label" x="130" y="332" text-anchor="end">Team credibility</text>
+            <text class="radar-label" x="130" y="148" text-anchor="end">Regulatory exposure</text>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <span><i class="lg-a"></i>Physiqal — current</span>
+          <span><i class="lg-b"></i>Physiqal — targeted post-seed</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 11 · TREND HEAT MAP ====== -->
+  <section class="sect" id="heat">
+    <span class="sect-ghost" aria-hidden="true">11</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">11</span>Channel heat map</div>
+          <h2>Where to move now — and what to <em>avoid</em>.</h2>
+        </div>
+        <p class="lede">
+          Tactics scored from heating-up to saturated. The green row is where a seed-stage CV-fitness app has an unfair edge; the red row is where it burns money copying scaled incumbents.
+        </p>
+      </div>
+
+      <div class="panel reveal" style="padding:24px">
+        <div class="heat-grid">
+          <div class="heat-row">
+            <div class="heat-label">🔥 Heating up — move now</div>
+            <div class="heat-cells">
+              <span class="heat-cell heat-hot">Short-form "#formcheck" video</span>
+              <span class="heat-cell heat-hot">App Store term ownership</span>
+              <span class="heat-cell heat-hot">Reddit-native seeding</span>
+            </div>
+          </div>
+          <div class="heat-row">
+            <div class="heat-label">Warm — competitive but viable</div>
+            <div class="heat-cells">
+              <span class="heat-cell heat-warm">Mid-tier creator partnerships</span>
+              <span class="heat-cell heat-warm">Referral / share-loop mechanics</span>
+            </div>
+          </div>
+          <div class="heat-row">
+            <div class="heat-label">Overused — avoid / deprioritize</div>
+            <div class="heat-cells">
+              <span class="heat-cell heat-cold">Broad "AI personal trainer" paid social</span>
+              <span class="heat-cell heat-cold">Celebrity fitness sponsorships</span>
+              <span class="heat-cell heat-cold">Hardware-bundled positioning</span>
+            </div>
+          </div>
+        </div>
+        <div class="heat-key">
+          <span><i style="background:rgba(46,98,73,0.5)"></i>heating up — low cost, native to the product</span>
+          <span><i style="background:rgba(176,134,46,0.5)"></i>warm — works, but contested</span>
+          <span><i style="background:rgba(180,68,46,0.5)"></i>saturated — rising CPMs, weak differentiation (Mirror's $500M cautionary tale lives here)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 12 · REVENUE SIMULATOR ====== -->
+  <section class="sect" id="sim">
+    <span class="sect-ghost" aria-hidden="true">12</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">12</span>Revenue model</div>
+          <h2>The five levers that move <em>MRR</em>.</h2>
+        </div>
+        <p class="lede">
+          In your workspace this is a live calculator — drag the levers, watch the 24-month projection redraw. Shown here as a static snapshot at the base-case settings.
+        </p>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <span><span class="num">/</span>MRR / ARR projection — base case</span>
+          <span>24-month window</span>
+        </div>
+        <div class="sim-grid">
+          <div class="sim-levers">
+            <div class="sim-lever"><div class="sim-l-k">Monthly new signups <b>4,000</b></div><div class="sim-track"><i style="width:55%"></i><span class="sim-knob" style="left:55%"></span></div></div>
+            <div class="sim-lever"><div class="sim-l-k">Free → paid <b>6%</b></div><div class="sim-track"><i style="width:30%"></i><span class="sim-knob" style="left:30%"></span></div></div>
+            <div class="sim-lever"><div class="sim-l-k">Price / month <b>$15</b></div><div class="sim-track"><i style="width:50%"></i><span class="sim-knob" style="left:50%"></span></div></div>
+            <div class="sim-lever"><div class="sim-l-k">Monthly churn <b>5%</b></div><div class="sim-track"><i style="width:25%"></i><span class="sim-knob" style="left:25%"></span></div></div>
+            <div class="sim-lever"><div class="sim-l-k">Referral coefficient <b>0.15</b></div><div class="sim-track"><i style="width:30%"></i><span class="sim-knob" style="left:30%"></span></div></div>
+            <div class="sim-formula">new paying = (signups × conv) + (payers × <b>ref</b>)<br>MRR<sub>n</sub> = MRR<sub>n-1</sub> × (1 − <b>churn</b>) + new × price<br>ARR = MRR × 12  ·  LTV = price / churn</div>
+          </div>
+          <div>
+            <div class="map-svg-wrap">
+              <svg class="map-svg" viewBox="0 0 560 360" role="img" aria-label="Projected MRR climbing over 24 months at base-case settings toward roughly $210k MRR / $2.5M ARR.">
+                <line class="gridline" x1="70" y1="40" x2="540" y2="40"/>
+                <line class="gridline" x1="70" y1="130" x2="540" y2="130"/>
+                <line class="gridline" x1="70" y1="220" x2="540" y2="220"/>
+                <line class="axis" x1="70" y1="310" x2="540" y2="310"/>
+                <line class="axis" x1="70" y1="40" x2="70" y2="310"/>
+                <text class="tick-label" x="62" y="314" text-anchor="end">$0</text>
+                <text class="tick-label" x="62" y="224" text-anchor="end">$70k</text>
+                <text class="tick-label" x="62" y="134" text-anchor="end">$140k</text>
+                <text class="tick-label" x="62" y="44" text-anchor="end">$210k</text>
+                <text class="tick-label" x="70" y="330" text-anchor="middle">M0</text>
+                <text class="tick-label" x="305" y="330" text-anchor="middle">M12</text>
+                <text class="tick-label" x="540" y="330" text-anchor="middle">M24</text>
+                <polygon class="area-b" points="70,306 305,208 540,58 540,310 70,310"/>
+                <polyline class="ser-b" points="70,306 187,270 305,208 422,132 540,58"/>
+                <circle class="you-dot" cx="540" cy="58" r="6" style="fill:var(--accent)"/>
+                <text class="cross-note" x="532" y="46" text-anchor="end">~$210k MRR · ~$2.5M ARR</text>
+              </svg>
+            </div>
+            <p class="sim-hint">Illustrative base case — the section founders screenshot. Real numbers depend on your live cohorts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 13 · WINDOW OF OPPORTUNITY ====== -->
+  <section class="sect" id="window">
+    <span class="sect-ghost" aria-hidden="true">13</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">13</span>Window of opportunity</div>
+          <h2>Open now — for three converging reasons.</h2>
+        </div>
+        <p class="lede">
+          A 12–24 month window before a well-funded player, or an OS-level fitness feature, closes it.
+        </p>
+      </div>
+
+      <div class="win-grid reveal">
+        <div class="win-card"><div class="win-n">1</div><h3>Pose estimation got good &amp; cheap.</h3><p>On-device frameworks (Neural-Engine-class hardware, MediaPipe-class models) make real-time joint tracking viable with no server round-trip — the "live camera" mode is economically sane at consumer prices only now.</p></div>
+        <div class="win-card"><div class="win-n">2</div><h3>The clinical tier consolidated <em>up</em>.</h3><p>Sword bought Kaia for $285M; Hinge went public. Both chase insurer/employer contracts, not a $15/mo app — leaving the self-serve consumer lane structurally uncontested by the best-funded players.</p></div>
+        <div class="win-card"><div class="win-n">3</div><h3>The indie tier is thin.</h3><p>FormCheck AI, Formax, Form Fix and GymLytics prove demand exists and is served by small single-feature apps — none has consolidated the category or built a brand yet.</p></div>
+      </div>
+      <div class="win-risk reveal">
+        <strong>Risk to the window:</strong> Apple Fitness+ or Google Fit absorbing basic form feedback as a platform feature is the single biggest threat to monitor. This is a "move before the platform does" category — not a "defensible forever" one.
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 14 · SEARCH DEMAND ====== -->
+  <section class="sect" id="search">
+    <span class="sect-ghost" aria-hidden="true">14</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">14</span>Search demand</div>
+          <h2>The "form check" cluster is <em>rising</em>.</h2>
+        </div>
+        <p class="lede">
+          Directional trends by query cluster over 24 months. Four+ small apps competing for the exact terms is itself evidence of live, non-trivial volume.
+        </p>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <span><span class="num">/</span>query clusters — 24-month trend</span>
+          <span class="badge-live">Live data — wire to Ahrefs/SEMrush</span>
+        </div>
+        <div class="map-svg-wrap">
+          <svg class="map-svg" viewBox="0 0 880 420" role="img" aria-label="Directional search-demand trends over 24 months: an AI form-checker cluster rising, an evergreen squat/deadlift form-check baseline, a flat crowded AI personal trainer line, and a lower informational cluster.">
+            <line class="gridline" x1="90" y1="60" x2="810" y2="60"/>
+            <line class="gridline" x1="90" y1="160" x2="810" y2="160"/>
+            <line class="gridline" x1="90" y1="260" x2="810" y2="260"/>
+            <line class="axis" x1="90" y1="360" x2="810" y2="360"/>
+            <line class="axis" x1="90" y1="60" x2="90" y2="360"/>
+            <text class="tick-label" x="90" y="382" text-anchor="middle">−24mo</text>
+            <text class="tick-label" x="450" y="382" text-anchor="middle">−12mo</text>
+            <text class="tick-label" x="810" y="382" text-anchor="middle">now</text>
+
+            <polyline class="ser-a" points="90,169 450,162 810,152"/>
+            <text class="dot-label" x="812" y="150" style="font-size:12px">"squat/deadlift form check"</text>
+
+            <polyline class="ser-c" points="90,182 450,185 810,189"/>
+            <text class="dot-label" x="812" y="192" style="font-size:12px">"AI personal trainer"</text>
+
+            <polyline class="ser-b" points="90,298 450,223 810,142"/>
+            <text class="dot-label" x="812" y="132" style="font-size:12px">"AI form checker"</text>
+
+            <polyline class="ser-a" style="stroke-dasharray:2 5;opacity:0.6" points="90,281 450,264 810,247"/>
+            <text class="dot-label" x="812" y="250" style="font-size:12px;opacity:0.7">"how to fix my squat"</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 15 · FULL COMPETITOR BREAKDOWN (premium) ====== -->
+  <section class="sect premium" id="breakdown">
+    <span class="sect-ghost" aria-hidden="true">15</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">15</span>Full competitor breakdown <span class="prem-tag">🔒 Pro</span></div>
+          <h2>Every rival, <em>founded to weakness</em>.</h2>
+        </div>
+        <p class="lede">
+          Ten companies with funding, model, differentiator and the soft underbelly — the part worth copying. Unlocks on Pro.
+        </p>
+      </div>
+
+      <div class="redacted-block">
+        <div class="redacted" aria-hidden="true">
+          <div class="panel">
+            <div class="panel-head"><span><span class="num">/</span>full teardown — 10 vendors</span><span>funding · model · weakness</span></div>
+            <div class="tt-row tt-head"><div>Company</div><div>Funding / valuation</div><div>Model</div><div>Weakness</div></div>
+            <div class="tt-row"><div class="c-name">Kemtai<small>Tel Aviv · 2019</small></div><div class="c-body">$5.8M (AlleyCorp, Samurai)</div><div class="c-price">Webcam B2C + B2B2C</div><div class="c-soft">Desktop/webcam-first, not mobile-native; small team (~15).</div></div>
+            <div class="tt-row"><div class="c-name">Sword Health<small>Porto/US · 2015</small></div><div class="c-body">~$4.15B, $468M+ raised</div><div class="c-price">Enterprise/insurer MSK</div><div class="c-soft">Not a consumer product; insurer/employer sales cycle.</div></div>
+            <div class="tt-row"><div class="c-name">Hinge Health<small>US · 2015</small></div><div class="c-body">$826M+, $6.2B peak, public</div><div class="c-price">Enterprise/insurer MSK</div><div class="c-soft">Same enterprise-only gap — no self-serve consumer product.</div></div>
+            <div class="tt-row"><div class="c-name">Tempo<small>SF · 2019</small></div><div class="c-body">$398M raised</div><div class="c-price">Hardware-gated home gym</div><div class="c-soft">$2,495+ hardware is a hard adoption ceiling.</div></div>
+            <div class="tt-row"><div class="c-name">Formax<small>indie</small></div><div class="c-body">Bootstrapped</div><div class="c-price">Consumer, upload-only</div><div class="c-soft">Single-founder-scale polish; no live mode.</div></div>
+          </div>
+        </div>
+        <div class="redact-overlay">
+          <div class="redact-card">
+            <div class="bars" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="lock">sealed — 10 of 10 rows</div>
+            <h3>The full teardown is <em>Pro</em>.</h3>
+            <p>Funding, model, differentiator and the named soft spot for every competitor — the intelligence worth acting on.</p>
+            <div class="actions">
+              <a href="/pricing" class="btn-primary">Unlock on Pro <span class="arr">→</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 16 · CUSTOMER ACQUISITION MODEL (premium) ====== -->
+  <section class="sect premium" id="cac">
+    <span class="sect-ghost" aria-hidden="true">16</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">16</span>Customer acquisition model <span class="prem-tag">🔒 Pro</span></div>
+          <h2>Channel mix, CAC ranges, payback <em>discipline</em>.</h2>
+        </div>
+        <p class="lede">
+          Year-1 channel targets against the category's $22.55/yr ARPU benchmark — with the payback ceilings that tie back to the kill criteria. Unlocks on Pro.
+        </p>
+      </div>
+
+      <div class="redacted-block">
+        <div class="redacted" aria-hidden="true">
+          <div class="panel">
+            <div class="panel-head"><span><span class="num">/</span>channel mix — year 1</span><span>CAC · notes</span></div>
+            <div class="tt-row tt-head"><div>Channel</div><div>Est. CAC</div><div>Role</div><div>Notes</div></div>
+            <div class="tt-row"><div class="c-name">Organic</div><div class="c-body">$0–15</div><div class="c-price">Majority of signups</div><div class="c-soft">Reddit, TikTok #formcheck, ASO — makes or breaks unit economics.</div></div>
+            <div class="tt-row"><div class="c-name">Referral loop</div><div class="c-body">$5–20</div><div class="c-price">Compounding</div><div class="c-soft">Depends entirely on score-card shareability.</div></div>
+            <div class="tt-row"><div class="c-name">Influencer seeding</div><div class="c-body">$20–50</div><div class="c-price">Per-conversion</div><div class="c-soft">Trackable codes, not flat sponsorship.</div></div>
+            <div class="tt-row"><div class="c-name">Paid social (retargeting)</div><div class="c-body">$60–120</div><div class="c-price">Narrow only</div><div class="c-soft">Avoid broad "AI personal trainer" terms.</div></div>
+          </div>
+        </div>
+        <div class="redact-overlay">
+          <div class="redact-card">
+            <div class="bars" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="lock">sealed — full channel model</div>
+            <h3>The acquisition model is <em>Pro</em>.</h3>
+            <p>Blended targets, per-channel CAC ceilings and the 6-month payback discipline that governs paid spend.</p>
+            <div class="actions">
+              <a href="/pricing" class="btn-primary">Unlock on Pro <span class="arr">→</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 17 · PERSONALISED GROWTH ROADMAP (premium) ====== -->
+  <section class="sect premium" id="roadmap">
+    <span class="sect-ghost" aria-hidden="true">17</span>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="eyebrow"><span class="num">17</span>Personalised growth roadmap <span class="prem-tag">🔒 Pro</span></div>
+          <h2>The 90-day plan, <em>sequenced</em>.</h2>
+        </div>
+        <p class="lede">
+          A week-by-week roadmap that keeps deciding for you after the launch adrenaline fades. Unlocks on Pro and refreshes as conditions move.
+        </p>
+      </div>
+
+      <div class="redacted-block">
+        <div class="redacted" aria-hidden="true">
+          <div class="play-list">
+            <div class="play"><div class="p-num">W1–4</div><div><h3>Prove the loop.</h3><p>Validate D14 return-usage on the two flagship lifts only — squat and deadlift. Nothing else ships until the core loop retains.</p></div><div class="p-meta"><span>Focus — <b>retention</b></span><span class="kill">Gate — 15% return in 14 days</span></div></div>
+            <div class="play"><div class="p-num">W5–8</div><div><h3>Seed organic.</h3><p>Launch the #formcheck content engine and a Reddit-native presence in the communities that already do this for free.</p></div><div class="p-meta"><span>Focus — <b>distribution</b></span><span class="kill">Gate — 20% organic signups</span></div></div>
+            <div class="play"><div class="p-num">W9–12</div><div><h3>Instrument for the raise.</h3><p>Populate the weekly metrics dashboard with 90 days of real cohort data before any fundraising conversation.</p></div><div class="p-meta"><span>Focus — <b>the raise</b></span><span class="kill">Gate — 90 days clean cohorts</span></div></div>
+          </div>
+        </div>
+        <div class="redact-overlay">
+          <div class="redact-card">
+            <div class="bars" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="lock">sealed — full 90-day roadmap</div>
+            <h3>Your roadmap is <em>Pro</em>.</h3>
+            <p>Sequenced week by week for Physiqal's exact position, with the gates that decide what ships next — refreshed as the market moves.</p>
+            <div class="actions">
+              <a href="/pricing" class="btn-primary">Unlock on Pro <span class="arr">→</span></a>
+              <a href="/four" class="btn-secondary">Open the workspace</a>
             </div>
           </div>
         </div>
@@ -1744,11 +2297,11 @@
   <section class="closing-cta">
     <div class="wrap">
       <div class="reveal">
-        <div class="eyebrow"><span class="num">05</span>Your turn</div>
+        <div class="eyebrow"><span class="num">/</span>Your turn</div>
         <h2>Now imagine this, about <em>your</em> market.</h2>
-        <p>Same anatomy, zero redactions, refreshed every month. The Basic plan is $30/month; the premium agentic plan keeps the engine running between refreshes.</p>
+        <p>Same anatomy — snapshot, positioning, kill criteria, TAM, GTM, the sealed roadmap — run on your company and refreshed as conditions move. The engine that produced this page is the one that runs on real subscriptions.</p>
         <div class="actions">
-          <a href="/waitlist" class="btn-primary">Join the waitlist <span class="arr">→</span></a>
+          <a href="/signup" class="btn-primary">Create your workspace <span class="arr">→</span></a>
           <a href="/pricing" class="btn-secondary">See pricing</a>
         </div>
       </div>
