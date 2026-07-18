@@ -3,7 +3,7 @@
  *
  * A Vercel serverless function: the ONLY server-side code in the repo, and the
  * only place an API key is read. The signed-in user gives us a company name
- * (plus optional website + one-liner) and Claude (Opus 4.8) actually SEARCHES
+ * (plus optional website + one-liner) and Claude (Sonnet) actually SEARCHES
  * THE WEB — Anthropic's built-in web_search tool — to find and dissect that
  * company's real competitors, then returns a full specimen-grade deliverable as
  * one JSON object: a plotted market map, a competitor teardown, gap analysis,
@@ -40,7 +40,17 @@
 
 'use strict';
 
-const MODEL = 'claude-opus-4-8';
+// ── KILL SWITCH ─────────────────────────────────────────────────────────────
+// Product temporarily PAUSED by Avi (2026-07-07) to stop ALL Anthropic API calls
+// and costs while the 60s-timeout issue is worked out. While paused, the endpoint
+// returns a friendly "paused" message and NEVER contacts Anthropic (or Supabase) —
+// guaranteeing zero API spend. It also honours the Vercel env var
+// GK_ADVISOR_DISABLED=1 as an instant dashboard override.
+// ▶ TO RE-ENABLE (only when Avi says so): set ADVISOR_ENABLED = true, commit, push
+//   (auto-deploys), and clear GK_ADVISOR_DISABLED in Vercel if it was set.
+const ADVISOR_ENABLED = false;
+
+const MODEL = 'claude-sonnet-5'; // Sonnet: ~2x faster/cheaper than Opus — better odds inside the 60s ceiling
 const MAX_TOKENS = 6000;
 const WEB_SEARCH_MAX_USES = 2; // each live search is a round trip; 2 keeps the run inside the 60s Hobby ceiling
 const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
@@ -197,6 +207,12 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Kill switch — return before any external call (no Anthropic, no Supabase, no cost).
+  if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') {
+    res.status(503).json({ error: "GrowthKit Live is paused right now while we upgrade the engine — please check back soon." });
+    return;
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     res.status(503).json({ error: 'The engine is not configured yet — no API key set on the server.' });
@@ -306,6 +322,8 @@ module.exports = async function handler(req, res) {
   let answer = '';        // accumulated final text (the JSON)
   let searchCount = 0;
   let announcedWriting = false;
+  let stopReason = null;  // captured for diagnostics
+  let apiError = null;    // an Anthropic stream error, if any
 
   try {
     for (;;) {
@@ -335,8 +353,10 @@ module.exports = async function handler(req, res) {
           }
         } else if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
           answer += evt.delta.text;
+        } else if (evt.type === 'message_delta' && evt.delta && evt.delta.stop_reason) {
+          stopReason = evt.delta.stop_reason;
         } else if (evt.type === 'error') {
-          send({ type: 'error', message: 'The engine stopped early — please try again.' });
+          apiError = (evt.error && (evt.error.message || evt.error.type)) || 'stream error';
         }
       }
     }
@@ -350,7 +370,16 @@ module.exports = async function handler(req, res) {
   if (deliverable && deliverable.subject) {
     send({ type: 'done', deliverable: deliverable });
   } else {
-    send({ type: 'error', message: 'The engine could not finish a full deliverable in time — please try again.' });
+    // Self-diagnosing failure: say WHY, and attach the raw signals so a screenshot
+    // of the error tells us whether it was a timeout, a truncation, a bad-JSON run,
+    // or an upstream API error — instead of a generic "empty deliverable".
+    let message;
+    if (apiError) message = 'The engine hit an API error — please try again.';
+    else if (stopReason === 'max_tokens') message = 'The engine ran out of output room before finishing — please try again.';
+    else if (stopReason === 'pause_turn') message = 'The engine needed more search steps than allowed — please try again.';
+    else if (answer.length) message = 'The engine finished but did not return a complete deliverable — please try again.';
+    else message = 'The run was cut off before producing anything (most likely the 60s server limit) — try a well-known company, or a longer server limit is needed.';
+    send({ type: 'error', message: message, debug: { chars: answer.length, searches: searchCount, stop_reason: stopReason || null, api_error: apiError || null } });
   }
   res.end();
 };

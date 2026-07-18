@@ -838,7 +838,7 @@
         var res = await fetch('/api/advise', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
         if (!res.ok) {
           var msg = 'The run failed — please try again.';
-          try { var er = await res.json(); if (er && er.error) msg = er.error; } catch (e) {}
+          try { var er = await res.json(); if (er && er.error) { msg = er.error; if (er.detail) msg += ' [' + (er.status || res.status) + ': ' + String(er.detail).slice(0, 200) + ']'; } } catch (e) {}
           throw new Error(msg);
         }
         if (!res.body) throw new Error('Streaming is not supported in this browser.');
