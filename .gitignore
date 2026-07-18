@@ -3,6 +3,11 @@
 .env.*
 .env*.local
 
+# npm: the Stripe SDK is the repo's first dependency (api/checkout, api/portal,
+# api/stripe-webhook). Vercel installs from package.json/package-lock.json on
+# deploy — node_modules never belongs in git.
+node_modules
+
 # Client confidentiality: real client briefs and generated deliverables stay
 # out of git (the repo is public). Only the fictional demo is committed.
 # To deploy a real client file: make the repo private first, then `git add -f`.

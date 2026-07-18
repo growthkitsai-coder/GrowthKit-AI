@@ -795,7 +795,7 @@
         <div class="posture-card reveal">
           <div class="label">03 — Small vendor surface</div>
           <h3>Few vendors, <em>named</em> ones.</h3>
-          <p>Vercel hosts the site. Google Workspace holds mail and waitlist data. Fonts and scripts load from Google Fonts and jsDelivr. That is the entire third-party surface — every vendor we use is on this page, not buried in a subprocessor PDF.</p>
+          <p>Vercel hosts the site. Google Workspace holds mail and waitlist data. Supabase runs login and stores account data. Stripe processes subscription payments. Fonts and scripts load from Google Fonts and jsDelivr. That is the entire third-party surface — every vendor we use is on this page, not buried in a subprocessor PDF.</p>
         </div>
 
         <div class="posture-card reveal">
@@ -824,7 +824,7 @@
         <div class="arch-copy reveal">
           <p><strong>No database.</strong> The site has no backend of its own — no SQL to inject, no admin panel to brute-force, no sessions to hijack.</p>
           <p><strong>No accounts, no passwords.</strong> Nothing on this site asks you to log in, so there are no credentials of yours for us to lose.</p>
-          <p><strong>No payment data.</strong> We never see or store card numbers. When paid plans go live, payment goes through a PCI-DSS-compliant processor — card details will go to them, never to us.</p>
+          <p><strong>Payments handled by Stripe.</strong> We never see or store card numbers. Subscription payments run through Stripe, a PCI-DSS Level 1 processor — your card details go to Stripe, never to us. We store only your subscription status (which plan, and whether it's active).</p>
           <p><strong>One stored preference.</strong> The only thing the site keeps on your machine is your light/dark theme choice, in your browser's localStorage. It never leaves your device.</p>
           <p class="note">Check our homework: run <code>curl -I https://growthkitai.com</code> and compare against the readout.</p>
         </div>

@@ -677,7 +677,7 @@
               <li>Refreshed monthly, operator-reviewed</li>
             </ul>
             <div class="cta-row">
-              <a href="/waitlist" class="btn-primary">Get started <span class="arr">→</span></a>
+              <a href="/signup" class="btn-primary" data-gk-checkout>Get started <span class="arr">→</span></a>
             </div>
           </div>
         </div>
@@ -699,7 +699,7 @@
               <li>Operator review on every refresh, priority turnaround</li>
             </ul>
             <div class="cta-row">
-              <a href="/waitlist" class="btn-primary">Get started <span class="arr">→</span></a>
+              <a href="/signup" class="btn-primary" data-gk-checkout>Get started <span class="arr">→</span></a>
             </div>
           </div>
         </div>
@@ -839,5 +839,10 @@
 })();
 </script>
 
+<!-- Billing: Supabase client (for the signed-in check + token) + Stripe checkout glue. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth-config.js"></script>
+<script src="auth.js"></script>
+<script src="billing.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body></html>

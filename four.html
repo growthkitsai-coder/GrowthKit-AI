@@ -31,6 +31,15 @@
   .wrap.narrow { max-width: 900px; }
   @media (max-width: 720px) { .wrap { padding: 0 22px; } }
   .auth-top, .four-main { position: relative; z-index: 1; }
+  /* Billing bar (populated by billing.js) */
+  .four-billing { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+  .four-billing:empty { display: none; }
+  .four-billing-plan { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .four-billing-plan.is-pro { color: var(--accent-soft); }
+  .four-billing-btn { font: 600 14px 'Inter', sans-serif; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; transition: background .15s, color .15s; }
+  .four-billing-btn:hover { background: var(--accent-soft); border-color: var(--accent-soft); }
+  :root[data-theme="dark"] .four-billing-plan.is-pro { color: var(--neon, #3EF59F); }
+  :root[data-theme="dark"] .four-billing-btn { background: var(--neon, #3EF59F); border-color: var(--neon, #3EF59F); color: #04110A; }
 </style>
 <link rel="stylesheet" href="theme.css">
 <link rel="stylesheet" href="advisor.css">
@@ -76,6 +85,8 @@
         <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
         <h1>Point the engine at <em>your</em> market.</h1>
         <p class="lede">The engine searches the live web for your real competitors, dissects them, and returns a full deliverable: a plotted market map, a competitor teardown, gap analysis, and a 90-day plan. Start with a <strong>quick read</strong> (just your company name) or build a <strong>full profile</strong> for the sharpest cut — either way, every deliverable is saved to your account below.</p>
+        <!-- Billing status + Upgrade/Manage — populated by billing.js. -->
+        <div class="four-billing" data-gk-billing></div>
       </div>
 
       <div class="gk-advisor" data-gk-advisor data-gk-full="1">
@@ -167,5 +178,6 @@
 <script src="auth-config.js"></script>
 <script src="auth.js"></script>
 <script src="advisor.js"></script>
+<script src="billing.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body></html>

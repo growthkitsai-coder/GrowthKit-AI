@@ -1,0 +1,12 @@
+{
+  "name": "growthkit-ai",
+  "version": "0.4.0",
+  "private": true,
+  "description": "GrowthKit AI marketing site + serverless functions. Static site, no build step. The one dependency is Stripe (billing serverless functions only).",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "stripe": "^18.5.0"
+  }
+}

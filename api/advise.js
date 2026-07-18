@@ -40,15 +40,14 @@
 
 'use strict';
 
+const { checkAccess } = require('../lib/subscriptions');
+
 // ── KILL SWITCH ─────────────────────────────────────────────────────────────
-// Product temporarily PAUSED by Avi (2026-07-07) to stop ALL Anthropic API calls
-// and costs while the 60s-timeout issue is worked out. While paused, the endpoint
-// returns a friendly "paused" message and NEVER contacts Anthropic (or Supabase) —
-// guaranteeing zero API spend. It also honours the Vercel env var
-// GK_ADVISOR_DISABLED=1 as an instant dashboard override.
-// ▶ TO RE-ENABLE (only when Avi says so): set ADVISOR_ENABLED = true, commit, push
-//   (auto-deploys), and clear GK_ADVISOR_DISABLED in Vercel if it was set.
-const ADVISOR_ENABLED = false;
+// RE-ENABLED 2026-07-18 alongside Stripe billing. While disabled the endpoint
+// returns a friendly "paused" message and NEVER contacts Anthropic (or Supabase),
+// guaranteeing zero API spend. The Vercel env var GK_ADVISOR_DISABLED=1 remains an
+// instant dashboard override — set it to re-pause without a code change.
+const ADVISOR_ENABLED = true;
 
 const MODEL = 'claude-sonnet-5'; // Sonnet: ~2x faster/cheaper than Opus — better odds inside the 60s ceiling
 const MAX_TOKENS = 6000;
@@ -232,6 +231,7 @@ module.exports = async function handler(req, res) {
       res.status(401).json({ error: 'Please sign in to use the engine.' });
       return;
     }
+    let user = null;
     try {
       const ur = await fetch(sbUrl.replace(/\/+$/, '') + '/auth/v1/user', {
         headers: { authorization: 'Bearer ' + token, apikey: sbAnon }
@@ -240,8 +240,22 @@ module.exports = async function handler(req, res) {
         res.status(401).json({ error: 'Your session has expired — please sign in again.' });
         return;
       }
+      user = await ur.json();
     } catch (e) {
       res.status(401).json({ error: 'Could not verify your session — please sign in again.' });
+      return;
+    }
+
+    // Server-side access control — the ONLY place access is enforced (never trust
+    // the client). Free beta is open to everyone by default (GK_BETA_OPEN); once
+    // unwound, only the GK_BETA_EMAILS allowlist or an active Pro subscription
+    // may run the engine. See lib/subscriptions.js → checkAccess.
+    const access = await checkAccess(user);
+    if (!access.allowed) {
+      res.status(402).json({
+        error: 'Upgrade to Pro to run the engine.',
+        code: 'subscription_required'
+      });
       return;
     }
   }
