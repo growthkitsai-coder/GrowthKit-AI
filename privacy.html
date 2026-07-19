@@ -3,7 +3,7 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<script>(function(){try{if(localStorage.getItem('gk-theme')!=='light')document.documentElement.setAttribute('data-theme','dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();</script>
 <link rel="icon" type="image/png" sizes="512x512" href="/logo-mark-512.png">
 <link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
@@ -634,7 +634,8 @@
               <li><strong>Contact details</strong> — your name, email address, company name, role, and any other details you submit through the waitlist, contact forms, or email.</li>
               <li><strong>Communications</strong> — the contents of messages you send us, including questions, feedback, and any attachments.</li>
               <li><strong>Pilot &amp; beta data</strong> — if you participate in a pilot or private beta, information about your company, growth stage, channels, and goals as you choose to share it.</li>
-              <li><strong>Growth Advisor inputs</strong> — if you use the free Growth Advisor tool, the text you enter about your product, competitors, and market. This is processed to generate your result (see <a class="inline" href="#use">Section 04</a> and <a class="inline" href="#share">Section 06</a>) and is not stored by us after the response is returned. Please don't enter confidential or personal information you wouldn't want processed by a third-party AI provider.</li>
+              <li><strong>GrowthKit product data</strong> — the company profile, competitors, market context, full report, daily briefs, generated or founder-added checklist tasks, and task progress associated with your account. We store this information to provide the product and generate ongoing intelligence.</li>
+              <li><strong>Connected service data</strong> — if you connect Stripe, Google Analytics, or LinkedIn, we receive OAuth credentials, selected account or Page identifiers, and the metrics needed for your daily brief. Provider credentials are encrypted before storage and deleted when you disconnect.</li>
             </ul>
 
             <h3>Information collected automatically</h3>
@@ -659,11 +660,11 @@
               <li>Understand how the Services are used and develop new features;</li>
               <li>Detect, prevent, and respond to fraud, abuse, security, or technical issues;</li>
               <li>Comply with legal obligations and enforce our terms;</li>
-              <li>Generate your result when you use the Growth Advisor, by sending your inputs to our AI provider for processing (see <a class="inline" href="#share">Section 06</a>); and</li>
+              <li>Generate full reports and daily briefs by combining your inputs, public web research, and connected metrics through our AI provider (see <a class="inline" href="#share">Section 06</a>);</li>
               <li>Send you transactional or, where permitted, marketing communications (you can opt out of marketing at any time).</li>
             </ul>
             <p>
-              We do not sell your personal information. We do not use your personal information to train third-party large language models without your consent. Growth Advisor inputs are sent to our AI provider solely to generate your result, and under our agreement with them are not used to train their models.
+              We do not sell your personal information. We do not use your personal information to train third-party large language models without your consent. Product inputs and connected metric summaries are sent to our AI provider solely to generate reports and daily briefs.
             </p>
           </section>
 
@@ -681,7 +682,8 @@
             <p>We share personal information only as described below:</p>
             <ul>
               <li><strong>Service providers</strong> — vendors who help us run the Services (hosting, email delivery, analytics, customer support, payment processing). They are contractually bound to use the information only on our behalf.</li>
-              <li><strong>AI sub-processor</strong> — the free Growth Advisor sends the inputs you provide to <strong>Anthropic, PBC</strong> (the provider of the Claude models) over their API, solely to generate your result. Anthropic processes the request as our sub-processor and, under their commercial terms, does not use API inputs or outputs to train their models. This is the only feature that shares your input with an AI provider; it is optional and used only when you run the tool.</li>
+              <li><strong>AI sub-processor</strong> — GrowthKit sends your product inputs, saved report context, connected metric summaries, and relevant public-web research to <strong>Anthropic, PBC</strong> over its API to generate full reports and daily briefs.</li>
+              <li><strong>Connected services</strong> — at your direction, Stripe, Google Analytics, and LinkedIn provide data through their APIs. Your use of each provider remains subject to that provider's terms and privacy practices.</li>
               <li><strong>Professional advisors</strong> — lawyers, accountants, and auditors, when needed to manage our business.</li>
               <li><strong>Business transfers</strong> — in connection with a merger, acquisition, financing, reorganization, bankruptcy, or sale of assets, in which case we will take reasonable steps to ensure the recipient honors this policy.</li>
               <li><strong>Legal &amp; safety</strong> — to comply with law, respond to lawful requests, enforce our agreements, or protect the rights, property, or safety of GrowthKit AI, our users, or others.</li>

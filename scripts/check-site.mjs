@@ -133,14 +133,15 @@ for (const page of publicPages) {
   const ids = page === 'index.html' ? indexIds : idsOf(page);
   for (const [, attr, raw] of html[page].matchAll(/(href|src)="([^"]+)"/g)) {
     if (/^(https?:|mailto:|tel:|data:|\/\/|\/_vercel)/.test(raw)) continue;
-    const [path, frag] = raw.split('#');
+    const [pathWithQuery, frag] = raw.split('#');
+    const path = pathWithQuery.split('?')[0];
     if (path === '' && frag) { // same-page anchor
       if (!ids.has(frag)) fail(`${page}: ${attr}="${raw}" — no id="${frag}" on this page`);
     } else if (path === '/' || path === '') {
       if (frag && !indexIds.has(frag)) fail(`${page}: ${attr}="${raw}" — no id="${frag}" on index.html`);
     } else if (rewriteMap.has(path)) {
       // clean URL — already validated against files in check 2
-    } else if (!existsSync(join(ROOT, path.replace(/^\//, '').split('?')[0]))) {
+    } else if (!existsSync(join(ROOT, path.replace(/^\//, '')))) {
       fail(`${page}: ${attr}="${raw}" — target does not exist (not a clean URL, not a file)`);
     }
   }

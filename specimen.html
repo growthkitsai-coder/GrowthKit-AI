@@ -3,7 +3,8 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>(function(){try{if(localStorage.getItem('gk-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();</script>
+<script>(function(){try{if(localStorage.getItem('gk-theme')!=='light')document.documentElement.setAttribute('data-theme','dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();</script>
+<script>(function(){try{if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('specimen-embed')}catch(e){}})();</script>
 <link rel="icon" type="image/png" sizes="512x512" href="/logo-mark-512.png">
 <link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
@@ -97,6 +98,7 @@
     backdrop-filter: saturate(140%) blur(12px);
     box-shadow: 0 1px 0 rgba(20,19,15,0.04);
   }
+  html.specimen-embed .topbar { display: none; }
   .topbar-inner {
     height: 64px;
     display: flex;

@@ -42,8 +42,13 @@
     { "source": "/four", "destination": "/four.html" }
   ],
   "functions": {
-    "api/advise.js": { "maxDuration": 60 }
+    "api/advise.js": { "maxDuration": 60 },
+    "api/daily-briefs.js": { "maxDuration": 60 },
+    "api/daily-cron.js": { "maxDuration": 60 }
   },
+  "crons": [
+    { "path": "/api/daily-cron", "schedule": "0 7 * * *" }
+  ],
   "headers": [
     {
       "source": "/d/(.*)",

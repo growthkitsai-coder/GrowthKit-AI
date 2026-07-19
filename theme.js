@@ -1,6 +1,6 @@
 // GrowthKit AI — theme toggle wiring.
 // The pre-paint inline script in <head> has already set data-theme on
-// <html> based on saved preference / system preference, so we just need
+// <html> unless the visitor saved light mode, so we just need
 // to keep the button's aria state in sync and handle clicks.
 (function () {
   'use strict';

@@ -1,399 +1,396 @@
 /**
- * GrowthKit AI — Advisor endpoint (the live product).
+ * GrowthKit first-report pipeline.
  *
- * A Vercel serverless function: the ONLY server-side code in the repo, and the
- * only place an API key is read. The signed-in user gives us a company name
- * (plus optional website + one-liner) and Claude (Sonnet) actually SEARCHES
- * THE WEB — Anthropic's built-in web_search tool — to find and dissect that
- * company's real competitors, then returns a full specimen-grade deliverable as
- * one JSON object: a plotted market map, a competitor teardown, gap analysis,
- * a 90-day plan, and the sources it used. The browser renders that JSON into
- * the designed deliverable (see advisor.js).
- *
- * Zero npm dependencies — raw fetch against the Anthropic Messages API. We parse
- * Anthropic's SSE server-side and forward a small NDJSON progress stream to the
- * browser (one JSON object per line): {type:"status"} events while it searches
- * and writes, then a final {type:"done", deliverable:{...}} (or {type:"error"}).
- * Streaming keeps the connection alive so a slow run doesn't hit a timeout.
- *
- * ── Setup (one-time, in the Vercel dashboard — NOT in this repo) ──
- *   Project → Settings → Environment Variables → add `ANTHROPIC_API_KEY`
- *   (Production + Preview). Redeploy. The repo is PUBLIC — never commit the key.
- *   Without the env var the endpoint returns a friendly "not configured" error.
- *   ⚠ It must be on the SAME Vercel project that serves growthkitai.com — see the
- *   two-accounts / duplicate-project trap in docs/advisor.md.
- *
- * ── Limits to know ──
- *   - maxDuration is 60s in vercel.json (Hobby ceiling). Web search + a full
- *     deliverable is genuinely tight: searches are capped (WEB_SEARCH_MAX_USES),
- *     effort is 'medium', and the prompt asks Claude to be efficient so it lands
- *     inside the window. A slow run can still time out — the browser surfaces a
- *     "took too long, try again" message. If it bites often, move to Vercel Pro
- *     (maxDuration 300) and this file needs no change beyond vercel.json.
- *   - Each run costs real money: Opus tokens + web searches (~$10 / 1k searches).
- *     Inputs are length-capped, searches capped, max_tokens bounded, and the tool
- *     is behind login + rate-limited to keep per-call and abuse cost predictable.
- *   - Numbers Claude reports are web-researched estimates and can be wrong; the
- *     deliverable is presented as an "AI research draft — verify key numbers"
- *     with its sources shown. See docs/advisor.md.
+ * Seven short, persisted Anthropic calls replace the old all-in-one generation:
+ * research -> subject/positioning + market map + sources (parallel) -> teardown
+ * -> gaps -> plan. Every call has a 52-second server deadline and can be retried
+ * independently. The internal research pack is never returned to the browser.
  */
-
 'use strict';
 
-const { checkAccess } = require('../lib/subscriptions');
+const { checkAccess, verifyUserToken, bearer } = require('../lib/subscriptions');
+const {
+  configured: productConfigured,
+  getWorkspace,
+  ensureWorkspace,
+  listReportSections,
+  reserveReportSection,
+  completeReportSection,
+  failReportSection,
+  completeWorkspace
+} = require('../lib/product');
 
-// ── KILL SWITCH ─────────────────────────────────────────────────────────────
-// RE-ENABLED 2026-07-18 alongside Stripe billing. While disabled the endpoint
-// returns a friendly "paused" message and NEVER contacts Anthropic (or Supabase),
-// guaranteeing zero API spend. The Vercel env var GK_ADVISOR_DISABLED=1 remains an
-// instant dashboard override — set it to re-pause without a code change.
 const ADVISOR_ENABLED = true;
-
-const MODEL = 'claude-sonnet-5'; // Sonnet: ~2x faster/cheaper than Opus — better odds inside the 60s ceiling
-const MAX_TOKENS = 6000;
-const WEB_SEARCH_MAX_USES = 2; // each live search is a round trip; 2 keeps the run inside the 60s Hobby ceiling
-const MIN_FILL_MS = 2500; // submissions faster than this are dropped as bots
-const RATE_MAX = 6; // accepted runs per IP per window
-const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-
-// Per-field input character caps. Two onboarding modes feed the same engine:
-//   short — company + website + known competitors + recent moves
-//   long  — company + website + a formatted founder-profile text block
+const MODEL = 'claude-sonnet-5';
+const CALL_TIMEOUT_MS = 52 * 1000;
+const MIN_FILL_MS = 2500;
+const RATE_MAX = 30;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
 const CAP = { company: 160, website: 300, competitors: 1200, moves: 1200, profile: 8000 };
 
-// ── Durable rate limiting (preferred) ──────────────────────────────────────
-// Uses Redis over Upstash's REST API when a KV store is connected — shared
-// across every serverless instance and surviving cold starts. Works with
-// Vercel KV / the Vercel Marketplace Upstash integration (KV_REST_API_URL +
-// KV_REST_API_TOKEN) or a direct Upstash integration (UPSTASH_REDIS_REST_URL +
-// _TOKEN). No store connected → transparently falls back to the in-memory
-// limiter below. Connecting a store is a 2-click Marketplace add; no code
-// change needed. See docs/advisor.md.
+const STAGES = [
+  'research', 'subject_positioning', 'market_map', 'competitor_teardown',
+  'gap_analysis', 'plan', 'sources'
+];
+const DEPENDENCIES = {
+  research: [],
+  subject_positioning: ['research'],
+  market_map: ['research'],
+  competitor_teardown: ['research', 'market_map'],
+  gap_analysis: ['research', 'competitor_teardown'],
+  plan: ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources'],
+  sources: ['research']
+};
+
+const STAGE_CONFIG = {
+  research: {
+    maxTokens: 3600,
+    searches: 2,
+    instruction: [
+      'Do research only. Do not write the report, recommendations, positioning, gaps, or roadmap.',
+      'Build a compact factual knowledge base for every later call. Identify the exact company and its market, then research real competitors, pricing, customer type, and current market trends.',
+      'Return exactly: {"company":string,"website":string,"industry":string,"customer_type":string,"company_facts":[string],"competitors":[{"name":string,"website":string,"positioning":string,"pricing":string,"customer_type":string,"evidence":string}],"pricing":[string],"market_trends":[string],"sources":[{"title":string,"url":string,"supports":string}]}',
+      'Include 6-8 real competitors and 4-10 useful sources. Use best-effort language instead of invented precision.'
+    ].join('\n')
+  },
+  subject_positioning: {
+    maxTokens: 1100,
+    instruction: [
+      'Generate only the subject brief and positioning read.',
+      'Return exactly: {"subject":{"name":string,"one_liner":string,"segment":string},"positioning":string}',
+      'The positioning must be 2-3 specific sentences and end with the positioning truth the founder most needs to act on.'
+    ].join('\n')
+  },
+  market_map: {
+    maxTokens: 2200,
+    instruction: [
+      'Generate only the market map. Do not write competitor cards, gaps, or recommendations.',
+      'Return exactly: {"market_map":{"x_axis":string,"y_axis":string,"x_ticks":[string,string,string,string,string],"vendors":[{"name":string,"sub":string,"x":number,"y":number}],"subject_point":{"x":number,"y":number},"gap":{"label":string,"sub":string,"x":number,"y":number,"w":number,"h":number}}}',
+      'Use 6-8 competitors from the research pack. Coordinates are 0-100: x is price and y is workflow depth.'
+    ].join('\n')
+  },
+  competitor_teardown: {
+    maxTokens: 2400,
+    instruction: [
+      'Generate only four competitor cards, using the research pack and market map.',
+      'Return exactly: {"teardown":[{"name":string,"tag":string,"wedge":string,"price":string,"price_note":string,"soft":string,"next_move":string}]}',
+      'Choose exactly four strategically important competitors. Each soft spot must lead to one concrete next move the founder can test this week.'
+    ].join('\n')
+  },
+  gap_analysis: {
+    maxTokens: 3000,
+    instruction: [
+      'Generate only three gap analyses with weekly actions and checklists.',
+      'Return exactly: {"gaps":[{"tag":string,"title":string,"body":string,"score":string,"score_label":string,"meter":number,"next_move":string,"checklist":[string,string,string]}]}',
+      'Each gap must be traceable to the competitor teardown. Make next_move executable this week and every checklist exactly three short verb-led tasks.'
+    ].join('\n')
+  },
+  plan: {
+    maxTokens: 3000,
+    instruction: [
+      'Generate only the 90-day roadmap. Reference the positioning, market map, competitor teardown, and gaps already produced.',
+      'Return exactly: {"plan":[{"horizon":string,"title":string,"body":string,"first_move":string,"kill":string}]}',
+      'Create exactly six sequenced plays across 90 days. Keep an emphasis on immediate next steps, measurable learning, and explicit kill criteria.'
+    ].join('\n')
+  },
+  sources: {
+    maxTokens: 1000,
+    instruction: [
+      'Generate only the sources list and honesty note from the research pack.',
+      'Return exactly: {"citations":[{"title":string,"url":string}],"note":string}',
+      'Use 3-8 actual research-pack sources. The note must say this is an AI research draft, key numbers should be verified, and minor inference may be present.'
+    ].join('\n')
+  }
+};
+
+const BASE_SYSTEM = [
+  'You are the GrowthKit AI market-intelligence engine for seed and Series A founders.',
+  'Voice: confident, operator-grade, specific, concise, and grounded. Keep the founder moving toward a decision.',
+  'Return only one valid JSON object with double-quoted keys and no markdown or code fences.',
+  'Here is the research pack. Use only this information unless you need minor inference.',
+  'Never claim that a minor inference was directly sourced.'
+].join('\n');
+const RESEARCH_SYSTEM = [
+  'You are the GrowthKit AI market researcher for seed and Series A founders.',
+  'Research only. Collect grounded facts into the requested JSON knowledge base; do not write report prose or recommendations.',
+  'Return only one valid JSON object with double-quoted keys and no markdown or code fences.'
+].join('\n');
+
+const clean = (value, cap) => String(value == null ? '' : value).slice(0, cap || 200).trim();
+
 function kvConfig() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
   return url && token ? { url: url.replace(/\/+$/, ''), token } : null;
 }
 
-// Fixed-window counter, bucketed into the key so it auto-resets. One HTTP
-// round trip (INCR + EXPIRE pipelined).
 async function rateLimitedDurable(cfg, ip) {
   const windowSec = Math.floor(RATE_WINDOW_MS / 1000);
   const bucket = Math.floor(Date.now() / 1000 / windowSec);
   const key = `gk:advise:rl:${ip}:${bucket}`;
-  const r = await fetch(cfg.url + '/pipeline', {
+  const response = await fetch(cfg.url + '/pipeline', {
     method: 'POST',
     headers: { authorization: 'Bearer ' + cfg.token, 'content-type': 'application/json' },
     body: JSON.stringify([['INCR', key], ['EXPIRE', key, windowSec * 2]])
   });
-  if (!r.ok) throw new Error('kv ' + r.status);
-  const out = await r.json(); // [{ result: N }, { result: 1 }]
-  const count = Array.isArray(out) && out[0] ? Number(out[0].result) : 0;
-  return count > RATE_MAX;
+  if (!response.ok) throw new Error('kv ' + response.status);
+  const output = await response.json();
+  return Number(output && output[0] && output[0].result) > RATE_MAX;
 }
 
-// ── In-memory fallback (best-effort; per warm instance only) ────────────────
-const hits = new Map(); // ip -> [timestamps]
+const hits = new Map();
 function rateLimitedMemory(ip) {
   const now = Date.now();
-  const arr = (hits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
-  if (arr.length >= RATE_MAX) { hits.set(ip, arr); return true; }
-  arr.push(now);
-  hits.set(ip, arr);
-  // opportunistic cleanup so the Map can't grow unbounded
-  if (hits.size > 5000) {
-    for (const [k, v] of hits) {
-      if (!v.some((t) => now - t < RATE_WINDOW_MS)) hits.delete(k);
-    }
-  }
+  const entries = (hits.get(ip) || []).filter((time) => now - time < RATE_WINDOW_MS);
+  if (entries.length >= RATE_MAX) { hits.set(ip, entries); return true; }
+  entries.push(now);
+  hits.set(ip, entries);
   return false;
 }
 
 async function isRateLimited(ip) {
   const cfg = kvConfig();
   if (cfg) {
-    try { return await rateLimitedDurable(cfg, ip); }
-    catch (_) { /* KV hiccup — fall through to the in-memory backstop */ }
+    try { return await rateLimitedDurable(cfg, ip); } catch (_) {}
   }
   return rateLimitedMemory(ip);
 }
 
-const clean = (v, cap) => String(v == null ? '' : v).slice(0, cap || 200).trim();
-
-// ── The deliverable contract ────────────────────────────────────────────────
-// Claude returns ONE JSON object shaped like this. The browser renders it into
-// the specimen deliverable. Coordinates are 0–100 in both axes:
-//   x = price per seat (0 = cheapest / free, 100 = most expensive)
-//   y = workflow depth (0 = shallow point tool, 100 = deep end-to-end platform)
-const SYSTEM_PROMPT = [
-  "You are the GrowthKit AI market-intelligence engine. A signed-in founder gives you their company name — and possibly a website, known competitors, recent competitor moves, or a detailed startup profile. You have a web_search tool. Use it to find and dissect that company's REAL competitors, then return one specimen-grade deliverable.",
-  "",
-  "GrowthKit AI turns market and competitor signal into decisions for seed and Series A founders. Voice: confident, operator-grade, specific, no fluff — but every claim is grounded in what you actually found on the web, not invented. You are talking to a founder with a live product and limited time.",
-  "",
-  "HOW TO WORK (be fast — you are on a HARD ~55-second budget and WILL be cut off if you run long):",
-  "- Run AT MOST " + WEB_SEARCH_MAX_USES + " web searches, total, and be decisive: one search to identify the company + its real named competitors and segment, one to sanity-check a couple of competitors' pricing/positioning. Do NOT over-search or over-deliberate — a fast, grounded read beats a slow, exhaustive one. As soon as you have enough to plot the map and name the gaps, write the JSON.",
-  "- Use the company's website/profile to pin down WHICH company this is (names can be ambiguous) and its actual segment. If you genuinely cannot identify the company or its market from the name + web, still produce your best-effort read of the most likely category and say so honestly in the positioning line.",
-  "- If the founder listed competitors (or a market leader), treat them as strong hints — verify them and expand the set with search, don't just accept the list. If they gave a detailed profile (traction, pricing, ICP, stage), ground the positioning, gaps and plan in it specifically.",
-  "- Prefer real, named competitors you found. Pricing and market numbers are best-effort estimates from what you read — reasonable, not fabricated precision. It is fine to write a price as a range or 'est.'",
-  "",
-  "OUTPUT: return ONLY a single JSON object — no prose before or after, no markdown, no code fences. It MUST match this shape exactly (all fields required unless marked optional):",
-  "{",
-  '  "subject": { "name": string, "one_liner": string (what they do, one line), "segment": string (the market/category, e.g. "HVAC field-service SaaS") },',
-  '  "positioning": string (2–3 sentences: where this company actually sits today and the one positioning truth the founder most needs to hear),',
-  '  "market_map": {',
-  '    "x_axis": string (label for the price axis, e.g. "price per seat / month →"),',
-  '    "y_axis": string (label for the depth axis, e.g. "workflow depth →"),',
-  '    "x_ticks": [string, string, string, string, string] (5 left→right price ticks, e.g. ["$0","$50","$120","$220","$350+"]),',
-  '    "vendors": [ { "name": string, "sub": string (2–4 word descriptor), "x": number 0–100 (price), "y": number 0–100 (workflow depth) } ]  (6–8 real competitors),',
-  '    "subject_point": { "x": number 0–100, "y": number 0–100 } (where the founder\'s company sits),',
-  '    "gap": { "label": string (short, e.g. "the gap"), "sub": string (one line, e.g. "deep workflow · owner-operator price"), "x": number 0–100 (left edge), "y": number 0–100 (bottom edge), "w": number 0–100 (width), "h": number 0–100 (height) }',
-  '  },',
-  '  "teardown": [ { "name": string, "tag": string (2–4 word label, e.g. "enterprise incumbent"), "wedge": string (1–2 sentences: their wedge and go-to-market motion), "price": string (short, e.g. "$129/seat/mo"), "price_note": string (e.g. "monthly, per-seat"), "soft": string (1–2 sentences: the specific opening they leave — where they are soft, slow, or over-serving) } ]  (exactly 4 competitors),',
-  '  "gaps": [ { "tag": string (e.g. "Gap 01"), "title": string (a sharp headline, may wrap one key word in <em>…</em> for emphasis), "body": string (2–3 sentences on the opening and why it is real), "score": string (e.g. "7.4"), "score_label": string (e.g. "opportunity"), "meter": number 0–100 (fill for the strength bar) } ]  (exactly 3 gaps),',
-  '  "plan": [ { "horizon": string (e.g. "Days 1–30"), "title": string (the play, may use <em>…</em>), "body": string (1–2 sentences on the move), "first_move": string (the concrete first action), "kill": string (the signal that says stop) } ]  (exactly 6 plays across the 90 days),',
-  '  "citations": [ { "title": string, "url": string } ]  (3–8 of the actual sources you used),',
-  '  "note": string (one honest line: this is an AI first-draft from live web research — verify key numbers — and what the full monthly GrowthKit deliverable adds beyond it)',
-  "}",
-  "",
-  "Rules: valid JSON only (double-quoted keys/strings, no trailing commas, no comments). Do not escape the <em> tags — write them literally inside the relevant string values. Keep every string tight and skimmable. Be specific to THIS company's real market; never generic advice that would fit any startup."
-].join('\n');
-
-function buildUserMessage({ company, website, competitors, moves, profile }) {
-  const parts = [
-    'Produce the deliverable for this company. Search the web to identify it and its real competitors.',
-    '',
-    'COMPANY NAME: ' + company,
-    'WEBSITE: ' + (website || '(not provided)')
-  ];
-  if (competitors) parts.push('', 'KNOWN COMPETITORS (hints — verify and expand with search): ' + competitors);
-  if (moves) parts.push('', 'RECENT COMPETITOR MOVES THEY HAVE NOTICED: ' + moves);
-  if (profile) parts.push('', 'FOUNDER PROFILE (ground the read in this):', profile);
-  if (!competitors && !moves && !profile) parts.push('', '(No extra context provided — infer the segment and competitors from the name and the web.)');
-  parts.push('', 'Return only the JSON object.');
-  return parts.join('\n');
-}
-
-// Pull the first balanced top-level JSON object out of the model's text. The
-// model is told to emit only JSON, but this is defensive against a stray word
-// or a code fence sneaking in.
 function extractJson(text) {
   if (!text) return null;
-  let s = String(text).trim();
-  s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  const start = s.indexOf('{');
+  let source = String(text).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  const start = source.indexOf('{');
   if (start === -1) return null;
-  let depth = 0, inStr = false, esc = false;
-  for (let i = start; i < s.length; i++) {
-    const ch = s[i];
-    if (inStr) {
-      if (esc) esc = false;
-      else if (ch === '\\') esc = true;
-      else if (ch === '"') inStr = false;
-      continue;
-    }
-    if (ch === '"') inStr = true;
+  let depth = 0, inString = false, escaped = false;
+  for (let i = start; i < source.length; i++) {
+    const ch = source[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') inString = false;
+    } else if (ch === '"') inString = true;
     else if (ch === '{') depth++;
-    else if (ch === '}') { depth--; if (depth === 0) { s = s.slice(start, i + 1); break; } }
+    else if (ch === '}' && --depth === 0) {
+      source = source.slice(start, i + 1);
+      break;
+    }
   }
-  try { return JSON.parse(s); } catch (_) { return null; }
+  try { return JSON.parse(source); } catch (_) { return null; }
+}
+
+function validStage(stage, output) {
+  if (!output || typeof output !== 'object') return false;
+  if (stage === 'research') return Boolean(output.company && output.industry && Array.isArray(output.competitors) && output.competitors.length >= 4 && Array.isArray(output.sources));
+  if (stage === 'subject_positioning') return Boolean(output.subject && output.subject.name && output.positioning);
+  if (stage === 'market_map') return Boolean(output.market_map && Array.isArray(output.market_map.vendors) && output.market_map.vendors.length >= 4);
+  if (stage === 'competitor_teardown') return Boolean(Array.isArray(output.teardown) && output.teardown.length === 4 && output.teardown.every((item) => item.name && item.soft && item.next_move));
+  if (stage === 'gap_analysis') return Boolean(Array.isArray(output.gaps) && output.gaps.length === 3 && output.gaps.every((gap) => gap.title && gap.next_move && Array.isArray(gap.checklist) && gap.checklist.length === 3));
+  if (stage === 'plan') return Boolean(Array.isArray(output.plan) && output.plan.length === 6 && output.plan.every((play) => play.title && play.first_move));
+  if (stage === 'sources') return Boolean(Array.isArray(output.citations) && output.citations.length >= 1 && output.note);
+  return false;
+}
+
+function rowsByStage(rows) {
+  return (rows || []).reduce((all, row) => { all[row.section] = row; return all; }, {});
+}
+
+function publicState(workspace, rows) {
+  const byStage = rowsByStage(rows);
+  const deliverable = {};
+  STAGES.forEach((stage) => {
+    if (stage === 'research') return;
+    if (byStage[stage] && byStage[stage].status === 'completed') Object.assign(deliverable, byStage[stage].output || {});
+  });
+  const stages = {};
+  STAGES.forEach((stage) => {
+    const row = byStage[stage];
+    const stale = row && row.status === 'generating' && Date.now() - new Date(row.started_at || row.updated_at).getTime() > CALL_TIMEOUT_MS + 8000;
+    stages[stage] = row
+      ? { status: stale ? 'failed' : row.status, error: stale ? 'This section did not finish within the time limit. Try it again.' : (row.error || null) }
+      : { status: 'pending', error: null };
+  });
+  return {
+    workspace: workspace ? {
+      company_name: workspace.company_name,
+      website: workspace.website,
+      full_report_status: workspace.full_report_status
+    } : null,
+    stages,
+    deliverable
+  };
+}
+
+function dependencyContext(stage, byStage) {
+  const context = { research_pack: byStage.research.output };
+  if (stage === 'competitor_teardown') Object.assign(context, byStage.market_map.output);
+  if (stage === 'gap_analysis') Object.assign(context, byStage.competitor_teardown.output);
+  if (stage === 'plan') {
+    ['subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources'].forEach((name) => Object.assign(context, byStage[name].output));
+  }
+  return context;
+}
+
+function researchInput(workspace) {
+  return {
+    company: workspace.company_name,
+    website: workspace.website || '',
+    known_competitors: workspace.competitors || '',
+    founder_profile: workspace.profile_text || ''
+  };
+}
+
+async function callAnthropic(apiKey, stage, context) {
+  const config = STAGE_CONFIG[stage];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), CALL_TIMEOUT_MS);
+  try {
+    const payload = {
+      model: MODEL,
+      max_tokens: config.maxTokens,
+      output_config: { effort: 'low' },
+      system: (stage === 'research' ? RESEARCH_SYSTEM : BASE_SYSTEM) + '\n\nYOUR ONLY TASK FOR THIS CALL:\n' + config.instruction,
+      messages: [{ role: 'user', content: JSON.stringify(context) }]
+    };
+    if (config.searches) payload.tools = [{ type: 'web_search_20260209', name: 'web_search', max_uses: config.searches }];
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      const detail = clean(await response.text().catch(() => ''), 300);
+      const error = new Error(response.status === 429 ? 'The engine is busy. Try this section again shortly.' : 'The engine returned an error for this section.');
+      error.status = response.status === 429 ? 429 : 502;
+      error.detail = detail;
+      throw error;
+    }
+    const body = await response.json();
+    const text = (body.content || []).filter((block) => block.type === 'text').map((block) => block.text).join('');
+    const output = extractJson(text);
+    if (!validStage(stage, output)) {
+      const error = new Error('This section returned incomplete data. Try it again.');
+      error.status = 502;
+      throw error;
+    }
+    return output;
+  } catch (error) {
+    if (error && error.name === 'AbortError') {
+      const timeoutError = new Error('This section took longer than 52 seconds. Try it again.');
+      timeoutError.status = 504;
+      timeoutError.code = 'section_timeout';
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function authenticated(req, res) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !productConfigured()) {
+    res.status(503).json({ error: 'Account access is not configured on the server.' });
+    return null;
+  }
+  const user = await verifyUserToken(bearer(req));
+  if (!user) { res.status(401).json({ error: 'Your session has expired. Please sign in again.' }); return null; }
+  const access = await checkAccess(user);
+  if (!access.allowed) { res.status(402).json({ error: 'Upgrade to Pro to run the engine.', code: 'subscription_required' }); return null; }
+  return user;
 }
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
+  if (req.method !== 'GET' && req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed.' }); return; }
+  if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') { res.status(503).json({ error: 'GrowthKit Live is paused while we upgrade the engine.' }); return; }
+  if (!process.env.ANTHROPIC_API_KEY) { res.status(503).json({ error: 'The engine is not configured yet.' }); return; }
 
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed.' });
+  const user = await authenticated(req, res);
+  if (!user) return;
+  if (req.method === 'GET') {
+    const workspaceResult = await getWorkspace(user.id);
+    const rows = await listReportSections(user.id);
+    res.status(200).json(publicState(workspaceResult.workspace, rows));
     return;
   }
 
-  // Kill switch — return before any external call (no Anthropic, no Supabase, no cost).
-  if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') {
-    res.status(503).json({ error: "GrowthKit Live is paused right now while we upgrade the engine — please check back soon." });
-    return;
-  }
-
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    res.status(503).json({ error: 'The engine is not configured yet — no API key set on the server.' });
-    return;
-  }
-
-  // Require a signed-in user — the tool lives behind login. Enforced only when
-  // Supabase is configured on the server (SUPABASE_URL + SUPABASE_ANON_KEY env
-  // vars), so nothing breaks before auth is wired up. Verifies the caller's
-  // Supabase access token by asking Supabase who it belongs to.
-  const sbUrl = process.env.SUPABASE_URL;
-  const sbAnon = process.env.SUPABASE_ANON_KEY;
-  if (sbUrl && sbAnon) {
-    const authz = req.headers['authorization'] || '';
-    const token = authz.indexOf('Bearer ') === 0 ? authz.slice(7).trim() : '';
-    if (!token) {
-      res.status(401).json({ error: 'Please sign in to use the engine.' });
-      return;
-    }
-    let user = null;
-    try {
-      const ur = await fetch(sbUrl.replace(/\/+$/, '') + '/auth/v1/user', {
-        headers: { authorization: 'Bearer ' + token, apikey: sbAnon }
-      });
-      if (!ur.ok) {
-        res.status(401).json({ error: 'Your session has expired — please sign in again.' });
-        return;
-      }
-      user = await ur.json();
-    } catch (e) {
-      res.status(401).json({ error: 'Could not verify your session — please sign in again.' });
-      return;
-    }
-
-    // Server-side access control — the ONLY place access is enforced (never trust
-    // the client). Free beta is open to everyone by default (GK_BETA_OPEN); once
-    // unwound, only the GK_BETA_EMAILS allowlist or an active Pro subscription
-    // may run the engine. See lib/subscriptions.js → checkAccess.
-    const access = await checkAccess(user);
-    if (!access.allowed) {
-      res.status(402).json({
-        error: 'Upgrade to Pro to run the engine.',
-        code: 'subscription_required'
-      });
-      return;
-    }
-  }
-
-  const body = (req.body && typeof req.body === 'object') ? req.body : {};
-
-  // Honeypot: a hidden field humans never fill. Drop silently with a 200.
-  if (clean(body.company_url, 400)) {
-    res.status(200).end('');
-    return;
-  }
-
-  // Minimum fill time — the page sends ms since load.
+  const body = req.body && typeof req.body === 'object' ? req.body : {};
+  const stage = clean(body.stage, 40);
+  if (STAGES.indexOf(stage) === -1) { res.status(400).json({ error: 'Choose a valid report section.' }); return; }
+  if (clean(body.company_url, 400)) { res.status(200).json({}); return; }
   const elapsed = parseInt(body.t, 10);
-  if (!isNaN(elapsed) && elapsed >= 0 && elapsed < MIN_FILL_MS) {
-    res.status(200).end('');
-    return;
-  }
-
-  const company = clean(body.company, CAP.company);
-  const website = clean(body.website, CAP.website);
-  const competitors = clean(body.competitors, CAP.competitors);
-  const moves = clean(body.moves, CAP.moves);
-  const profile = clean(body.profile_text, CAP.profile);
-  if (!company) {
-    res.status(400).json({ error: 'Enter your company name to generate a deliverable.' });
-    return;
-  }
+  if (stage === 'research' && !isNaN(elapsed) && elapsed >= 0 && elapsed < MIN_FILL_MS) { res.status(200).json({}); return; }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  if (await isRateLimited(ip)) {
-    res.status(429).json({ error: "You've run a few deliverables in a row — give it a couple of minutes and try again." });
-    return;
-  }
+  if (await isRateLimited(ip)) { res.status(429).json({ error: 'Too many section attempts. Give it a couple of minutes and try again.' }); return; }
 
-  let upstream;
-  try {
-    upstream = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        stream: true,
-        output_config: { effort: 'low' },
-        tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: WEB_SEARCH_MAX_USES }],
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: buildUserMessage({ company, website, competitors, moves, profile }) }]
-      })
-    });
-  } catch (err) {
-    res.status(502).json({ error: "Couldn't reach the engine. Try again in a moment." });
-    return;
-  }
-
-  if (!upstream.ok || !upstream.body) {
-    let detail = '';
-    try { detail = (await upstream.text()).slice(0, 300); } catch (_) {}
-    const status = upstream.status === 429 ? 429 : 502;
-    res.status(status).json({ error: 'The engine returned an error.', status: upstream.status, detail });
-    return;
-  }
-
-  // From here we always 200 and stream NDJSON progress events. The browser reads
-  // response.body line by line: {type:"status"} while it works, then a terminal
-  // {type:"done", deliverable} or {type:"error", message}.
-  res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
-  res.status(200);
-  const send = (obj) => { try { res.write(JSON.stringify(obj) + '\n'); } catch (_) {} };
-
-  const reader = upstream.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let answer = '';        // accumulated final text (the JSON)
-  let searchCount = 0;
-  let announcedWriting = false;
-  let stopReason = null;  // captured for diagnostics
-  let apiError = null;    // an Anthropic stream error, if any
-
-  try {
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-
-      // SSE frames are separated by blank lines; split on newlines and read data: lines.
-      let nl;
-      while ((nl = buffer.indexOf('\n')) !== -1) {
-        const line = buffer.slice(0, nl).trim();
-        buffer = buffer.slice(nl + 1);
-        if (!line.startsWith('data:')) continue;
-        const payload = line.slice(5).trim();
-        if (!payload || payload === '[DONE]') continue;
-        let evt;
-        try { evt = JSON.parse(payload); } catch (_) { continue; }
-
-        if (evt.type === 'content_block_start' && evt.content_block) {
-          const t = evt.content_block.type;
-          if (t === 'server_tool_use' && evt.content_block.name === 'web_search') {
-            searchCount++;
-            send({ type: 'status', stage: 'search', n: searchCount });
-          } else if (t === 'text' && !announcedWriting) {
-            announcedWriting = true;
-            send({ type: 'status', stage: 'writing' });
-          }
-        } else if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
-          answer += evt.delta.text;
-        } else if (evt.type === 'message_delta' && evt.delta && evt.delta.stop_reason) {
-          stopReason = evt.delta.stop_reason;
-        } else if (evt.type === 'error') {
-          apiError = (evt.error && (evt.error.message || evt.error.type)) || 'stream error';
-        }
-      }
+  let workspaceResult = await getWorkspace(user.id);
+  let workspace = workspaceResult.workspace;
+  if (stage === 'research') {
+    const input = {
+      company: clean(body.company, CAP.company) || (workspace && workspace.company_name),
+      website: clean(body.website, CAP.website),
+      competitors: clean(body.competitors, CAP.competitors),
+      profile: clean(body.profile_text, CAP.profile)
+    };
+    if (!input.company) { res.status(400).json({ error: 'Enter your company name to start the report.' }); return; }
+    const ensured = await ensureWorkspace(user.id, input);
+    if (!ensured.ok) {
+      const message = ensured.code === 'company_locked'
+        ? 'Your account is already linked to ' + (ensured.company || 'another company') + '.'
+        : ensured.code === 'full_report_complete' ? 'Your full report has already been generated.' : 'The report workspace is unavailable.';
+      res.status(ensured.code === 'workspace_unavailable' ? 503 : 409).json({ error: message, code: ensured.code });
+      return;
     }
-  } catch (err) {
-    send({ type: 'error', message: 'The connection was interrupted — please try again.' });
-    res.end();
+    workspace = ensured.workspace;
+  } else if (!workspace) {
+    res.status(409).json({ error: 'Research must run before this section.', code: 'dependency_missing' });
     return;
   }
 
-  const deliverable = extractJson(answer);
-  if (deliverable && deliverable.subject) {
-    send({ type: 'done', deliverable: deliverable });
-  } else {
-    // Self-diagnosing failure: say WHY, and attach the raw signals so a screenshot
-    // of the error tells us whether it was a timeout, a truncation, a bad-JSON run,
-    // or an upstream API error — instead of a generic "empty deliverable".
-    let message;
-    if (apiError) message = 'The engine hit an API error — please try again.';
-    else if (stopReason === 'max_tokens') message = 'The engine ran out of output room before finishing — please try again.';
-    else if (stopReason === 'pause_turn') message = 'The engine needed more search steps than allowed — please try again.';
-    else if (answer.length) message = 'The engine finished but did not return a complete deliverable — please try again.';
-    else message = 'The run was cut off before producing anything (most likely the 60s server limit) — try a well-known company, or a longer server limit is needed.';
-    send({ type: 'error', message: message, debug: { chars: answer.length, searches: searchCount, stop_reason: stopReason || null, api_error: apiError || null } });
+  let rows = await listReportSections(user.id);
+  let byStage = rowsByStage(rows);
+  const missing = DEPENDENCIES[stage].filter((name) => !byStage[name] || byStage[name].status !== 'completed');
+  if (missing.length) { res.status(409).json({ error: 'Finish the required earlier sections first.', code: 'dependency_missing', missing }); return; }
+
+  const reservation = await reserveReportSection(user.id, stage);
+  if (!reservation.ok) {
+    if (reservation.code === 'completed') {
+      rows = await listReportSections(user.id);
+      res.status(200).json(Object.assign({ stage, cached: true }, publicState(workspace, rows)));
+      return;
+    }
+    res.status(reservation.code === 'in_progress' ? 409 : 503).json({
+      error: reservation.code === 'in_progress' ? 'This section is already being generated.' : 'This section could not be reserved.',
+      code: reservation.code
+    });
+    return;
   }
-  res.end();
+
+  try {
+    const context = stage === 'research' ? researchInput(workspace) : dependencyContext(stage, byStage);
+    const output = await callAnthropic(process.env.ANTHROPIC_API_KEY, stage, context);
+    const saved = await completeReportSection(user.id, stage, output);
+    if (!saved) throw Object.assign(new Error('This section finished but could not be saved. Try it again.'), { status: 502 });
+
+    rows = await listReportSections(user.id);
+    byStage = rowsByStage(rows);
+    const allComplete = STAGES.every((name) => byStage[name] && byStage[name].status === 'completed');
+    if (allComplete) {
+      const deliverable = {};
+      STAGES.forEach((name) => { if (name !== 'research') Object.assign(deliverable, byStage[name].output || {}); });
+      await completeWorkspace(user.id, deliverable);
+      workspace = (await getWorkspace(user.id)).workspace;
+    }
+    res.status(200).json(Object.assign({ stage, report_completed: allComplete }, publicState(workspace, rows)));
+  } catch (error) {
+    const message = error && error.message ? error.message : 'This section failed. Try it again.';
+    await failReportSection(user.id, stage, message);
+    rows = await listReportSections(user.id);
+    res.status(error.status || 502).json(Object.assign({ error: message, code: error.code || 'section_failed', stage }, publicState(workspace, rows)));
+  }
 };
+
+module.exports.extractJson = extractJson;
+module.exports.validStage = validStage;
+module.exports.publicState = publicState;
