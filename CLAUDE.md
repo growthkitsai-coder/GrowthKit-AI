@@ -63,7 +63,7 @@ This file holds the **rules**. The deep reference material lives in five topic f
 ## Conventions (the rules — details in the docs set)
 
 - **Each HTML page is self-contained.** Don't extract inline CSS into shared files without a real reason — the pattern is deliberate (no bundler, fastest first paint).
-- **Light mode is untouchable site DNA** (cream + forest). **Dark mode is the "neon console"** — a deliberately different aesthetic. All dark work goes under `:root[data-theme="dark"]`; every animation gets a reduced-motion fallback; shared neon layer lives in `theme.css`. Full architecture + pattern vocabulary: `docs/design-system.md`.
+- **Light mode is untouchable site DNA** (cream + forest), but **dark mode is now the default first load** (unless the visitor saved light mode). **Dark mode is the "neon console"** — a deliberately different aesthetic. All dark work goes under `:root[data-theme="dark"]`; every animation gets a reduced-motion fallback; shared neon layer lives in `theme.css`. Full architecture + pattern vocabulary: `docs/design-system.md`.
 - **Clean URLs:** every public page needs a `vercel.json` rewrite + redirect AND a sitemap entry. Follow the new-page checklist in `docs/infrastructure.md`.
 - **Copy voice:** confident, operator-grade, no fluff; em-dashes for asides; italic `<em>` inside headings is *the* signature pattern ("Markets, <em>dissected</em>"). "A founder, not a form, will reply" recurs.
 - **SEO:** every public page has canonical, OG (+ `og-card.png`), Twitter card, JSON-LD, sitemap entry — the checker enforces it.

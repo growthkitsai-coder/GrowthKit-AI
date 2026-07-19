@@ -5,7 +5,7 @@
 ## The two modes, in one sentence each
 
 - **Light mode = classic editorial "Studio":** cream paper, deep-forest accents, Instrument Serif headlines. It is the site's DNA and stays untouched by dark-mode work — always verify light mode is byte-identical (or visually identical) after dark-mode changes.
-- **Dark mode = "neon console" (site-wide since 2026-06-10):** a deliberately *different* aesthetic — electric spring-green phosphor on deep-forest terminal panels, grid floor, scanline, LEDs, blinking cursors. Born on `manifesto.html` (the reference page), now at full depth on every public page.
+- **Dark mode = "neon console" (site-wide since 2026-06-10, default since 2026-07-19):** a deliberately *different* aesthetic — electric spring-green phosphor on deep-forest terminal panels, grid floor, scanline, LEDs, blinking cursors. Born on `manifesto.html` (the reference page), now at full depth on every public page.
 
 ## Color tokens (light defaults; dark overrides in `theme.css`)
 
@@ -64,7 +64,7 @@ Confident, operator-grade, no fluff. Em-dashes for asides. Italic `<em>` inside 
 ## Theme mechanics
 
 - Driven by `data-theme="dark"` on `<html>`, persisted in `localStorage` key `gk-theme`, toggled by `theme.js`.
-- **Every `<head>` starts with a pre-paint inline script** that sets the attribute before first paint — removing it causes a theme flash. Don't.
+- **Dark is the default.** Every `<head>` starts with a pre-paint inline script that sets `data-theme="dark"` unless `localStorage.gk-theme === "light"`; if localStorage is unavailable, it still sets dark. Removing it causes a theme flash. Don't.
 - Topbar morphs into a floating pill on scroll: `theme.css` owns the transition; each page's inline JS adds `.scrolled` to `.topbar` at `window.scrollY > 24`. In dark, the morph interpolates `background-color` only (gradient layers identical in both states — gradients can't interpolate).
 - **Index exception (per Avi, 2026-07-05): the landing page's dark topbar is solid black**, not the shared translucent glass (which greyed out over the light hero). Override lives at the end of `index.html`'s dark block — `:root[data-theme="dark"] body .topbar` (+ `.scrolled`) → `#000`, grid ticks + neon hairline kept. The `body` in the selector is required: theme.css loads after the inline block, so the page rule needs the extra specificity. All other pages keep the glass.
 - `theme.css`/`theme.js` are served with `Cache-Control: max-age=0, must-revalidate` (see infrastructure.md) — if shipped dark-mode work "looks unchanged" in a browser, suspect a stale cache and hard-refresh before debugging.
