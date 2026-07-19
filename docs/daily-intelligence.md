@@ -5,7 +5,7 @@
 ## Product contract
 
 - Every beta or paid Pro account is tied to **one company**.
-- The first successful `/api/advise` run creates the account's **one full report**. The company name is normalized case-insensitively and locked server-side before Anthropic is called.
+- The first-report pipeline locks the company before research, then checkpoints seven calls independently. The report becomes complete only when all public sections have been assembled; the internal research pack is never part of the visible report.
 - Failed/stale generations can retry the same company. A completed report cannot be regenerated. Support can reset a mistaken company manually after verifying the request to `info@growthkitai.com` (SQL is at the bottom of the migration). A reset clears the workspace, daily/legacy reads, saved profile, and provider connections so data from the mistaken company cannot leak into the replacement; the user must reconnect providers.
 - Immediately after the full report, `/four` requests the first daily brief. After that, a secured Vercel cron runs at **07:00 UTC/GMT** every day; opening `/four` also fills a missing brief for the current UTC date.
 - A daily brief is a 30-second read: one lead signal, collapsed detail, market/competitor movement, connected own metrics, market signals, three evidence-led findings with concrete moves, one founder to learn from, and one relevant GrowthKit tool prompt. Each new finding includes a persistent three-step checklist, founder-added tasks, and a finding-specific introduction email.
@@ -13,14 +13,16 @@
 
 ## Storage
 
-Run both migrations, in order, in the production Supabase SQL editor before deploy:
+Run all migrations, in order, in the production Supabase SQL editor before deploy:
 
 1. [`202607190001_beta_workspaces_daily_briefs.sql`](../supabase/migrations/202607190001_beta_workspaces_daily_briefs.sql)
 2. [`202607190002_finding_tasks.sql`](../supabase/migrations/202607190002_finding_tasks.sql)
+3. [`202607190003_report_pipeline.sql`](../supabase/migrations/202607190003_report_pipeline.sql)
 
 - `product_workspaces`: one row per user; immutable company identity, report status, completed JSON baseline, profile context, UTC timezone.
 - `daily_briefs`: unique `(user_id, brief_date)`; idempotent generation state and final JSON.
 - `finding_tasks`: generated and founder-added tasks keyed to a full-report gap or dated daily finding. Completion state is separate from immutable report/brief JSON.
+- `report_sections`: server-only stage checkpoints, including the internal research pack; no browser RLS policy.
 - Both expose read-only RLS to the owner. All writes use the server-only Supabase service role.
 - `integration_connections` is created by the same migration but has no browser policy; see integrations.md.
 
@@ -33,9 +35,9 @@ The API reserves a workspace before spending model/search credits. A generation 
                   → GET/POST /api/daily-briefs
       → findings.js → GET/POST/PATCH/DELETE /api/finding-tasks
 
-POST /api/advise
+GET/POST /api/advise
   verify signed-in user → check paid/beta access → reserve company workspace
-  → generate full report → persist baseline → emit done
+  → research once → generate/checkpoint dependent sections → assemble baseline
 
 GET /api/daily-cron at 07:00 UTC
   verify Bearer CRON_SECRET → completed workspaces → re-check current access

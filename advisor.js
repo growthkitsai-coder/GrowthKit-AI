@@ -2,9 +2,9 @@
    GrowthKit Live — the engine (shared, used on /four).
    Runs a premium, adaptive multi-step ONBOARDING WIZARD (company → industry →
    stage → adaptive business-model → adaptive growth-focus → channels → optional
-   sharpen → review), then streams /api/advise (which web-searches for real
-   competitors and returns ONE JSON deliverable), shows a premium animated
-   research sequence while it works, then renders the full specimen deliverable:
+   sharpen → review), then orchestrates the seven-stage /api/advise pipeline.
+   Research searches the web once; later calls use its saved knowledge pack.
+   Sections render and persist as they finish, producing the specimen deliverable:
    subject brief, positioning, a plotted market-map SVG, a competitor teardown
    table, gap-analysis cards with score meters, a 90-day plan, and the sources.
    A one-screen "fast-track" path is available for people in a hurry. Handles
@@ -12,11 +12,10 @@
    profile to the signed-in user's account. No dependencies. ES5-style for broad
    browser support (no build step).
 
-   Wire protocol from /api/advise: newline-delimited JSON (NDJSON), one object
-   per line — {type:"status",stage:"search"|"writing",n} while it works, then a
-   terminal {type:"done", deliverable:{…}} or {type:"error", message}. The status
-   events are ignored here — the loading sequence is scripted and honest: it
-   animates until the real terminal event lands.
+   Wire protocol from /api/advise: GET returns resumable pipeline state; POST with
+   {stage} runs one dependency-ready section and returns the updated public state.
+   The internal research output never reaches the browser. Each stage has its own
+   timeout/error/retry state, while completed sections remain visible and saved.
 
    Markup contract — a root with [data-gk-advisor] containing:
      form[data-gk-form] with [data-gk-wizard] (steps rendered here),
@@ -269,53 +268,90 @@
     return '<div class="gk-map in"><div class="map-svg-wrap">' + s + '</div>' + legend + '</div>';
   }
 
-  // ── Render the full JSON deliverable ──
-  function renderDeliverable(d) {
-    if (!d || !d.subject) return '';
+  // ── Render the full or partially completed JSON deliverable ──
+  function renderDeliverable(d, pipeline) {
+    d = d || {};
+    pipeline = pipeline || {};
+    var stageState = pipeline.stages || {};
+    var workspace = pipeline.workspace || {};
     var n = 0;
     function label(t) { n++; return '<div class="gk-dv-label"><span class="gk-n">' + pad2(n) + '</span>' + esc(t) + '</div>'; }
-    function sec(t, inner, cls) { return '<div class="gk-dv-sec ' + (cls || '') + '">' + label(t) + inner + '</div>'; }
+    function pending(stage, title) {
+      var state = stageState[stage] || { status: 'pending' };
+      var message = state.status === 'failed'
+        ? esc(state.error || 'This section did not finish.')
+        : state.status === 'generating' ? 'Generating this section…' : 'Waiting for the required analysis…';
+      return '<div class="gk-section-state is-' + esc(state.status) + '"><span class="gk-section-state-icon" aria-hidden="true"></span><div><strong>' + esc(title) + '</strong><p>' + message + '</p></div>'
+        + (state.status === 'failed' ? '<button type="button" class="gk-section-retry" data-gk-retry="' + esc(stage) + '">Try again</button>' : '') + '</div>';
+    }
+    function sec(id, stage, title, inner, cls) {
+      return '<section id="gk-report-' + id + '" data-gk-report-section="' + esc(stage) + '" class="gk-dv-sec ' + (cls || '') + '">' + label(title) + (inner || pending(stage, title)) + '</section>';
+    }
+    function navItem(id, stage, title) {
+      var inferred = (stage === 'subject_positioning' && d.subject && d.positioning)
+        || (stage === 'market_map' && d.market_map)
+        || (stage === 'competitor_teardown' && d.teardown)
+        || (stage === 'gap_analysis' && d.gaps)
+        || (stage === 'plan' && d.plan)
+        || (stage === 'sources' && d.citations);
+      var status = stageState[stage] && stageState[stage].status || (inferred ? 'completed' : 'pending');
+      return '<a href="#gk-report-' + id + '" data-gk-nav-stage="' + esc(stage) + '" class="is-' + esc(status) + '"><span aria-hidden="true"></span>' + esc(title) + '</a>';
+    }
 
-    var html = '<div class="gk-dv">';
+    var subject = d.subject || {};
+    var subjectName = subject.name || workspace.company_name || 'Your company';
+    var html = '<div class="gk-dv"><div class="gk-report-layout"><aside class="gk-report-nav" aria-label="Report sections"><div class="gk-report-nav-title">First report</div>'
+      + navItem('overview', 'subject_positioning', 'Overview')
+      + navItem('market', 'market_map', 'Market map')
+      + navItem('competitors', 'competitor_teardown', 'Competitors')
+      + navItem('gaps', 'gap_analysis', 'Gaps & next moves')
+      + navItem('plan', 'plan', '90-day plan')
+      + navItem('sources', 'sources', 'Sources')
+      + '</aside><div class="gk-report-content">';
 
-    // Header — subject brief + draft badge
+    // Header — company identity + draft badge
     html += '<div class="gk-dv-head">'
       + '<div class="gk-dv-brief">'
-      + '<div class="gk-dv-eyebrow"><span class="num">/</span>Deliverable · ' + esc(d.subject.segment || 'market read') + '</div>'
-      + '<h2>' + esc(d.subject.name) + '</h2>'
-      + (d.subject.one_liner ? '<p class="gk-dv-oneliner">' + esc(d.subject.one_liner) + '</p>' : '')
+      + '<div class="gk-dv-eyebrow"><span class="num">/</span>Deliverable · ' + esc(subject.segment || 'market intelligence') + '</div>'
+      + '<h2>' + esc(subjectName) + '</h2>'
+      + (subject.one_liner ? '<p class="gk-dv-oneliner">' + esc(subject.one_liner) + '</p>' : '')
       + '</div>'
       + '<div class="gk-dv-badge" title="Generated from live web research — check key numbers before acting.">AI research draft — verify key numbers</div>'
       + '</div>';
 
-    // 01 Positioning
-    if (d.positioning) html += sec('Positioning read', '<div class="gk-pos"><p>' + richPara(d.positioning) + '</p></div>');
+    // 01 Subject brief + positioning
+    var overview = d.positioning ? '<div class="gk-pos"><p>' + richPara(d.positioning) + '</p></div>' : '';
+    html += sec('overview', 'subject_positioning', 'Subject brief + positioning', overview);
 
     // 02 Market map
-    if (d.market_map) html += sec('Market map', buildMap(d.market_map, d.subject.name));
+    html += sec('market', 'market_map', 'Market map', d.market_map ? buildMap(d.market_map, subjectName) : '');
 
     // 03 Teardown
+    var teardown = '';
     if (d.teardown && d.teardown.length) {
-      var rows = '<div class="tt-row tt-head"><div>Competitor</div><div>Wedge &amp; motion</div><div>Pricing</div><div>Where they\'re soft</div></div>';
+      var rows = '<div class="tt-row tt-head"><div>Competitor</div><div>Wedge &amp; motion</div><div>Pricing</div><div>Opening + next move</div></div>';
       for (var i = 0; i < d.teardown.length; i++) {
         var t = d.teardown[i];
         rows += '<div class="tt-row">'
           + '<div class="c-name">' + esc(t.name) + (t.tag ? '<small>' + esc(t.tag) + '</small>' : '') + '</div>'
           + '<div class="c-body">' + esc(t.wedge) + '</div>'
           + '<div class="c-price">' + esc(t.price || '—') + (t.price_note ? '<small>' + esc(t.price_note) + '</small>' : '') + '</div>'
-          + '<div class="c-soft"><strong>Soft underneath:</strong> ' + esc(t.soft) + '</div>'
+          + '<div class="c-soft"><strong>Opening:</strong> ' + esc(t.soft)
+          + (t.next_move ? '<span class="gk-inline-next"><b>Next move this week</b>' + esc(t.next_move) + '</span>' : '') + '</div>'
           + '</div>';
       }
-      html += sec('Competitor teardown', '<div class="gk-panel">' + rows + '</div>');
+      teardown = '<div class="gk-panel">' + rows + '</div>';
     }
+    html += sec('competitors', 'competitor_teardown', 'Competitor teardown', teardown);
 
     // 04 Gap analysis
+    var gapAnalysis = '';
     if (d.gaps && d.gaps.length) {
       var cards = '';
       for (var g = 0; g < d.gaps.length; g++) {
         var c = d.gaps[g], w = clamp(num(c.meter, 60), 0, 100);
         var work = window.GKFindings && Array.isArray(c.checklist) && c.checklist.length === 3
-          ? window.GKFindings.shell({ findingKey: 'gap-' + pad2(g + 1), finding: c.title, nextMove: c.next_move, company: d.subject.name })
+          ? window.GKFindings.shell({ findingKey: 'gap-' + pad2(g + 1), finding: c.title, nextMove: c.next_move, company: subjectName })
           : '';
         cards += '<div class="gap-card in" style="--w:' + w + '%">'
           + '<div class="ghost" aria-hidden="true">' + pad2(g + 1) + '</div>'
@@ -327,10 +363,12 @@
           + work
           + '</div>';
       }
-      html += sec('Gap analysis', '<div class="gap-grid">' + cards + '</div>');
+      gapAnalysis = '<div class="gk-next-banner"><span>Priority</span><strong>Every gap below includes the move to run this week.</strong></div><div class="gap-grid">' + cards + '</div>';
     }
+    html += sec('gaps', 'gap_analysis', 'Gap analysis + next moves', gapAnalysis);
 
     // 05 90-day plan
+    var plan = '';
     if (d.plan && d.plan.length) {
       var plays = '';
       for (var p = 0; p < d.plan.length; p++) {
@@ -344,8 +382,9 @@
           + (pl.kill ? '<div class="kill"><b>Kill criteria</b> ' + esc(pl.kill) + '</div>' : '')
           + '</div></div>';
       }
-      html += sec('90-day plan', '<div class="play-list">' + plays + '</div>');
+      plan = '<div class="gk-next-banner"><span>Start here</span><strong>Take the first move before expanding the roadmap.</strong></div><div class="play-list">' + plays + '</div>';
     }
+    html += sec('plan', 'plan', '90-day plan', plan);
 
     // 06 Sources + honesty note
     var footInner = '';
@@ -361,9 +400,9 @@
       if (cites) footInner += '<ul class="gk-cites">' + cites + '</ul>';
     }
     if (d.note) footInner += '<p class="gk-dv-honest">' + esc(d.note) + '</p>';
-    if (footInner) html += sec('Sources & honesty', footInner, 'gk-dv-foot');
+    html += sec('sources', 'sources', 'Sources + honesty', footInner, 'gk-dv-foot');
 
-    html += '</div>';
+    html += '</div></div></div>';
     return html;
   }
 
@@ -416,6 +455,9 @@
     var loadedAt = Date.now();
     var running = false;
     var lastJson = null;   // the deliverable object (for save + actions)
+    var pipelineState = null;
+    var activeStages = {};
+    var reportSaved = false;
     var answers = {};      // wizard state
     var idx = 0;           // current visible-step index
     var touched = false;   // user has interacted (guards async prefill clobber)
@@ -794,6 +836,156 @@
       if (window.va) window.va('event', { name: 'advisor_error', data: { surface: full ? 'page' : 'home', message: String(msg).slice(0, 120) } });
     }
 
+    var PIPELINE_STAGES = ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources', 'plan'];
+    var PIPELINE_DEPS = {
+      research: [],
+      subject_positioning: ['research'],
+      market_map: ['research'],
+      competitor_teardown: ['research', 'market_map'],
+      gap_analysis: ['research', 'competitor_teardown'],
+      sources: ['research'],
+      plan: ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources']
+    };
+
+    async function apiHeaders() {
+      var headers = { 'Content-Type': 'application/json' };
+      try {
+        if (window.GKAuth && window.GKAuth.client) {
+          var sess = await window.GKAuth.client.auth.getSession();
+          var token = sess && sess.data && sess.data.session && sess.data.session.access_token;
+          if (token) headers.Authorization = 'Bearer ' + token;
+        }
+      } catch (e) {}
+      return headers;
+    }
+
+    function stageStatus(stage) {
+      return pipelineState && pipelineState.stages && pipelineState.stages[stage]
+        ? pipelineState.stages[stage].status : 'pending';
+    }
+
+    function mergePipeline(data) {
+      if (!data) return;
+      pipelineState = {
+        workspace: data.workspace || (pipelineState && pipelineState.workspace) || null,
+        stages: data.stages || (pipelineState && pipelineState.stages) || {},
+        deliverable: data.deliverable || (pipelineState && pipelineState.deliverable) || {}
+      };
+      lastJson = pipelineState.deliverable;
+      if (pipelineState.workspace && pipelineState.workspace.company_name) answers.company = pipelineState.workspace.company_name;
+      if (pipelineState.workspace && pipelineState.workspace.website && !answers.website) answers.website = pipelineState.workspace.website;
+    }
+
+    function renderResearchFailure() {
+      var research = pipelineState && pipelineState.stages && pipelineState.stages.research;
+      if (!research || research.status !== 'failed') return false;
+      root.classList.remove('is-done');
+      root.classList.add('is-running');
+      stopLoading(false);
+      loadingEl.innerHTML = '<div class="gk-section-state is-failed gk-research-failed"><span class="gk-section-state-icon" aria-hidden="true"></span><div><strong>Research pack did not finish</strong><p>'
+        + esc(research.error || 'The research call failed.') + '</p></div><button type="button" class="gk-section-retry" data-gk-retry="research">Try again</button></div>';
+      var retry = loadingEl.querySelector('[data-gk-retry="research"]');
+      if (retry) retry.addEventListener('click', function () { callStage('research', {}); });
+      return true;
+    }
+
+    function bindReportControls() {
+      if (!deliverableEl) return;
+      var retries = deliverableEl.querySelectorAll('[data-gk-retry]');
+      for (var i = 0; i < retries.length; i++) (function (button) {
+        button.addEventListener('click', function () { callStage(button.getAttribute('data-gk-retry'), {}); });
+      })(retries[i]);
+    }
+
+    function renderPipeline() {
+      if (!pipelineState || !pipelineState.stages) return;
+      if (renderResearchFailure()) return;
+      if (stageStatus('research') !== 'completed') return;
+      stopLoading(true);
+      root.classList.remove('is-running');
+      root.classList.add('is-done');
+      if (deliverableEl) {
+        deliverableEl.innerHTML = renderDeliverable(lastJson || {}, pipelineState);
+        bindReportControls();
+        if (window.GKFindings && lastJson && lastJson.gaps) window.GKFindings.hydrate(deliverableEl, { scope: 'full_report' });
+      }
+    }
+
+    function dependenciesComplete(stage) {
+      var deps = PIPELINE_DEPS[stage] || [];
+      for (var i = 0; i < deps.length; i++) if (stageStatus(deps[i]) !== 'completed') return false;
+      return true;
+    }
+
+    function allStagesComplete() {
+      for (var i = 0; i < PIPELINE_STAGES.length; i++) if (stageStatus(PIPELINE_STAGES[i]) !== 'completed') return false;
+      return true;
+    }
+
+    function hasGeneratingStages() {
+      for (var i = 0; i < PIPELINE_STAGES.length; i++) if (stageStatus(PIPELINE_STAGES[i]) === 'generating') return true;
+      return false;
+    }
+
+    function finishPipeline() {
+      if (!allStagesComplete()) return;
+      running = false;
+      renderPipeline();
+      var company = pipelineState.workspace && pipelineState.workspace.company_name || answers.company || '';
+      renderActions(company, answers.website || '', answers.competitors || '', '');
+      if (!reportSaved) {
+        reportSaved = true;
+        saveRead(company, answers.competitors || '', '', lastJson);
+        if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', mode: 'pipeline', vendors: (lastJson.market_map && lastJson.market_map.vendors || []).length } });
+      }
+      if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH({ generateDaily: true });
+    }
+
+    function schedulePipeline() {
+      if (!pipelineState || !pipelineState.workspace) return;
+      if (allStagesComplete()) { finishPipeline(); return; }
+      for (var i = 0; i < PIPELINE_STAGES.length; i++) {
+        var stage = PIPELINE_STAGES[i];
+        if (stageStatus(stage) === 'pending' && !activeStages[stage] && dependenciesComplete(stage)) callStage(stage, {});
+      }
+    }
+
+    async function callStage(stage, initialPayload) {
+      if (!stage || activeStages[stage]) return;
+      activeStages[stage] = true;
+      if (pipelineState && pipelineState.stages) pipelineState.stages[stage] = { status: 'generating', error: null };
+      if (stage === 'research') {
+        root.classList.remove('is-done'); root.classList.add('is-running');
+        startLoading({ website: answers.website, industry: answers.industry });
+      } else renderPipeline();
+
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timeout = controller ? setTimeout(function () { controller.abort(); }, 55000) : null;
+      try {
+        var headers = await apiHeaders();
+        var payload = Object.assign({ stage: stage }, initialPayload || {});
+        var res = await fetch('/api/advise', { method: 'POST', headers: headers, body: JSON.stringify(payload), signal: controller ? controller.signal : undefined });
+        var data = await res.json().catch(function () { return {}; });
+        mergePipeline(data);
+        if (!res.ok) throw new Error(data.error || 'This section failed. Try it again.');
+        renderPipeline();
+      } catch (err) {
+        if (!pipelineState) pipelineState = { workspace: null, stages: {}, deliverable: {} };
+        if (!pipelineState.stages) pipelineState.stages = {};
+        pipelineState.stages[stage] = {
+          status: 'failed',
+          error: err && err.name === 'AbortError' ? 'This section took longer than 55 seconds. Try it again.' : (err.message || 'This section failed. Try it again.')
+        };
+        renderPipeline();
+        if (stage === 'research' && !renderResearchFailure()) fail(pipelineState.stages[stage].error);
+        if (window.va) window.va('event', { name: 'advisor_error', data: { surface: full ? 'page' : 'home', stage: stage, message: String(pipelineState.stages[stage].error).slice(0, 120) } });
+      } finally {
+        if (timeout) clearTimeout(timeout);
+        activeStages[stage] = false;
+        schedulePipeline();
+      }
+    }
+
     // ── Run ──
     async function run(opts) {
       opts = opts || {};
@@ -812,13 +1004,12 @@
         return;
       }
       clearError();
-      running = true; lastJson = null;
+      running = true; lastJson = null; pipelineState = null;
       root.classList.remove('is-done');
       root.classList.add('is-running');
-      if (restartBtn) restartBtn.hidden = false;
+      if (restartBtn) restartBtn.hidden = true;
       if (deliverableEl) deliverableEl.innerHTML = '';
       if (actionsEl) actionsEl.innerHTML = '';
-      startLoading({ website: website, industry: answers.industry });
 
       if (window.va) window.va('event', { name: 'advisor_run', data: { surface: full ? 'page' : 'home', mode: mode, hasWebsite: !!website, hasContext: !!(competitors || profileText) } });
 
@@ -829,63 +1020,49 @@
         t: opts.auto ? '6000' : String(Date.now() - loadedAt)
       };
 
-      try {
-        var headers = { 'Content-Type': 'application/json' };
-        try {
-          if (window.GKAuth && window.GKAuth.client) {
-            var sess = await window.GKAuth.client.auth.getSession();
-            var tok = sess && sess.data && sess.data.session && sess.data.session.access_token;
-            if (tok) headers['Authorization'] = 'Bearer ' + tok;
-          }
-        } catch (e) {}
-
-        var res = await fetch('/api/advise', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
-        if (!res.ok) {
-          var msg = 'The run failed — please try again.';
-          try { var er = await res.json(); if (er && er.error) { msg = er.error; if (er.detail) msg += ' [' + (er.status || res.status) + ': ' + String(er.detail).slice(0, 200) + ']'; } } catch (e) {}
-          throw new Error(msg);
-        }
-        if (!res.body) throw new Error('Streaming is not supported in this browser.');
-
-        // Read NDJSON: split on newlines, JSON.parse each complete line. The
-        // status events are ignored — the loading sequence is scripted.
-        var reader = res.body.getReader(), dec = new TextDecoder(), buf = '', done = false, terminalErr = null;
-        for (;;) {
-          var c = await reader.read();
-          if (c.done) break;
-          buf += dec.decode(c.value, { stream: true });
-          var nl;
-          while ((nl = buf.indexOf('\n')) !== -1) {
-            var line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1);
-            if (!line) continue;
-            var evt; try { evt = JSON.parse(line); } catch (e) { continue; }
-            if (evt.type === 'done') { lastJson = evt.deliverable; done = true; }
-            else if (evt.type === 'error') terminalErr = evt.message || 'Something went wrong.';
-          }
-        }
-
-        if (terminalErr && !done) throw new Error(terminalErr);
-        if (!done || !lastJson || !lastJson.subject) throw new Error('The run was cut off before it finished (the engine hit the server time limit). Try again — a well-known company usually completes faster.');
-
-        stopLoading(true);
-        await wait(520); // let the sequence settle to 100% before the reveal
-        if (deliverableEl) {
-          deliverableEl.innerHTML = renderDeliverable(lastJson);
-          if (window.GKFindings) window.GKFindings.hydrate(deliverableEl, { scope: 'full_report' });
-          root.classList.remove('is-running');
-          root.classList.add('is-done'); // hides the wizard, reveals the deliverable
-        }
-        renderActions(company, website, competitors, moves);
-        if (!fast) saveProfile(answers);
-        saveRead(company, competitors, moves, lastJson);
-        if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH({ generateDaily: true });
-        if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', mode: mode, vendors: (lastJson.market_map && lastJson.market_map.vendors ? lastJson.market_map.vendors.length : 0) } });
-      } catch (err) {
-        fail((err && err.message) ? err.message : 'Something went wrong — please try again.');
-      }
-      running = false;
+      if (!fast) saveProfile(answers);
+      await callStage('research', payload);
     }
-    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+    async function restorePipeline() {
+      if (running) return;
+      try {
+        var headers = await apiHeaders();
+        var res = await fetch('/api/advise', { method: 'GET', headers: headers });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.workspace) return;
+        mergePipeline(data);
+        if (data.workspace.full_report_status === 'completed') {
+          reportSaved = true;
+          root.style.display = '';
+          renderPipeline();
+          renderActions(data.workspace.company_name || '', data.workspace.website || '', '', '');
+          return;
+        }
+        running = true;
+        if (stageStatus('research') === 'completed') renderPipeline();
+        else if (stageStatus('research') === 'failed') renderResearchFailure();
+        else {
+          root.classList.add('is-running');
+          if (stageStatus('research') === 'generating') startLoading({ website: data.workspace.website || '' });
+        }
+        schedulePipeline();
+        if (hasGeneratingStages()) setTimeout(pollPipeline, 3000);
+      } catch (e) {}
+    }
+
+    async function pollPipeline() {
+      try {
+        var headers = await apiHeaders();
+        var res = await fetch('/api/advise', { method: 'GET', headers: headers });
+        if (!res.ok) return;
+        mergePipeline(await res.json());
+        renderPipeline();
+        schedulePipeline();
+        if (hasGeneratingStages()) setTimeout(pollPipeline, 3000);
+      } catch (e) {}
+    }
 
     // Persist to the signed-in user's account (Supabase `reads` table). Columns
     // reused: product=company (the history label), competitors + moves hold the
@@ -920,6 +1097,7 @@
     // First paint, then try to pre-fill from the saved profile.
     renderStep();
     ensureProfile();
+    setTimeout(restorePipeline, 700);
 
   }
 

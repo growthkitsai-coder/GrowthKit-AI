@@ -62,7 +62,7 @@
 
     var fullDone = workspace && workspace.full_report_status === 'completed';
     var generating = workspace && workspace.full_report_status === 'generating';
-    if (advisor) advisor.style.display = access.allowed && !fullDone && !generating ? '' : 'none';
+    if (advisor) advisor.style.display = access.allowed && (!fullDone || advisor.classList.contains('is-done')) ? '' : 'none';
     if (daily) daily.style.display = access.allowed && fullDone ? '' : 'none';
     if (fullDone) loadDaily(true);
     loadIntegrations();
