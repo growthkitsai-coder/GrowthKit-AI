@@ -175,6 +175,7 @@ textarea.gk-input.gk-tall { min-height: 100px; }
 .gk-qfield:last-child { margin-bottom: 0; }
 .gk-qlabel { display: block; font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 600; color: var(--ink, #14130F); margin-bottom: 10px; }
 .gk-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.gk-other { margin-top: 10px; }
 .gk-pill { font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink-2, #2A2823); background: var(--paper, #fff); border: 1px solid var(--line-2, #D4CEC1); border-radius: 999px; padding: 9px 15px; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease; }
 .gk-pill:hover { border-color: var(--accent, #1F4732); color: var(--accent, #1F4732); }
 .gk-pill.is-selected { background: var(--accent, #1F4732); border-color: var(--accent, #1F4732); color: var(--bg, #FAF8F4); }

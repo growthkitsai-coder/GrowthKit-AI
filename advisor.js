@@ -51,43 +51,52 @@
     { v: 'marketplace', l: 'Marketplace / platform', d: 'Connecting buyers and sellers' },
     { v: 'fintech', l: 'Fintech', d: 'Payments, banking, lending or finance tools' },
     { v: 'consumer', l: 'Consumer app', d: 'A product people use in their personal life' },
+    { v: 'aiml', l: 'AI / ML product', d: 'A model or AI-native product at the core' },
+    { v: 'healthtech', l: 'Health / biotech', d: 'Care, wellness, medical or life sciences' },
+    { v: 'edtech', l: 'Edtech', d: 'Learning, training or education' },
+    { v: 'devtools', l: 'Developer tools / infra', d: 'APIs, infrastructure, tooling for builders' },
+    { v: 'media', l: 'Media / content / creator', d: 'Content, publishing or the creator economy' },
     { v: 'services', l: 'Services / agency', d: 'Done-for-you or productized services' },
     { v: 'hardware', l: 'Hardware / physical', d: 'A physical product or device' },
-    { v: 'other', l: 'Something else', d: 'The engine adapts as we go' }
+    { v: 'other', l: 'Other', d: 'Tell us in a word' }
   ];
   var STAGE_OPTS = [
+    { v: 'idea', l: 'Just an idea', d: 'Pre-build — validating the concept' },
     { v: 'prelaunch', l: 'Pre-launch', d: 'Still building — not live yet' },
     { v: 'early_users', l: 'Pre-revenue, early users', d: 'Live with users, not charging yet' },
     { v: 'early_rev', l: 'Early revenue', d: 'First paying customers' },
     { v: 'growing', l: 'Growing', d: 'Revenue climbing, repeatable' },
-    { v: 'scaling', l: 'Scaling', d: 'Pouring fuel on what works' }
+    { v: 'scaling', l: 'Scaling', d: 'Pouring fuel on what works' },
+    { v: 'established', l: 'Established', d: 'Post-PMF, durable business' },
+    { v: 'other', l: 'Other', d: 'Tell us in a word' }
   ];
   // The business-model step adapts to the chosen industry.
   var MODEL_BY_INDUSTRY = {
-    saas:        { title: 'How do you go to market?',       opts: [ { v: 'plg', l: 'Product-led / self-serve' }, { v: 'sales', l: 'Sales-led' }, { v: 'hybrid', l: 'Hybrid' }, { v: 'unsure', l: 'Still figuring it out' } ] },
-    ecommerce:   { title: 'What best describes your model?', opts: [ { v: 'dtc', l: 'Single-brand DTC' }, { v: 'sub', l: 'Subscription / replenishment' }, { v: 'multi', l: 'Multi-brand or marketplace' }, { v: 'wholesale', l: 'Wholesale + DTC' } ] },
-    marketplace: { title: 'Where is your harder side?',      opts: [ { v: 'supply', l: 'Supply-constrained' }, { v: 'demand', l: 'Demand-constrained' }, { v: 'balanced', l: 'Roughly balanced' }, { v: 'early', l: 'Just getting started' } ] },
-    fintech:     { title: 'Who do you serve?',               opts: [ { v: 'consumer', l: 'Consumers' }, { v: 'smb', l: 'Small businesses' }, { v: 'enterprise', l: 'Enterprise' }, { v: 'infra', l: 'Infrastructure / API' } ] },
-    consumer:    { title: 'How do you monetize?',            opts: [ { v: 'sub', l: 'Subscription' }, { v: 'ads', l: 'Ad-supported / free' }, { v: 'freemium', l: 'Freemium' }, { v: 'onetime', l: 'One-time purchase' } ] },
-    services:    { title: 'How is the work packaged?',       opts: [ { v: 'productized', l: 'Productized service' }, { v: 'bespoke', l: 'Bespoke / custom' }, { v: 'retainer', l: 'Retainer' }, { v: 'project', l: 'Project-based' } ] },
-    hardware:    { title: 'How do you sell it?',             opts: [ { v: 'dtc', l: 'Direct-to-consumer' }, { v: 'retail', l: 'Retail / distribution' }, { v: 'b2b', l: 'B2B / wholesale' }, { v: 'hybrid', l: 'Hybrid' } ] },
-    other:       { title: 'How do you make money?',          opts: [ { v: 'sub', l: 'Subscription' }, { v: 'transactional', l: 'Transactional / per-use' }, { v: 'onetime', l: 'One-time sales' }, { v: 'unsure', l: 'Not sure yet' } ] }
+    saas:        { title: 'How do you go to market?',       opts: [ { v: 'plg', l: 'Product-led / self-serve' }, { v: 'sales', l: 'Sales-led' }, { v: 'hybrid', l: 'Hybrid' }, { v: 'community', l: 'Community-led' }, { v: 'unsure', l: 'Still figuring it out' }, { v: 'other', l: 'Other' } ] },
+    ecommerce:   { title: 'What best describes your model?', opts: [ { v: 'dtc', l: 'Single-brand DTC' }, { v: 'sub', l: 'Subscription / replenishment' }, { v: 'multi', l: 'Multi-brand or marketplace' }, { v: 'wholesale', l: 'Wholesale + DTC' }, { v: 'retail', l: 'Retail / in-store' }, { v: 'other', l: 'Other' } ] },
+    marketplace: { title: 'Where is your harder side?',      opts: [ { v: 'supply', l: 'Supply-constrained' }, { v: 'demand', l: 'Demand-constrained' }, { v: 'balanced', l: 'Roughly balanced' }, { v: 'managed', l: 'Managed marketplace' }, { v: 'early', l: 'Just getting started' }, { v: 'other', l: 'Other' } ] },
+    fintech:     { title: 'Who do you serve?',               opts: [ { v: 'consumer', l: 'Consumers' }, { v: 'smb', l: 'Small businesses' }, { v: 'enterprise', l: 'Enterprise' }, { v: 'infra', l: 'Infrastructure / API' }, { v: 'other', l: 'Other' } ] },
+    consumer:    { title: 'How do you monetize?',            opts: [ { v: 'sub', l: 'Subscription' }, { v: 'ads', l: 'Ad-supported / free' }, { v: 'freemium', l: 'Freemium' }, { v: 'iap', l: 'In-app purchases' }, { v: 'onetime', l: 'One-time purchase' }, { v: 'other', l: 'Other' } ] },
+    services:    { title: 'How is the work packaged?',       opts: [ { v: 'productized', l: 'Productized service' }, { v: 'bespoke', l: 'Bespoke / custom' }, { v: 'retainer', l: 'Retainer' }, { v: 'project', l: 'Project-based' }, { v: 'other', l: 'Other' } ] },
+    hardware:    { title: 'How do you sell it?',             opts: [ { v: 'dtc', l: 'Direct-to-consumer' }, { v: 'retail', l: 'Retail / distribution' }, { v: 'b2b', l: 'B2B / wholesale' }, { v: 'hybrid', l: 'Hybrid' }, { v: 'subscription', l: 'Hardware + subscription' }, { v: 'other', l: 'Other' } ] },
+    other:       { title: 'How do you make money?',          opts: [ { v: 'sub', l: 'Subscription' }, { v: 'transactional', l: 'Transactional / per-use' }, { v: 'onetime', l: 'One-time sales' }, { v: 'unsure', l: 'Not sure yet' }, { v: 'other', l: 'Other' } ] }
   };
   var CHANNELS = { title: 'Which channels are you using today?', sub: 'Multi-select — even “nothing yet” is a useful signal.', opts: [
     { v: 'seo', l: 'SEO / content' }, { v: 'paid', l: 'Paid ads' }, { v: 'outbound', l: 'Outbound / sales' }, { v: 'social', l: 'Social / community' },
-    { v: 'referral', l: 'Referrals / word of mouth' }, { v: 'partner', l: 'Partnerships' }, { v: 'marketplace', l: 'Marketplaces / app stores' }, { v: 'none', l: 'Nothing yet' } ] };
+    { v: 'referral', l: 'Referrals / word of mouth' }, { v: 'partner', l: 'Partnerships' }, { v: 'marketplace', l: 'Marketplaces / app stores' }, { v: 'email', l: 'Email / lifecycle' },
+    { v: 'events', l: 'Events / webinars' }, { v: 'influencer', l: 'Influencers / creators' }, { v: 'pr', l: 'PR / press' }, { v: 'none', l: 'Nothing yet' }, { v: 'other', l: 'Other' } ] };
   // Option sets for the multiple-choice sub-fields inside the grouped steps.
   var OPT = {
-    how_long:   [ { v: 'lt3', l: 'Under 3 months' }, { v: '3-6', l: '3–6 months' }, { v: '6-12', l: '6–12 months' }, { v: '1-2y', l: '1–2 years' }, { v: '2y+', l: '2+ years' } ],
-    founders:   [ { v: 'solo', l: 'Solo founder' }, { v: '2', l: '2 co-founders' }, { v: '3+', l: '3+ co-founders' } ],
-    employees:  [ { v: '0', l: 'Just us' }, { v: '2-5', l: '2–5' }, { v: '6-10', l: '6–10' }, { v: '11+', l: '11+' } ],
-    background: [ { v: 'technical', l: 'Technical' }, { v: 'nontechnical', l: 'Non-technical' }, { v: 'repeat', l: 'Repeat founder' }, { v: 'domain', l: 'Domain expert' } ],
-    hours:      [ { v: 'ft', l: 'Full-time' }, { v: 'pt', l: 'Part-time' }, { v: 'nights', l: 'Nights & weekends' } ],
-    access:     [ { v: 'web', l: 'Web app' }, { v: 'mobile', l: 'Mobile app' }, { v: 'api', l: 'API' }, { v: 'physical', l: 'Physical product' }, { v: 'multiple', l: 'Multiple' } ],
-    convos:     [ { v: 'many', l: 'Yes — many' }, { v: 'few', l: 'A few' }, { v: 'notyet', l: 'Not yet' } ],
-    pricing:    [ { v: 'sub', l: 'Subscription' }, { v: 'seat', l: 'Per-seat' }, { v: 'usage', l: 'Usage-based' }, { v: 'onetime', l: 'One-time' }, { v: 'freemium', l: 'Freemium' }, { v: 'notset', l: 'Not set yet' } ],
-    funding:    [ { v: 'boot', l: 'Bootstrapped' }, { v: 'preseed', l: 'Pre-seed' }, { v: 'seed', l: 'Seed' }, { v: 'seriesa', l: 'Series A+' }, { v: 'raising', l: 'Raising now' } ],
-    want_vc:    [ { v: 'yes', l: 'Yes' }, { v: 'no', l: 'No' }, { v: 'maybe', l: 'Maybe later' } ]
+    how_long:   [ { v: 'lt3', l: 'Under 3 months' }, { v: '3-6', l: '3–6 months' }, { v: '6-12', l: '6–12 months' }, { v: '1-2y', l: '1–2 years' }, { v: '2-3y', l: '2–3 years' }, { v: '3y+', l: '3+ years' }, { v: 'other', l: 'Other' } ],
+    founders:   [ { v: 'solo', l: 'Solo founder' }, { v: '2', l: '2 co-founders' }, { v: '3', l: '3 co-founders' }, { v: '4+', l: '4+ co-founders' }, { v: 'other', l: 'Other' } ],
+    employees:  [ { v: '0', l: 'Just us' }, { v: '2-5', l: '2–5' }, { v: '6-10', l: '6–10' }, { v: '11-25', l: '11–25' }, { v: '26-50', l: '26–50' }, { v: '51+', l: '51+' }, { v: 'other', l: 'Other' } ],
+    background: [ { v: 'technical', l: 'Technical' }, { v: 'nontechnical', l: 'Non-technical' }, { v: 'repeat', l: 'Repeat founder' }, { v: 'firsttime', l: 'First-time founder' }, { v: 'domain', l: 'Domain expert' }, { v: 'industry', l: 'Industry insider' }, { v: 'sales', l: 'Sales / GTM' }, { v: 'design', l: 'Design / product' }, { v: 'other', l: 'Other' } ],
+    hours:      [ { v: 'ft', l: 'Full-time' }, { v: 'pt', l: 'Part-time' }, { v: 'nights', l: 'Nights & weekends' }, { v: 'side', l: 'Side project for now' }, { v: 'other', l: 'Other' } ],
+    access:     [ { v: 'web', l: 'Web app' }, { v: 'mobile', l: 'Mobile app' }, { v: 'desktop', l: 'Desktop app' }, { v: 'api', l: 'API' }, { v: 'extension', l: 'Browser extension' }, { v: 'physical', l: 'Physical product' }, { v: 'multiple', l: 'Multiple' }, { v: 'other', l: 'Other' } ],
+    convos:     [ { v: 'many', l: 'Yes — many' }, { v: 'few', l: 'A few' }, { v: 'ongoing', l: 'Constantly — it’s a habit' }, { v: 'notyet', l: 'Not yet' }, { v: 'other', l: 'Other' } ],
+    pricing:    [ { v: 'sub', l: 'Subscription' }, { v: 'seat', l: 'Per-seat' }, { v: 'usage', l: 'Usage-based' }, { v: 'tiered', l: 'Tiered plans' }, { v: 'onetime', l: 'One-time' }, { v: 'freemium', l: 'Freemium' }, { v: 'commission', l: 'Commission / take-rate' }, { v: 'free', l: 'Free for now' }, { v: 'notset', l: 'Not set yet' }, { v: 'other', l: 'Other' } ],
+    funding:    [ { v: 'boot', l: 'Bootstrapped' }, { v: 'angel', l: 'Angel / friends & family' }, { v: 'preseed', l: 'Pre-seed' }, { v: 'seed', l: 'Seed' }, { v: 'seriesa', l: 'Series A' }, { v: 'seriesb', l: 'Series B+' }, { v: 'grant', l: 'Grant / accelerator' }, { v: 'raising', l: 'Raising now' }, { v: 'other', l: 'Other' } ],
+    want_vc:    [ { v: 'yes', l: 'Yes' }, { v: 'no', l: 'No' }, { v: 'maybe', l: 'Maybe later' }, { v: 'raised', l: 'Already raised' }, { v: 'other', l: 'Other' } ]
   };
   function modelCfg(a) { return MODEL_BY_INDUSTRY[a.industry] || MODEL_BY_INDUSTRY.other; }
 
@@ -173,14 +182,18 @@
   function hostOf(u) { try { return String(u).replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0]; } catch (e) { return u; } }
   function labelOf(opts, v) { for (var i = 0; i < opts.length; i++) if (opts[i].v === v) return opts[i].l; return ''; }
   function labelsOf(opts, arr) { var o = []; for (var i = 0; i < (arr || []).length; i++) { var l = labelOf(opts, arr[i]); if (l) o.push(l); } return o; }
+  function hasOther(opts) { for (var i = 0; i < opts.length; i++) if (opts[i].v === 'other') return true; return false; }
+  function otherOf(a, k) { return String(a[k + '__other'] || '').trim(); }
+  function singleLabel(opts, a, k) { var v = a[k]; if (v == null || v === '') return ''; if (v === 'other') return otherOf(a, k) || 'Other'; return labelOf(opts, v); }
+  function multiLabel(opts, a, k) { var arr = a[k] || [], o = []; for (var i = 0; i < arr.length; i++) { var lab = arr[i] === 'other' ? (otherOf(a, k) || 'Other') : labelOf(opts, arr[i]); if (lab) o.push(lab); } return o.join(', '); }
 
   // ── Resolve a single answer to its human-readable value (for serialize + review).
   // Step-level single/multi read `options`; grouped sub-fields carry their own.
   function fieldValue(field, a) {
     var v = a[field.k];
     if (v == null || v === '' || (isArr(v) && !v.length)) return '';
-    if (field.type === 'multi') return labelsOf(field.options, v).join(', ');
-    if (field.type === 'single') return labelOf(field.options, v);
+    if (field.type === 'multi') return multiLabel(field.options, a, field.k);
+    if (field.type === 'single') return singleLabel(field.options, a, field.k);
     return String(v); // text / textarea
   }
   function isArr(x) { return Object.prototype.toString.call(x) === '[object Array]'; }
@@ -197,7 +210,7 @@
       var st = STEPS[s];
       if ((st.kind === 'single' || st.kind === 'multi') && st.slabel) {
         var opts = resolve(st.options, a);
-        var lab = (st.kind === 'multi') ? labelsOf(opts, a[st.id]).join(', ') : labelOf(opts, a[st.id]);
+        var lab = (st.kind === 'multi') ? multiLabel(opts, a, st.id) : singleLabel(opts, a, st.id);
         if (lab) biz.push('- ' + st.slabel + ': ' + lab);
       }
     }
@@ -517,6 +530,10 @@
         + '<button type="button" class="gk-fasttrack" data-gk-fasttrack>In a hurry? Fast-track with just your company name <span class="gk-arr">→</span></button>';
     }
 
+    function otherInput(key, active, val) {
+      return '<input class="gk-input gk-other" data-gk-other="' + esc(key) + '" maxlength="120" placeholder="Tell us more\u2026" autocomplete="off" value="' + esc(val || '') + '"' + (active ? '' : ' style="display:none"') + '>';
+    }
+
     function choiceBody(step) {
       var opts = resolve(step.options, answers) || [];
       var h = '<div class="gk-choices">';
@@ -528,7 +545,9 @@
           + '<span class="gk-choice-tick" aria-hidden="true">✓</span>'
           + '</button>';
       }
-      return h + '</div>';
+      h += '</div>';
+      if (hasOther(opts)) h += otherInput(step.id, answers[step.id] === 'other', answers[step.id + '__other']);
+      return h;
     }
 
     function chipBody(step) {
@@ -538,7 +557,9 @@
         var o = opts[i], on = sel.indexOf(o.v) !== -1;
         h += '<button type="button" class="gk-chip' + (on ? ' is-selected' : '') + '" data-v="' + esc(o.v) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + esc(o.l) + '</button>';
       }
-      return h + '</div>';
+      h += '</div>';
+      if (hasOther(opts)) h += otherInput(step.id, sel.indexOf('other') !== -1, answers[step.id + '__other']);
+      return h;
     }
 
     // A themed screen of several sub-questions (each single/multi/text/textarea).
@@ -554,6 +575,10 @@
             ctrl += '<button type="button" class="gk-pill' + (on ? ' is-selected' : '') + '" data-field="' + esc(f.k) + '" data-ftype="' + f.type + '" data-v="' + esc(opts[o].v) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + esc(opts[o].l) + '</button>';
           }
           ctrl += '</div>';
+          if (hasOther(opts)) {
+            var oact = f.type === 'multi' ? ((answers[f.k] || []).indexOf('other') !== -1) : (answers[f.k] === 'other');
+            ctrl += otherInput(f.k, oact, answers[f.k + '__other']);
+          }
         } else if (f.type === 'textarea') {
           ctrl = '<textarea class="gk-input" data-gk-input="' + f.k + '" maxlength="600" placeholder="' + esc(f.ph || '') + '">' + val + '</textarea>';
         } else {
@@ -574,7 +599,7 @@
         if (st.kind === 'single' || st.kind === 'multi') {
           if (!st.slabel) continue;
           var opts = resolve(st.options, answers);
-          var v = (st.kind === 'multi') ? labelsOf(opts, answers[st.id]).join(', ') : labelOf(opts, answers[st.id]);
+          var v = (st.kind === 'multi') ? multiLabel(opts, answers, st.id) : singleLabel(opts, answers, st.id);
           if (v) rows.push({ id: st.id, k: st.slabel, v: v });
         } else if (st.kind === 'group') {
           for (var f = 0; f < st.fields.length; f++) {
@@ -613,6 +638,11 @@
       if (backBtn) backBtn.addEventListener('click', back);
       var nextBtn = wizardEl.querySelector('[data-gk-next]');
       if (nextBtn) nextBtn.addEventListener('click', primary);
+      // "Other" fill-in inputs (any step kind)
+      var oths = wizardEl.querySelectorAll('.gk-other');
+      for (var oo = 0; oo < oths.length; oo++) (function (inp) {
+        inp.addEventListener('input', function () { answers[inp.getAttribute('data-gk-other') + '__other'] = inp.value; touchOn(); });
+      })(oths[oo]);
 
       if (step.kind === 'text') {
         // presets
@@ -639,12 +669,16 @@
         var cbtns = wizardEl.querySelectorAll('.gk-choice');
         for (var c = 0; c < cbtns.length; c++) (function (btn) {
           btn.addEventListener('click', function () {
-            answers[step.id] = btn.getAttribute('data-v');
+            var cv = btn.getAttribute('data-v');
+            answers[step.id] = cv;
             var all = wizardEl.querySelectorAll('.gk-choice');
             for (var a = 0; a < all.length; a++) all[a].classList.remove('is-selected');
             btn.classList.add('is-selected');
             setNextEnabled(true);
             clearError();
+            var oin = wizardEl.querySelector('.gk-other[data-gk-other="' + step.id + '"]');
+            if (cv === 'other') { if (oin) { oin.style.display = ''; oin.focus(); } return; }
+            if (oin) oin.style.display = 'none';
             setTimeout(function () { if (!running) primary(); }, 200);
           });
         })(cbtns[c]);
@@ -658,6 +692,7 @@
             var on = arr.indexOf(v) !== -1;
             btn.classList.toggle('is-selected', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            if (v === 'other') { var oin = wizardEl.querySelector('.gk-other[data-gk-other="' + step.id + '"]'); if (oin) { oin.style.display = on ? '' : 'none'; if (on) oin.focus(); } }
           });
         })(mbtns[mm]);
       } else if (step.kind === 'group') {
@@ -677,6 +712,7 @@
               var on = arr.indexOf(v) !== -1;
               btn.classList.toggle('is-selected', on);
               btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+              if (v === 'other') { var oinm = wizardEl.querySelector('.gk-other[data-gk-other="' + k + '"]'); if (oinm) { oinm.style.display = on ? '' : 'none'; if (on) oinm.focus(); } }
             } else { // single (radio within the field)
               answers[k] = v;
               var sibs = wizardEl.querySelectorAll('.gk-pill[data-field="' + k + '"]');
@@ -685,6 +721,8 @@
                 sibs[s].classList.toggle('is-selected', isMe);
                 sibs[s].setAttribute('aria-pressed', isMe ? 'true' : 'false');
               }
+              var oins = wizardEl.querySelector('.gk-other[data-gk-other="' + k + '"]');
+              if (oins) { var showo = (v === 'other'); oins.style.display = showo ? '' : 'none'; if (showo) oins.focus(); }
             }
           });
         })(pills[pi]);
