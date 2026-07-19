@@ -84,12 +84,13 @@
       <!-- Welcome hero — cycling typewriter greeting -->
       <section class="four-welcome" aria-labelledby="four-greeting-h">
         <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
-        <h1>Point the engine at <em>your</em> market.</h1>
+        <h1 class="four-greeting" id="four-greeting-h"><span class="four-greeting-text" data-four-greeting>Back to building, Founder.</span><span class="four-caret" aria-hidden="true"></span></h1>
+        <p class="four-sub">Your market intelligence workspace.</p>
         <p class="lede">Your first run creates one full market report and locks this account to that company. After that, GrowthKit watches the market daily and turns what changed into a 30-second brief and three next moves.</p>
         <!-- Billing status + Upgrade/Manage — populated by billing.js. -->
         <div class="four-billing" data-gk-billing></div>
         <div class="four-product-status" data-product-status role="status"></div>
-      </div>
+      </section>
 
       <section class="daily-panel" data-daily style="display:none">
         <div class="daily-head">
@@ -102,13 +103,6 @@
         <div class="daily-state" data-daily-state>Preparing your daily brief…</div>
         <article class="daily-brief" data-daily-brief style="display:none"></article>
         <div class="daily-history" data-daily-history></div>
-      </section>
-
-      <div class="gk-advisor" data-gk-advisor data-gk-full="1">
-        <h1 class="four-greeting" id="four-greeting-h"><span class="four-greeting-text" data-four-greeting>Back to building, Founder.</span><span class="four-caret" aria-hidden="true"></span></h1>
-        <p class="four-sub">Your market intelligence workspace.</p>
-        <!-- Billing status + Upgrade/Manage — populated by billing.js. -->
-        <div class="four-billing" data-gk-billing></div>
       </section>
 
       <!-- Short guide — two moves to your first report -->
