@@ -1,8 +1,7 @@
 /**
  * GrowthKit AI — Advisor endpoint (the live product).
  *
- * A Vercel serverless function: the ONLY server-side code in the repo, and the
- * only place an API key is read. The signed-in user gives us a company name
+ * A Vercel serverless function for the one-time full report. The signed-in user gives us a company name
  * (plus optional website + one-liner) and Claude (Sonnet) actually SEARCHES
  * THE WEB — Anthropic's built-in web_search tool — to find and dissect that
  * company's real competitors, then returns a full specimen-grade deliverable as
@@ -26,11 +25,11 @@
  * ── Limits to know ──
  *   - maxDuration is 60s in vercel.json (Hobby ceiling). Web search + a full
  *     deliverable is genuinely tight: searches are capped (WEB_SEARCH_MAX_USES),
- *     effort is 'medium', and the prompt asks Claude to be efficient so it lands
+ *     effort is 'low', and the prompt asks Claude to be efficient so it lands
  *     inside the window. A slow run can still time out — the browser surfaces a
  *     "took too long, try again" message. If it bites often, move to Vercel Pro
  *     (maxDuration 300) and this file needs no change beyond vercel.json.
- *   - Each run costs real money: Opus tokens + web searches (~$10 / 1k searches).
+ *   - Each run costs real money: Sonnet tokens + web searches.
  *     Inputs are length-capped, searches capped, max_tokens bounded, and the tool
  *     is behind login + rate-limited to keep per-call and abuse cost predictable.
  *   - Numbers Claude reports are web-researched estimates and can be wrong; the
@@ -40,7 +39,13 @@
 
 'use strict';
 
-const { checkAccess } = require('../lib/subscriptions');
+const { checkAccess, verifyUserToken, bearer } = require('../lib/subscriptions');
+const {
+  configured: productConfigured,
+  reserveWorkspace,
+  completeWorkspace,
+  failWorkspace
+} = require('../lib/product');
 
 // ── KILL SWITCH ─────────────────────────────────────────────────────────────
 // RE-ENABLED 2026-07-18 alongside Stripe billing. While disabled the endpoint
@@ -218,46 +223,24 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Require a signed-in user — the tool lives behind login. Enforced only when
-  // Supabase is configured on the server (SUPABASE_URL + SUPABASE_ANON_KEY env
-  // vars), so nothing breaks before auth is wired up. Verifies the caller's
-  // Supabase access token by asking Supabase who it belongs to.
-  const sbUrl = process.env.SUPABASE_URL;
-  const sbAnon = process.env.SUPABASE_ANON_KEY;
-  if (sbUrl && sbAnon) {
-    const authz = req.headers['authorization'] || '';
-    const token = authz.indexOf('Bearer ') === 0 ? authz.slice(7).trim() : '';
-    if (!token) {
-      res.status(401).json({ error: 'Please sign in to use the engine.' });
-      return;
-    }
-    let user = null;
-    try {
-      const ur = await fetch(sbUrl.replace(/\/+$/, '') + '/auth/v1/user', {
-        headers: { authorization: 'Bearer ' + token, apikey: sbAnon }
-      });
-      if (!ur.ok) {
-        res.status(401).json({ error: 'Your session has expired — please sign in again.' });
-        return;
-      }
-      user = await ur.json();
-    } catch (e) {
-      res.status(401).json({ error: 'Could not verify your session — please sign in again.' });
-      return;
-    }
-
-    // Server-side access control — the ONLY place access is enforced (never trust
-    // the client). Free beta is open to everyone by default (GK_BETA_OPEN); once
-    // unwound, only the GK_BETA_EMAILS allowlist or an active Pro subscription
-    // may run the engine. See lib/subscriptions.js → checkAccess.
-    const access = await checkAccess(user);
-    if (!access.allowed) {
-      res.status(402).json({
-        error: 'Upgrade to Pro to run the engine.',
-        code: 'subscription_required'
-      });
-      return;
-    }
+  // Access and usage accounting fail closed. Without all three Supabase server
+  // variables we cannot verify identity or enforce the one-company/report rule.
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !productConfigured()) {
+    res.status(503).json({ error: 'Account access is not configured on the server.' });
+    return;
+  }
+  const user = await verifyUserToken(bearer(req));
+  if (!user) {
+    res.status(401).json({ error: 'Your session has expired — please sign in again.' });
+    return;
+  }
+  const access = await checkAccess(user);
+  if (!access.allowed) {
+    res.status(402).json({
+      error: 'Upgrade to Pro to run the engine.',
+      code: 'subscription_required'
+    });
+    return;
   }
 
   const body = (req.body && typeof req.body === 'object') ? req.body : {};
@@ -291,6 +274,19 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  const reservation = await reserveWorkspace(user.id, { company, website, competitors, profile });
+  if (!reservation.ok) {
+    const messages = {
+      company_locked: 'Your account is already linked to ' + (reservation.company || 'another company') + '. Contact info@growthkitai.com if this needs correcting.',
+      full_report_complete: 'Your full report has already been generated. Your account now receives daily market briefs.',
+      report_in_progress: 'Your first report is already being generated. Give it a moment, then refresh this page.',
+      workspace_unavailable: 'The report workspace is not configured yet. Please contact info@growthkitai.com.'
+    };
+    const status = reservation.code === 'workspace_unavailable' ? 503 : 409;
+    res.status(status).json({ error: messages[reservation.code] || messages.workspace_unavailable, code: reservation.code });
+    return;
+  }
+
   let upstream;
   try {
     upstream = await fetch('https://api.anthropic.com/v1/messages', {
@@ -311,6 +307,7 @@ module.exports = async function handler(req, res) {
       })
     });
   } catch (err) {
+    await failWorkspace(user.id);
     res.status(502).json({ error: "Couldn't reach the engine. Try again in a moment." });
     return;
   }
@@ -319,6 +316,7 @@ module.exports = async function handler(req, res) {
     let detail = '';
     try { detail = (await upstream.text()).slice(0, 300); } catch (_) {}
     const status = upstream.status === 429 ? 429 : 502;
+    await failWorkspace(user.id);
     res.status(status).json({ error: 'The engine returned an error.', status: upstream.status, detail });
     return;
   }
@@ -375,6 +373,7 @@ module.exports = async function handler(req, res) {
       }
     }
   } catch (err) {
+    await failWorkspace(user.id);
     send({ type: 'error', message: 'The connection was interrupted — please try again.' });
     res.end();
     return;
@@ -382,7 +381,12 @@ module.exports = async function handler(req, res) {
 
   const deliverable = extractJson(answer);
   if (deliverable && deliverable.subject) {
-    send({ type: 'done', deliverable: deliverable });
+    const saved = await completeWorkspace(user.id, deliverable);
+    if (saved) send({ type: 'done', deliverable: deliverable, first_daily_brief_ready: true });
+    else {
+      await failWorkspace(user.id);
+      send({ type: 'error', message: 'The report finished but could not be secured to your account — please try again.' });
+    }
   } else {
     // Self-diagnosing failure: say WHY, and attach the raw signals so a screenshot
     // of the error tells us whether it was a timeout, a truncation, a bad-JSON run,
@@ -393,6 +397,7 @@ module.exports = async function handler(req, res) {
     else if (stopReason === 'pause_turn') message = 'The engine needed more search steps than allowed — please try again.';
     else if (answer.length) message = 'The engine finished but did not return a complete deliverable — please try again.';
     else message = 'The run was cut off before producing anything (most likely the 60s server limit) — try a well-known company, or a longer server limit is needed.';
+    await failWorkspace(user.id);
     send({ type: 'error', message: message, debug: { chars: answer.length, searches: searchCount, stop_reason: stopReason || null, api_error: apiError || null } });
   }
   res.end();

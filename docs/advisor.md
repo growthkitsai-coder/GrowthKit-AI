@@ -2,8 +2,7 @@
 
 > Part of the GrowthKit AI docs set. Read [`CLAUDE.md`](../CLAUDE.md) first. This file is the single home for the Advisor — the site's **first server-side code and first API secret**. **Update it whenever the function, prompt, model, deliverable schema, or limits change.**
 
-> ## ⏸ PAUSED (2026-07-07) — kill switch ON, zero API cost
-> `api/advise.js` has **`ADVISOR_ENABLED = false`**: every call returns a 503 "paused" message **before any Anthropic or Supabase request**, so no tokens/web-search charges can accrue. It also honours the Vercel env var `GK_ADVISOR_DISABLED=1`. **Why paused:** a live test proved the engine can't finish web-search + a full deliverable inside Vercel's **60s Hobby ceiling** — it ran ~61s (2 searches, no result) and was cut off every time, even slimmed. **To RE-ENABLE (only when Avi says so):** set `ADVISOR_ENABLED = true`, commit, push (auto-deploys); clear `GK_ADVISOR_DISABLED` in Vercel if set. The durable fix to actually make it work is **Vercel Pro + raise `maxDuration` to ~180 in `vercel.json`**, then restore full quality (effort `medium`, `max_uses` 3–4, `max_tokens` 8000 — see the Model section).
+> **Status: enabled.** `api/advise.js` is live when configured; `GK_ADVISOR_DISABLED=1` remains the immediate cost kill switch. The 60-second Hobby timeout risk remains, so a slow full report can still be cut off.
 
 ## What it is
 
@@ -19,9 +18,9 @@ The deliverable has:
 6. **90-day plan** — a timeline of 6–8 plays (when / first move / kill criteria).
 7. **Sources** — the actual pages Claude cited, plus an honesty note.
 
-Presented **confident + cited** (like the specimen) with a small **"AI research draft — verify key numbers"** badge, because numbers are web-researched estimates. Every deliverable is **saved to the user's account** (Supabase `reads`). `/advisor` (the old public page) is retired → redirects to `/four`; the homepage shows a "create a free account / log in" CTA.
+Presented **confident + cited** (like the specimen) with a small **"AI research draft — verify key numbers"** badge, because numbers are web-researched estimates. Each account can complete this full deliverable once for one locked company; it is stored in `product_workspaces` as the daily-intelligence baseline. `/advisor` (the old public page) is retired → redirects to `/four`.
 
-**Ease-of-use:** one-click **example presets** fill the first step with real companies (Jobber / Otter.ai / Ramp); after a run, **Analyse another company** (resets the wizard), **Copy share link** (a `/four?co=…&w=…&c=…&m=…` URL that re-runs the same inputs via fast-track), and **Save as PDF** (print stylesheet).
+**After generation:** the action row opens the daily brief or saves the full report as PDF. Re-run/share-link controls were removed because they conflict with the one-company, one-report contract. Support may manually reset a mistaken company after verifying the request.
 
 ## Architecture — first backend in the repo
 
@@ -32,7 +31,8 @@ four.html  (gated page; adaptive onboarding WIZARD → premium loading sequence 
    |     are serialized client-side into profile_text; known-competitors ride in `competitors`)
    |  Authorization: Bearer <supabase access token>
    v
-api/advise.js  (Vercel serverless function — the ONLY server code, the ONLY secret reader)
+api/advise.js  (Vercel serverless function)
+   |  verify session + paid/private-beta access + reserve product workspace
    |  ANTHROPIC_API_KEY (Vercel env var; NEVER in git — repo is public)
    |  model claude-sonnet-5, effort low, stream:true, tools:[web_search_20260209 max_uses 2]
    v
@@ -46,11 +46,11 @@ advisor.js  reads NDJSON → shows a premium scripted RESEARCH SEQUENCE (animate
             (buildMap SVG, teardown table, gap meters, plan, citations) → saves to Supabase
 ```
 
-- **`api/advise.js`** — zero npm dependencies (raw `fetch`, hand-parses Anthropic SSE), CommonJS, no build step. Reads `process.env.ANTHROPIC_API_KEY`; without it, returns a 503 "not configured". Requires a valid Supabase token when `SUPABASE_URL`+`SUPABASE_ANON_KEY` are set on the server. It **accumulates the model's final text server-side, extracts the JSON object** (`extractJson` — tolerant of code fences / trailing prose / braces-in-strings), and sends it as one `done` event. It does **not** stream tokens to the browser — the browser can't render partial JSON — instead it streams progress events so a slow run keeps the connection alive. `stop_reason: "pause_turn"` (server tool loop cap) is not continued in v1; if it ever fires the run ends with an error and the user retries.
+- **`api/advise.js`** — zero npm dependencies (raw `fetch`, hand-parses Anthropic SSE), CommonJS, no build step. It fails closed unless the Supabase URL, anon key, and service-role key are configured; verifies the access token and paid/private-beta entitlement; then reserves the user's company workspace before calling Anthropic. A completed full report cannot be generated again. It accumulates and validates the model JSON, persists the authoritative baseline, and sends one `done` event. It does not stream partial JSON to the browser.
 - **`advisor.js`** — the shared engine (ES5, no deps), loaded only by `four.html`. Owns the **wizard state machine** (config-driven, mirroring the old `PROFILE_GROUPS` pattern: `STEPS` + `INDUSTRY_OPTS`/`STAGE_OPTS`/`MODEL_BY_INDUSTRY`/`FOCUS_PRE`/`FOCUS_EST`/`CHANNELS`/`SHARPEN_FIELDS`; single-select cards auto-advance, multi-select chips + Continue, a review screen with per-answer Edit). Serializes answers → labelled `profile_text` via `answersToProfileText()`. On generate it reads the NDJSON stream but **ignores the status events** — the loading UI is a **scripted research sequence** (`LOADING_PHRASES`, an animated checklist + progress bar that eases to ~92% and completes honestly on the real `done`; phrases personalize with the website host + industry; reduced-motion falls back to a static list). Then `renderDeliverable(json)` builds the whole designed deliverable as a string — **unchanged**. `buildMap()` maps 0–100 vendor coords into the specimen SVG geometry (viewBox `0 0 880 560`; plot area x:90→810, y:480(bottom)→60(top)). Titles/positioning may contain a literal `<em>…</em>` (allowed through `richEm`/`richPara`; everything else is HTML-escaped). Saves the deliverable JSON to Supabase and exposes `GKAdvisor.render(container, raw)` — **JSON-aware, with a legacy fallback** so reads saved before all this (plain `01/02/03/04` engine text) still open.
 - **`advisor.css`** — the console shell + the deliverable component styles. The deliverable classes **mirror `specimen.html`** (`.map-svg`+dots/axes/gap-zone, `.tt-row`, `.gap-card`+`.gap-meter`, `.play`+`.p-meta`) so generated output matches the sample. Map dots "plot themselves" and gap meters fill via CSS entrance animations (`gkPlot`/`gkFill`), with reduced-motion + print fallbacks.
 - **Onboarding (the wizard):** `four.html` mounts the wizard into `[data-gk-wizard]` inside the console; `advisor.js` renders each step from its `STEPS` config (step kinds: `text` = company, `single` = full-screen choice cards that auto-advance, `multi` = full-screen chips, `group` = a themed screen of several sub-fields — each `single`/`multi`/`text`/`textarea` — and `review`). It keeps one `answers` object and on generate serializes it into a labelled `profile_text`: a `BUSINESS PROFILE` block (the step-level single/multi choices — industry, stage, business model, channels) followed by one block per **grouped step**, titled by section (`YOUR STARTUP IN A NUTSHELL`, `YOU & THE TEAM`, `THE PRODUCT`, `YOUR CUSTOMERS`, `TRACTION`, `MARKET & COMPETITION`, `PRICING & FUNDING`). Only `company`, `website`, and `competitors` (the "top 3 competitors" field in the Market group) map to their own payload fields — **everything else lives in `profile_text`**, so no backend change was needed. The full `answers` object is **upserted to Supabase `profiles`** (one JSON `data` row per `user_id`, RLS-protected) and **pre-fills the wizard on return**. `mode` (`wizard`/`short`) rides in the payload for analytics only (the API ignores it). Trust copy names GrowthKit's **proprietary market-intelligence models** — no AI provider is named in the UI (2026-07-08).
-- **The `reads` columns are repurposed** (no schema change): `product`=company name (the history label), `competitors`=known competitors (if given) / `moves`=empty, `output`=the **deliverable JSON string**. The `profiles` table (the wizard answers) is separate. See [`docs/auth.md`](auth.md).
+- **Storage:** `product_workspaces` is authoritative for the locked company and full-report baseline. The existing `reads` table remains a compatibility history mirror; `profiles` stores wizard answers. See [`daily-intelligence.md`](daily-intelligence.md) and [`auth.md`](auth.md).
 
 ## Setup — REQUIRED before it works (one-time, in the Vercel dashboard)
 
@@ -90,11 +90,11 @@ The local `.vercel/project.json` + the Vercel CLI/MCP point at the **duplicate**
 
 ## Privacy / legal disclosure
 
-The engine sends the founder's inputs to **Anthropic's API** and Claude **searches the public web**. The page states inputs go to Anthropic and the deliverable is saved to the account; nothing beyond that is persisted by us.
+The engine sends the founder's inputs to **Anthropic's API** and Claude **searches the public web**. The completed report and profile context are stored in the account as the baseline for ongoing daily briefs.
 
 - **`privacy.html` (v1.1):** §03 lists Advisor inputs; §04 notes inputs go to the AI provider; §06 names **Anthropic, PBC** as the AI sub-processor. **Still open:** privacy/terms predate the web-search behavior — when next touched, note that Claude performs live web searches to generate the deliverable and that reported numbers are AI estimates, not verified facts.
 - **`terms.html`:** §08 free-Advisor clause (inputs go to Anthropic; don't submit confidential info); §15 notes the free tool is an illustrative automated read, not the operator-reviewed paid deliverable — **now doubly true** (web-researched estimates; add a "verify before acting" line when next editing).
-- **Still open:** `security.html`'s data-inventory doesn't yet mention the `/api/advise` endpoint, the Anthropic flow, or the web-search egress — update when next touching that page.
+- `privacy.html`, `terms.html`, and `security.html` describe account storage, generated reports/daily briefs, connected provider data, and the Anthropic processing flow.
 
 ## Local dev
 

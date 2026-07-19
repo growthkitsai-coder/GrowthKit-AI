@@ -6,13 +6,15 @@ Single home for **paid subscriptions**: the three serverless functions, the Supa
 
 ## What paid access means today (the beta gate)
 
-Access to run the engine (`/api/advise`) is decided by `checkAccess()` in [`lib/subscriptions.js`](../lib/subscriptions.js), in this order:
+Access to the product APIs is decided by `checkAccess()` in [`lib/subscriptions.js`](../lib/subscriptions.js), in this order:
 
-1. **Free beta, open to everyone** — while `GK_BETA_OPEN` is unset or anything other than `0`, *every signed-in user* has Pro-equivalent access without paying. This is the launch state (Avi's decision 2026-07-18).
-2. **Beta allowlist** — once Avi sets `GK_BETA_OPEN=0`, only the emails in `GK_BETA_EMAILS` (comma-separated) keep free access. Avi supplies that list when he unwinds the open beta.
-3. **Paid Pro subscription** — an `active` or `trialing` row in the `subscriptions` table.
+1. **Paid Pro subscription** — an `active` or `trialing` row in the `subscriptions` table.
+2. **Explicit open beta** — only when `GK_BETA_ENABLED` is not `0` and `GK_BETA_OPEN=1` exactly.
+3. **Private beta allowlist** — while beta is enabled, a normalized email in the private, comma-separated `GK_BETA_EMAILS` value receives Pro-equivalent access.
 
-Otherwise `/api/advise` returns **402** `{ code: "subscription_required" }` and the frontend shows the upgrade CTA. **To end the open beta:** set `GK_BETA_OPEN=0` (+ optional `GK_BETA_EMAILS`) in Vercel — no code change.
+Everything else fails closed with **402** `{ code: "subscription_required" }`; users may still create an account and buy Pro. Email matching trims and lowercases both sides. **To halt all free beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
+
+Beta and paid accounts share the same product limits: one company, one initial full report, then daily briefs. See [`daily-intelligence.md`](daily-intelligence.md).
 
 ## Plans
 
@@ -31,6 +33,7 @@ api/checkout.js    POST → creates a Stripe Checkout Session, returns { url }
 api/portal.js      POST → creates a Stripe Billing Portal session, returns { url }
 api/stripe-webhook.js  POST ← Stripe. Verifies signature (RAW body), mirrors status into Supabase. SOURCE OF TRUTH.
 api/advise.js      now calls checkAccess() after verifying the user (server-side gate); kill switch re-enabled.
+api/account.js     server-authoritative account/access/workspace summary for /four
 billing.js         client glue on /pricing + /four: [data-gk-checkout], [data-gk-portal], [data-gk-billing]
 ```
 
@@ -69,8 +72,9 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `SUPABASE_ANON_KEY` | Prod | already set; verifies user access tokens |
 | `SUPABASE_SERVICE_ROLE_KEY` | Prod | **NEW** — server-only; lets the webhook write `subscriptions` |
 | `SITE_URL` | Prod | optional canonical origin for redirects (else derived from Host) |
-| `GK_BETA_OPEN` | Prod | unset/≠`0` = free beta open to all; `0` = require allowlist/Pro |
-| `GK_BETA_EMAILS` | Prod | comma-separated emails kept on free access after the beta closes |
+| `GK_BETA_ENABLED` | Prod | `0` immediately disables all free beta access; otherwise allowlist/open-beta checks may run |
+| `GK_BETA_OPEN` | Prod | `1` explicitly opens free beta to every account; unset/other values fail closed |
+| `GK_BETA_EMAILS` | Prod | private comma-separated beta emails; normalize, deduplicate, and never commit this value |
 
 ## Stripe dashboard setup (one-time)
 

@@ -57,31 +57,37 @@
     }).catch(function () { alert('Could not open the billing portal.'); });
   }
 
-  // Optional: render plan status + the right CTA inside [data-gk-billing] on /four.
-  // Best-effort — if the subscriptions table/policies aren't set up yet, the query
-  // fails quietly and we just show the Upgrade button.
+  // Render server-authoritative plan status on /four. /api/account applies the
+  // same paid-subscription/private-beta rules as the engine.
   function renderStatus() {
     var box = document.querySelector('[data-gk-billing]');
     var c = client();
     if (!box || !c) return;
 
     function upgrade() {
-      box.innerHTML = '<span class="four-billing-plan">Free beta — Pro-equivalent access</span>' +
+      box.innerHTML = '<span class="four-billing-plan">Free account</span>' +
         '<button type="button" class="four-billing-btn" data-gk-checkout>Go Pro →</button>';
     }
     function manage(status) {
       box.innerHTML = '<span class="four-billing-plan is-pro">Pro · ' + status + '</span>' +
         '<button type="button" class="four-billing-btn" data-gk-portal>Manage billing</button>';
     }
+    function beta() {
+      box.innerHTML = '<span class="four-billing-plan is-pro">Beta Pro · included</span>';
+    }
 
-    c.from('subscriptions').select('plan,status,current_period_end').limit(1)
-      .then(function (res) {
-        var row = res && res.data && res.data[0];
-        if (row && (row.status === 'active' || row.status === 'trialing')) manage(row.status);
-        else upgrade();
-        wire(box);
-      })
-      .catch(function () { upgrade(); wire(box); });
+    token().then(function (tok) {
+      if (!tok) { upgrade(); wire(box); return; }
+      return fetch('/api/account', { headers: { authorization: 'Bearer ' + tok } })
+        .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+        .then(function (result) {
+          var access = result.data && result.data.access;
+          if (result.ok && access && access.reason === 'subscription') manage(access.status);
+          else if (result.ok && access && access.allowed) beta();
+          else upgrade();
+          wire(box);
+        });
+    }).catch(function () { upgrade(); wire(box); });
   }
 
   function wire(root) {

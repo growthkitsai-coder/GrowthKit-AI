@@ -795,7 +795,7 @@
         <div class="posture-card reveal">
           <div class="label">03 — Small vendor surface</div>
           <h3>Few vendors, <em>named</em> ones.</h3>
-          <p>Vercel hosts the site. Google Workspace holds mail and waitlist data. Supabase runs login and stores account data. Stripe processes subscription payments. Fonts and scripts load from Google Fonts and jsDelivr. That is the entire third-party surface — every vendor we use is on this page, not buried in a subprocessor PDF.</p>
+          <p>Vercel hosts the site and functions. Supabase runs login and stores account, report, and encrypted integration data. Stripe processes subscriptions and can provide connected account metrics; Google Analytics and LinkedIn can provide connected metrics. Anthropic processes report inputs and connected summaries. Google Workspace holds mail and waitlist data; fonts and scripts load from Google Fonts and jsDelivr.</p>
         </div>
 
         <div class="posture-card reveal">
@@ -816,16 +816,16 @@
           <h2>The attack surface is the <em>security model</em>.</h2>
         </div>
         <p class="lede reveal">
-          growthkitai.com is a static site, on purpose. What doesn't exist can't be breached — and you can verify every claim below from your own terminal.
+          The public pages are static; signed-in product features run through a deliberately small set of serverless APIs and an access-controlled database.
         </p>
       </div>
 
       <div class="arch-grid">
         <div class="arch-copy reveal">
-          <p><strong>No database.</strong> The site has no backend of its own — no SQL to inject, no admin panel to brute-force, no sessions to hijack.</p>
-          <p><strong>No accounts, no passwords.</strong> Nothing on this site asks you to log in, so there are no credentials of yours for us to lose.</p>
+          <p><strong>Managed identity and storage.</strong> Supabase manages account authentication and the Postgres database. Row-level security limits browser reads to the signed-in owner; server writes use a service credential that is never exposed to the browser.</p>
+          <p><strong>Encrypted connected credentials.</strong> OAuth access and refresh tokens are encrypted with AES-256-GCM before database storage. The browser receives connection status and selected account metadata, never token ciphertext or server secrets.</p>
           <p><strong>Payments handled by Stripe.</strong> We never see or store card numbers. Subscription payments run through Stripe, a PCI-DSS Level 1 processor — your card details go to Stripe, never to us. We store only your subscription status (which plan, and whether it's active).</p>
-          <p><strong>One stored preference.</strong> The only thing the site keeps on your machine is your light/dark theme choice, in your browser's localStorage. It never leaves your device.</p>
+          <p><strong>Minimal browser storage.</strong> The browser stores the theme preference and the Supabase session needed to keep you signed in. Product data is fetched only after authentication.</p>
           <p class="note">Check our homework: run <code>curl -I https://growthkitai.com</code> and compare against the readout.</p>
         </div>
 
@@ -876,13 +876,19 @@
 
         <div class="inv-row reveal">
           <div class="what">Pilot <em>briefs</em><small>private beta participants</small></div>
-          <p><span class="k">Where it lives</span>Access-controlled workspace, used exclusively to produce your deliverables. Never used to train third-party models without your consent.</p>
+          <p><span class="k">Where it lives</span>Supabase stores your company profile, full report, and daily briefs. Anthropic processes the supplied context and connected metric summaries to generate them; public web search may be used.</p>
           <p><span class="k">How long</span>For the duration of your pilot, plus the time needed to support it. Deleted on request when you leave.</p>
         </div>
 
         <div class="inv-row reveal">
+          <div class="what">Connected <em>metrics</em><small>Stripe · GA4 · LinkedIn</small></div>
+          <p><span class="k">Where it lives</span>Provider OAuth credentials are encrypted in Supabase. GrowthKit reads selected account, revenue, traffic, and organization-performance metrics to prepare daily briefs.</p>
+          <p><span class="k">How long</span>Until you disconnect the provider or ask us to delete the connection. Disconnecting removes the stored credential.</p>
+        </div>
+
+        <div class="inv-row reveal">
           <div class="what">Site <em>analytics</em><small>aggregate only</small></div>
-          <p><span class="k">Where it lives</span>Vercel Web Analytics — aggregate page views and referrers. No ad pixels, no fingerprinting, no cross-site tracking cookies.</p>
+          <p><span class="k">Where it lives</span>Vercel Web Analytics — page views, referrers, and configured product events. No ad pixels or cross-site advertising profiles.</p>
           <p><span class="k">How long</span>Per Vercel's retention. It contains nothing that identifies you personally.</p>
         </div>
       </div>

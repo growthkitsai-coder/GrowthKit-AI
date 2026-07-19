@@ -873,6 +873,7 @@
         renderActions(company, website, competitors, moves);
         if (!fast) saveProfile(answers);
         saveRead(company, competitors, moves, lastJson);
+        if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH({ generateDaily: true });
         if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', mode: mode, vendors: (lastJson.market_map && lastJson.market_map.vendors ? lastJson.market_map.vendors.length : 0) } });
       } catch (err) {
         fail((err && err.message) ? err.message : 'Something went wrong — please try again.');
@@ -896,33 +897,16 @@
       } catch (e) {}
     }
 
-    function shareUrl(company, website, competitors, moves) {
-      var qs = '?co=' + encodeURIComponent(company);
-      if (website) qs += '&w=' + encodeURIComponent(website);
-      if (competitors) qs += '&c=' + encodeURIComponent(competitors);
-      if (moves) qs += '&m=' + encodeURIComponent(moves);
-      return location.origin + '/four' + qs;
-    }
-
     function renderActions(company, website, competitors, moves) {
       if (!actionsEl) return;
       actionsEl.innerHTML = '';
       var mk = function (lbl, cls) { var b = document.createElement('button'); b.type = 'button'; b.className = 'gk-act ' + (cls || ''); b.innerHTML = lbl; actionsEl.appendChild(b); return b; };
-      var again = mk('Analyse another company', 'gk-act-go');
-      again.addEventListener('click', function () { restart(true); });
-      var cLink = mk('Copy share link');
-      cLink.addEventListener('click', function () { copy(shareUrl(company, website, competitors, moves), cLink, 'Copy share link'); });
+      var daily = mk('Open daily brief', 'gk-act-go');
+      daily.addEventListener('click', function () {
+        if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH({ generateDaily: true, scroll: true });
+      });
       var pdf = mk('Save as PDF');
       pdf.addEventListener('click', function () { window.print(); });
-    }
-
-    function copy(text, btn, original) {
-      var done = function () { btn.innerHTML = 'Copied ✓'; setTimeout(function () { btn.innerHTML = original; }, 1600); };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
-      else { fallbackCopy(text); done(); }
-    }
-    function fallbackCopy(text) {
-      try { var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } catch (e) {}
     }
 
     // Enter within the form (e.g. a text step) advances rather than reloading.
@@ -932,19 +916,6 @@
     renderStep();
     ensureProfile();
 
-    // Share-link prefill (full page) → fast-track, fill + auto-run.
-    if (full) {
-      try {
-        var sp = new URLSearchParams(location.search), co = sp.get('co');
-        if (co) {
-          answers.company = co;
-          if (sp.get('w')) answers.website = sp.get('w');
-          if (sp.get('c')) answers.competitors = sp.get('c');
-          touched = true;
-          run({ auto: true });
-        }
-      } catch (e) {}
-    }
   }
 
   function boot() {

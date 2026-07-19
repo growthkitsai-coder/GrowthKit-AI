@@ -4,14 +4,15 @@
 
 ## What it is
 
-Custom-designed **`/login`** and **`/signup`** (email + password **and** Google **and** GitHub), **`/reset`** (password reset), and **`/four`** — which is now **the product itself, behind login**: the GrowthKit Live tool, gated so only signed-in users reach it, with each user's past reads saved to their account. Auth is **Supabase Auth**, loaded from a CDN — no build step, no auth server of ours. Supabase stores every user, hashes passwords, manages sessions, sends the confirmation + reset emails, and runs the Google/GitHub OAuth flows. All four pages are `noindex` and out of the sitemap. The public tool page `/advisor` is **retired** — it now redirects to `/four`, and the homepage shows a "create a free account / log in" CTA instead of the embedded tool. (Microsoft/Azure was dropped 2026-07-05 — personal-MSA tenant setup was too painful; the OAuth wiring is generic `data-auth-oauth`, so any Supabase provider can be re-added by dropping in a button.)
+Custom-designed **`/login`** and **`/signup`** (email + password **and** Google **and** GitHub), **`/reset`** (password reset), and **`/four`**, the signed-in product dashboard. Supabase Auth stores users, hashes passwords, manages sessions, sends confirmation/reset emails, and runs sign-in OAuth. Everyone may create an account; private-beta allowlisted accounts receive free Pro-equivalent access, and everyone else can subscribe to Pro. `/four` then enforces one company and one initial full report before switching to daily intelligence and read-only data connections. All four pages are `noindex` and out of the sitemap.
 
 ## Files
 
 - `login.html` / `signup.html` / `reset.html` / `four.html` — pages (`<body data-auth-page="…">`). No footer; minimal top bar.
-- **`auth.css`** — shared card/form styling + the `/four` tool-page + read-history styling (light + dark).
+- **`auth.css`** — shared card/form styling + the `/four` dashboard, daily brief, integration, and legacy read-history styling (light + dark). Below 680px the header keeps the status dot/sign-out/theme controls and hides the account email label so the bar cannot overflow.
 - **`auth.js`** — creates the Supabase client; wires each page by `data-auth-page`; email/password sign-up + sign-in; **OAuth via `data-auth-oauth="google|github"`** (generic — any Supabase provider works by adding a button); password reset; remember-me; **redirect-if-already-signed-in** (login/signup bounce to `/four`); and on `/four` the **gate** (redirect to `/login` if not signed in, reveal the app if signed in) + **loads the user's saved reads**.
-- **`advisor.js` / `advisor.css`** — the engine itself, reused on `/four`. As of **2026-07-05** the tool takes a **company name (+ optional website + one-liner)**, web-searches for competitors, and renders a full **specimen-grade JSON deliverable** (market map, teardown, gaps, 90-day plan, sources) — see [`docs/advisor.md`](advisor.md). `advisor.js` attaches the Supabase access token to `/api/advise`, **saves each deliverable** to Supabase (`window.GK_SAVE_READS`), and exposes `GKAdvisor.render()` (JSON-aware, with a legacy fallback for older text reads) so `/four` can re-view a saved deliverable.
+- **`advisor.js` / `advisor.css`** — the one-time full-report wizard and specimen-grade renderer. It attaches the Supabase access token to `/api/advise`; the server reserves the user's company before generation and persists the authoritative baseline. Legacy `reads` entries remain viewable.
+- **`product.js`** — loads `/api/account`, switches `/four` between upgrade/onboarding/daily states, renders daily briefs, and manages Stripe/Google Analytics/LinkedIn connections. See [`daily-intelligence.md`](daily-intelligence.md) and [`integrations.md`](integrations.md).
 - **`auth-config.js`** — paste `SUPABASE_URL` + `SUPABASE_ANON_KEY` (+ `REDIRECT_AFTER_LOGIN='/four'`). **Until filled, pages show "not configured" and disable the forms.**
 - Supabase SDK per page from `cdn.jsdelivr.net/npm/@supabase/supabase-js@2` (before `auth-config.js`, then `auth.js`, then `advisor.js` on `/four`).
 
@@ -63,7 +64,7 @@ The `reads` and `profiles` tables are independent; the tool works without `profi
 
 **7. Paste the two values into `auth-config.js`, commit, deploy.** Sign-in + the gated tool are now live.
 
-**8. (Recommended) Gate the API too.** So `/api/advise` can't be run anonymously, add the same two values as **Vercel env vars** (Project → Settings → Environment Variables): **`SUPABASE_URL`** and **`SUPABASE_ANON_KEY`**. When present, the function requires a valid Supabase token on every call (it verifies via Supabase's `/auth/v1/user`). When absent, the API stays open — so set these once auth is working. ⚠ Make sure they're on the **same Vercel project that serves growthkitai.com** (there's a known duplicate-project trap — see `docs/advisor.md`).
+**8. Configure the server gate.** Add **`SUPABASE_URL`**, **`SUPABASE_ANON_KEY`**, and **`SUPABASE_SERVICE_ROLE_KEY`** as Vercel server env vars. Product APIs fail closed when these are absent; the service-role value must never appear in browser code. Run the workspace migration linked from [`daily-intelligence.md`](daily-intelligence.md). Make sure all values are on the same Vercel project that serves growthkitai.com.
 
 ## Flows (auth.js / advisor.js)
 
@@ -71,12 +72,12 @@ The `reads` and `profiles` tables are independent; the tool works without `profi
 - **Log in / Google / GitHub:** `signInWithPassword` / `signInWithOAuth({provider:'google'|'github', options:{redirectTo: origin+'/four'}})` → `/four`.
 - **Already signed in** on `/login` or `/signup` → auto-redirect to `/four`.
 - **Reset:** `resetPasswordForEmail(email,{redirectTo: origin+'/reset'})` → `/reset` detects `PASSWORD_RECOVERY` → set-new-password → `updateUser({password})`.
-- **`/four` (gated):** `getSession()`; if signed in → reveal the tool + email + Sign out, set `window.GK_SAVE_READS=true`, and load the user's saved reads (most recent 12) into the history panel; if not → redirect to `/login`. Clicking a saved read re-renders it via `GKAdvisor.render`.
+- **`/four` (gated):** `getSession()` redirects signed-out visitors to `/login`. Signed-in users get a server-authoritative access/workspace state from `/api/account`; no-access accounts see the Pro upgrade, eligible new accounts see onboarding, and completed accounts see today's daily brief plus connected-data controls.
 - **`/four` onboarding (redesigned 2026-07-08):** the signed-in user goes through a **13-step adaptive wizard** covering the full ~25-question startup profile — fast single-choice screens (industry, stage, adaptive business model) plus themed **grouped** screens (Nutshell, Team, Product, Customers, Traction, Market & competition, Pricing & funding), then a review → one "Generate deliverable" button → the web-searching engine, then a premium animated loading sequence. It's mostly multiple-choice, with text only where a question is genuinely open. A **fast-track** link on the first screen generates from just a company name. `advisor.js` renders the steps from its `STEPS` config, serializes the answers into a labelled `profile_text`, and **upserts the answers object to Supabase `profiles`** (one JSON row per user) so the wizard pre-fills next time. See [`docs/advisor.md`](advisor.md).
-- **Every read** is inserted into `reads` (user_id defaults to `auth.uid()`); `/api/advise` is called with `Authorization: Bearer <supabase access token>`.
+- **One full report** is stored authoritatively in `product_workspaces`; the older `reads` table remains a browser-readable history mirror for compatibility. `/api/advise` and all product APIs require `Authorization: Bearer <supabase access token>`.
 - **Remember me** routes the session to `localStorage` (default) vs `sessionStorage`; `flowType:'implicit'`.
 
 ## Notes / still open
 
-- **No real dashboard yet** — `/four` is the tool + saved reads; there's no other product-behind-login surface. Route-gating is client-side on `/four` plus the server-side API check.
+- `/four` is now the dashboard: one-time report onboarding, daily briefs, billing state, integration setup, and legacy reads. Route visibility is client-side, but every paid/beta capability is enforced by server APIs.
 - Routing: `vercel.json` has clean URLs for `/login /signup /reset /four` (all in the checker's `NO_SITEMAP` + `NO_FOOTER`); `/advisor` + `/advisor.html` **redirect to `/four`**. "Log in" is in every marketing top bar; the footer "Growth Advisor" link points to `/four`. Supabase CDN is the only new external dependency.
