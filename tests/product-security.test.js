@@ -52,12 +52,37 @@ test('daily contract requires all sections and exactly three moves', function ()
     market_competitor_movement: [],
     own_metrics: [],
     market_signals: [],
-    next_moves: [{}, {}, {}],
+    next_moves: [1, 2, 3].map(function (priority) {
+      return {
+        priority: priority,
+        finding: 'Specific finding ' + priority,
+        action: 'Run test ' + priority,
+        because: 'Evidence supports it',
+        checklist: ['Define the test', 'Launch the test', 'Review the result']
+      };
+    }),
     founder_to_talk_to: {},
     tool_prompt: {},
     sources: []
   };
   assert.equal(validBrief(brief), true);
   brief.next_moves.pop();
+  assert.equal(validBrief(brief), false);
+});
+
+test('daily contract rejects a move without a three-step checklist', function () {
+  const brief = {
+    lead: { headline: 'Signal' },
+    market_competitor_movement: [],
+    own_metrics: [],
+    market_signals: [],
+    next_moves: [1, 2, 3].map(function (priority) {
+      return { priority: priority, finding: 'Finding', action: 'Act', because: 'Why', checklist: ['One', 'Two', 'Three'] };
+    }),
+    founder_to_talk_to: {},
+    tool_prompt: {},
+    sources: []
+  };
+  brief.next_moves[1].checklist = ['Only one'];
   assert.equal(validBrief(brief), false);
 });

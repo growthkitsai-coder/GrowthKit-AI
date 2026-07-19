@@ -314,6 +314,9 @@
       var cards = '';
       for (var g = 0; g < d.gaps.length; g++) {
         var c = d.gaps[g], w = clamp(num(c.meter, 60), 0, 100);
+        var work = window.GKFindings && Array.isArray(c.checklist) && c.checklist.length === 3
+          ? window.GKFindings.shell({ findingKey: 'gap-' + pad2(g + 1), finding: c.title, nextMove: c.next_move, company: d.subject.name })
+          : '';
         cards += '<div class="gap-card in" style="--w:' + w + '%">'
           + '<div class="ghost" aria-hidden="true">' + pad2(g + 1) + '</div>'
           + '<div class="top-row"><span class="tag">' + esc(c.tag || ('Gap ' + pad2(g + 1))) + '</span>'
@@ -321,6 +324,7 @@
           + '<h3>' + richEm(c.title) + '</h3>'
           + '<p>' + esc(c.body) + '</p>'
           + '<div class="gap-meter"><span>opening</span><span class="bar"><i></i></span><span>' + w + '</span></div>'
+          + work
           + '</div>';
       }
       html += sec('Gap analysis', '<div class="gap-grid">' + cards + '</div>');
@@ -867,6 +871,7 @@
         await wait(520); // let the sequence settle to 100% before the reveal
         if (deliverableEl) {
           deliverableEl.innerHTML = renderDeliverable(lastJson);
+          if (window.GKFindings) window.GKFindings.hydrate(deliverableEl, { scope: 'full_report' });
           root.classList.remove('is-running');
           root.classList.add('is-done'); // hides the wizard, reveals the deliverable
         }
@@ -931,7 +936,11 @@
     if (!container) return false;
     var obj = null;
     try { obj = JSON.parse(raw); } catch (e) {}
-    if (obj && obj.subject) { container.innerHTML = renderDeliverable(obj); return true; }
+    if (obj && obj.subject) {
+      container.innerHTML = renderDeliverable(obj);
+      if (window.GKFindings) window.GKFindings.hydrate(container, { scope: 'full_report' });
+      return true;
+    }
     container.innerHTML = renderLegacy(raw || '');
     return true;
   }

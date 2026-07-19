@@ -86,8 +86,17 @@
       return '<li><strong>' + esc(m.label) + '</strong><span class="daily-metric">' + esc(m.value) + '</span><span>' + esc(m.delta) + '</span><small>' + esc(m.source) + '</small></li>';
     }).join('');
     var signals = (b.market_signals || []).map(movementItem).join('');
-    var moves = (b.next_moves || []).map(function (m) {
-      return '<li><span class="daily-priority">0' + esc(m.priority) + '</span><div><strong>' + esc(m.action) + '</strong><span>' + esc(m.because) + '</span></div></li>';
+    var moves = (b.next_moves || []).map(function (m, moveIndex) {
+      var finding = m.finding || m.action;
+      var work = window.GKFindings && m.finding && Array.isArray(m.checklist) && m.checklist.length === 3
+        ? window.GKFindings.shell({
+          findingKey: 'move-0' + (moveIndex + 1),
+          finding: finding,
+          nextMove: m.action,
+          company: accountCache && accountCache.workspace && accountCache.workspace.company_name
+        })
+        : '';
+      return '<li><span class="daily-priority">0' + esc(m.priority) + '</span><div><strong>' + esc(finding) + '</strong><span>' + esc(m.because) + '</span>' + work + '</div></li>';
     }).join('');
     var founder = b.founder_to_talk_to || {};
     var founderUrl = safeUrl(founder.public_url);
@@ -112,6 +121,7 @@
       '</details>';
     host.style.display = '';
     if (state) state.style.display = 'none';
+    if (window.GKFindings) window.GKFindings.hydrate(host, { scope: 'daily_brief', date: row.brief_date || b.brief_date });
   }
 
   function renderDailyHistory(rows) {

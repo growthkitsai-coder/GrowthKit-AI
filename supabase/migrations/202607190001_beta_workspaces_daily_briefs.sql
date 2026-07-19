@@ -71,6 +71,7 @@ comment on table public.integration_connections is
   'AES-256-GCM encrypted OAuth credentials. Never expose ciphertext to clients.';
 
 -- Support reset procedure (run manually after verifying the request):
+-- delete from public.finding_tasks where user_id = '<uuid>';
 -- delete from public.daily_briefs where user_id = '<uuid>';
 -- delete from public.integration_connections where user_id = '<uuid>';
 -- delete from public.reads where user_id = '<uuid>';

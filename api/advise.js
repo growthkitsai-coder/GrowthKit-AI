@@ -154,14 +154,26 @@ const SYSTEM_PROMPT = [
   '    "gap": { "label": string (short, e.g. "the gap"), "sub": string (one line, e.g. "deep workflow · owner-operator price"), "x": number 0–100 (left edge), "y": number 0–100 (bottom edge), "w": number 0–100 (width), "h": number 0–100 (height) }',
   '  },',
   '  "teardown": [ { "name": string, "tag": string (2–4 word label, e.g. "enterprise incumbent"), "wedge": string (1–2 sentences: their wedge and go-to-market motion), "price": string (short, e.g. "$129/seat/mo"), "price_note": string (e.g. "monthly, per-seat"), "soft": string (1–2 sentences: the specific opening they leave — where they are soft, slow, or over-serving) } ]  (exactly 4 competitors),',
-  '  "gaps": [ { "tag": string (e.g. "Gap 01"), "title": string (a sharp headline, may wrap one key word in <em>…</em> for emphasis), "body": string (2–3 sentences on the opening and why it is real), "score": string (e.g. "7.4"), "score_label": string (e.g. "opportunity"), "meter": number 0–100 (fill for the strength bar) } ]  (exactly 3 gaps),',
+  '  "gaps": [ { "tag": string (e.g. "Gap 01"), "title": string (a sharp headline, may wrap one key word in <em>…</em> for emphasis), "body": string (2–3 sentences on the opening and why it is real), "score": string (e.g. "7.4"), "score_label": string (e.g. "opportunity"), "meter": number 0–100 (fill for the strength bar), "next_move": string (one specific test, pricing change, messaging change, or operating move the founder can execute this week), "checklist": [string, string, string] (exactly 3 short steps that complete next_move, each starting with a verb) } ]  (exactly 3 gaps),',
   '  "plan": [ { "horizon": string (e.g. "Days 1–30"), "title": string (the play, may use <em>…</em>), "body": string (1–2 sentences on the move), "first_move": string (the concrete first action), "kill": string (the signal that says stop) } ]  (exactly 6 plays across the 90 days),',
   '  "citations": [ { "title": string, "url": string } ]  (3–8 of the actual sources you used),',
   '  "note": string (one honest line: this is an AI first-draft from live web research — verify key numbers — and what the full monthly GrowthKit deliverable adds beyond it)',
   "}",
   "",
-  "Rules: valid JSON only (double-quoted keys/strings, no trailing commas, no comments). Do not escape the <em> tags — write them literally inside the relevant string values. Keep every string tight and skimmable. Be specific to THIS company's real market; never generic advice that would fit any startup."
+  "Rules: valid JSON only (double-quoted keys/strings, no trailing commas, no comments). Do not escape the <em> tags — write them literally inside the relevant string values. Every gap must lead directly to its next_move and checklist; make the move executable this week, not a generic recommendation. Keep every string tight and skimmable. Be specific to THIS company's real market; never generic advice that would fit any startup."
 ].join('\n');
+
+function validDeliverable(deliverable) {
+  return Boolean(
+    deliverable && deliverable.subject && deliverable.subject.name &&
+    Array.isArray(deliverable.gaps) && deliverable.gaps.length === 3 &&
+    deliverable.gaps.every(function (gap) {
+      return gap && gap.title && gap.next_move &&
+        Array.isArray(gap.checklist) && gap.checklist.length === 3 &&
+        gap.checklist.every(function (task) { return typeof task === 'string' && task.trim(); });
+    })
+  );
+}
 
 function buildUserMessage({ company, website, competitors, moves, profile }) {
   const parts = [
@@ -380,7 +392,7 @@ module.exports = async function handler(req, res) {
   }
 
   const deliverable = extractJson(answer);
-  if (deliverable && deliverable.subject) {
+  if (validDeliverable(deliverable)) {
     const saved = await completeWorkspace(user.id, deliverable);
     if (saved) send({ type: 'done', deliverable: deliverable, first_daily_brief_ready: true });
     else {
@@ -402,3 +414,5 @@ module.exports = async function handler(req, res) {
   }
   res.end();
 };
+
+module.exports.validDeliverable = validDeliverable;
