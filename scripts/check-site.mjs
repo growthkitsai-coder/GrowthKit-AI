@@ -22,6 +22,8 @@
  *      clean URL, an existing file, or a real #anchor.
  *   7. SCRIPT_URL sync — waitlist.html and status.html must hold the same,
  *      non-empty Apps Script URL.
+ *   8. CSS structure — every root stylesheet must have balanced braces outside
+ *      comments and strings, so a broken media block cannot swallow page rules.
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -154,10 +156,42 @@ if (!wl) fail('waitlist.html: SCRIPT_URL is missing or empty');
 if (!st) fail('status.html: SCRIPT_URL is missing or empty');
 if (wl && st && wl !== st) fail('SCRIPT_URL differs between waitlist.html and status.html — update both when redeploying the Apps Script');
 
+// ── 8. CSS blocks must be structurally balanced ────────────────────────────
+const cssFiles = readdirSync(ROOT).filter((f) => f.endsWith('.css'));
+const cssBraceIssue = (src) => {
+  let depth = 0;
+  let quote = '';
+  let inComment = false;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i], next = src[i + 1];
+    if (inComment) {
+      if (ch === '*' && next === '/') { inComment = false; i++; }
+      continue;
+    }
+    if (quote) {
+      if (ch === '\\') { i++; continue; }
+      if (ch === quote) quote = '';
+      continue;
+    }
+    if (ch === '/' && next === '*') { inComment = true; i++; continue; }
+    if (ch === '"' || ch === "'") { quote = ch; continue; }
+    if (ch === '{') depth++;
+    if (ch === '}' && --depth < 0) return 'has an unmatched closing brace';
+  }
+  if (inComment) return 'has an unclosed comment';
+  if (quote) return 'has an unclosed string';
+  if (depth) return `has ${depth} unclosed block${depth === 1 ? '' : 's'}`;
+  return '';
+};
+for (const file of cssFiles) {
+  const issue = cssBraceIssue(read(file));
+  if (issue) fail(`${file}: ${issue}`);
+}
+
 // ── Report ──────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`✗ ${failures.length} consistency problem(s):\n`);
   for (const f of failures) console.error('  • ' + f);
   process.exit(1);
 }
-console.log(`✓ ${publicPages.length} public pages checked — placeholders, sitemap/vercel parity, SEO heads, footers, logo.html isolation, internal links, SCRIPT_URL sync all consistent.`);
+console.log(`✓ ${publicPages.length} public pages checked — placeholders, sitemap/vercel parity, SEO heads, footers, logo.html isolation, internal links, SCRIPT_URL sync, and CSS structure all consistent.`);
