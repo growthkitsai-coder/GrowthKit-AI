@@ -30,7 +30,8 @@ module.exports = async function handler(req, res) {
       allowed: access.allowed,
       plan: access.plan,
       status: access.status,
-      reason: access.reason
+      reason: access.reason,
+      expires_at: access.expires_at || null
     },
     workspace: w ? {
       company_name: w.company_name,

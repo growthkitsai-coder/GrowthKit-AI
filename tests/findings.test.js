@@ -5,21 +5,21 @@ const assert = require('node:assert/strict');
 const { extractFindings } = require('../lib/findings');
 const advise = require('../api/advise');
 
-test('full report findings require concrete moves and three generated tasks', function () {
+test('full report gap stage requires concrete moves and three generated tasks', function () {
   const report = {
     subject: { name: 'Acme' },
     gaps: [1, 2, 3].map(function (n) {
       return { title: 'Gap <em>' + n + '</em>', next_move: 'Test ' + n, checklist: ['Define', 'Launch', 'Review'] };
     })
   };
-  assert.equal(advise.validDeliverable(report), true);
+  assert.equal(advise.validStage('gap_analysis', report), true);
   assert.deepEqual(extractFindings('full_report', report)[0], {
     key: 'gap-01',
     title: 'Gap 1',
     tasks: ['Define', 'Launch', 'Review']
   });
   report.gaps[2].checklist.pop();
-  assert.equal(advise.validDeliverable(report), false);
+  assert.equal(advise.validStage('gap_analysis', report), false);
 });
 
 test('daily findings use stable move keys and ignore legacy briefs', function () {

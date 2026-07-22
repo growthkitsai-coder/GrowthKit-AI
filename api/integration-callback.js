@@ -1,6 +1,8 @@
 'use strict';
 
 const { readState, exchangeCode, siteUrl } = require('../lib/integrations');
+const { checkAccess } = require('../lib/subscriptions');
+const { getAuthUser } = require('../lib/product');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -18,6 +20,9 @@ module.exports = async function handler(req, res) {
     return;
   }
   try {
+    const user = await getAuthUser(state.user_id);
+    const access = user && await checkAccess(user);
+    if (!access || !access.allowed) throw new Error('subscription required');
     const saved = await exchangeCode(state.provider, String(code), state, req);
     if (!saved) throw new Error('connection could not be saved');
     res.statusCode = 302;

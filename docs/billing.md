@@ -6,21 +6,19 @@ Single home for **paid subscriptions**: the three serverless functions, the Supa
 
 ## What paid access means today (the beta gate)
 
-Access to the product APIs is decided by `checkAccess()` in [`lib/subscriptions.js`](../lib/subscriptions.js), in this order:
+Access to paid product capabilities is decided by `checkAccess()` in [`lib/subscriptions.js`](../lib/subscriptions.js), in this order:
 
-1. **Paid Pro subscription** — an `active` or `trialing` row in the `subscriptions` table.
+1. **Paid Pro or Agentic subscription** — an `active` or `trialing` row in the `subscriptions` table.
 2. **Explicit open beta** — only when `GK_BETA_ENABLED` is not `0` and `GK_BETA_OPEN=1` exactly.
 3. **Private beta allowlist** — while beta is enabled, a normalized email in the private, comma-separated `GK_BETA_EMAILS` value receives Pro-equivalent access.
 
-Everything else fails closed with **402** `{ code: "subscription_required" }`; users may still create an account and buy Pro. Email matching trims and lowercases both sides. **To halt all free beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
+Everything else is the **Free** tier and fails closed with **402** `{ code: "subscription_required" }` on generation, daily-intelligence, and integration endpoints. Free users may save onboarding and see the locked dashboard preview/specimen. Email matching trims and lowercases both sides. `GK_BETA_EXPIRES_AT` optionally sets a global ISO-8601 beta cutoff; invalid or elapsed configured values fail closed. **To halt all beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
 
-Beta and paid accounts share the same product limits: one company, one initial full report, then daily briefs. See [`daily-intelligence.md`](daily-intelligence.md).
+Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: one company, one initial full report, then daily briefs. When access ends, the completed full report remains readable through authenticated GET/report history, but report generation/retries, daily briefs, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
 
 ## Plans
 
-**One paid plan today: "Pro" monthly**, Stripe price `price_1TuYYfIVRk8akpLyNoKcatRw` (override with the `STRIPE_PRICE_PRO` env var). The free Pilot tier is **not** in Stripe (invite-only from the waitlist).
-
-> ⚠ **Pricing-page mismatch (open decision).** `pricing.html` still markets **two** paid tiers — Basic $30 and Premium Agentic $200 — but Stripe has only the single Pro price, so **both** "Get started" buttons currently start the *same* Pro subscription. Reconcile before charging real customers: either create real Basic + Premium Stripe prices (and wire each button with `data-gk-price="price_…"`), or collapse `pricing.html` to one Pro plan. `pricing.html` is the documented source of truth for prices (Product JSON-LD in its head) — keep it, the index FAQ, and Stripe in sync.
+Exactly three public tiers: **Free $0**, **Pro $30/month**, and **Agentic $200/month**. Free is not in Stripe. Pro defaults to Stripe price `price_1TuYYfIVRk8akpLyNoKcatRw` (override with `STRIPE_PRICE_PRO`); Agentic requires `STRIPE_PRICE_AGENTIC`. Checkout accepts only the server-side plan keys `pro|agentic` and maps them to those env-controlled prices—arbitrary client price IDs are rejected. Stripe subscription metadata and the webhook preserve the selected plan. Existing active subscribers are sent to the Customer Portal instead of creating a duplicate subscription.
 
 ## Files
 
@@ -68,6 +66,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `STRIPE_SECRET_KEY` | Prod (+ Preview) | Stripe API calls (`sk_live_…` / `sk_test_…`) |
 | `STRIPE_WEBHOOK_SECRET` | Prod (+ Preview) | `whsec_…` signing secret from the webhook endpoint |
 | `STRIPE_PRICE_PRO` | Prod (+ Preview) | Pro price id (optional — defaults to the known id) |
+| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic $200/month price id; required before Agentic checkout works |
 | `SUPABASE_URL` | Prod | already set for auth; token verification + PostgREST base |
 | `SUPABASE_ANON_KEY` | Prod | already set; verifies user access tokens |
 | `SUPABASE_SERVICE_ROLE_KEY` | Prod | **NEW** — server-only; lets the webhook write `subscriptions` |
@@ -75,17 +74,18 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `GK_BETA_ENABLED` | Prod | `0` immediately disables all free beta access; otherwise allowlist/open-beta checks may run |
 | `GK_BETA_OPEN` | Prod | `1` explicitly opens free beta to every account; unset/other values fail closed |
 | `GK_BETA_EMAILS` | Prod | private comma-separated beta emails; normalize, deduplicate, and never commit this value |
+| `GK_BETA_EXPIRES_AT` | Prod | optional ISO-8601 cutoff for all beta grants; invalid/past values fail closed |
 
 ## Stripe dashboard setup (one-time)
 
-1. **Product + Price:** create the **Pro** product with a **monthly recurring** price → that's `price_1TuYYfIVRk8akpLyNoKcatRw` (or set `STRIPE_PRICE_PRO`).
+1. **Products + Prices:** keep the Pro monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`); create Agentic at $200/month and set `STRIPE_PRICE_AGENTIC`.
 2. **Webhook endpoint:** Developers → Webhooks → Add endpoint → `https://growthkitai.com/api/stripe-webhook`. Select events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`. Copy the **Signing secret** → `STRIPE_WEBHOOK_SECRET`.
-3. **Customer Portal:** Settings → Billing → Customer portal → activate (allow cancel/update payment method) so `/api/portal` works.
+3. **Customer Portal:** activate cancel/update payment method **and plan switching between Pro and Agentic** so existing customers can change tiers without a duplicate subscription.
 4. Set all env vars above, then **redeploy**.
 
 ## Flow
 
-- **Subscribe:** `/pricing` or `/four` button (`data-gk-checkout`) → `POST /api/checkout` (with token) → Stripe Checkout → success returns to `/four?checkout=success`, cancel to `/pricing`. Signed-out users are sent to `/signup` first.
+- **Subscribe:** `/pricing` or `/four` button (`data-gk-checkout data-gk-plan="pro|agentic"`) → `POST /api/checkout {plan}` (with token) → Stripe Checkout → success returns to `/four?checkout=success`, cancel to `/pricing`. Signed-out users are sent to `/signup`; the selected plan is preserved in session storage and resumed on `/four`.
 - **Manage/cancel:** `/four` "Manage billing" (`data-gk-portal`) → `POST /api/portal` → Stripe Customer Portal → returns to `/four`.
 - **Truth sync:** every subscription change → Stripe webhook → `upsertSubscription()` → `subscriptions` row. `api/advise.js` reads that row on every run.
 

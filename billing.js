@@ -5,7 +5,7 @@
    window.GKAuth.client exists). This is UX ONLY — access is enforced
    server-side in api/advise.js. Here we just:
      • [data-gk-checkout]  → POST /api/checkout, redirect to Stripe (or /signup
-                             if not signed in). Optional [data-gk-price="price_…"].
+                             if not signed in). [data-gk-plan] is pro|agentic.
      • [data-gk-portal]    → POST /api/portal, redirect to the Stripe portal.
      • [data-gk-billing]   → (optional container on /four) render the user's plan
                              status + the right button (Upgrade vs Manage).
@@ -37,13 +37,22 @@
 
   // Start Stripe Checkout. Signed-out visitors go to /signup first (they land on
   // /four, where they can subscribe).
-  function checkout(price) {
+  function checkout(plan) {
     return token().then(function (tok) {
-      if (!tok) { go('/signup?next=' + nextParam()); return; }
-      return post('/api/checkout', tok, price ? { price: price } : {}).then(function (x) {
-        if (x.ok && x.data && x.data.url) go(x.data.url);
-        else alert((x.data && x.data.error) || 'Could not start checkout. Please try again.');
-      });
+      if (!tok) {
+        try { sessionStorage.setItem('gk-checkout-plan', plan || 'pro'); } catch (_) {}
+        go('/signup?next=' + nextParam());
+        return;
+      }
+      return fetch('/api/account', { headers: { authorization: 'Bearer ' + tok } })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, data: data }; }); })
+        .then(function (account) {
+          if (account.ok && account.data && account.data.access && account.data.access.reason === 'subscription') return portal();
+          return post('/api/checkout', tok, { plan: plan || 'pro' }).then(function (x) {
+            if (x.ok && x.data && x.data.url) go(x.data.url);
+            else alert((x.data && x.data.error) || 'Could not start checkout. Please try again.');
+          });
+        });
     }).catch(function () { alert('Could not start checkout. Please try again.'); });
   }
 
@@ -68,12 +77,13 @@
       box.innerHTML = '<span class="four-billing-plan">Free account</span>' +
         '<button type="button" class="four-billing-btn" data-gk-checkout>Go Pro →</button>';
     }
-    function manage(status) {
-      box.innerHTML = '<span class="four-billing-plan is-pro">Pro · ' + status + '</span>' +
+    function manage(plan, status) {
+      var label = plan === 'agentic' ? 'Agentic' : 'Pro';
+      box.innerHTML = '<span class="four-billing-plan is-pro">' + label + ' · ' + status + '</span>' +
         '<button type="button" class="four-billing-btn" data-gk-portal>Manage billing</button>';
     }
     function beta() {
-      box.innerHTML = '<span class="four-billing-plan is-pro">Beta Pro · included</span>';
+      box.innerHTML = '<span class="four-billing-plan is-pro">Beta access · Pro included</span>';
     }
 
     token().then(function (tok) {
@@ -82,7 +92,7 @@
         .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
         .then(function (result) {
           var access = result.data && result.data.access;
-          if (result.ok && access && access.reason === 'subscription') manage(access.status);
+          if (result.ok && access && access.reason === 'subscription') manage(access.plan, access.status);
           else if (result.ok && access && access.allowed) beta();
           else upgrade();
           wire(box);
@@ -95,7 +105,7 @@
       if (el.__gkw) return; el.__gkw = 1;
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        checkout(el.getAttribute('data-gk-price') || undefined);
+        checkout(el.getAttribute('data-gk-plan') || 'pro');
       });
     });
     (root || document).querySelectorAll('[data-gk-portal]').forEach(function (el) {
@@ -104,7 +114,19 @@
     });
   }
 
-  function init() { wire(document); renderStatus(); }
+  function resumeCheckout() {
+    if (window.location.pathname !== '/four' && window.location.pathname !== '/four.html') return;
+    var plan = '';
+    try { plan = sessionStorage.getItem('gk-checkout-plan') || ''; } catch (_) {}
+    if (plan !== 'pro' && plan !== 'agentic') return;
+    token().then(function (tok) {
+      if (!tok) return;
+      try { sessionStorage.removeItem('gk-checkout-plan'); } catch (_) {}
+      checkout(plan);
+    });
+  }
+
+  function init() { wire(document); renderStatus(); setTimeout(resumeCheckout, 500); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 

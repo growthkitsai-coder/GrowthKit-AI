@@ -294,16 +294,12 @@ async function authenticated(req, res) {
   }
   const user = await verifyUserToken(bearer(req));
   if (!user) { res.status(401).json({ error: 'Your session has expired. Please sign in again.' }); return null; }
-  const access = await checkAccess(user);
-  if (!access.allowed) { res.status(402).json({ error: 'Upgrade to Pro to run the engine.', code: 'subscription_required' }); return null; }
   return user;
 }
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET' && req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed.' }); return; }
-  if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') { res.status(503).json({ error: 'GrowthKit Live is paused while we upgrade the engine.' }); return; }
-  if (!process.env.ANTHROPIC_API_KEY) { res.status(503).json({ error: 'The engine is not configured yet.' }); return; }
 
   const user = await authenticated(req, res);
   if (!user) return;
@@ -313,6 +309,11 @@ module.exports = async function handler(req, res) {
     res.status(200).json(publicState(workspaceResult.workspace, rows));
     return;
   }
+
+  const access = await checkAccess(user);
+  if (!access.allowed) { res.status(402).json({ error: 'Purchase Pro to generate your deliverable.', code: 'subscription_required' }); return; }
+  if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') { res.status(503).json({ error: 'GrowthKit Live is paused while we upgrade the engine.' }); return; }
+  if (!process.env.ANTHROPIC_API_KEY) { res.status(503).json({ error: 'The engine is not configured yet.' }); return; }
 
   const body = req.body && typeof req.body === 'object' ? req.body : {};
   const stage = clean(body.stage, 40);

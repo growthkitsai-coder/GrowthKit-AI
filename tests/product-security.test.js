@@ -29,7 +29,9 @@ test('OAuth state is signed and rejects tampering', function () {
   const state = createState('user-1', 'google_analytics');
   assert.equal(readState(state).user_id, 'user-1');
   assert.equal(readState(state).provider, 'google_analytics');
-  assert.equal(readState(state.slice(0, -1) + (state.endsWith('a') ? 'b' : 'a')), null);
+  const parts = state.split('.');
+  parts[1] = (parts[1][0] === 'a' ? 'b' : 'a') + parts[1].slice(1);
+  assert.equal(readState(parts.join('.')), null);
 });
 
 test('OAuth redirects fall back to the canonical site and LinkedIn read scope', function () {
