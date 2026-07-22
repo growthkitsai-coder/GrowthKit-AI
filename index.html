@@ -827,6 +827,16 @@
     background: var(--bg);
     border-bottom: 1px solid var(--line);
   }
+  .specimen-preview-title {
+    width: min(1180px, 100%);
+    margin: 0 auto 28px;
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(38px, 5vw, 64px);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
   .specimen-preview-frame {
     width: min(1180px, 100%);
     height: clamp(540px, 72vh, 760px);
@@ -2318,6 +2328,7 @@
 
   <!-- ====== SPECIMEN — scrollable page preview without its site header ====== -->
   <section class="specimen-preview" aria-label="Scrollable specimen preview">
+    <h2 class="specimen-preview-title">See GrowthKit AI <em>in action</em></h2>
     <div class="specimen-preview-frame">
       <iframe src="/specimen?embed=1" title="GrowthKit AI specimen — scroll to explore the sample deliverable" loading="lazy"></iframe>
     </div>

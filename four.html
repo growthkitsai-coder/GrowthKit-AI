@@ -81,14 +81,16 @@
     <div class="four-checking" data-four-checking>Checking your session…</div>
 
     <div class="four-app" data-four-app style="display:none">
-      <div class="four-head">
+      <!-- Welcome hero — cycling typewriter greeting -->
+      <section class="four-welcome" aria-labelledby="four-greeting-h">
         <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
-        <h1>Point the engine at <em>your</em> market.</h1>
+        <h1 class="four-greeting" id="four-greeting-h"><span class="four-greeting-text" data-four-greeting>Back to building, Founder.</span><span class="four-caret" aria-hidden="true"></span></h1>
+        <p class="four-sub">Your market intelligence workspace.</p>
         <p class="lede">Your first run creates one full market report and locks this account to that company. After that, GrowthKit watches the market daily and turns what changed into a 30-second brief and three next moves.</p>
         <!-- Billing status + Upgrade/Manage — populated by billing.js. -->
         <div class="four-billing" data-gk-billing></div>
         <div class="four-product-status" data-product-status role="status"></div>
-      </div>
+      </section>
 
       <section class="daily-panel" data-daily style="display:none">
         <div class="daily-head">
@@ -103,7 +105,38 @@
         <div class="daily-history" data-daily-history></div>
       </section>
 
-      <div class="gk-advisor" data-gk-advisor data-gk-full="1">
+      <!-- Short guide — two moves to your first report -->
+      <section class="four-guide" aria-label="Getting started">
+        <ol class="four-guide-steps">
+          <li class="four-guide-step">
+            <span class="four-guide-n">1</span>
+            <div class="four-guide-body">
+              <h3>Create your company</h3>
+              <p>Answer a few quick questions in the engine below — industry, stage, product, traction.</p>
+            </div>
+          </li>
+          <li class="four-guide-step">
+            <span class="four-guide-n">2</span>
+            <div class="four-guide-body">
+              <h3>Generate your first report</h3>
+              <p>The engine searches the live web, finds your real competitors, and dissects them.</p>
+            </div>
+          </li>
+          <li class="four-guide-step">
+            <span class="four-guide-n">3</span>
+            <div class="four-guide-body">
+              <h3>Act on it</h3>
+              <p>Market map, competitor teardown, gap analysis and a 90-day plan — saved to your account.</p>
+            </div>
+          </li>
+        </ol>
+        <div class="four-guide-cta">
+          <a class="four-cta-go" href="#gk-start">Create your company &amp; generate your first report →</a>
+          <a class="four-cta-ghost" href="#four-specimen">See a sample report first</a>
+        </div>
+      </section>
+
+      <div class="gk-advisor" data-gk-advisor data-gk-full="1" id="gk-start">
 
         <!-- Engine console — the adaptive onboarding wizard lives inside -->
         <div class="gk-console" data-gk-console>
@@ -190,6 +223,40 @@
         </div>
       </section>
 
+      <!-- A sample deliverable — scroll through the real specimen -->
+      <section class="four-specimen" id="four-specimen">
+        <div class="four-eyebrow"><span class="num">/</span>A sample deliverable</div>
+        <h2>This is what <em>you'll</em> get.</h2>
+        <p class="four-specimen-sub">A real GrowthKit deliverable — market map, competitor teardown, gap analysis and a 90-day plan. Scroll through it.</p>
+        <div class="four-specimen-frame">
+          <iframe src="/specimen" title="Sample GrowthKit deliverable — scroll to preview" loading="lazy"></iframe>
+          <div class="four-specimen-fade" aria-hidden="true"></div>
+        </div>
+        <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open the full specimen →</a>
+      </section>
+
+      <!-- Go Pro — clearly visible upgrade path -->
+      <section class="four-pro" data-four-pro>
+        <div class="four-pro-card">
+          <div class="four-pro-head">
+            <span class="four-pro-badge">Pro</span>
+            <h2>Go Pro — <em>continuous</em> market intelligence.</h2>
+          </div>
+          <p class="four-pro-lede">Everything in your free read, plus a refreshed deliverable set and always-on monitoring — so you catch market moves as they happen, not a quarter later.</p>
+          <ul class="four-pro-list">
+            <li>Full deliverable set, refreshed on a schedule</li>
+            <li>Continuous agentic competitor &amp; market monitoring</li>
+            <li>Mid-cycle alerts and plan re-cuts when your market shifts</li>
+            <li>Operator review on every refresh</li>
+          </ul>
+          <div class="four-pro-foot">
+            <button type="button" class="four-pro-btn" data-gk-checkout>Upgrade to Pro →</button>
+            <a class="four-pro-plans" href="/pricing">Compare plans &amp; pricing →</a>
+          </div>
+          <p class="four-pro-note">Secure checkout via Stripe · cancel anytime</p>
+        </div>
+      </section>
+
       <section class="reads" data-reads style="display:none">
         <div class="reads-head">
           <div class="four-eyebrow"><span class="num">/</span>Your reads</div>
@@ -214,4 +281,64 @@
 <script src="billing.js" defer></script>
 <script src="product.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
+<script>
+/* /four welcome — cycling typewriter greeting + hide the Pro card for existing subscribers */
+(function () {
+  var el = document.querySelector('[data-four-greeting]');
+  var caret = document.querySelector('.four-caret');
+  var PHRASES = [
+    'Back to building, Founder.',
+    'Welcome back, Builder.',
+    'Another day, another build.',
+    'Ready to build something bigger?',
+    'Back in the lab, Founder.',
+    'Welcome back to the command centre.',
+    'Your next move starts here, Founder.',
+    "Coffee acquired? Let's build, Founder.",
+    "The market won't analyse itself, Founder.",
+    'The idea factory is open.',
+    'Keep shipping, Founder.',
+    'Build mode: activated.',
+    'Founder mode: engaged.',
+    'Strategy mode: online.',
+    "Let's find your unfair advantage.",
+    'Time to outthink the market.'
+  ];
+  // Fisher–Yates shuffle so the order varies per visit.
+  for (var i = PHRASES.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = PHRASES[i]; PHRASES[i] = PHRASES[j]; PHRASES[j] = t; }
+
+  if (el) {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      el.textContent = PHRASES[0];
+      if (caret) caret.style.display = 'none';
+    } else {
+      var pi = 0, ci = 0, deleting = false;
+      el.textContent = '';
+      function tick() {
+        var p = PHRASES[pi];
+        if (!deleting) {
+          ci++; el.textContent = p.slice(0, ci);
+          if (ci >= p.length) { deleting = true; return setTimeout(tick, 2000); }
+        } else {
+          ci--; el.textContent = p.slice(0, ci);
+          if (ci <= 0) { deleting = false; pi = (pi + 1) % PHRASES.length; return setTimeout(tick, 360); }
+        }
+        setTimeout(tick, deleting ? 34 : 58);
+      }
+      setTimeout(tick, 450);
+    }
+  }
+
+  // billing.js marks the status pill .is-pro for active subscribers — hide the upsell card for them.
+  var pro = document.querySelector('[data-four-pro]');
+  if (pro) {
+    var tries = 0;
+    (function check() {
+      if (document.querySelector('[data-gk-billing] .is-pro')) { pro.style.display = 'none'; return; }
+      if (tries++ < 20) setTimeout(check, 300);
+    })();
+  }
+})();
+</script>
 </body></html>
