@@ -44,6 +44,8 @@
     var status = qs('[data-product-status]');
     var advisor = qs('[data-gk-advisor]');
     var daily = qs('[data-daily]');
+    var locked = qs('[data-locked-dashboard]');
+    var integrations = qs('[data-integrations]');
     var access = account && account.access || {};
     var workspace = account && account.workspace;
 
@@ -51,7 +53,9 @@
       if (!access.allowed) {
         status.innerHTML = '<span class="status-dot"></span>Free account · Pro required to generate reports';
       } else if (access.reason === 'beta-allowlist' || access.reason === 'beta-open') {
-        status.innerHTML = '<span class="status-dot"></span>Beta Pro access · included until beta closes';
+        status.innerHTML = '<span class="status-dot"></span>Beta access · Pro included for a limited period';
+      } else if (access.plan === 'agentic') {
+        status.innerHTML = '<span class="status-dot"></span>Agentic subscription · active';
       } else {
         status.innerHTML = '<span class="status-dot"></span>Pro subscription · active';
       }
@@ -62,10 +66,12 @@
 
     var fullDone = workspace && workspace.full_report_status === 'completed';
     var generating = workspace && workspace.full_report_status === 'generating';
-    if (advisor) advisor.style.display = access.allowed && (!fullDone || advisor.classList.contains('is-done')) ? '' : 'none';
+    if (advisor) advisor.style.display = (!workspace || access.allowed || fullDone) ? '' : 'none';
     if (daily) daily.style.display = access.allowed && fullDone ? '' : 'none';
-    if (fullDone) loadDaily(true);
-    loadIntegrations();
+    if (locked) locked.style.display = access.allowed ? 'none' : '';
+    if (integrations) integrations.style.display = access.allowed ? '' : 'none';
+    if (access.allowed && fullDone) loadDaily(true);
+    if (access.allowed) loadIntegrations();
   }
 
   function movementItem(item) {

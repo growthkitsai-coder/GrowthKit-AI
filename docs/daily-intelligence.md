@@ -4,8 +4,9 @@
 
 ## Product contract
 
-- Every beta or paid Pro account is tied to **one company**.
+- Every beta, Pro, or Agentic account is tied to **one company**.
 - The first-report pipeline locks the company before research, then checkpoints seven calls independently. The report becomes complete only when all public sections have been assembled; the internal research pack is never part of the visible report.
+- Daily brief GET and POST, the UTC cron, and connected-data APIs all call the same server-side entitlement gate. Free, canceled, past-due, and expired-beta accounts receive no new daily updates and cannot fetch daily history or use integrations. Their completed full report remains readable; this exception applies only to the report, not ongoing intelligence.
 - Failed/stale generations can retry the same company. A completed report cannot be regenerated. Support can reset a mistaken company manually after verifying the request to `info@growthkitai.com` (SQL is at the bottom of the migration). A reset clears the workspace, daily/legacy reads, saved profile, and provider connections so data from the mistaken company cannot leak into the replacement; the user must reconnect providers.
 - Immediately after the full report, `/four` requests the first daily brief. After that, a secured Vercel cron runs at **07:00 UTC/GMT** every day; opening `/four` also fills a missing brief for the current UTC date.
 - A daily brief is a 30-second read: one lead signal, collapsed detail, market/competitor movement, connected own metrics, market signals, three evidence-led findings with concrete moves, one founder to learn from, and one relevant GrowthKit tool prompt. Each new finding includes a persistent three-step checklist, founder-added tasks, and a finding-specific introduction email.

@@ -170,6 +170,14 @@ textarea.gk-input.gk-tall { min-height: 100px; }
 .gk-review-edit:hover { text-decoration: underline; }
 @media (max-width: 560px) { .gk-review-row { grid-template-columns: 1fr auto; } .gk-review-k { grid-column: 1 / -1; } }
 
+.gk-access-wall { padding: 12px 0 4px; text-align: left; }
+.gk-access-kicker { display: inline-block; margin-bottom: 12px; color: var(--accent, #1F4732); font: 10px 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.gk-access-wall h2 { max-width: 14ch; margin: 0; color: var(--ink, #14130F); font: 400 clamp(32px, 5vw, 48px)/1 'Instrument Serif', serif; }
+.gk-access-wall p { max-width: 62ch; margin: 18px 0 0; color: var(--muted, #6B6760); font-size: 14px; line-height: 1.65; }
+.gk-access-actions { display: flex; align-items: center; gap: 18px; margin-top: 24px; flex-wrap: wrap; }
+.gk-access-actions .gk-run { width: auto; margin: 0; padding: 13px 24px; }
+.gk-access-specimen { color: var(--accent, #1F4732); font-size: 13px; font-weight: 600; border-bottom: 1px solid currentColor; }
+
 /* Grouped step — several sub-questions on one themed screen */
 .gk-qfield { margin-bottom: 22px; }
 .gk-qfield:last-child { margin-bottom: 0; }
@@ -212,6 +220,9 @@ textarea.gk-input.gk-tall { min-height: 100px; }
 :root[data-theme="dark"] .gk-review-k { color: rgba(143,255,201,0.5); }
 :root[data-theme="dark"] .gk-review-v { color: #ECFBF3; }
 :root[data-theme="dark"] .gk-review-edit { color: var(--neon); }
+:root[data-theme="dark"] .gk-access-kicker, :root[data-theme="dark"] .gk-access-specimen { color: var(--neon); }
+:root[data-theme="dark"] .gk-access-wall h2 { color: #ECFBF3; }
+:root[data-theme="dark"] .gk-access-wall p { color: rgba(214,245,228,.7); }
 
 /* ── Output visibility gating ── */
 .gk-output { display: none; }

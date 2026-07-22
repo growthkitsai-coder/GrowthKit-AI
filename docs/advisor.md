@@ -4,6 +4,10 @@
 
 > **Status: enabled.** `api/advise.js` is live when configured; `GK_ADVISOR_DISABLED=1` remains the immediate cost kill switch. First reports use seven independently persisted calls with a 52-second server deadline, so one slow section can be retried without losing finished work.
 
+## Entitlement boundary
+
+`POST /api/advise` requires Pro, Agentic, or a current beta-Pro grant before it reserves a workspace or spends model tokens. The browser also checks `/api/account` after it has successfully saved onboarding, but that is UX only—the POST gate is authoritative. Free users end on a saved paywall with Upgrade to Pro and Read the specimen actions. `GET /api/advise` requires authentication and product storage, but deliberately does **not** require a current subscription, an Anthropic key, or an enabled engine: a completed report remains readable after cancellation/beta expiry. No POST section or retry is allowed after access ends.
+
 ## What it is
 
 The product, branded **GrowthKit Live**, lives **behind login at `/four`** (see [`docs/auth.md`](auth.md)). A signed-in founder is taken through a **premium, adaptive onboarding wizard** (redesigned 2026-07-08) — a progress bar, mostly **multiple-choice cards + chips**, with text only where a question is genuinely open. It's **13 steps** covering the full ~25-question startup profile: fast single-choice "spine" screens (**industry**, **stage**, adaptive **business model**) plus **themed grouped screens** (Nutshell, Team, Product, Customers, Traction, Market & competition, Pricing & funding) that each hold several sub-questions, then a **review**. The business-model step's title + options **adapt to the chosen industry**. A **fast-track** link on the first screen lets people in a hurry generate from just a company name. Either way the engine **actually searches the live web** (built-in `web_search` tool) to find and dissect that company's **real** competitors and returns a **full specimen-grade deliverable** — the same shape as [`specimen.html`](../specimen.html). More context just makes the deliverable sharper; the engine underneath is identical for the wizard and the fast-track.

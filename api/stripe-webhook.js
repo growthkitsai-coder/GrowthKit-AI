@@ -29,9 +29,13 @@
 const Stripe = require('stripe');
 const { upsertSubscription } = require('../lib/subscriptions');
 
-// Only one paid plan today. Map every subscription to 'pro'; add price→plan
-// logic here if more paid tiers get real Stripe prices later.
-function planFor(_sub) { return 'pro'; }
+function planFor(sub) {
+  const priceId = sub && sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price && sub.items.data[0].price.id;
+  if (process.env.STRIPE_PRICE_AGENTIC && priceId === process.env.STRIPE_PRICE_AGENTIC) return 'agentic';
+  if (priceId === (process.env.STRIPE_PRICE_PRO || 'price_1TuYYfIVRk8akpLyNoKcatRw')) return 'pro';
+  const metadataPlan = sub && sub.metadata && sub.metadata.plan;
+  return metadataPlan === 'agentic' ? 'agentic' : 'pro';
+}
 
 // current_period_end lives on the subscription in older Stripe API versions and
 // on the first item in newer ones — read both so we don't depend on the pin.
@@ -156,3 +160,4 @@ handler.config = { api: { bodyParser: false } };
 
 module.exports = handler;
 module.exports.config = handler.config;
+module.exports.planFor = planFor;

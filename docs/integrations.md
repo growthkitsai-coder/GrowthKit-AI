@@ -4,6 +4,7 @@
 
 ## Security model
 
+- Every list/connect/configure/disconnect request requires Pro, Agentic, or current beta-Pro access. The OAuth callback re-checks access before exchanging or saving a token, so an access lapse during provider consent fails closed.
 - OAuth begins with an authenticated `POST /api/integrations {action:"connect"}`; the API returns the provider consent URL.
 - OAuth state is HMAC-signed, contains the Supabase user id/provider/10-minute expiry, and is verified by `/api/integration-callback`.
 - Access and refresh tokens are encrypted with **AES-256-GCM** using `GK_INTEGRATION_ENCRYPTION_KEY` before storage in `integration_connections`.

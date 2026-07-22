@@ -632,7 +632,6 @@
 
     // ── Wire the current step's interactions ──
     function wire(step) {
-      touchOn();
       // nav
       var backBtn = wizardEl.querySelector('[data-gk-back]');
       if (backBtn) backBtn.addEventListener('click', back);
@@ -651,6 +650,7 @@
           btn.addEventListener('click', function () {
             var p = PRESETS[parseInt(btn.getAttribute('data-preset'), 10)];
             answers.company = p.company; answers.website = p.website;
+            touchOn();
             var ci = wizardEl.querySelector('[data-gk-input="company"]'); if (ci) ci.value = p.company;
             var wi = wizardEl.querySelector('[data-gk-input="website"]'); if (wi) { wi.value = p.website; }
             setNextEnabled(true); if (ci) ci.focus();
@@ -802,6 +802,10 @@
             if (r && !r.error && r.data && r.data.data && !touched && idx === 0 && !running) {
               var saved = r.data.data;
               for (var k in saved) if (saved.hasOwnProperty(k) && answers[k] == null) answers[k] = saved[k];
+              if (saved._onboarding_complete) {
+                var reviewIndex = stepIndexById('review');
+                if (reviewIndex !== -1) idx = reviewIndex;
+              }
               renderStep();
             }
           });
@@ -809,10 +813,40 @@
       });
     }
     function saveProfile(obj) {
-      if (!obj || !Object.keys(obj).length || !(window.GKAuth && window.GKAuth.client)) return;
-      getUid().then(function (uid) {
-        if (!uid) return;
-        try { window.GKAuth.client.from('profiles').upsert({ user_id: uid, data: obj, updated_at: new Date().toISOString() }).then(function () {}); } catch (e) {}
+      if (!obj || !Object.keys(obj).length || !(window.GKAuth && window.GKAuth.client)) return Promise.resolve(false);
+      return getUid().then(function (uid) {
+        if (!uid) return false;
+        try {
+          return window.GKAuth.client.from('profiles').upsert({ user_id: uid, data: obj, updated_at: new Date().toISOString() })
+            .then(function (r) { return !(r && r.error); }).catch(function () { return false; });
+        } catch (e) { return false; }
+      });
+    }
+
+    async function accountAccess() {
+      try {
+        var headers = await apiHeaders();
+        var res = await fetch('/api/account', { headers: headers });
+        var data = await res.json().catch(function () { return {}; });
+        return res.ok && data.access ? data.access : null;
+      } catch (e) { return null; }
+    }
+
+    function renderAccessWall() {
+      running = false;
+      root.classList.remove('is-running', 'is-done');
+      if (progressLabel) progressLabel.textContent = 'Onboarding saved';
+      if (progressFill) progressFill.style.width = '100%';
+      wizardEl.innerHTML = '<div class="gk-access-wall">'
+        + '<span class="gk-access-kicker">Your onboarding is saved</span>'
+        + '<h2>Purchase Pro to generate your deliverable.</h2>'
+        + '<p>Free accounts can complete onboarding and preview the dashboard, but the engine, daily intelligence, and connected data unlock with Pro. For the time being, read our specimen to see the work before you buy.</p>'
+        + '<div class="gk-access-actions"><button type="button" class="gk-run" data-gk-upgrade-pro>Upgrade to Pro <span class="gk-arr">→</span></button>'
+        + '<a class="gk-access-specimen" href="/specimen">Read the specimen</a></div></div>';
+      var upgrade = wizardEl.querySelector('[data-gk-upgrade-pro]');
+      if (upgrade) upgrade.addEventListener('click', function () {
+        if (window.GKBilling && window.GKBilling.checkout) window.GKBilling.checkout('pro');
+        else window.location.href = '/pricing';
       });
     }
 
@@ -1042,7 +1076,27 @@
         return;
       }
       clearError();
-      running = true; lastJson = null; pipelineState = null;
+      running = true;
+      var savedAnswers = Object.assign({}, answers);
+      if (!fast) savedAnswers._onboarding_complete = true;
+      var saved = await saveProfile(savedAnswers);
+      if (!saved) {
+        running = false;
+        showError('We could not save your onboarding yet. Please try again.');
+        return;
+      }
+      var access = await accountAccess();
+      if (!access) {
+        running = false;
+        showError('We could not confirm your plan. Please try again.');
+        return;
+      }
+      if (!access.allowed) {
+        renderAccessWall();
+        return;
+      }
+
+      lastJson = null; pipelineState = null;
       root.classList.remove('is-done');
       root.classList.add('is-running');
       if (restartBtn) restartBtn.hidden = true;
@@ -1058,7 +1112,6 @@
         t: opts.auto ? '6000' : String(Date.now() - loadedAt)
       };
 
-      if (!fast) saveProfile(answers);
       await callStage('research', payload);
     }
 

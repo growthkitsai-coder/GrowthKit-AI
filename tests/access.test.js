@@ -3,13 +3,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { checkAccess } = require('../lib/subscriptions');
+const stripeWebhook = require('../api/stripe-webhook');
 
 const KEYS = [
   'SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
   'GK_BETA_ENABLED',
   'GK_BETA_OPEN',
-  'GK_BETA_EMAILS'
+  'GK_BETA_EMAILS',
+  'GK_BETA_EXPIRES_AT',
+  'STRIPE_PRICE_PRO',
+  'STRIPE_PRICE_AGENTIC'
 ];
 
 function resetEnv() {
@@ -30,6 +34,7 @@ test('allowlist matching trims and lowercases both configured and user email', a
   const access = await checkAccess({ id: 'user-1', email: '  First@Example.COM ' });
   assert.equal(access.allowed, true);
   assert.equal(access.reason, 'beta-allowlist');
+  assert.equal(access.plan, 'pro');
 });
 
 test('beta kill switch overrides open beta and allowlist', async function () {
@@ -51,6 +56,29 @@ test('open beta requires an explicit value of one', async function () {
   assert.equal(closedAccess.allowed, false);
 });
 
+test('beta access stops at the configured expiry', async function () {
+  process.env.GK_BETA_EMAILS = 'founder@example.com';
+  process.env.GK_BETA_EXPIRES_AT = '2000-01-01T00:00:00.000Z';
+  const expired = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(expired.allowed, false);
+  assert.equal(expired.plan, 'free');
+  assert.equal(expired.reason, 'beta-expired');
+
+  process.env.GK_BETA_EXPIRES_AT = '2999-01-01T00:00:00.000Z';
+  const current = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(current.allowed, true);
+  assert.equal(current.plan, 'pro');
+  assert.equal(current.expires_at, '2999-01-01T00:00:00.000Z');
+});
+
+test('an invalid configured beta expiry fails closed', async function () {
+  process.env.GK_BETA_OPEN = '1';
+  process.env.GK_BETA_EXPIRES_AT = 'not-a-date';
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-expired');
+});
+
 test('active paid subscription takes priority even when beta is disabled', async function () {
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role';
@@ -66,4 +94,34 @@ test('active paid subscription takes priority even when beta is disabled', async
   const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, true);
   assert.equal(access.reason, 'subscription');
+});
+
+test('active Agentic subscription is preserved as the Agentic tier', async function () {
+  process.env.SUPABASE_URL = 'https://example.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role';
+  global.fetch = async function () {
+    return {
+      ok: true,
+      json: async function () {
+        return [{ user_id: 'user-1', plan: 'agentic', status: 'trialing' }];
+      }
+    };
+  };
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(access.allowed, true);
+  assert.equal(access.plan, 'agentic');
+  assert.equal(access.reason, 'subscription');
+});
+
+test('webhook plan follows the current Stripe price after a portal switch', function () {
+  process.env.STRIPE_PRICE_PRO = 'price_pro';
+  process.env.STRIPE_PRICE_AGENTIC = 'price_agentic';
+  const subscription = {
+    metadata: { plan: 'pro' },
+    items: { data: [{ price: { id: 'price_agentic' } }] }
+  };
+  assert.equal(stripeWebhook.planFor(subscription), 'agentic');
+  subscription.items.data[0].price.id = 'price_pro';
+  subscription.metadata.plan = 'agentic';
+  assert.equal(stripeWebhook.planFor(subscription), 'pro');
 });
