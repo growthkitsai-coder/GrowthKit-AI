@@ -10,6 +10,7 @@
 - Failed/stale generations can retry the same company. A completed report cannot be regenerated. Support can reset a mistaken company manually after verifying the request to `info@growthkitai.com` (SQL is at the bottom of the migration). A reset clears the workspace, daily/legacy reads, saved profile, and provider connections so data from the mistaken company cannot leak into the replacement; the user must reconnect providers.
 - Immediately after the full report, `/four` requests the first daily brief. After that, a secured Vercel cron runs at **07:00 UTC/GMT** every day; opening `/four` also fills a missing brief for the current UTC date.
 - A daily brief is a 30-second read: one lead signal, collapsed detail, market/competitor movement, connected own metrics, market signals, three evidence-led findings with concrete moves, one founder to learn from, and one relevant GrowthKit tool prompt. Each new finding includes a persistent three-step checklist, founder-added tasks, and a finding-specific introduction email.
+- The public `specimen.html` demonstrates a compact version of this format directly below physIQal's company snapshot. That card is static and explicitly marked fictional; its sample update, product metrics, and competitor movement are not live or verified claims.
 - If the scan is quiet, the model sets `no_material_change=true` and leads with **"No material change today"**, while still surfacing the strongest defensible observation. It never invents connected metrics.
 
 ## Storage

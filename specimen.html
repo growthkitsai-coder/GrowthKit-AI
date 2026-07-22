@@ -362,12 +362,113 @@
       linear-gradient(90deg, rgba(31,71,50,0.04), transparent 240px);
   }
   .brief-note strong { color: var(--ink-2); font-weight: 600; }
+  .daily-demo {
+    max-width: 880px;
+    margin: 30px auto 0;
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(20,19,15,0.04),
+      0 24px 56px -40px rgba(20,19,15,0.24);
+  }
+  .daily-demo-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .daily-demo-kicker,
+  .daily-demo-meta,
+  .daily-demo-section h4,
+  .daily-demo-disclaimer {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+  }
+  .daily-demo-kicker { font-size: 10.5px; color: var(--accent); margin-bottom: 8px; }
+  .daily-demo-head h3 {
+    margin: 0;
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 400;
+    line-height: 1.04;
+    color: var(--ink);
+  }
+  .daily-demo-head h3 em { color: var(--accent); font-style: italic; }
+  .daily-demo-meta {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.7;
+  }
+  .daily-demo-meta b { display: block; color: var(--accent); font-weight: 500; }
+  .daily-demo-disclaimer {
+    padding: 12px 24px;
+    border-bottom: 1px dashed var(--line-2);
+    background: rgba(31,71,50,0.045);
+    color: var(--ink-2);
+    font-size: 10px;
+    line-height: 1.55;
+  }
+  .daily-demo-body { padding: 26px 24px 28px; }
+  .daily-demo-body > h4 {
+    margin: 0 0 10px;
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(25px, 3.5vw, 36px);
+    font-weight: 400;
+    line-height: 1.12;
+    color: var(--ink);
+  }
+  .daily-demo-lead { margin: 0; max-width: 68ch; color: var(--ink-2); font-size: 15px; line-height: 1.62; }
+  .daily-demo-why { margin: 10px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .daily-demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 30px;
+    margin-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .daily-demo-section { padding: 22px 0 0; }
+  .daily-demo-section:last-child { grid-column: 1 / -1; }
+  .daily-demo-section h4 { margin: 0 0 13px; font-size: 10px; color: var(--muted); }
+  .daily-demo-section ul,
+  .daily-demo-section ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .daily-demo-section li { color: var(--ink-2); font-size: 13.5px; line-height: 1.55; }
+  .daily-demo-section li strong { display: block; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+  .daily-demo-moves { counter-reset: daily-move; grid-template-columns: repeat(3, 1fr); }
+  .daily-demo-moves li {
+    position: relative;
+    padding: 15px 16px 15px 44px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--bg-2);
+    counter-increment: daily-move;
+  }
+  .daily-demo-moves li::before {
+    content: "0" counter(daily-move);
+    position: absolute;
+    left: 15px;
+    top: 16px;
+    font: 10px 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
   @media (max-width: 720px) {
     .brief-grid { grid-template-columns: 1fr 1fr; }
     .brief-grid .cell:nth-child(3n) { border-right: 1px solid var(--line); }
     .brief-grid .cell:nth-child(2n) { border-right: 0; }
     .brief-grid .cell { border-bottom: 1px solid var(--line); }
     .brief-grid .cell:nth-child(n+5) { border-bottom: 0; }
+    .daily-demo-head { flex-direction: column; }
+    .daily-demo-meta { text-align: left; }
+    .daily-demo-grid { grid-template-columns: 1fr; }
+    .daily-demo-section:last-child { grid-column: auto; }
+    .daily-demo-moves { grid-template-columns: 1fr; }
   }
 
   /* === Shared section chrome === */
@@ -1086,6 +1187,7 @@
 
   /* Panels become deep-green instrument readouts */
   :root[data-theme="dark"] .brief-plate,
+  :root[data-theme="dark"] .daily-demo,
   :root[data-theme="dark"] .panel,
   :root[data-theme="dark"] .gap-card,
   :root[data-theme="dark"] .redact-card {
@@ -1112,6 +1214,7 @@
   }
   :root[data-theme="dark"] .brief-plate .plate-head,
   :root[data-theme="dark"] .brief-plate .plate-foot,
+  :root[data-theme="dark"] .daily-demo-head,
   :root[data-theme="dark"] .panel .panel-head,
   :root[data-theme="dark"] .tt-row.tt-head {
     background: rgba(62,245,159,0.05);
@@ -1135,6 +1238,23 @@
   :root[data-theme="dark"] .brief-note {
     border-top-color: rgba(62,245,159,0.22);
     background: linear-gradient(90deg, rgba(62,245,159,0.05), transparent 260px);
+  }
+  :root[data-theme="dark"] .daily-demo-head,
+  :root[data-theme="dark"] .daily-demo-grid { border-color: rgba(62,245,159,0.14); }
+  :root[data-theme="dark"] .daily-demo-kicker,
+  :root[data-theme="dark"] .daily-demo-meta b,
+  :root[data-theme="dark"] .daily-demo-moves li::before {
+    color: var(--neon);
+    text-shadow: 0 0 10px rgba(62,245,159,0.4);
+  }
+  :root[data-theme="dark"] .daily-demo-disclaimer {
+    color: var(--neon-2);
+    border-color: rgba(62,245,159,0.22);
+    background: rgba(62,245,159,0.055);
+  }
+  :root[data-theme="dark"] .daily-demo-moves li {
+    background: rgba(62,245,159,0.04);
+    border-color: rgba(62,245,159,0.16);
   }
 
   /* Teardown table */
@@ -1581,6 +1701,52 @@
           <span>operator-reviewed · rev 01</span>
         </div>
       </div>
+
+      <article class="daily-demo reveal" aria-labelledby="daily-demo-title">
+        <div class="daily-demo-head">
+          <div>
+            <div class="daily-demo-kicker">Daily update · specimen</div>
+            <h3 id="daily-demo-title">What changed <em>today</em>.</h3>
+          </div>
+          <div class="daily-demo-meta">
+            22 jul 2026 · GMT
+            <b>Material change detected</b>
+          </div>
+        </div>
+        <div class="daily-demo-disclaimer" role="note">
+          Fictional sample — the updates, metrics, and competitor activity below are illustrative and do not represent verified events.
+        </div>
+        <div class="daily-demo-body">
+          <h4>A form-analysis rival moves from upload-only to live coaching.</h4>
+          <p class="daily-demo-lead">FormCheck AI has launched a beta live rep counter for squats and deadlifts. Its feedback is still limited to depth and tempo, but the move narrows the clearest part of physIQal's positioning gap: real-time, camera-only coaching without dedicated hardware.</p>
+          <p class="daily-demo-why"><strong>Why it matters:</strong> the advantage is shifting from “live feedback exists” to how specific, trustworthy, and habit-forming that feedback feels.</p>
+
+          <div class="daily-demo-grid">
+            <div class="daily-demo-section">
+              <h4>Market &amp; competitor movement</h4>
+              <ul>
+                <li><strong>Feature gap is closing</strong>Upload-only competitors are starting to claim real-time territory.</li>
+                <li><strong>Trust is still open</strong>No rival is showing exercise-level accuracy or third-party validation in its launch copy.</li>
+              </ul>
+            </div>
+            <div class="daily-demo-section">
+              <h4>Illustrative product signal</h4>
+              <ul>
+                <li><strong>42% analysis completion</strong>Users who see their first cue within 20 seconds complete at a higher rate.</li>
+                <li><strong>Bench remains the weak lift</strong>Low-light and partial-occlusion clips account for most failed analyses.</li>
+              </ul>
+            </div>
+            <div class="daily-demo-section">
+              <h4>Next 3 moves</h4>
+              <ol class="daily-demo-moves">
+                <li><strong>Publish the trust proof</strong>Show per-lift accuracy and failure cases before competitors can own the credibility frame.</li>
+                <li><strong>Sharpen the live demo</strong>Lead with one precise squat cue, delivered in under 20 seconds, across the homepage and onboarding.</li>
+                <li><strong>Fix bench occlusion</strong>Recruit 20 varied bench clips and set a ship-or-kill threshold for low-light performance.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
 
