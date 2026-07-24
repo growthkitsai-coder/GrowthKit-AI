@@ -28,7 +28,7 @@
 > - **Commit finished units, not broken mid-edits.** "Done with that file" means it's coherent — syntax-valid, not half-refactored. Don't commit a file you're about to keep editing in the same breath.
 > - **Still run `node scripts/check-site.mjs` before committing** any change to HTML / `sitemap.xml` / `vercel.json` (see Conventions below).
 > - **Still don't push automatically** — pushing remains opt-in unless Avi explicitly asks (see Commit policy below). Commit often, push when told.
-> - **Write a real message every time** — what changed and why. Never `l`, `a`, `wip`, or other junk; those have already polluted this history.
+> - **Commit messages can be anything** — short, terse, throwaway, whatever. There is no message-quality rule here; don't block or slow a commit over wording.
 
 Marketing site for **GrowthKit AI** — a market-intelligence engine for founders. The product is software + operator review that produces four deliverables for seed → Series A teams: a **market map**, a **competitor teardown**, a **gap analysis**, and a **90-day plan** (~14 plays). Refreshed monthly. UK-based, serving GB / US / worldwide.
 
@@ -91,7 +91,7 @@ Avi runs both Claude Cowork (desktop app) and Claude Code (CLI in VS Code) again
 
 **Commit policy.** Whenever either tool changes a file, commit before the user switches to the other tool — otherwise the second tool may overwrite uncommitted work.
 
-- **Claude Code: auto-commit, one commit per finished file** (see the COMMIT AFTER EVERY SINGLE FILE mandate at the top). As soon as you're done writing in a file, `git add <that file>` and commit it with a concise, real message — don't batch files or wait for the end of the task. Do not push automatically (Avi may want to bundle commits) unless he explicitly asks. If a commit fails, surface the reason and stop. If the tree contains changes you didn't make, commit **only your own files by explicit path** — never `git add -A` over a parallel session's work.
+- **Claude Code: auto-commit, one commit per finished file** (see the COMMIT AFTER EVERY SINGLE FILE mandate at the top). As soon as you're done writing in a file, `git add <that file>` and commit it — message can be anything, don't overthink it — and don't batch files or wait for the end of the task. Do not push automatically (Avi may want to bundle commits) unless he explicitly asks. If a commit fails, surface the reason and stop. If the tree contains changes you didn't make, commit **only your own files by explicit path** — never `git add -A` over a parallel session's work.
 - **Claude Cowork: prompt the user to commit.** Cowork doesn't run git; after any meaningful change, remind Avi to commit (or to switch to Code to commit) before changing tools.
 - **One agent session at a time.** Parallel sessions in this one working tree have repeatedly swept each other's half-finished work into commits and collided mid-edit. Serialize; commit between sessions.
 
