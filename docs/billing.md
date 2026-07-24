@@ -70,7 +70,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `STRIPE_SECRET_KEY` | Prod (+ Preview) | Stripe API calls (`sk_live_…` / `sk_test_…`) |
 | `STRIPE_WEBHOOK_SECRET` | Prod (+ Preview) | `whsec_…` signing secret from the webhook endpoint |
 | `STRIPE_PRICE_PRO` | Prod (+ Preview) | Pro price id (optional — defaults to the known id) |
-| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic £200 GBP/month price id; currently unset and required before Agentic checkout works |
+| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic price id; **intentionally unset** — Agentic is coming soon and will be usage-based, so no flat monthly price exists to point at. Checkout 503s for `plan=agentic` while unset, which is the desired state |
 | `SUPABASE_URL` | Prod | already set for auth; token verification + PostgREST base |
 | `SUPABASE_ANON_KEY` | Prod | already set; verifies user access tokens |
 | `SUPABASE_SERVICE_ROLE_KEY` | Prod | **NEW** — server-only; lets the webhook write `subscriptions` |
@@ -82,9 +82,9 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 
 ## Stripe dashboard setup (one-time)
 
-1. **Products + Prices:** keep the current Pro £19.99 GBP monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`); create Agentic at £200 GBP/month and set `STRIPE_PRICE_AGENTIC`.
+1. **Products + Prices:** keep the current Pro £19.99 GBP monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`). **Do not create a fixed monthly Agentic price** — Agentic is coming soon and will be usage-based (metered on API/token cost), so it needs metered/usage-based Stripe billing rather than a flat recurring price. `STRIPE_PRICE_AGENTIC` stays unset until that model is decided.
 2. **Webhook endpoint:** Developers → Webhooks → Add endpoint → `https://growthkitai.com/api/stripe-webhook`. Select events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`. Copy the **Signing secret** → `STRIPE_WEBHOOK_SECRET`.
-3. **Customer Portal:** activate cancel/update payment method **and plan switching between Pro and Agentic** so existing customers can change tiers without a duplicate subscription.
+3. **Customer Portal:** activate cancel/update payment method. (Pro↔Agentic plan switching is deferred until Agentic's usage-based model exists.)
 4. Set all env vars above, then **redeploy**.
 
 ## Flow
