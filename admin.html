@@ -1,0 +1,300 @@
+<!--
+  GrowthKit AI — INTERNAL beta approvals console.
+
+  ⚠ INTERNAL PAGE. Like logo.html it is deliberately:
+      • absent from sitemap.xml, vercel.json, and every nav/footer
+      • listed in INTERNAL_PAGES in scripts/check-site.mjs (so the SEO/footer
+        checks skip it — it is not a public page and has no canonical/OG tags)
+      • noindex, nofollow
+
+  Security note: hiding the URL is NOT the security model. Authorisation is
+  enforced server-side in api/admin-beta.js against GK_ADMIN_USER_IDS, which
+  matches Supabase user ids. Anyone can open this page; without an admin
+  account the API answers 404 and the page shows nothing.
+
+  Displays applicant EMAIL ADDRESSES (PII) — never screenshot into a public
+  channel, never paste rows into a .md file. This repo is public.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Beta approvals — GrowthKit AI (internal)</title>
+<link rel="icon" href="/logo-mark-128.png">
+
+<script>
+  // Pre-paint theme, matching every other page (see docs/design-system.md).
+  (function () {
+    try {
+      var saved = localStorage.getItem('gk-theme');
+      document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="theme.css">
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 22px; }
+  .bar button, .bar a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .bar button.on { border-color: var(--accent); color: var(--accent); }
+
+  .msg {
+    padding: 14px 16px;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .msg.bad { border-color: #c0392b; color: #c0392b; border-style: solid; }
+
+  .row {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .who { min-width: 0; }
+  .email { font-weight: 600; font-size: 15px; word-break: break-all; }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.7;
+  }
+  .note {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 8px;
+    padding-left: 12px;
+    border-left: 2px solid var(--line);
+    font-style: italic;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    margin-right: 8px;
+  }
+  .tag.live { color: #1f8a4c; }
+  .tag.pending { color: #b8860b; }
+  .tag.dead { color: var(--muted); }
+
+  .acts { display: flex; gap: 8px; flex-shrink: 0; }
+  .acts button {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #FAF8F4;
+    cursor: pointer;
+  }
+  .acts button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+  .acts button:disabled { opacity: 0.5; cursor: default; }
+
+  :root[data-theme="dark"] .tag.live { color: var(--neon); }
+  :root[data-theme="dark"] .acts button { color: #05140C; }
+
+  @media (max-width: 640px) {
+    .row { grid-template-columns: 1fr; }
+    .acts { justify-content: flex-start; }
+  }
+</style>
+
+<div class="wrap">
+  <h1>Beta <em>approvals</em></h1>
+  <p class="sub">Approving starts a 7-day window that also ends after 7 full reports — whichever comes first.</p>
+
+  <div class="bar">
+    <button data-filter="pending" class="on">Pending</button>
+    <button data-filter="approved">Approved</button>
+    <button data-filter="">All</button>
+    <a href="/four">← Back to the app</a>
+  </div>
+
+  <div id="msg" class="msg">Checking your account…</div>
+  <div id="list"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth-config.js"></script>
+<script src="theme.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  var cfg = window.GK_AUTH_CONFIG || {};
+  var msg = document.getElementById('msg');
+  var list = document.getElementById('list');
+  var filter = 'pending';
+  var client = null;
+
+  function say(text, bad) {
+    msg.textContent = text;
+    msg.className = 'msg' + (bad ? ' bad' : '');
+    msg.style.display = text ? '' : 'none';
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function when(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? '—' : d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+  }
+
+  async function token() {
+    if (!client) return '';
+    var s = await client.auth.getSession();
+    return (s && s.data && s.data.session && s.data.session.access_token) || '';
+  }
+
+  async function call(path, options) {
+    var t = await token();
+    if (!t) return { status: 401, body: null };
+    var r = await fetch(path, Object.assign({}, options || {}, {
+      headers: Object.assign(
+        { authorization: 'Bearer ' + t, 'content-type': 'application/json' },
+        (options && options.headers) || {}
+      )
+    }));
+    var body = null;
+    try { body = await r.json(); } catch (e) {}
+    return { status: r.status, body: body };
+  }
+
+  function render(rows) {
+    if (!rows.length) {
+      list.innerHTML = '';
+      say('No applications' + (filter ? ' with status “' + filter + '”' : '') + ' yet.');
+      return;
+    }
+    say('');
+    list.innerHTML = rows.map(function (a) {
+      var cls = a.active_now ? 'live' : (a.status === 'pending' ? 'pending' : 'dead');
+      var label = a.active_now ? 'active' : a.live_reason.replace(/^beta-/, '');
+      return '' +
+        '<div class="row">' +
+          '<div class="who">' +
+            '<div class="email"><span class="tag ' + cls + '">' + esc(label) + '</span>' + esc(a.email) + '</div>' +
+            '<div class="meta">' +
+              'applied ' + esc(when(a.applied_at)) +
+              (a.approved_at ? ' · approved ' + esc(when(a.approved_at)) : '') +
+              (a.expires_at ? ' · expires ' + esc(when(a.expires_at)) : '') +
+              ' · reports ' + esc(a.reports_used) + '/' + esc(a.reports_limit) +
+            '</div>' +
+            (a.note ? '<div class="note">' + esc(a.note) + '</div>' : '') +
+          '</div>' +
+          '<div class="acts">' +
+            '<button data-act="approve" data-id="' + esc(a.user_id) + '">' +
+              (a.status === 'approved' ? 'Re-approve' : 'Approve') +
+            '</button>' +
+            (a.status === 'approved'
+              ? '<button class="ghost" data-act="revoke" data-id="' + esc(a.user_id) + '">Revoke</button>'
+              : '') +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  async function load() {
+    say('Loading…');
+    var r = await call('/api/admin-beta?status=' + encodeURIComponent(filter));
+    if (r.status === 401) { say('Sign in with your admin account first — open /login, then come back.', true); return; }
+    // 404 is what a non-admin sees; the endpoint deliberately does not confirm it exists.
+    if (r.status === 404) { say('This account is not an admin.', true); return; }
+    if (r.status !== 200 || !r.body) { say('Could not load applications.', true); return; }
+    render(r.body.applications || []);
+  }
+
+  list.addEventListener('click', async function (e) {
+    var btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    var act = btn.getAttribute('data-act');
+    if (act === 'revoke' && !confirm('Revoke beta access for this account? It stops immediately.')) return;
+    btn.disabled = true;
+    var r = await call('/api/admin-beta', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: btn.getAttribute('data-id'), action: act })
+    });
+    if (r.status !== 200) {
+      say((r.body && r.body.error) || 'That did not work.', true);
+      btn.disabled = false;
+      return;
+    }
+    load();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.bar button[data-filter]'), function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.bar button[data-filter]'), function (o) {
+        o.classList.remove('on');
+      });
+      b.classList.add('on');
+      filter = b.getAttribute('data-filter');
+      load();
+    });
+  });
+
+  if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY || !window.supabase) {
+    say('Sign-in is not configured — see docs/auth.md.', true);
+    return;
+  }
+  client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  load();
+})();
+</script>
