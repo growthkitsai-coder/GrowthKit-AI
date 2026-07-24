@@ -9,9 +9,8 @@ const KEYS = [
   'SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
   'GK_BETA_ENABLED',
-  'GK_BETA_OPEN',
-  'GK_BETA_EMAILS',
   'GK_BETA_EXPIRES_AT',
+  'GK_ADMIN_USER_IDS',
   'STRIPE_PRICE_PRO',
   'STRIPE_PRICE_AGENTIC'
 ];
@@ -23,104 +22,136 @@ function resetEnv() {
 
 test.afterEach(resetEnv);
 
-test('beta access fails closed when no mode or allowlist is configured', async function () {
+// ── DB-backed beta (2026-07-24) ─────────────────────────────────────────────
+// checkAccess now reads `beta_applications` instead of the GK_BETA_EMAILS env
+// var. These helpers stand in for Supabase PostgREST, routing by table name
+// because checkAccess makes two reads: subscriptions, then beta_applications.
+
+function jsonRes(rows) {
+  return { ok: true, status: 200, json: async function () { return rows; } };
+}
+
+function mockDb(options) {
+  const opts = options || {};
+  process.env.SUPABASE_URL = 'https://example.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role';
+  global.fetch = async function (url) {
+    const u = String(url);
+    if (u.indexOf('beta_applications') !== -1) {
+      if (opts.betaUnreachable) return { ok: false, status: 500, json: async function () { return null; } };
+      return jsonRes(opts.application ? [opts.application] : []);
+    }
+    if (u.indexOf('subscriptions') !== -1) {
+      return jsonRes(opts.subscription ? [opts.subscription] : []);
+    }
+    return jsonRes([]);
+  };
+}
+
+// An approved grant, mid-window, with reports left.
+function approvedRow(overrides) {
+  return Object.assign({
+    user_id: 'user-1',
+    email: 'founder@example.com',
+    status: 'approved',
+    approved_at: '2026-07-24T00:00:00.000Z',
+    expires_at: '2999-01-01T00:00:00.000Z',
+    reports_used: 0,
+    reports_limit: 7
+  }, overrides || {});
+}
+
+test('an account that never applied gets no beta access', async function () {
+  mockDb({});
   const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, false);
-  assert.equal(access.reason, 'no-subscription');
+  assert.equal(access.reason, 'beta-not-applied');
+  assert.equal(access.plan, 'free');
 });
 
-test('allowlist matching trims and lowercases both configured and user email', async function () {
-  process.env.GK_BETA_EMAILS = ' FIRST@example.com , second@example.com ';
-  const access = await checkAccess({ id: 'user-1', email: '  First@Example.COM ' });
+test('applying alone grants nothing until Avi approves', async function () {
+  mockDb({ application: approvedRow({ status: 'pending', approved_at: null, expires_at: null }) });
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-pending');
+});
+
+test('an approved grant inside its window unlocks Pro-equivalent access', async function () {
+  mockDb({ application: approvedRow() });
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, true);
-  assert.equal(access.reason, 'beta-allowlist');
   assert.equal(access.plan, 'pro');
+  assert.equal(access.status, 'beta');
+  assert.equal(access.reason, 'beta-approved');
+  assert.equal(access.beta.reports_remaining, 7);
 });
 
-test('allowlist accepts newline, semicolon, and JSON-array Vercel paste formats', async function () {
-  process.env.GK_BETA_EMAILS = 'first@example.com\nsecond@example.com; third@example.com';
-  const newlineAccess = await checkAccess({ id: 'user-1', email: 'second@example.com' });
-  assert.equal(newlineAccess.allowed, true);
-  assert.equal(newlineAccess.reason, 'beta-allowlist');
-
-  process.env.GK_BETA_EMAILS = '["fourth@example.com", "fifth@example.com"]';
-  const jsonAccess = await checkAccess({ id: 'user-2', email: 'fifth@example.com' });
-  assert.equal(jsonAccess.allowed, true);
-  assert.equal(jsonAccess.reason, 'beta-allowlist');
-});
-
-test('allowlist can match a Supabase OAuth identity metadata email', async function () {
-  process.env.GK_BETA_EMAILS = 'oauth-founder@example.com';
-  const access = await checkAccess({
-    id: 'user-1',
-    email: '',
-    user_metadata: {},
-    identities: [{ identity_data: { email: ' OAuth-Founder@Example.com ' } }]
-  });
-  assert.equal(access.allowed, true);
-  assert.equal(access.reason, 'beta-allowlist');
-});
-
-test('user-editable Supabase metadata cannot grant beta access', async function () {
-  process.env.GK_BETA_EMAILS = 'invited@example.com';
-  const access = await checkAccess({
-    id: 'user-1',
-    email: 'other@example.com',
-    user_metadata: { email: 'invited@example.com' }
-  });
+test('a grant past its 7-day expiry is refused even though the row still says approved', async function () {
+  mockDb({ application: approvedRow({ expires_at: '2000-01-01T00:00:00.000Z' }) });
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, false);
-  assert.equal(access.reason, 'beta-email-mismatch');
+  assert.equal(access.reason, 'beta-expired');
 });
 
-test('configured allowlist reports an email mismatch without exposing its values', async function () {
-  process.env.GK_BETA_EMAILS = 'invited@example.com';
-  const access = await checkAccess({ id: 'user-1', email: 'other@example.com' });
+test('a grant with all 7 reports spent is refused before its date expires', async function () {
+  mockDb({ application: approvedRow({ reports_used: 7 }) });
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, false);
-  assert.equal(access.reason, 'beta-email-mismatch');
+  assert.equal(access.reason, 'beta-reports-spent');
+  assert.equal(access.beta.reports_remaining, 0);
 });
 
-test('beta kill switch overrides open beta and allowlist', async function () {
+test('a revoked grant is refused immediately', async function () {
+  mockDb({ application: approvedRow({ status: 'revoked' }) });
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-revoked');
+});
+
+test('the kill switch overrides an otherwise valid approval', async function () {
+  mockDb({ application: approvedRow() });
   process.env.GK_BETA_ENABLED = '0';
-  process.env.GK_BETA_OPEN = '1';
-  process.env.GK_BETA_EMAILS = 'founder@example.com';
   const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, false);
   assert.equal(access.reason, 'beta-disabled');
 });
 
-test('open beta requires an explicit value of one', async function () {
-  process.env.GK_BETA_OPEN = '1';
-  const openAccess = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
-  assert.equal(openAccess.allowed, true);
-  assert.equal(openAccess.reason, 'beta-open');
-
-  process.env.GK_BETA_OPEN = 'true';
-  const closedAccess = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
-  assert.equal(closedAccess.allowed, false);
-});
-
-test('beta access stops at the configured expiry', async function () {
-  process.env.GK_BETA_EMAILS = 'founder@example.com';
+test('the global cutoff ends every grant at once, and an invalid cutoff fails closed', async function () {
+  mockDb({ application: approvedRow() });
   process.env.GK_BETA_EXPIRES_AT = '2000-01-01T00:00:00.000Z';
   const expired = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(expired.allowed, false);
-  assert.equal(expired.plan, 'free');
   assert.equal(expired.reason, 'beta-expired');
 
-  process.env.GK_BETA_EXPIRES_AT = '2999-01-01T00:00:00.000Z';
-  const current = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
-  assert.equal(current.allowed, true);
-  assert.equal(current.plan, 'pro');
-  assert.equal(current.expires_at, '2999-01-01T00:00:00.000Z');
+  process.env.GK_BETA_EXPIRES_AT = 'not-a-date';
+  const invalid = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(invalid.allowed, false);
+  assert.equal(invalid.reason, 'beta-expired');
 });
 
-test('an invalid configured beta expiry fails closed', async function () {
-  process.env.GK_BETA_OPEN = '1';
-  process.env.GK_BETA_EXPIRES_AT = 'not-a-date';
+test('an unreachable beta table denies access rather than falling open', async function () {
+  mockDb({ betaUnreachable: true });
   const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, false);
-  assert.equal(access.reason, 'beta-expired');
+  assert.equal(access.reason, 'beta-unavailable');
 });
+
+test('unconfigured Supabase denies beta access', async function () {
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-unavailable');
+});
+
+test('a paying subscriber keeps access even when their beta grant is revoked', async function () {
+  mockDb({
+    subscription: { user_id: 'user-1', plan: 'pro', status: 'active' },
+    application: approvedRow({ status: 'revoked' })
+  });
+  const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(access.allowed, true);
+  assert.equal(access.reason, 'subscription');
+});
+
 
 test('active paid subscription takes priority even when beta is disabled', async function () {
   process.env.SUPABASE_URL = 'https://example.supabase.co';
