@@ -51,13 +51,20 @@
 
     if (status) {
       if (!access.allowed) {
+        // Reasons come from checkAccess in lib/subscriptions.js. Each is safe to
+        // show: none of them reveal anything about other accounts.
         var deniedMessage = 'Free account · Pro required to generate reports';
-        if (access.reason === 'beta-email-mismatch') deniedMessage = 'Free account · signed-in email does not match the beta invitation';
-        else if (access.reason === 'beta-expired') deniedMessage = 'Free account · beta access has expired';
-        else if (access.reason === 'beta-disabled') deniedMessage = 'Free account · beta access is currently disabled';
+        if (access.reason === 'beta-pending') deniedMessage = 'Free account · beta application awaiting approval';
+        else if (access.reason === 'beta-expired') deniedMessage = 'Free account · your beta week has ended';
+        else if (access.reason === 'beta-reports-spent') deniedMessage = 'Free account · all 7 beta reports used';
+        else if (access.reason === 'beta-revoked') deniedMessage = 'Free account · beta access was withdrawn';
+        else if (access.reason === 'beta-disabled') deniedMessage = 'Free account · the beta is currently closed';
         status.innerHTML = '<span class="status-dot"></span>' + deniedMessage;
-      } else if (access.reason === 'beta-allowlist' || access.reason === 'beta-open') {
-        status.innerHTML = '<span class="status-dot"></span>Beta access · Pro included for a limited period';
+      } else if (access.reason === 'beta-approved') {
+        var b = access.beta || {};
+        var left = typeof b.reports_remaining === 'number' ? b.reports_remaining : '?';
+        status.innerHTML = '<span class="status-dot"></span>Beta access · ' + esc(left) +
+          ' of ' + esc(b.reports_limit || 7) + ' reports left';
       } else if (access.plan === 'agentic') {
         status.innerHTML = '<span class="status-dot"></span>Agentic subscription · active';
       } else {
@@ -74,8 +81,80 @@
     if (daily) daily.style.display = access.allowed && fullDone ? '' : 'none';
     if (locked) locked.style.display = access.allowed ? 'none' : '';
     if (integrations) integrations.style.display = access.allowed ? '' : 'none';
+    renderBeta(access);
     if (access.allowed && fullDone) loadDaily(true);
     if (access.allowed) loadIntegrations();
+  }
+
+  /**
+   * The beta panel. Applying grants nothing — a pending row waits for Avi to
+   * approve it in /admin.html. Shown only to accounts without a paid
+   * subscription; a subscriber has no reason to apply and api/beta.js refuses.
+   */
+  function renderBeta(access) {
+    var host = qs('[data-beta]');
+    if (!host) return;
+    var body = qs('[data-beta-body]');
+    var reason = access.reason;
+
+    if (access.reason === 'subscription') { host.style.display = 'none'; return; }
+    host.style.display = '';
+
+    if (access.allowed && reason === 'beta-approved') {
+      var b = access.beta || {};
+      var until = b.expires_at ? new Date(b.expires_at) : null;
+      var untilText = until && !isNaN(until.getTime()) ? until.toISOString().slice(0, 10) : '';
+      body.innerHTML = '<p class="beta-live"><b>You\'re in the beta.</b> ' +
+        esc(b.reports_remaining) + ' of ' + esc(b.reports_limit) + ' full reports left' +
+        (untilText ? ', until <b>' + esc(untilText) + '</b>' : '') +
+        '. Whichever runs out first ends the beta — then it\'s Pro at £20/month.</p>';
+      return;
+    }
+
+    if (reason === 'beta-pending') {
+      body.innerHTML = '<p>Your application is in. A founder reviews these by hand — ' +
+        'you\'ll get access the moment it\'s approved.</p>';
+      return;
+    }
+
+    if (reason === 'beta-expired' || reason === 'beta-reports-spent' || reason === 'beta-revoked') {
+      var done = reason === 'beta-reports-spent'
+        ? 'You used all 7 beta reports.'
+        : (reason === 'beta-revoked' ? 'Your beta access was withdrawn.' : 'Your beta week has ended.');
+      body.innerHTML = '<p>' + done + ' To keep generating a report a day, go Pro.</p>' +
+        '<div class="beta-actions"><button type="button" class="beta-btn" data-gk-checkout data-gk-plan="pro">Upgrade to Pro →</button></div>';
+      if (window.GKBilling && window.GKBilling.wire) window.GKBilling.wire(host);
+      return;
+    }
+
+    if (reason === 'beta-disabled' || reason === 'beta-unavailable') {
+      body.innerHTML = '<p>The beta is closed right now. Pro is available whenever you are.</p>';
+      return;
+    }
+
+    // beta-not-applied (or anything unrecognised) — offer the application.
+    body.innerHTML =
+      '<p>Beta testers get <b>one full report a day for a week</b> — 7 reports, free. ' +
+      'Applications are approved by hand.</p>' +
+      '<label class="beta-label" for="beta-note">Anything we should know? <span>(optional)</span></label>' +
+      '<textarea id="beta-note" class="beta-note" rows="3" maxlength="1000" ' +
+      'placeholder="What are you building, and which market do you want dissected?"></textarea>' +
+      '<div class="beta-actions"><button type="button" class="beta-btn" data-beta-apply>Apply to be a beta tester →</button></div>';
+  }
+
+  function applyForBeta(button) {
+    var note = qs('#beta-note');
+    var body = qs('[data-beta-body]');
+    button.disabled = true;
+    button.textContent = 'Sending…';
+    api('/api/beta', { method: 'POST', body: { note: note ? note.value : '' } })
+      .then(function () {
+        body.innerHTML = '<p><b>Application received.</b> A founder reviews these by hand — ' +
+          'you\'ll get access the moment it\'s approved.</p>';
+      })
+      .catch(function (err) {
+        body.innerHTML = '<p class="beta-error">' + esc(err.message || 'That did not send. Try again shortly.') + '</p>';
+      });
   }
 
   function movementItem(item) {
@@ -260,6 +339,15 @@
   function boot() {
     var refreshButton = qs('[data-daily-refresh]');
     if (refreshButton) refreshButton.addEventListener('click', function () { generateDaily(false); });
+    // Delegated: the apply button is re-rendered on every renderAccount pass,
+    // so binding it directly would go stale.
+    var betaHost = qs('[data-beta]');
+    if (betaHost) {
+      betaHost.addEventListener('click', function (e) {
+        var button = e.target.closest('[data-beta-apply]');
+        if (button) applyForBeta(button);
+      });
+    }
     refresh();
   }
 
