@@ -20,7 +20,7 @@ Authenticated `/api/account` responses distinguish `beta-disabled`, `beta-expire
 
 ## Plans
 
-Exactly three public tiers: **Free $0**, **Pro $30/month**, and **Agentic $200/month**. Free is not in Stripe. Pro defaults to Stripe price `price_1TuYYfIVRk8akpLyNoKcatRw` (override with `STRIPE_PRICE_PRO`); Agentic requires `STRIPE_PRICE_AGENTIC`. Checkout accepts only the server-side plan keys `pro|agentic` and maps them to those env-controlled prices—arbitrary client price IDs are rejected. Stripe subscription metadata and the webhook preserve the selected plan. Existing active subscribers are sent to the Customer Portal instead of creating a duplicate subscription.
+Exactly three public tiers: **Free £0**, **Pro £20/month displayed**, and **Agentic £200/month displayed**. Free is not in Stripe. The current Pro Stripe price charges **£19.99/month**; the site intentionally rounds that to £20 in marketing copy and structured data. Pro defaults to Stripe price `price_1TuYYfIVRk8akpLyNoKcatRw` (override with `STRIPE_PRICE_PRO`). Agentic is not configured in Stripe yet and remains unavailable for checkout until `STRIPE_PRICE_AGENTIC` points to a £200 GBP monthly price. Checkout accepts only the server-side plan keys `pro|agentic` and maps them to those env-controlled prices—arbitrary client price IDs are rejected. Stripe subscription metadata and the webhook preserve the selected plan. Existing active subscribers are sent to the Customer Portal instead of creating a duplicate subscription.
 
 ## Files
 
@@ -68,7 +68,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `STRIPE_SECRET_KEY` | Prod (+ Preview) | Stripe API calls (`sk_live_…` / `sk_test_…`) |
 | `STRIPE_WEBHOOK_SECRET` | Prod (+ Preview) | `whsec_…` signing secret from the webhook endpoint |
 | `STRIPE_PRICE_PRO` | Prod (+ Preview) | Pro price id (optional — defaults to the known id) |
-| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic $200/month price id; required before Agentic checkout works |
+| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic £200 GBP/month price id; currently unset and required before Agentic checkout works |
 | `SUPABASE_URL` | Prod | already set for auth; token verification + PostgREST base |
 | `SUPABASE_ANON_KEY` | Prod | already set; verifies user access tokens |
 | `SUPABASE_SERVICE_ROLE_KEY` | Prod | **NEW** — server-only; lets the webhook write `subscriptions` |
@@ -80,7 +80,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 
 ## Stripe dashboard setup (one-time)
 
-1. **Products + Prices:** keep the Pro monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`); create Agentic at $200/month and set `STRIPE_PRICE_AGENTIC`.
+1. **Products + Prices:** keep the current Pro £19.99 GBP monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`); create Agentic at £200 GBP/month and set `STRIPE_PRICE_AGENTIC`.
 2. **Webhook endpoint:** Developers → Webhooks → Add endpoint → `https://growthkitai.com/api/stripe-webhook`. Select events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`. Copy the **Signing secret** → `STRIPE_WEBHOOK_SECRET`.
 3. **Customer Portal:** activate cancel/update payment method **and plan switching between Pro and Agentic** so existing customers can change tiers without a duplicate subscription.
 4. Set all env vars above, then **redeploy**.
