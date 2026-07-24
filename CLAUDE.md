@@ -19,6 +19,17 @@
 > - For small/mechanical tasks (a typo, a one-line fix, a clearly specified tweak): the minimum doesn't apply, but still ask anything that's genuinely ambiguous before editing.
 > - Ask the questions **up front in one batch** where possible, not spread mid-task after work has already gone a wrong direction.
 
+> ## 🚨 NON-NEGOTIABLE — COMMIT AFTER **EVERY SINGLE FILE** YOU FINISH 🚨
+>
+> **This applies to ABSOLUTELY EVERY session and every tool — Claude Code, Claude Cowork, Codex, anything else.** The moment you are done writing in a file — however many lines, one or a thousand — **commit that file immediately**. Do **not** batch several files into one commit at the end of the task, and do **not** wait until the whole task is finished. **One finished file = one commit.** Avi wants a dense, granular commit history.
+>
+> - **Per file, not per task.** Finished `advisor.js`? Commit it. Then edit `advisor.css`? Commit that separately when you're done with it. A ten-file task should produce ~ten commits.
+> - **Commit only your own files, by explicit path** — `git add path/to/file`, **never `git add -A`**, which sweeps a parallel session's half-finished work into your commit.
+> - **Commit finished units, not broken mid-edits.** "Done with that file" means it's coherent — syntax-valid, not half-refactored. Don't commit a file you're about to keep editing in the same breath.
+> - **Still run `node scripts/check-site.mjs` before committing** any change to HTML / `sitemap.xml` / `vercel.json` (see Conventions below).
+> - **Still don't push automatically** — pushing remains opt-in unless Avi explicitly asks (see Commit policy below). Commit often, push when told.
+> - **Write a real message every time** — what changed and why. Never `l`, `a`, `wip`, or other junk; those have already polluted this history.
+
 Marketing site for **GrowthKit AI** — a market-intelligence engine for founders. The product is software + operator review that produces four deliverables for seed → Series A teams: a **market map**, a **competitor teardown**, a **gap analysis**, and a **90-day plan** (~14 plays). Refreshed monthly. UK-based, serving GB / US / worldwide.
 
 Tagline: *"Markets, dissected — not guessed."*  
@@ -80,7 +91,7 @@ Avi runs both Claude Cowork (desktop app) and Claude Code (CLI in VS Code) again
 
 **Commit policy.** Whenever either tool changes a file, commit before the user switches to the other tool — otherwise the second tool may overwrite uncommitted work.
 
-- **Claude Code: auto-commit any change.** After any successful edit, `git add` the files you changed and commit with a concise message. Do not push automatically (Avi may want to bundle commits) unless he explicitly asks. If a commit fails, surface the reason and stop. If the tree contains changes you didn't make, commit **only your own files by explicit path** — never `git add -A` over a parallel session's work.
+- **Claude Code: auto-commit, one commit per finished file** (see the COMMIT AFTER EVERY SINGLE FILE mandate at the top). As soon as you're done writing in a file, `git add <that file>` and commit it with a concise, real message — don't batch files or wait for the end of the task. Do not push automatically (Avi may want to bundle commits) unless he explicitly asks. If a commit fails, surface the reason and stop. If the tree contains changes you didn't make, commit **only your own files by explicit path** — never `git add -A` over a parallel session's work.
 - **Claude Cowork: prompt the user to commit.** Cowork doesn't run git; after any meaningful change, remind Avi to commit (or to switch to Code to commit) before changing tools.
 - **One agent session at a time.** Parallel sessions in this one working tree have repeatedly swept each other's half-finished work into commits and collided mid-edit. Serialize; commit between sessions.
 
