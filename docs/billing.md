@@ -10,11 +10,13 @@ Access to paid product capabilities is decided by `checkAccess()` in [`lib/subsc
 
 1. **Paid Pro or Agentic subscription** — an `active` or `trialing` row in the `subscriptions` table.
 2. **Explicit open beta** — only when `GK_BETA_ENABLED` is not `0` and `GK_BETA_OPEN=1` exactly.
-3. **Private beta allowlist** — while beta is enabled, a normalized email in the private, comma-separated `GK_BETA_EMAILS` value receives Pro-equivalent access.
+3. **Private beta allowlist** — while beta is enabled, a normalized email in the private `GK_BETA_EMAILS` value receives Pro-equivalent access. The parser accepts comma-, semicolon-, or newline-separated values plus a JSON string array, matching the ways a list is commonly pasted into Vercel. It checks the top-level Supabase user email and verified OAuth identity email locations, then trims and lowercases before exact matching. User-editable `user_metadata` is deliberately not trusted for entitlements. It never normalizes `+` aliases or performs partial matching.
 
 Everything else is the **Free** tier and fails closed with **402** `{ code: "subscription_required" }` on generation, daily-intelligence, and integration endpoints. Free users may save onboarding and see the locked dashboard preview/specimen. Email matching trims and lowercases both sides. `GK_BETA_EXPIRES_AT` optionally sets a global ISO-8601 beta cutoff; invalid or elapsed configured values fail closed. **To halt all beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
 
 Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: one company, one initial full report, then daily briefs. When access ends, the completed full report remains readable through authenticated GET/report history, but report generation/retries, daily briefs, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
+
+Authenticated `/api/account` responses distinguish `beta-disabled`, `beta-expired`, and `beta-email-mismatch` without returning any allowlist value. `/four` renders those reasons in its product-status line so an invitation/configuration problem is not hidden behind a generic Free-account message.
 
 ## Plans
 
@@ -73,7 +75,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `SITE_URL` | Prod | optional canonical origin for redirects (else derived from Host) |
 | `GK_BETA_ENABLED` | Prod | `0` immediately disables all free beta access; otherwise allowlist/open-beta checks may run |
 | `GK_BETA_OPEN` | Prod | `1` explicitly opens free beta to every account; unset/other values fail closed |
-| `GK_BETA_EMAILS` | Prod | private comma-separated beta emails; normalize, deduplicate, and never commit this value |
+| `GK_BETA_EMAILS` | Prod | private beta emails; comma/newline/semicolon lists or a JSON string array are accepted; normalize, deduplicate, and never commit this value |
 | `GK_BETA_EXPIRES_AT` | Prod | optional ISO-8601 cutoff for all beta grants; invalid/past values fail closed |
 
 ## Stripe dashboard setup (one-time)

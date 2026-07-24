@@ -37,12 +37,55 @@ test('allowlist matching trims and lowercases both configured and user email', a
   assert.equal(access.plan, 'pro');
 });
 
+test('allowlist accepts newline, semicolon, and JSON-array Vercel paste formats', async function () {
+  process.env.GK_BETA_EMAILS = 'first@example.com\nsecond@example.com; third@example.com';
+  const newlineAccess = await checkAccess({ id: 'user-1', email: 'second@example.com' });
+  assert.equal(newlineAccess.allowed, true);
+  assert.equal(newlineAccess.reason, 'beta-allowlist');
+
+  process.env.GK_BETA_EMAILS = '["fourth@example.com", "fifth@example.com"]';
+  const jsonAccess = await checkAccess({ id: 'user-2', email: 'fifth@example.com' });
+  assert.equal(jsonAccess.allowed, true);
+  assert.equal(jsonAccess.reason, 'beta-allowlist');
+});
+
+test('allowlist can match a Supabase OAuth identity metadata email', async function () {
+  process.env.GK_BETA_EMAILS = 'oauth-founder@example.com';
+  const access = await checkAccess({
+    id: 'user-1',
+    email: '',
+    user_metadata: {},
+    identities: [{ identity_data: { email: ' OAuth-Founder@Example.com ' } }]
+  });
+  assert.equal(access.allowed, true);
+  assert.equal(access.reason, 'beta-allowlist');
+});
+
+test('user-editable Supabase metadata cannot grant beta access', async function () {
+  process.env.GK_BETA_EMAILS = 'invited@example.com';
+  const access = await checkAccess({
+    id: 'user-1',
+    email: 'other@example.com',
+    user_metadata: { email: 'invited@example.com' }
+  });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-email-mismatch');
+});
+
+test('configured allowlist reports an email mismatch without exposing its values', async function () {
+  process.env.GK_BETA_EMAILS = 'invited@example.com';
+  const access = await checkAccess({ id: 'user-1', email: 'other@example.com' });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-email-mismatch');
+});
+
 test('beta kill switch overrides open beta and allowlist', async function () {
   process.env.GK_BETA_ENABLED = '0';
   process.env.GK_BETA_OPEN = '1';
   process.env.GK_BETA_EMAILS = 'founder@example.com';
   const access = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
   assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-disabled');
 });
 
 test('open beta requires an explicit value of one', async function () {

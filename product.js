@@ -51,7 +51,11 @@
 
     if (status) {
       if (!access.allowed) {
-        status.innerHTML = '<span class="status-dot"></span>Free account · Pro required to generate reports';
+        var deniedMessage = 'Free account · Pro required to generate reports';
+        if (access.reason === 'beta-email-mismatch') deniedMessage = 'Free account · signed-in email does not match the beta invitation';
+        else if (access.reason === 'beta-expired') deniedMessage = 'Free account · beta access has expired';
+        else if (access.reason === 'beta-disabled') deniedMessage = 'Free account · beta access is currently disabled';
+        status.innerHTML = '<span class="status-dot"></span>' + deniedMessage;
       } else if (access.reason === 'beta-allowlist' || access.reason === 'beta-open') {
         status.innerHTML = '<span class="status-dot"></span>Beta access · Pro included for a limited period';
       } else if (access.plan === 'agentic') {
