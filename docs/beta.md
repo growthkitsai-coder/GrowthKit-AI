@@ -65,9 +65,9 @@ Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeployin
 | ~~`GK_BETA_EMAILS`~~ | — | **Removed 2026-07-24.** No longer read. |
 | ~~`GK_BETA_OPEN`~~ | — | **Removed 2026-07-24.** No longer read. |
 
-## Not yet built (Phase 2)
+## Phase 2 — BUILT 2026-07-25
 
-The grant counts **7 reports**, but `lib/beta.js` `consumeReport()` is **not yet called by the engine** — `api/advise.js` still enforces the old one-company-one-report contract, so in practice the 7-day limit binds first and the report counter stays at 0. Wiring `consumeReport()` into report generation, and moving from one-locked-company to **one report a day on any company**, is the next phase (Avi's decision, 2026-07-24). See [`daily-intelligence.md`](daily-intelligence.md) for the contract that has to change.
+The grant's **7-report counter is now live**. `api/advise.js` calls `lib/beta.js` `consumeReport()` when a report completes (and only for a beta generation, never a paid one), so a beta account is capped at **7 reports across 7 days** — one per UTC day, whichever limit hits first. The one-company lock is gone: each daily report can be a different company, and every past report is browsable. Full model: [`daily-intelligence.md`](daily-intelligence.md). The engine schema for it is `supabase/migrations/202607250001_daily_reports.sql` — **that migration must be run** for generation to work.
 
 ## The public waitlist is a different thing
 
