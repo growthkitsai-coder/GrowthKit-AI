@@ -11,14 +11,18 @@
 const { checkAccess, verifyUserToken, bearer } = require('../lib/subscriptions');
 const {
   configured: productConfigured,
-  getWorkspace,
-  ensureWorkspace,
+  reserveReport,
+  getActiveReport,
+  getReportById,
+  listReports,
+  completeReport,
+  failReport,
   listReportSections,
   reserveReportSection,
   completeReportSection,
-  failReportSection,
-  completeWorkspace
+  failReportSection
 } = require('../lib/product');
+const beta = require('../lib/beta');
 
 const ADVISOR_ENABLED = true;
 const MODEL = 'claude-sonnet-5';
@@ -194,7 +198,10 @@ function rowsByStage(rows) {
   return (rows || []).reduce((all, row) => { all[row.section] = row; return all; }, {});
 }
 
-function publicState(workspace, rows) {
+// The wire key stays `workspace` (advisor.js reads pipeline.workspace) but it now
+// projects the CURRENT report — full_report_status carries the report's status,
+// and report identity fields ride alongside for the daily/history model.
+function publicState(report, rows) {
   const byStage = rowsByStage(rows);
   const deliverable = {};
   STAGES.forEach((stage) => {
@@ -210,10 +217,13 @@ function publicState(workspace, rows) {
       : { status: 'pending', error: null };
   });
   return {
-    workspace: workspace ? {
-      company_name: workspace.company_name,
-      website: workspace.website,
-      full_report_status: workspace.full_report_status
+    workspace: report ? {
+      report_id: report.id,
+      company_name: report.company_name,
+      website: report.website,
+      full_report_status: report.status,
+      report_date: report.report_date || null,
+      completed_at: report.completed_at || null
     } : null,
     stages,
     deliverable
@@ -304,14 +314,31 @@ module.exports = async function handler(req, res) {
   const user = await authenticated(req, res);
   if (!user) return;
   if (req.method === 'GET') {
-    const workspaceResult = await getWorkspace(user.id);
-    const rows = await listReportSections(user.id);
-    res.status(200).json(publicState(workspaceResult.workspace, rows));
+    // ?report_id=… views a specific past report; otherwise resolve the report to
+    // show: today's in-progress one (to resume the pipeline), else the most
+    // recent completed report (so a returning founder sees their last one).
+    const wantId = clean((req.query && req.query.report_id) || '', 80);
+    let report = null;
+    if (wantId) {
+      report = await getReportById(user.id, wantId);
+    } else {
+      report = await getActiveReport(user.id);
+      if (!report) {
+        const recent = await listReports(user.id, 1);
+        if (recent.length) report = await getReportById(user.id, recent[0].id);
+      }
+    }
+    const rows = report ? await listReportSections(report.id) : [];
+    res.status(200).json(publicState(report, rows));
     return;
   }
 
   const access = await checkAccess(user);
-  if (!access.allowed) { res.status(402).json({ error: 'Purchase Pro to generate your deliverable.', code: 'subscription_required' }); return; }
+  if (!access.allowed) {
+    // reason lets the client show the precise state (pending / expired / spent).
+    res.status(402).json({ error: 'Purchase Pro to generate your deliverable.', code: 'subscription_required', reason: access.reason });
+    return;
+  }
   if (!ADVISOR_ENABLED || process.env.GK_ADVISOR_DISABLED === '1') { res.status(503).json({ error: 'GrowthKit Live is paused while we upgrade the engine.' }); return; }
   if (!process.env.ANTHROPIC_API_KEY) { res.status(503).json({ error: 'The engine is not configured yet.' }); return; }
 
@@ -325,40 +352,50 @@ module.exports = async function handler(req, res) {
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (await isRateLimited(ip)) { res.status(429).json({ error: 'Too many section attempts. Give it a couple of minutes and try again.' }); return; }
 
-  let workspaceResult = await getWorkspace(user.id);
-  let workspace = workspaceResult.workspace;
+  // Resolve the report this call operates on. Research reserves today's report
+  // (and enforces the one-a-day limit); later stages attach to the report that
+  // research already opened today.
+  let report;
   if (stage === 'research') {
     const input = {
-      company: clean(body.company, CAP.company) || (workspace && workspace.company_name),
+      company: clean(body.company, CAP.company),
       website: clean(body.website, CAP.website),
       competitors: clean(body.competitors, CAP.competitors),
       profile: clean(body.profile_text, CAP.profile)
     };
-    if (!input.company) { res.status(400).json({ error: 'Enter your company name to start the report.' }); return; }
-    const ensured = await ensureWorkspace(user.id, input);
-    if (!ensured.ok) {
-      const message = ensured.code === 'company_locked'
-        ? 'Your account is already linked to ' + (ensured.company || 'another company') + '.'
-        : ensured.code === 'full_report_complete' ? 'Your full report has already been generated.' : 'The report workspace is unavailable.';
-      res.status(ensured.code === 'workspace_unavailable' ? 503 : 409).json({ error: message, code: ensured.code });
+    const reserved = await reserveReport(user.id, input);
+    if (!reserved.ok) {
+      if (reserved.code === 'daily_limit') {
+        res.status(429).json({
+          error: "You've generated today's report. Your next one unlocks at 00:00 UTC.",
+          code: 'daily_limit'
+        });
+        return;
+      }
+      if (reserved.code === 'no_company') { res.status(400).json({ error: 'Enter your company name to start the report.' }); return; }
+      res.status(503).json({ error: 'The report workspace is unavailable.', code: reserved.code });
       return;
     }
-    workspace = ensured.workspace;
-  } else if (!workspace) {
-    res.status(409).json({ error: 'Research must run before this section.', code: 'dependency_missing' });
-    return;
+    report = reserved.report;
+  } else {
+    report = await getActiveReport(user.id);
+    if (!report) {
+      res.status(409).json({ error: 'Start a report with the research step first.', code: 'dependency_missing' });
+      return;
+    }
   }
+  const reportId = report.id;
 
-  let rows = await listReportSections(user.id);
+  let rows = await listReportSections(reportId);
   let byStage = rowsByStage(rows);
   const missing = DEPENDENCIES[stage].filter((name) => !byStage[name] || byStage[name].status !== 'completed');
   if (missing.length) { res.status(409).json({ error: 'Finish the required earlier sections first.', code: 'dependency_missing', missing }); return; }
 
-  const reservation = await reserveReportSection(user.id, stage);
+  const reservation = await reserveReportSection(reportId, stage);
   if (!reservation.ok) {
     if (reservation.code === 'completed') {
-      rows = await listReportSections(user.id);
-      res.status(200).json(Object.assign({ stage, cached: true }, publicState(workspace, rows)));
+      rows = await listReportSections(reportId);
+      res.status(200).json(Object.assign({ stage, cached: true }, publicState(report, rows)));
       return;
     }
     res.status(reservation.code === 'in_progress' ? 409 : 503).json({
@@ -369,26 +406,30 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const context = stage === 'research' ? researchInput(workspace) : dependencyContext(stage, byStage);
+    const context = stage === 'research' ? researchInput(report) : dependencyContext(stage, byStage);
     const output = await callAnthropic(process.env.ANTHROPIC_API_KEY, stage, context);
-    const saved = await completeReportSection(user.id, stage, output);
+    const saved = await completeReportSection(reportId, stage, output);
     if (!saved) throw Object.assign(new Error('This section finished but could not be saved. Try it again.'), { status: 502 });
 
-    rows = await listReportSections(user.id);
+    rows = await listReportSections(reportId);
     byStage = rowsByStage(rows);
     const allComplete = STAGES.every((name) => byStage[name] && byStage[name].status === 'completed');
     if (allComplete) {
       const deliverable = {};
       STAGES.forEach((name) => { if (name !== 'research') Object.assign(deliverable, byStage[name].output || {}); });
-      await completeWorkspace(user.id, deliverable);
-      workspace = (await getWorkspace(user.id)).workspace;
+      const didComplete = await completeReport(reportId, deliverable);
+      // Charge the beta grant exactly once — only on the transition that actually
+      // marked the report complete, and only for a beta (not paid) generation.
+      if (didComplete && access.reason === 'beta-approved') await beta.consumeReport(user.id);
+      report = (await getReportById(user.id, reportId)) || report;
     }
-    res.status(200).json(Object.assign({ stage, report_completed: allComplete }, publicState(workspace, rows)));
+    res.status(200).json(Object.assign({ stage, report_completed: allComplete }, publicState(report, rows)));
   } catch (error) {
     const message = error && error.message ? error.message : 'This section failed. Try it again.';
-    await failReportSection(user.id, stage, message);
-    rows = await listReportSections(user.id);
-    res.status(error.status || 502).json(Object.assign({ error: message, code: error.code || 'section_failed', stage }, publicState(workspace, rows)));
+    await failReportSection(reportId, stage, message);
+    if (stage === 'research') await failReport(reportId);
+    rows = await listReportSections(reportId);
+    res.status(error.status || 502).json(Object.assign({ error: message, code: error.code || 'section_failed', stage }, publicState(report, rows)));
   }
 };
 
