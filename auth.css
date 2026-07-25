@@ -493,6 +493,17 @@
 .beta-btn:hover { background: var(--ink); transform: translateY(-1px); }
 .beta-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
 
+/* ── Report history (daily reports, newest first) ── */
+.report-history { max-width: 900px; margin: 52px auto 0; }
+.report-history-list { display: grid; gap: 10px; margin-top: 14px; }
+.report-history-item { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 14px 18px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--paper); text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
+.report-history-item:hover { border-color: var(--accent); transform: translateY(-1px); }
+.rh-company { font-weight: 600; font-size: 15px; color: var(--ink); }
+.rh-date { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); flex: none; }
+:root[data-theme="dark"] .report-history-item { background: rgba(255,255,255,0.02); border-color: var(--deep-3); }
+:root[data-theme="dark"] .report-history-item:hover { border-color: var(--neon); }
+:root[data-theme="dark"] .rh-company { color: #ECFBF3; }
+
 @media (max-width: 720px) {
   .four-guide-steps { grid-template-columns: 1fr; }
   .four-pro-list { grid-template-columns: 1fr; }
