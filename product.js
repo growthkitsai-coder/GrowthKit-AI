@@ -47,7 +47,9 @@
     var locked = qs('[data-locked-dashboard]');
     var integrations = qs('[data-integrations]');
     var access = account && account.access || {};
-    var workspace = account && account.workspace;
+    var today = (account && account.today) || {};
+    var reports = (account && account.reports) || [];
+    var doneToday = today.status === 'completed';
 
     if (status) {
       if (!access.allowed) {
@@ -70,20 +72,43 @@
       } else {
         status.innerHTML = '<span class="status-dot"></span>Pro subscription · active';
       }
-      if (workspace && workspace.company_name) {
-        status.innerHTML += '<span class="status-company">Company · ' + esc(workspace.company_name) + '</span>';
+      // The daily affordance: one report per UTC day. When today's is done, say
+      // so and when the next unlocks; otherwise invite the next one.
+      if (access.allowed) {
+        status.innerHTML += '<span class="status-company">' +
+          (doneToday ? "Today's report is ready · next unlocks 00:00 UTC" : 'One report ready to generate today') +
+          '</span>';
       }
     }
 
-    var fullDone = workspace && workspace.full_report_status === 'completed';
-    var generating = workspace && workspace.full_report_status === 'generating';
-    if (advisor) advisor.style.display = (!workspace || access.allowed || fullDone) ? '' : 'none';
-    if (daily) daily.style.display = access.allowed && fullDone ? '' : 'none';
+    // Completed reports stay readable after access ends, so keep the advisor
+    // visible for anyone who has history even once generation locks.
+    var showAdvisor = access.allowed || reports.length > 0;
+    if (advisor) advisor.style.display = showAdvisor ? '' : 'none';
+    if (daily) daily.style.display = 'none'; // daily briefs retired
     if (locked) locked.style.display = access.allowed ? 'none' : '';
     if (integrations) integrations.style.display = access.allowed ? '' : 'none';
     renderBeta(access);
-    if (access.allowed && fullDone) loadDaily(true);
+    renderHistory(reports);
     if (access.allowed) loadIntegrations();
+  }
+
+  /**
+   * The report-history list: every completed report, newest first, each linking
+   * to /four?report_id=… which advisor.js renders on load.
+   */
+  function renderHistory(reports) {
+    var host = qs('[data-history]');
+    var list = qs('[data-history-list]');
+    if (!host || !list) return;
+    if (!reports || !reports.length) { host.style.display = 'none'; return; }
+    host.style.display = '';
+    list.innerHTML = reports.map(function (r) {
+      var date = String(r.report_date || '').slice(0, 10);
+      return '<a class="report-history-item" href="/four?report_id=' + encodeURIComponent(r.id) + '">' +
+        '<span class="rh-company">' + esc(r.company_name || 'Report') + '</span>' +
+        '<span class="rh-date">' + esc(date) + '</span></a>';
+    }).join('');
   }
 
   /**
