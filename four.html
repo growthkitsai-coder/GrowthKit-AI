@@ -235,6 +235,13 @@
         <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open the full specimen →</a>
       </section>
 
+      <!-- Report history — every past daily report, newest first. Rendered by
+           product.js (renderHistory); each links to /four?report_id=… -->
+      <section class="report-history" data-history style="display:none">
+        <div class="four-eyebrow"><span class="num">/</span>Your reports</div>
+        <div class="report-history-list" data-history-list></div>
+      </section>
+
       <!-- Beta — apply / pending / live / finished. Rendered by product.js
            (renderBeta); hidden entirely for paid subscribers. -->
       <section class="four-beta" data-beta style="display:none">
