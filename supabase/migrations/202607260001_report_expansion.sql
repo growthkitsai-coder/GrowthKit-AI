@@ -17,6 +17,3 @@ alter table public.report_sections
     'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics',
     'plan', 'sources'
   ));
-
-comment on table public.report_sections is
-  'Server-only per-report checkpoints for the ten-call report pipeline, including the internal research pack. No browser policy.';
