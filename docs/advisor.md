@@ -61,6 +61,8 @@ The three expansion stages—`opportunity`, `strategy_timing`, and `capital_metr
 
 Run [`202607260001_report_expansion.sql`](../supabase/migrations/202607260001_report_expansion.sql) **before deploying the ten-stage code**. It expands the `report_sections.section` check constraint to accept `opportunity`, `strategy_timing`, and `capital_metrics`. The migration is non-destructive. Fresh databases get the same constraint from `202607250001_daily_reports.sql`.
 
+If production shows **“This section could not be reserved”** first on Market opportunity while earlier stages completed, the production constraint was not expanded. Run the whole migration file in Supabase SQL Editor, then retry Market opportunity; completed earlier stages are cached. The migration deliberately contains only the two constraint statements—no optional quoted table comment—because a truncated dashboard paste of that comment previously produced PostgreSQL `42601 unterminated quoted string`.
+
 ## Model and evidence contract
 
 - Model: `claude-sonnet-5`, low effort, non-streaming JSON.
