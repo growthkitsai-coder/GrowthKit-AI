@@ -7,7 +7,8 @@
 ## Product contract
 
 - A signed-in account with access (Pro, Agentic, or an active beta grant) can generate **one full report per UTC calendar day**. Each day's report can be a **different company** — there is no company lock.
-- The report is the same seven-call specimen-grade deliverable as before (research → subject/positioning + market map + sources → teardown → gaps → plan). The internal research pack is never returned to the browser.
+- Newly generated reports use the ten-call specimen-grade pipeline: the original seven stages plus quantified opportunity, GTM/timing, and funding/connected metrics. The expansion includes TAM/SAM/SOM, ranked segments, evidence-backed trend and indexed-demand charts where data exists, three GTM plays, a window-of-opportunity score, funding radar/lists, and weekly values from every configured connection. The internal research pack is never returned to the browser.
+- The expansion is **new-report only**. Older completed reports stay byte-for-byte readable and mark the three new stages `not_applicable`; they are not silently regenerated or backfilled.
 - **Every completed report is kept and browsable.** `/four` lists them newest-first; each links to `/four?report_id=…`, which re-renders that report.
 - The one-a-day limit counts **completed** reports for the current UTC date. A report still generating is resumed, not duplicated; a **failed** attempt does not consume the day, so retries are always allowed until one completes.
 - **Database-approved beta grants are metered in reports.** They get **7 reports across 7 days** (whichever runs out first — see [`beta.md`](beta.md)). One report is charged when it completes; the daily limit still caps them at one a day, so the practical shape is one a day for a week. Private allowlist, Pro, and Agentic accounts get one a day with no total cap.
@@ -35,9 +36,10 @@ Run the migrations in order in the production Supabase SQL editor:
 3. [`202607190003_report_pipeline.sql`](../supabase/migrations/202607190003_report_pipeline.sql) — creates the old `report_sections`; superseded by #5
 4. [`202607240001_beta_applications.sql`](../supabase/migrations/202607240001_beta_applications.sql)
 5. [`202607250001_daily_reports.sql`](../supabase/migrations/202607250001_daily_reports.sql) — **`reports`** + **`report_sections` re-keyed by `report_id`**
+6. [`202607260001_report_expansion.sql`](../supabase/migrations/202607260001_report_expansion.sql) — expands the section constraint for the three new report stages; run before deploying the ten-stage code
 
 - **`reports`**: one row per generated report — `report_date` (the UTC day), company identity, `status`, the assembled `full_report` JSON, timestamps. Owner-readable via RLS (the deliverable is theirs); all writes are service-role. The one-a-day limit counts completed rows for the current `report_date`.
-- **`report_sections`**: server-only per-report pipeline checkpoints, now keyed `(report_id, section)` so each day's report keeps its own seven checkpoints. **No browser RLS policy** — it holds the internal research pack.
+- **`report_sections`**: server-only per-report pipeline checkpoints, keyed `(report_id, section)` so each day's report keeps its own ten checkpoints. **No browser RLS policy** — it holds the internal research pack.
 - **`finding_tasks`**: unchanged; generated + founder-added checklist state, keyed to a report's gaps.
 - **Dormant:** `product_workspaces` and `daily_briefs` still exist and still back the retired `/api/daily-briefs` + `/api/daily-cron` endpoints, but nothing populates or schedules them under the new model.
 
@@ -56,7 +58,9 @@ POST /api/advise
   → completeReport → (beta only) beta.consumeReport charges the grant
 ```
 
-The seven-stage pipeline, its 52-second per-call deadline, section-only retries, and the scripted loading UI are all unchanged — see [`advisor.md`](advisor.md). Only the reservation/identity layer changed: reports are now many-per-user and keyed by `report_id`, not one-per-user.
+The ten-stage pipeline keeps the 52-second per-model-call deadline, section-only retries, and scripted loading UI—see [`advisor.md`](advisor.md). Connected metrics run alongside the funding call with their own 20-second bound.
+
+After a report completes, `/four` shows a live status directly beneath the widened GrowthKit Live workspace. Until the next UTC day it reads **“Daily report coming in HH:MM:SS”** and ticks every second toward 00:00 UTC; at unlock it changes to **“Daily report ready”**. This is presentation only—the server's `daily_limit` check remains authoritative.
 
 ## Retired: daily briefs
 

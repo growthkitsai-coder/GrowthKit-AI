@@ -1,9 +1,10 @@
-/* GrowthKit /four product state: entitlement, daily briefs, and integrations. */
+/* GrowthKit /four product state: entitlement, daily reports, history, and integrations. */
 (function () {
   'use strict';
 
   var dailyBusy = false;
   var accountCache = null;
+  var countdownTimer = null;
 
   function qs(sel, root) { return (root || document).querySelector(sel); }
   function esc(value) {
@@ -38,6 +39,43 @@
   }
 
   function todayUtc() { return new Date().toISOString().slice(0, 10); }
+
+  function renderDailyCountdown(access, today) {
+    var host = qs('[data-daily-countdown]');
+    var label = qs('[data-daily-countdown-label]', host);
+    if (!host || !label) return;
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    if (!access || !access.allowed) { host.hidden = true; return; }
+    host.hidden = false;
+    var unlockAt = null;
+    if (today && today.status === 'completed') {
+      var renderedAt = new Date();
+      unlockAt = Date.UTC(renderedAt.getUTCFullYear(), renderedAt.getUTCMonth(), renderedAt.getUTCDate() + 1);
+    }
+
+    function update() {
+      if (!today || today.status !== 'completed') {
+        host.classList.remove('is-counting');
+        label.textContent = 'Daily report ready';
+        return;
+      }
+      var remaining = Math.max(0, unlockAt - Date.now());
+      if (remaining <= 0) {
+        host.classList.remove('is-counting');
+        label.textContent = 'Daily report ready';
+        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+        return;
+      }
+      var seconds = Math.floor(remaining / 1000);
+      var hh = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      var mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      var ss = String(seconds % 60).padStart(2, '0');
+      host.classList.add('is-counting');
+      label.textContent = 'Daily report coming in ' + hh + ':' + mm + ':' + ss;
+    }
+    update();
+    if (today && today.status === 'completed') countdownTimer = setInterval(update, 1000);
+  }
 
   function renderAccount(account) {
     accountCache = account;
@@ -78,10 +116,11 @@
       // so and when the next unlocks; otherwise invite the next one.
       if (access.allowed) {
         status.innerHTML += '<span class="status-company">' +
-          (doneToday ? "Today's report is ready · next unlocks 00:00 UTC" : 'One report ready to generate today') +
+          (doneToday ? "Today's report is complete" : 'One report ready to generate today') +
           '</span>';
       }
     }
+    renderDailyCountdown(access, today);
 
     // Completed reports stay readable after access ends, so keep the advisor
     // visible for anyone who has history even once generation locks.
