@@ -10,7 +10,7 @@
 - The report is the same seven-call specimen-grade deliverable as before (research → subject/positioning + market map + sources → teardown → gaps → plan). The internal research pack is never returned to the browser.
 - **Every completed report is kept and browsable.** `/four` lists them newest-first; each links to `/four?report_id=…`, which re-renders that report.
 - The one-a-day limit counts **completed** reports for the current UTC date. A report still generating is resumed, not duplicated; a **failed** attempt does not consume the day, so retries are always allowed until one completes.
-- **Beta grants are metered in reports.** A beta account gets **7 reports across 7 days** (whichever runs out first — see [`beta.md`](beta.md)). One report is charged against the grant when it completes; the daily limit still caps them at one a day, so the practical shape is one a day for a week. Pro/Agentic get one a day with no total cap.
+- **Database-approved beta grants are metered in reports.** They get **7 reports across 7 days** (whichever runs out first — see [`beta.md`](beta.md)). One report is charged when it completes; the daily limit still caps them at one a day, so the practical shape is one a day for a week. Private allowlist, Pro, and Agentic accounts get one a day with no total cap.
 - After access ends (beta expired/spent/revoked, or a lapsed subscription), **completed reports stay readable** but no new report can be generated — the same "your work survives, generation locks" rule as before.
 
 ## The daily limit, precisely

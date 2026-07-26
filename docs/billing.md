@@ -9,15 +9,16 @@ Single home for **paid subscriptions**: the three serverless functions, the Supa
 Access to paid product capabilities is decided by `checkAccess()` in [`lib/subscriptions.js`](../lib/subscriptions.js), in this order:
 
 1. **Paid Pro or Agentic subscription** — an `active` or `trialing` row in the `subscriptions` table. Checked **first**, so a paying customer can never be locked out by beta expiry, revocation, or the beta being switched off.
-2. **An approved beta grant** — an approved row in `beta_applications` still inside its 7-day / 7-report window. Keyed on the Supabase **user id**, not an email. Full rules: [`beta.md`](beta.md).
+2. **Private beta allowlist** — an exact normalized verified email in `GK_BETA_EMAILS` receives unrestricted Pro-equivalent access.
+3. **An approved beta grant** — an approved row in `beta_applications` still inside its 7-day / 7-report window. Keyed on the Supabase **user id**. Full rules: [`beta.md`](beta.md).
 
 Everything else is the **Free** tier and fails closed with **402** `{ code: "subscription_required" }` on generation, daily-intelligence, and integration endpoints. Free users may save onboarding, see the locked dashboard preview/specimen, and **apply for the beta**. `GK_BETA_EXPIRES_AT` optionally sets a global ISO-8601 cutoff ending every grant at once; invalid or elapsed values fail closed. **To halt all beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
 
-**Beta access moved out of this file on 2026-07-24** — it is no longer an env-var allowlist but an approval workflow backed by the `beta_applications` table, granting 7 days or 7 reports. `GK_BETA_EMAILS` and `GK_BETA_OPEN` were **removed** and are no longer read. See [`beta.md`](beta.md) for the model, the states, and the required deployment steps.
+`GK_BETA_EMAILS` is the fixed invited-cohort compatibility path; the `beta_applications` workflow is the auditable, revocable 7-day/7-report path for new applicants. `GK_BETA_OPEN` remains removed. See [`beta.md`](beta.md).
 
 Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: one company, one initial full report, then daily briefs. When access ends, the completed full report remains readable through authenticated GET/report history, but report generation/retries, daily briefs, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
 
-Authenticated `/api/account` responses distinguish `beta-disabled`, `beta-expired`, and `beta-email-mismatch` without returning any allowlist value. `/four` renders those reasons in its product-status line so an invitation/configuration problem is not hidden behind a generic Free-account message.
+Authenticated `/api/account` responses never return the allowlist. Allowlisted access reports `beta-allowlist`; `/four` shows “Beta access · Pro included” and hides the application card.
 
 ## Plans
 
@@ -79,7 +80,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `GK_ADMIN_USER_IDS` | Prod | **NEW** — Supabase user ids allowed to approve beta applications. Unset = nobody is an admin. See [`beta.md`](beta.md) |
 | `GK_BETA_ENABLED` | Prod | `0` immediately disables all beta access regardless of approvals |
 | ~~`GK_BETA_OPEN`~~ | — | **Removed 2026-07-24** — no longer read by any code |
-| ~~`GK_BETA_EMAILS`~~ | — | **Removed 2026-07-24** — replaced by the `beta_applications` table |
+| `GK_BETA_EMAILS` | Prod | Private fixed-cohort allowlist; exact normalized verified-email matching; grants unrestricted Pro-equivalent beta access |
 | `GK_BETA_EXPIRES_AT` | Prod | optional ISO-8601 cutoff for all beta grants; invalid/past values fail closed |
 
 ## Stripe dashboard setup (one-time)

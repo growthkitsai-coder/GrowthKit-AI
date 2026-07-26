@@ -1,16 +1,16 @@
-# Beta access — applications, approvals, and the 7-day grant
+# Beta access — private allowlist plus applications and approvals
 
 > Part of the GrowthKit AI docs set. Read [`CLAUDE.md`](../CLAUDE.md) first. This file is the single home for **who may use the beta and how they get in**. Update it whenever the grant rules, the approval flow, or the admin surface change.
 
-**Status: built 2026-07-24 (Phase 1).** Replaces the `GK_BETA_EMAILS` env-var allowlist. **Not live until Avi completes the two deployment steps below.**
+**Status: updated 2026-07-26.** The private `GK_BETA_EMAILS` compatibility path works without the application-table migration; the application/approval path needs the deployment steps below.
 
 ## The model, in one paragraph
 
-Anyone may create a Free account and **apply**. Applying grants **nothing** — it writes a `pending` row. **Avi approves by hand** in `/admin.html`. Approval starts a window that ends after **7 days or 7 full reports, whichever comes first**. When it ends, the account drops back to Free and must pay for Pro. Nobody gets beta access any other way: there is no env allowlist and no open-beta flag any more.
+An exact normalized verified email in the private `GK_BETA_EMAILS` Vercel value receives unrestricted Pro-equivalent beta access. Everyone else may create a Free account and **apply**. Applying grants **nothing** — it writes a `pending` row. **Avi approves by hand** in `/admin.html`; approval starts a window that ends after **7 days or 7 full reports, whichever comes first**. When it ends, the account drops back to Free and must pay for Pro. There is no open-beta flag.
 
-## Why this replaced the env var
+## Why both paths exist
 
-Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeploying. That made approval slow, unauditable, impossible to revoke quickly, and impossible to meter — there was nowhere to count reports. It was also a **second door**: anyone whose email landed in that string was in, regardless of whether they had ever applied. The requirement (Avi, 2026-07-24) is that *only* explicitly approved people can use the beta, so the env allowlist and the `GK_BETA_OPEN` everyone-gets-in flag were both **deleted**, not merely bypassed.
+The database workflow is the auditable, revocable, metered path for new applicants. The private env allowlist remains a founder-controlled compatibility path for a fixed invited cohort that must receive Pro-equivalent access without applying or consuming the seven-report grant. It is checked server-side, never returned or logged, and must never be committed.
 
 ## The pieces
 
@@ -18,7 +18,7 @@ Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeployin
 |---|---|
 | `supabase/migrations/202607240001_beta_applications.sql` | The `beta_applications` table + RLS |
 | `lib/beta.js` | Grant rules, approval/revocation, admin check. The brain. |
-| `lib/subscriptions.js` → `checkAccess()` | Subscription first, then beta grant. The gate. |
+| `lib/subscriptions.js` → `checkAccess()` | Subscription first, then private allowlist, then database grant. The gate. |
 | `api/beta.js` | `GET` own status · `POST` apply |
 | `api/admin-beta.js` | `GET` list · `POST` approve/revoke — admin only |
 | `admin.html` | Internal approvals console (not public, not in sitemap) |
@@ -30,6 +30,7 @@ Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeployin
 
 | Reason | Allowed | Meaning |
 |---|---|---|
+| `beta-allowlist` | ✓ | Exact verified email is privately allowlisted. Reports as plan `pro`, status `beta_allowlist`; no seven-report counter. |
 | `beta-not-applied` | ✗ | No row. Show the apply form. |
 | `beta-pending` | ✗ | Applied, waiting on Avi. |
 | `beta-approved` | ✓ | Inside the window, reports remaining. Reports as plan `pro`, status `beta`. |
@@ -39,7 +40,7 @@ Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeployin
 | `beta-disabled` | ✗ | `GK_BETA_ENABLED=0` — the global kill switch. |
 | `beta-unavailable` | ✗ | Supabase unreachable or table missing. **Fails closed.** |
 
-**A paid subscription is checked first and always wins.** A paying customer can never be locked out by a beta grant expiring, being revoked, or the beta being switched off entirely.
+**A paid subscription is checked first and always wins.** The kill switch and global cutoff apply to both beta paths.
 
 ## Security decisions worth keeping
 
@@ -49,11 +50,11 @@ Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeployin
 - **RLS lets a user read only their own row and write nothing.** Applying and approving both go through the service_role key server-side — if users could write, they could approve themselves.
 - **Re-applying never resets a row**, so nobody can re-apply their way out of an expired or revoked grant.
 
-## ⚠ Deployment steps — the feature is inert until these are done
+## ⚠ Deployment steps
 
 1. **Run the migration.** Supabase → SQL Editor → paste `supabase/migrations/202607240001_beta_applications.sql`. Until this exists, `checkAccess` returns `beta-unavailable` and **nobody has beta access** (paid subscribers are unaffected).
 2. **Set `GK_ADMIN_USER_IDS`** on the Vercel project that serves growthkitai.com — your Supabase user UUID (Supabase → Authentication → Users → your row → copy the id). Comma-separated for several. **Then redeploy** — Vercel does not apply env changes to existing deployments. Until it is set, `/admin.html` shows "This account is not an admin" for everyone, including you.
-3. Optionally remove the now-unused `GK_BETA_EMAILS` and `GK_BETA_OPEN` env vars. Nothing reads them any more.
+3. Set `GK_BETA_EMAILS` in Production for the fixed invited cohort and redeploy. Comma-, semicolon-, or newline-separated text and a JSON string array are supported. Never put the list in git.
 
 ## Env vars
 
@@ -62,12 +63,12 @@ Approving someone used to mean editing `GK_BETA_EMAILS` in Vercel and redeployin
 | `GK_ADMIN_USER_IDS` | Prod | Supabase user UUIDs allowed to approve. Unset = nobody. **Required for the admin page.** |
 | `GK_BETA_ENABLED` | Prod | `0` instantly disables all beta access regardless of approvals. |
 | `GK_BETA_EXPIRES_AT` | Prod | Optional ISO-8601 cutoff ending every grant at once. Invalid or past values fail closed. |
-| ~~`GK_BETA_EMAILS`~~ | — | **Removed 2026-07-24.** No longer read. |
+| `GK_BETA_EMAILS` | Prod | Private fixed-cohort allowlist; exact normalized verified-email matching. Grants unrestricted Pro-equivalent beta access. |
 | ~~`GK_BETA_OPEN`~~ | — | **Removed 2026-07-24.** No longer read. |
 
 ## Phase 2 — BUILT 2026-07-25
 
-The grant's **7-report counter is now live**. `api/advise.js` calls `lib/beta.js` `consumeReport()` when a report completes (and only for a beta generation, never a paid one), so a beta account is capped at **7 reports across 7 days** — one per UTC day, whichever limit hits first. The one-company lock is gone: each daily report can be a different company, and every past report is browsable. Full model: [`daily-intelligence.md`](daily-intelligence.md). The engine schema for it is `supabase/migrations/202607250001_daily_reports.sql` — **that migration must be run** for generation to work.
+The database grant's **7-report counter is live**. `api/advise.js` calls `lib/beta.js` `consumeReport()` when a report completes only when `access.reason === 'beta-approved'`, so an allowlisted or paid generation never consumes that grant. A database-approved beta account is capped at **7 reports across 7 days** — one per UTC day, whichever limit hits first. The one-company lock is gone: each daily report can be a different company, and every past report is browsable. Full model: [`daily-intelligence.md`](daily-intelligence.md). The engine schema for it is `supabase/migrations/202607250001_daily_reports.sql` — **that migration must be run** for generation to work.
 
 ## The public waitlist is a different thing
 

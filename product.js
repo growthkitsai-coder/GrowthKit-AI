@@ -62,6 +62,8 @@
         else if (access.reason === 'beta-revoked') deniedMessage = 'Free account · beta access was withdrawn';
         else if (access.reason === 'beta-disabled') deniedMessage = 'Free account · the beta is currently closed';
         status.innerHTML = '<span class="status-dot"></span>' + deniedMessage;
+      } else if (access.reason === 'beta-allowlist') {
+        status.innerHTML = '<span class="status-dot"></span>Beta access · Pro included';
       } else if (access.reason === 'beta-approved') {
         var b = access.beta || {};
         var left = typeof b.reports_remaining === 'number' ? b.reports_remaining : '?';
@@ -122,7 +124,10 @@
     var body = qs('[data-beta-body]');
     var reason = access.reason;
 
-    if (access.reason === 'subscription') { host.style.display = 'none'; return; }
+    if (access.reason === 'subscription' || access.reason === 'beta-allowlist') {
+      host.style.display = 'none';
+      return;
+    }
     host.style.display = '';
 
     if (access.allowed && reason === 'beta-approved') {

@@ -9,6 +9,7 @@ const KEYS = [
   'SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
   'GK_BETA_ENABLED',
+  'GK_BETA_EMAILS',
   'GK_BETA_EXPIRES_AT',
   'GK_ADMIN_USER_IDS',
   'STRIPE_PRICE_PRO',
@@ -22,10 +23,9 @@ function resetEnv() {
 
 test.afterEach(resetEnv);
 
-// ── DB-backed beta (2026-07-24) ─────────────────────────────────────────────
-// checkAccess now reads `beta_applications` instead of the GK_BETA_EMAILS env
-// var. These helpers stand in for Supabase PostgREST, routing by table name
-// because checkAccess makes two reads: subscriptions, then beta_applications.
+// ── Private allowlist + DB-backed applications ───────────────────────────────
+// These helpers stand in for Supabase PostgREST, routing by table name because
+// checkAccess can read subscriptions and beta_applications.
 
 function jsonRes(rows) {
   return { ok: true, status: 200, json: async function () { return rows; } };
@@ -60,6 +60,56 @@ function approvedRow(overrides) {
     reports_limit: 7
   }, overrides || {});
 }
+
+test('private allowlist grants Pro-equivalent access without a database application', async function () {
+  process.env.GK_BETA_EMAILS = ' FIRST@example.com, second@example.com ';
+  const access = await checkAccess({ id: 'user-1', email: ' First@Example.COM ' });
+  assert.equal(access.allowed, true);
+  assert.equal(access.plan, 'pro');
+  assert.equal(access.status, 'beta_allowlist');
+  assert.equal(access.reason, 'beta-allowlist');
+  assert.equal(access.beta, null);
+});
+
+test('private allowlist accepts newline, semicolon, JSON, and OAuth identity emails', async function () {
+  process.env.GK_BETA_EMAILS = 'first@example.com\nsecond@example.com; third@example.com';
+  const separated = await checkAccess({ id: 'user-1', email: 'third@example.com' });
+  assert.equal(separated.reason, 'beta-allowlist');
+
+  process.env.GK_BETA_EMAILS = '["fourth@example.com", "oauth@example.com"]';
+  const oauth = await checkAccess({
+    id: 'user-2',
+    email: '',
+    user_metadata: { email: 'not-trusted@example.com' },
+    identities: [{ identity_data: { email: ' OAuth@Example.com ' } }]
+  });
+  assert.equal(oauth.reason, 'beta-allowlist');
+});
+
+test('user-editable metadata cannot grant private allowlist access', async function () {
+  process.env.GK_BETA_EMAILS = 'invited@example.com';
+  const access = await checkAccess({
+    id: 'user-1',
+    email: 'other@example.com',
+    user_metadata: { email: 'invited@example.com' }
+  });
+  assert.equal(access.allowed, false);
+  assert.equal(access.reason, 'beta-unavailable');
+});
+
+test('beta kill switch and global cutoff also apply to the private allowlist', async function () {
+  process.env.GK_BETA_EMAILS = 'founder@example.com';
+  process.env.GK_BETA_ENABLED = '0';
+  const disabled = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(disabled.allowed, false);
+  assert.equal(disabled.reason, 'beta-disabled');
+
+  delete process.env.GK_BETA_ENABLED;
+  process.env.GK_BETA_EXPIRES_AT = '2000-01-01T00:00:00.000Z';
+  const expired = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(expired.allowed, false);
+  assert.equal(expired.reason, 'beta-expired');
+});
 
 test('an account that never applied gets no beta access', async function () {
   mockDb({});
