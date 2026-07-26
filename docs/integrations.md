@@ -13,7 +13,7 @@
 
 ## Stripe Connect
 
-Purpose: yesterday's new customers (signup proxy), net paid-charge revenue, deleted-subscription churn, and daily averages over the preceding seven complete days (excluding yesterday).
+Purpose: yesterday's new customers (signup proxy), net paid-charge revenue, deleted-subscription churn, daily averages over the preceding seven complete days, and report-time seven-day totals for new customers, revenue, and subscription churn.
 
 - OAuth: Stripe Connect Standard-account OAuth with `read_only` scope.
 - Required: enable Connect on the GrowthKit Stripe platform, set the callback URL below, copy the Connect client id.
@@ -24,7 +24,7 @@ Env: `STRIPE_CONNECT_CLIENT_ID`; existing `STRIPE_SECRET_KEY` is also required.
 
 ## Google Analytics 4
 
-Purpose: yesterday's active users, sessions, new users, total revenue, and seven-day daily averages.
+Purpose: yesterday's active users, sessions, new users, total revenue, seven-day daily averages, and report-time seven-day totals for active users, sessions, and new users.
 
 - OAuth scope: `https://www.googleapis.com/auth/analytics.readonly`, offline access + refresh token.
 - On callback, the Analytics Admin API lists available GA4 properties. The first is selected initially; `/four` offers a property selector.
@@ -47,6 +47,12 @@ Purpose: organization follower growth, aggregate organic post impressions/clicks
 - Official references: https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow · https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api · https://learn.microsoft.com/en-us/linkedin/marketing/community-management/organizations/follower-statistics · https://learn.microsoft.com/en-us/linkedin/marketing/community-management/organizations/share-statistics
 
 Env: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`; optional `LINKEDIN_SCOPES`, `LINKEDIN_VERSION`.
+
+## Report-time weekly snapshot
+
+When a newly generated report reaches `capital_metrics`, `api/advise.js` calls `collectMetrics(user_id)` for **all configured connections** while the funding-landscape model call runs. This adds no fourth expansion model call: provider APIs are direct reads, and their values are attached to `weekly_metrics` only after Claude returns. The model never sees or rewrites first-party metrics.
+
+The snapshot is bounded to 20 seconds so one slow provider cannot hold the serverless request open. Per-provider errors render as “Needs attention”; a whole-snapshot timeout renders a retry/reconnect message; only an actual empty configuration renders “No data connections were configured.” Historical reports retain the values captured at generation time and are not refreshed on view.
 
 ## Shared setup
 

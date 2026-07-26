@@ -1,10 +1,12 @@
 /**
  * GrowthKit first-report pipeline.
  *
- * Seven short, persisted Anthropic calls replace the old all-in-one generation:
+ * Ten short, persisted Anthropic calls replace the old all-in-one generation:
  * research -> subject/positioning + market map + sources (parallel) -> teardown
- * -> gaps -> plan. Every call has a 52-second server deadline and can be retried
- * independently. The internal research pack is never returned to the browser.
+ * -> gaps -> plan, plus three independently persisted expansion calls for
+ * opportunity, GTM/timing, and capital/connected metrics. Every call has a
+ * 52-second server deadline and can be retried independently. The internal
+ * research pack is never returned to the browser.
  */
 'use strict';
 
@@ -23,6 +25,7 @@ const {
   failReportSection
 } = require('../lib/product');
 const beta = require('../lib/beta');
+const { collectMetrics } = require('../lib/integrations');
 
 const ADVISOR_ENABLED = true;
 const MODEL = 'claude-sonnet-5';
@@ -34,7 +37,7 @@ const CAP = { company: 160, website: 300, competitors: 1200, moves: 1200, profil
 
 const STAGES = [
   'research', 'subject_positioning', 'market_map', 'competitor_teardown',
-  'gap_analysis', 'plan', 'sources'
+  'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics', 'plan', 'sources'
 ];
 const DEPENDENCIES = {
   research: [],
@@ -42,8 +45,11 @@ const DEPENDENCIES = {
   market_map: ['research'],
   competitor_teardown: ['research', 'market_map'],
   gap_analysis: ['research', 'competitor_teardown'],
-  plan: ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources'],
-  sources: ['research']
+  opportunity: ['research'],
+  strategy_timing: ['research', 'subject_positioning', 'opportunity', 'competitor_teardown', 'gap_analysis'],
+  capital_metrics: ['research', 'opportunity'],
+  plan: ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics', 'sources'],
+  sources: ['research', 'opportunity', 'capital_metrics']
 };
 
 const STAGE_CONFIG = {
@@ -95,6 +101,36 @@ const STAGE_CONFIG = {
       'Each gap must be traceable to the competitor teardown. Make next_move executable this week and every checklist exactly three short verb-led tasks.'
     ].join('\n')
   },
+  opportunity: {
+    maxTokens: 4200,
+    searches: 3,
+    instruction: [
+      'Generate only the quantified market opportunity section using current live web evidence where defensible.',
+      'Return exactly: {"market_opportunity":{"tam":{"value":string,"label":string,"method":string,"confidence":string},"sam":{"value":string,"label":string,"method":string,"confidence":string},"som":{"value":string,"label":string,"method":string,"confidence":string},"target_segments":[{"name":string,"buyer":string,"why_now":string,"entry_wedge":string,"priority":number}],"market_trend":{"available":boolean,"period":string,"unit":string,"points":[{"label":string,"value":number}],"takeaway":string,"methodology":string},"search_demand":{"available":boolean,"query":string,"period":string,"points":[{"label":string,"value":number}],"peak_label":string,"takeaway":string,"methodology":string},"caveats":[string]},"opportunity_sources":[{"title":string,"url":string}]}',
+      'Use a bottom-up sizing method when the research supports buyer counts and pricing; triangulate with top-down sources where useful. Never invent precision: use ranges or "Not defensible from public data" when needed.',
+      'Return exactly 3-5 target segments ranked by priority. Market trend should cover five years with five annual points when comparable data exists. Search demand is indexed interest, not keyword volume: use up to 12 time points normalized 0-100 only when live indexed evidence exists; otherwise set available=false and return an empty points array.',
+      'Include 2-6 direct sources used by this call.'
+    ].join('\n')
+  },
+  strategy_timing: {
+    maxTokens: 3200,
+    instruction: [
+      'Generate only the GTM strategy and window-of-opportunity section from the supplied research, opportunity, teardown, and gaps.',
+      'Return exactly: {"gtm_strategy":[{"priority":number,"segment":string,"channel":string,"motion":string,"message":string,"first_test":string,"metric":string}],"window_of_opportunity":{"status":string,"score":number,"horizon":string,"why_now":[string],"triggers":[string],"risks":[string],"next_move":string}}',
+      'Return exactly 3 GTM plays ranked by priority. Each play must name a target segment, specific channel, sales/marketing motion, message, first test, and measurable metric.',
+      'The window score is 0-100. Status must be open, opening, closing, or unclear. Be decisive but show the evidence, triggers, and risks behind the timing call.'
+    ].join('\n')
+  },
+  capital_metrics: {
+    maxTokens: 4000,
+    searches: 3,
+    instruction: [
+      'Generate only the funding landscape. The server attaches connected weekly metrics separately after this call; do not transform, estimate, or repeat them.',
+      'Return exactly: {"funding_landscape":{"available":boolean,"radar_axes":[string,string,string,string,string],"radar_entities":[{"name":string,"values":[number,number,number,number,number]}],"comparable_companies":[{"company":string,"total_funding":string,"last_round":string,"date":string,"investors":[string]}],"active_investors":[{"name":string,"fit":string,"thesis":string,"recent_relevant_bet":string}],"recent_rounds":[{"company":string,"round":string,"amount":string,"date":string,"investors":[string]}],"takeaway":string,"caveat":string},"funding_sources":[{"title":string,"url":string}]}',
+      'Cover all three views when live evidence exists: funded comparable companies, active investors, and recent relevant rounds. Use 3-5 radar entities across exactly five axes with 0-100 comparative scores; scores are directional synthesis, never claimed as audited facts.',
+      'If evidence is too thin, set available=false, keep arrays empty, and explain the limitation. Include 2-6 direct sources used by this call.'
+    ].join('\n')
+  },
   plan: {
     maxTokens: 3000,
     instruction: [
@@ -104,11 +140,11 @@ const STAGE_CONFIG = {
     ].join('\n')
   },
   sources: {
-    maxTokens: 1000,
+    maxTokens: 1500,
     instruction: [
-      'Generate only the sources list and honesty note from the research pack.',
+      'Generate only the consolidated sources list and honesty note from the research pack plus the opportunity and funding sources.',
       'Return exactly: {"citations":[{"title":string,"url":string}],"note":string}',
-      'Use 3-8 actual research-pack sources. The note must say this is an AI research draft, key numbers should be verified, and minor inference may be present.'
+      'Use 5-12 actual supplied sources, deduplicated. The note must say this is an AI research draft, market sizes/indexed demand/funding figures should be verified, and minor inference may be present.'
     ].join('\n')
   }
 };
@@ -117,7 +153,7 @@ const BASE_SYSTEM = [
   'You are the GrowthKit AI market-intelligence engine for seed and Series A founders.',
   'Voice: confident, operator-grade, specific, concise, and grounded. Keep the founder moving toward a decision.',
   'Return only one valid JSON object with double-quoted keys and no markdown or code fences.',
-  'Here is the research pack. Use only this information unless you need minor inference.',
+  'Use the supplied research pack as the factual base. If this call has live web search, use it for current evidence; otherwise use only supplied information plus clearly limited inference.',
   'Never claim that a minor inference was directly sourced.'
 ].join('\n');
 const RESEARCH_SYSTEM = [
@@ -195,6 +231,34 @@ function validStage(stage, output) {
   if (stage === 'market_map') return Boolean(output.market_map && Array.isArray(output.market_map.vendors) && output.market_map.vendors.length >= 4);
   if (stage === 'competitor_teardown') return Boolean(Array.isArray(output.teardown) && output.teardown.length === 4 && output.teardown.every((item) => item.name && item.soft && item.next_move));
   if (stage === 'gap_analysis') return Boolean(Array.isArray(output.gaps) && output.gaps.length === 3 && output.gaps.every((gap) => gap.title && gap.next_move && Array.isArray(gap.checklist) && gap.checklist.length === 3));
+  if (stage === 'opportunity') {
+    const m = output.market_opportunity;
+    const validSeries = (series, maxPoints) => Boolean(series && Array.isArray(series.points) &&
+      (!series.available || (series.points.length >= 2 && series.points.length <= maxPoints &&
+        series.points.every((point) => point.label && Number.isFinite(Number(point.value))))));
+    return Boolean(m && m.tam && m.tam.value && m.sam && m.sam.value && m.som && m.som.value &&
+      Array.isArray(m.target_segments) && m.target_segments.length >= 3 && m.target_segments.length <= 5 &&
+      validSeries(m.market_trend, 5) && validSeries(m.search_demand, 12) &&
+      m.search_demand.points.every((point) => Number(point.value) >= 0 && Number(point.value) <= 100));
+  }
+  if (stage === 'strategy_timing') {
+    const window = output.window_of_opportunity;
+    return Boolean(Array.isArray(output.gtm_strategy) && output.gtm_strategy.length === 3 &&
+      output.gtm_strategy.every((play) => play.segment && play.channel && play.first_test && play.metric) &&
+      window && ['open', 'opening', 'closing', 'unclear'].indexOf(window.status) !== -1 &&
+      Number.isFinite(Number(window.score)) && Number(window.score) >= 0 && Number(window.score) <= 100 &&
+      window.next_move);
+  }
+  if (stage === 'capital_metrics') {
+    const f = output.funding_landscape;
+    if (!f || !Array.isArray(f.radar_axes) || !Array.isArray(f.radar_entities) ||
+      !Array.isArray(f.comparable_companies) || !Array.isArray(f.active_investors) || !Array.isArray(f.recent_rounds)) return false;
+    if (!f.available) return true;
+    return Boolean(f.radar_axes.length === 5 && f.radar_entities.length >= 3 && f.radar_entities.length <= 5 &&
+      f.radar_entities.every((entity) => entity.name && Array.isArray(entity.values) && entity.values.length === 5 &&
+        entity.values.every((value) => Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 100)) &&
+      f.comparable_companies.length && f.active_investors.length && f.recent_rounds.length);
+  }
   if (stage === 'plan') return Boolean(Array.isArray(output.plan) && output.plan.length === 6 && output.plan.every((play) => play.title && play.first_move));
   if (stage === 'sources') return Boolean(Array.isArray(output.citations) && output.citations.length >= 1 && output.note);
   return false;
@@ -209,7 +273,11 @@ function rowsByStage(rows) {
 // and report identity fields ride alongside for the daily/history model.
 function publicState(report, rows) {
   const byStage = rowsByStage(rows);
-  const deliverable = {};
+  const deliverable = report && report.status === 'completed' && report.full_report
+    ? Object.assign({}, report.full_report)
+    : {};
+  const legacyCompleted = Boolean(report && report.status === 'completed' && Number(deliverable.report_version || 1) < 2);
+  const expansionStages = ['opportunity', 'strategy_timing', 'capital_metrics'];
   STAGES.forEach((stage) => {
     if (stage === 'research') return;
     if (byStage[stage] && byStage[stage].status === 'completed') Object.assign(deliverable, byStage[stage].output || {});
@@ -220,7 +288,7 @@ function publicState(report, rows) {
     const stale = row && row.status === 'generating' && Date.now() - new Date(row.started_at || row.updated_at).getTime() > CALL_TIMEOUT_MS + 8000;
     stages[stage] = row
       ? { status: stale ? 'failed' : row.status, error: stale ? 'This section did not finish within the time limit. Try it again.' : (row.error || null) }
-      : { status: 'pending', error: null };
+      : { status: legacyCompleted && expansionStages.indexOf(stage) !== -1 ? 'not_applicable' : 'pending', error: null };
   });
   return {
     workspace: report ? {
@@ -240,8 +308,17 @@ function dependencyContext(stage, byStage) {
   const context = { research_pack: byStage.research.output };
   if (stage === 'competitor_teardown') Object.assign(context, byStage.market_map.output);
   if (stage === 'gap_analysis') Object.assign(context, byStage.competitor_teardown.output);
+  if (stage === 'strategy_timing') {
+    ['subject_positioning', 'opportunity', 'competitor_teardown', 'gap_analysis'].forEach((name) => Object.assign(context, byStage[name].output));
+  }
+  if (stage === 'capital_metrics') {
+    Object.assign(context, byStage.opportunity.output);
+  }
+  if (stage === 'sources') {
+    Object.assign(context, byStage.opportunity.output, byStage.capital_metrics.output);
+  }
   if (stage === 'plan') {
-    ['subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources'].forEach((name) => Object.assign(context, byStage[name].output));
+    ['subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics', 'sources'].forEach((name) => Object.assign(context, byStage[name].output));
   }
   return context;
 }
@@ -253,6 +330,28 @@ function researchInput(workspace) {
     known_competitors: workspace.competitors || '',
     founder_profile: workspace.profile_text || ''
   };
+}
+
+function collectMetricsBounded(userId) {
+  return new Promise((resolve) => {
+    let finished = false;
+    const timeout = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      resolve({ _error: 'The connected-metrics snapshot timed out during report generation.' });
+    }, 20 * 1000);
+    collectMetrics(userId).then((metrics) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      resolve(metrics);
+    }).catch(() => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      resolve({ _error: 'The connected-metrics snapshot could not be completed.' });
+    });
+  });
 }
 
 async function callAnthropic(apiKey, stage, context) {
@@ -273,7 +372,8 @@ async function callAnthropic(apiKey, stage, context) {
       system: (stage === 'research' ? RESEARCH_SYSTEM : BASE_SYSTEM) + '\n\nYOUR ONLY TASK FOR THIS CALL:\n' + config.instruction,
       messages: [{ role: 'user', content: JSON.stringify(context) }]
     };
-    // Basic web-search variant, NOT web_search_20260209. The _20260209 variant runs
+    // Search-enabled stages use the basic variant, NOT web_search_20260209. The
+    // _20260209 variant runs
     // code-execution "dynamic filtering" under the hood, which added ~45s and was
     // the other half of the timeout. The basic variant returns results directly.
     if (config.searches) payload.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: config.searches }];
@@ -421,8 +521,15 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    // Connected providers are fetched in parallel with the capital landscape
+    // model call so their network latency does not stack on top of the 52s model
+    // deadline. The model never transforms these first-party values.
+    const metricsPromise = stage === 'capital_metrics'
+      ? collectMetricsBounded(user.id)
+      : null;
     const context = stage === 'research' ? researchInput(report) : dependencyContext(stage, byStage);
     const output = await callAnthropic(process.env.ANTHROPIC_API_KEY, stage, context);
+    if (metricsPromise) output.weekly_metrics = await metricsPromise;
     const saved = await completeReportSection(reportId, stage, output);
     if (!saved) throw Object.assign(new Error('This section finished but could not be saved. Try it again.'), { status: 502 });
 
@@ -432,6 +539,7 @@ module.exports = async function handler(req, res) {
     if (allComplete) {
       const deliverable = {};
       STAGES.forEach((name) => { if (name !== 'research') Object.assign(deliverable, byStage[name].output || {}); });
+      deliverable.report_version = 2;
       const didComplete = await completeReport(reportId, deliverable);
       // Charge the beta grant exactly once — only on the transition that actually
       // marked the report complete, and only for a beta (not paid) generation.

@@ -61,7 +61,8 @@ create table public.report_sections (
   report_id    uuid not null references public.reports(id) on delete cascade,
   section      text not null check (section in (
     'research', 'subject_positioning', 'market_map', 'competitor_teardown',
-    'gap_analysis', 'plan', 'sources'
+    'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics',
+    'plan', 'sources'
   )),
   status       text not null default 'generating'
                check (status in ('generating', 'completed', 'failed')),

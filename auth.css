@@ -175,7 +175,25 @@
 .four-head h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(34px, 5.4vw, 60px); line-height: 1.0; letter-spacing: -0.025em; margin: 0 0 16px; color: var(--ink); }
 .four-head h1 em { font-style: italic; color: var(--accent); }
 .four-head .lede { font-size: 16px; line-height: 1.55; color: var(--ink-2); margin: 0 auto; max-width: 52ch; }
-.four-app > .gk-advisor { max-width: 820px; margin: 0 auto; }
+.four-app > .gk-advisor {
+  width: min(1380px, calc(100vw - 48px));
+  max-width: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+.four-daily-countdown {
+  width: min(1380px, calc(100vw - 48px)); margin: 14px 0 0 50%;
+  transform: translateX(-50%); display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 44px; padding: 10px 18px; border: 1px solid var(--line); border-radius: 9px;
+  background: var(--bg-2); color: var(--ink-2);
+  font: 11px 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .07em; text-transform: uppercase;
+}
+.four-daily-countdown[hidden] { display: none; }
+.four-countdown-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(31,71,50,.12); }
+.four-daily-countdown.is-counting [data-daily-countdown-label] { color: var(--accent); }
+:root[data-theme="dark"] .four-daily-countdown { background: rgba(62,245,159,.035); border-color: var(--deep-3); color: rgba(143,255,201,.62); }
+:root[data-theme="dark"] .four-countdown-dot { background: var(--neon); box-shadow: 0 0 0 3px rgba(62,245,159,.14), 0 0 12px rgba(62,245,159,.65); }
+:root[data-theme="dark"] .four-daily-countdown.is-counting [data-daily-countdown-label] { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,.3); }
 
 .reads { max-width: 820px; margin: 46px auto 0; }
 .reads-head { text-align: center; margin-bottom: 20px; }
@@ -412,6 +430,7 @@
   .daily-brief, .daily-head { padding-left: 20px; padding-right: 20px; }
   .daily-brief-meta { align-items: flex-start; flex-direction: column; }
   .finding-founder { align-items: flex-start; flex-direction: column; }
+  .four-app > .gk-advisor, .four-daily-countdown { width: calc(100vw - 24px); }
 }
 
 @media print {

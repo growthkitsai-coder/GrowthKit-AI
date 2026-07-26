@@ -281,6 +281,123 @@
     return '<div class="gk-map in"><div class="map-svg-wrap">' + s + '</div>' + legend + '</div>';
   }
 
+  function buildEvidenceChart(series, title, unit) {
+    var points = series && Array.isArray(series.points) ? series.points.slice(0, 12) : [];
+    if (!series || series.available === false || points.length < 2) {
+      return '<div class="gk-data-empty"><strong>' + esc(title) + '</strong><p>' + esc(series && (series.takeaway || series.methodology) || 'Comparable live data was not available for this market.') + '</p></div>';
+    }
+    var values = points.map(function (point) { return num(point.value, 0); });
+    var min = Math.min.apply(Math, values), max = Math.max.apply(Math, values);
+    if (min === max) { min = 0; max = max || 1; }
+    var left = 54, right = 694, top = 24, bottom = 202;
+    var coords = points.map(function (point, index) {
+      var x = left + (points.length === 1 ? 0 : index / (points.length - 1) * (right - left));
+      var y = bottom - ((num(point.value, 0) - min) / (max - min) * (bottom - top));
+      return { x: x, y: y, label: point.label, value: point.value };
+    });
+    var line = coords.map(function (point) { return point.x.toFixed(1) + ',' + point.y.toFixed(1); }).join(' ');
+    var svg = '<svg class="gk-evidence-svg" viewBox="0 0 720 245" role="img" aria-label="' + esc(title) + '">';
+    for (var g = 0; g < 4; g++) {
+      var gy = top + g / 3 * (bottom - top);
+      svg += '<line class="gk-chart-grid" x1="' + left + '" y1="' + gy.toFixed(1) + '" x2="' + right + '" y2="' + gy.toFixed(1) + '"/>';
+    }
+    svg += '<polyline class="gk-chart-line" points="' + line + '"/>';
+    for (var i = 0; i < coords.length; i++) {
+      var showLabel = coords.length <= 6 || i === 0 || i === coords.length - 1 || i % 3 === 0;
+      svg += '<circle class="gk-chart-dot" cx="' + coords[i].x.toFixed(1) + '" cy="' + coords[i].y.toFixed(1) + '" r="4"/>';
+      if (showLabel) svg += '<text class="gk-chart-label" x="' + coords[i].x.toFixed(1) + '" y="229" text-anchor="middle">' + esc(coords[i].label) + '</text>';
+    }
+    svg += '</svg>';
+    return '<div class="gk-evidence-card"><div class="gk-evidence-head"><div><strong>' + esc(title) + '</strong><span>' + esc(series.period || '') + '</span></div><span>' + esc(unit || series.unit || 'index') + '</span></div>'
+      + svg + '<p class="gk-evidence-takeaway">' + esc(series.takeaway || '') + '</p>'
+      + (series.methodology ? '<small class="gk-method">' + esc(series.methodology) + '</small>' : '') + '</div>';
+  }
+
+  function buildFundingRadar(funding) {
+    if (!funding || funding.available === false || !Array.isArray(funding.radar_axes) || funding.radar_axes.length !== 5 || !funding.radar_entities || !funding.radar_entities.length) return '';
+    var axes = funding.radar_axes.slice(0, 5), entities = funding.radar_entities.slice(0, 4);
+    var cx = 180, cy = 154, radius = 106;
+    function polar(index, scale) {
+      var angle = -Math.PI / 2 + index * Math.PI * 2 / 5;
+      return { x: cx + Math.cos(angle) * radius * scale, y: cy + Math.sin(angle) * radius * scale };
+    }
+    function polygon(scale) {
+      var out = [];
+      for (var i = 0; i < 5; i++) { var p = polar(i, scale); out.push(p.x.toFixed(1) + ',' + p.y.toFixed(1)); }
+      return out.join(' ');
+    }
+    var svg = '<svg class="gk-radar-svg" viewBox="0 0 360 310" role="img" aria-label="Funding landscape radar">';
+    for (var ring = 1; ring <= 4; ring++) svg += '<polygon class="gk-radar-grid" points="' + polygon(ring / 4) + '"/>';
+    for (var a = 0; a < 5; a++) {
+      var edge = polar(a, 1), lab = polar(a, 1.18);
+      svg += '<line class="gk-radar-axis" x1="' + cx + '" y1="' + cy + '" x2="' + edge.x.toFixed(1) + '" y2="' + edge.y.toFixed(1) + '"/>';
+      svg += '<text class="gk-radar-label" x="' + lab.x.toFixed(1) + '" y="' + lab.y.toFixed(1) + '" text-anchor="middle">' + esc(axes[a]) + '</text>';
+    }
+    for (var e = 0; e < entities.length; e++) {
+      var vals = Array.isArray(entities[e].values) ? entities[e].values.slice(0, 5) : [];
+      if (vals.length !== 5) continue;
+      var pts = vals.map(function (value, index) {
+        var p = polar(index, clamp(num(value, 0), 0, 100) / 100);
+        return p.x.toFixed(1) + ',' + p.y.toFixed(1);
+      }).join(' ');
+      svg += '<polygon class="gk-radar-shape radar-' + e + '" points="' + pts + '"/>';
+    }
+    svg += '</svg>';
+    var legend = '<div class="gk-radar-legend">';
+    for (var l = 0; l < entities.length; l++) legend += '<span><i class="radar-' + l + '"></i>' + esc(entities[l].name) + '</span>';
+    return '<div class="gk-radar">' + svg + legend + '</div></div>';
+  }
+
+  function metricNumber(value) {
+    var n = Number(value);
+    return isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: 1 }) : '—';
+  }
+  function metricMoney(minor, currency) {
+    var n = Number(minor);
+    if (!isFinite(n)) return '—';
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: String(currency || 'GBP').toUpperCase(), maximumFractionDigits: 0 }).format(n / 100); }
+    catch (e) { return metricNumber(n / 100) + ' ' + String(currency || '').toUpperCase(); }
+  }
+  function renderWeeklyMetrics(metrics) {
+    metrics = metrics || {};
+    if (metrics._error) {
+      return '<div class="gk-data-empty"><strong>Weekly metrics</strong><p>' + esc(metrics._error) + ' Reconnect or retry this section to capture fresh values.</p></div>';
+    }
+    var providers = [
+      { key: 'stripe', name: 'Stripe' },
+      { key: 'google_analytics', name: 'Google Analytics' },
+      { key: 'linkedin', name: 'LinkedIn' }
+    ];
+    var cards = '';
+    for (var i = 0; i < providers.length; i++) {
+      var entry = metrics[providers[i].key];
+      if (!entry || !entry.connected) continue;
+      if (entry.error) {
+        cards += '<article class="gk-metric-provider"><div class="gk-metric-provider-head"><strong>' + esc(providers[i].name) + '</strong><span>Needs attention</span></div><p class="gk-metric-error">' + esc(entry.error) + '</p></article>';
+        continue;
+      }
+      var data = entry.data || {}, cells = '';
+      if (providers[i].key === 'stripe') {
+        cells += '<div><span>New customers · 7d</span><strong>' + metricNumber(data.signups_7d) + '</strong></div>';
+        cells += '<div><span>Revenue · 7d</span><strong>' + metricMoney(data.revenue_7d_minor, data.currency) + '</strong></div>';
+        cells += '<div><span>Subscription churn · 7d</span><strong>' + metricNumber(data.churned_subscriptions_7d) + '</strong></div>';
+      } else if (providers[i].key === 'google_analytics') {
+        var total = data.seven_day_total || {};
+        cells += '<div><span>Active users · 7d</span><strong>' + metricNumber(total.active_users) + '</strong></div>';
+        cells += '<div><span>Sessions · 7d</span><strong>' + metricNumber(total.sessions) + '</strong></div>';
+        cells += '<div><span>New users · 7d</span><strong>' + metricNumber(total.new_users) + '</strong></div>';
+      } else {
+        cells += '<div><span>Followers gained · 7d</span><strong>' + metricNumber(data.seven_day_followers_gained) + '</strong></div>';
+        cells += '<div><span>Impressions · 7d</span><strong>' + metricNumber(data.seven_day_impressions) + '</strong></div>';
+        cells += '<div><span>Clicks · 7d</span><strong>' + metricNumber(data.seven_day_clicks) + '</strong></div>';
+      }
+      cards += '<article class="gk-metric-provider"><div class="gk-metric-provider-head"><strong>' + esc(providers[i].name) + '</strong><span>Connected · live snapshot</span></div><div class="gk-metric-grid">' + cells + '</div></article>';
+    }
+    return cards
+      ? '<div class="gk-weekly-metrics"><div class="gk-subhead"><span>First-party evidence</span><h3>Weekly metrics</h3><p>Captured directly from every configured connection when this report was generated.</p></div>' + cards + '</div>'
+      : '<div class="gk-data-empty"><strong>Weekly metrics</strong><p>No data connections were configured when this report was generated.</p></div>';
+  }
+
   // ── Render the full or partially completed JSON deliverable ──
   function renderDeliverable(d, pipeline) {
     d = d || {};
@@ -305,6 +422,9 @@
         || (stage === 'market_map' && d.market_map)
         || (stage === 'competitor_teardown' && d.teardown)
         || (stage === 'gap_analysis' && d.gaps)
+        || (stage === 'opportunity' && d.market_opportunity)
+        || (stage === 'strategy_timing' && d.gtm_strategy && d.window_of_opportunity)
+        || (stage === 'capital_metrics' && d.funding_landscape)
         || (stage === 'plan' && d.plan)
         || (stage === 'sources' && d.citations);
       var status = stageState[stage] && stageState[stage].status || (inferred ? 'completed' : 'pending');
@@ -313,12 +433,17 @@
 
     var subject = d.subject || {};
     var subjectName = subject.name || workspace.company_name || 'Your company';
+    var expandedReport = Boolean(d.market_opportunity || d.gtm_strategy || d.funding_landscape ||
+      (stageState.opportunity && stageState.opportunity.status !== 'not_applicable'));
     var html = '<div class="gk-dv"><div class="gk-report-layout"><aside class="gk-report-nav" aria-label="Report sections"><div class="gk-report-nav-title">First report</div>'
       + navItem('overview', 'subject_positioning', 'Overview')
+      + (expandedReport ? navItem('opportunity', 'opportunity', 'Market opportunity') : '')
       + navItem('market', 'market_map', 'Market map')
       + navItem('competitors', 'competitor_teardown', 'Competitors')
       + navItem('gaps', 'gap_analysis', 'Gaps & next moves')
+      + (expandedReport ? navItem('strategy', 'strategy_timing', 'GTM + timing') : '')
       + navItem('plan', 'plan', '90-day plan')
+      + (expandedReport ? navItem('capital', 'capital_metrics', 'Funding + metrics') : '')
       + navItem('sources', 'sources', 'Sources')
       + '</aside><div class="gk-report-content">';
 
@@ -336,10 +461,32 @@
     var overview = d.positioning ? '<div class="gk-pos"><p>' + richPara(d.positioning) + '</p></div>' : '';
     html += sec('overview', 'subject_positioning', 'Subject brief + positioning', overview);
 
-    // 02 Market map
+    // 02 Market opportunity
+    var opportunity = '', mo = d.market_opportunity;
+    if (mo) {
+      var sizes = ['tam', 'sam', 'som'].map(function (key) {
+        var item = mo[key] || {};
+        return '<article class="gk-size-card"><span>' + key.toUpperCase() + '</span><strong>' + esc(item.value || 'Not defensible') + '</strong><p>' + esc(item.label || '') + '</p><small>' + esc(item.method || '') + (item.confidence ? ' · ' + esc(item.confidence) : '') + '</small></article>';
+      }).join('');
+      var segments = '';
+      for (var sg = 0; sg < (mo.target_segments || []).length; sg++) {
+        var segment = mo.target_segments[sg];
+        segments += '<article class="gk-segment-card"><span>0' + esc(segment.priority || (sg + 1)) + '</span><div><h3>' + esc(segment.name) + '</h3><p>' + esc(segment.why_now) + '</p><dl><div><dt>Buyer</dt><dd>' + esc(segment.buyer) + '</dd></div><div><dt>Entry wedge</dt><dd>' + esc(segment.entry_wedge) + '</dd></div></dl></div></article>';
+      }
+      opportunity = '<div class="gk-size-grid">' + sizes + '</div>'
+        + '<div class="gk-subhead"><span>Priority order</span><h3>Segments to target</h3></div><div class="gk-segment-grid">' + segments + '</div>'
+        + '<div class="gk-evidence-grid">'
+        + buildEvidenceChart(mo.market_trend, 'Five-year market trend', mo.market_trend && mo.market_trend.unit)
+        + buildEvidenceChart(mo.search_demand, 'Indexed search demand', '0–100 interest index')
+        + '</div>';
+      if (mo.caveats && mo.caveats.length) opportunity += '<div class="gk-caveats"><strong>Sizing caveats</strong><ul>' + mo.caveats.map(function (caveat) { return '<li>' + esc(caveat) + '</li>'; }).join('') + '</ul></div>';
+    }
+    if (expandedReport) html += sec('opportunity', 'opportunity', 'Market opportunity', opportunity);
+
+    // 03 Market map
     html += sec('market', 'market_map', 'Market map', d.market_map ? buildMap(d.market_map, subjectName) : '');
 
-    // 03 Teardown
+    // 04 Teardown
     var teardown = '';
     if (d.teardown && d.teardown.length) {
       var rows = '<div class="tt-row tt-head"><div>Competitor</div><div>Wedge &amp; motion</div><div>Pricing</div><div>Opening + next move</div></div>';
@@ -357,7 +504,7 @@
     }
     html += sec('competitors', 'competitor_teardown', 'Competitor teardown', teardown);
 
-    // 04 Gap analysis
+    // 05 Gap analysis
     var gapAnalysis = '';
     if (d.gaps && d.gaps.length) {
       var cards = '';
@@ -380,7 +527,24 @@
     }
     html += sec('gaps', 'gap_analysis', 'Gap analysis + next moves', gapAnalysis);
 
-    // 05 90-day plan
+    // 06 GTM strategy + window of opportunity
+    var strategy = '';
+    if (d.gtm_strategy && d.window_of_opportunity) {
+      var gtm = '';
+      for (var gs = 0; gs < d.gtm_strategy.length; gs++) {
+        var play = d.gtm_strategy[gs];
+        gtm += '<article class="gk-gtm-card"><div class="gk-gtm-rank">0' + esc(play.priority || (gs + 1)) + '</div><div><span>' + esc(play.segment) + ' · ' + esc(play.channel) + '</span><h3>' + esc(play.motion) + '</h3><p>' + esc(play.message) + '</p><dl><div><dt>First test</dt><dd>' + esc(play.first_test) + '</dd></div><div><dt>Measure</dt><dd>' + esc(play.metric) + '</dd></div></dl></div></article>';
+      }
+      var win = d.window_of_opportunity, score = clamp(num(win.score, 0), 0, 100);
+      var bullets = function (items) { return '<ul>' + (items || []).map(function (item) { return '<li>' + esc(item) + '</li>'; }).join('') + '</ul>'; };
+      strategy = '<div class="gk-gtm-grid">' + gtm + '</div><article class="gk-window-card" style="--window:' + score + '%">'
+        + '<div class="gk-window-score"><span>' + esc(win.status) + '</span><strong>' + score + '<small>/100</small></strong><i><b></b></i><em>' + esc(win.horizon) + '</em></div>'
+        + '<div class="gk-window-body"><h3>Window of opportunity</h3><div class="gk-window-cols"><div><span>Why now</span>' + bullets(win.why_now) + '</div><div><span>Triggers</span>' + bullets(win.triggers) + '</div><div><span>Risks</span>' + bullets(win.risks) + '</div></div>'
+        + '<p class="gk-window-next"><b>Move now</b>' + esc(win.next_move) + '</p></div></article>';
+    }
+    if (expandedReport) html += sec('strategy', 'strategy_timing', 'GTM strategy + window of opportunity', strategy);
+
+    // 07 90-day plan
     var plan = '';
     if (d.plan && d.plan.length) {
       var plays = '';
@@ -399,7 +563,29 @@
     }
     html += sec('plan', 'plan', '90-day plan', plan);
 
-    // 06 Sources + honesty note
+    // 08 Funding landscape + connected weekly metrics
+    var capital = '', funding = d.funding_landscape;
+    if (funding) {
+      var comps = (funding.comparable_companies || []).map(function (item) {
+        return '<li><strong>' + esc(item.company) + '</strong><span>' + esc(item.total_funding) + ' · ' + esc(item.last_round) + (item.date ? ' · ' + esc(item.date) : '') + '</span><small>' + esc((item.investors || []).join(', ')) + '</small></li>';
+      }).join('');
+      var investors = (funding.active_investors || []).map(function (item) {
+        return '<li><strong>' + esc(item.name) + '</strong><span>' + esc(item.fit) + '</span><small>' + esc(item.thesis) + (item.recent_relevant_bet ? ' · Recent: ' + esc(item.recent_relevant_bet) : '') + '</small></li>';
+      }).join('');
+      var rounds = (funding.recent_rounds || []).map(function (item) {
+        return '<li><strong>' + esc(item.company) + '</strong><span>' + esc(item.round) + ' · ' + esc(item.amount) + ' · ' + esc(item.date) + '</span><small>' + esc((item.investors || []).join(', ')) + '</small></li>';
+      }).join('');
+      if (funding.available === false) {
+        capital = '<div class="gk-data-empty"><strong>Funding landscape</strong><p>' + esc(funding.caveat || funding.takeaway || 'Comparable live funding data was not available.') + '</p></div>';
+      } else {
+        capital = '<div class="gk-funding-top">' + buildFundingRadar(funding) + '<div class="gk-funding-read"><span>Capital signal</span><h3>Funding landscape</h3><p>' + esc(funding.takeaway) + '</p><small>' + esc(funding.caveat) + '</small></div></div>'
+          + '<div class="gk-funding-lists"><article><h4>Funded comparables</h4><ul>' + comps + '</ul></article><article><h4>Active investors</h4><ul>' + investors + '</ul></article><article><h4>Recent rounds</h4><ul>' + rounds + '</ul></article></div>';
+      }
+      capital += renderWeeklyMetrics(d.weekly_metrics);
+    }
+    if (expandedReport) html += sec('capital', 'capital_metrics', 'Funding landscape + weekly metrics', capital);
+
+    // 09 Sources + honesty note
     var footInner = '';
     if (d.citations && d.citations.length) {
       var cites = '';
@@ -908,15 +1094,21 @@
       if (window.va) window.va('event', { name: 'advisor_error', data: { surface: full ? 'page' : 'home', message: String(msg).slice(0, 120) } });
     }
 
-    var PIPELINE_STAGES = ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources', 'plan'];
+    var PIPELINE_STAGES = [
+      'research', 'subject_positioning', 'market_map', 'competitor_teardown',
+      'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics', 'sources', 'plan'
+    ];
     var PIPELINE_DEPS = {
       research: [],
       subject_positioning: ['research'],
       market_map: ['research'],
       competitor_teardown: ['research', 'market_map'],
       gap_analysis: ['research', 'competitor_teardown'],
-      sources: ['research'],
-      plan: ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'sources']
+      opportunity: ['research'],
+      strategy_timing: ['research', 'subject_positioning', 'opportunity', 'competitor_teardown', 'gap_analysis'],
+      capital_metrics: ['research', 'opportunity'],
+      sources: ['research', 'opportunity', 'capital_metrics'],
+      plan: ['research', 'subject_positioning', 'market_map', 'competitor_teardown', 'gap_analysis', 'opportunity', 'strategy_timing', 'capital_metrics', 'sources']
     };
 
     async function apiHeaders() {
