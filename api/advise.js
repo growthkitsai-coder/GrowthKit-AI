@@ -258,10 +258,19 @@ async function callAnthropic(apiKey, stage, context) {
       model: MODEL,
       max_tokens: config.maxTokens,
       output_config: { effort: 'low' },
+      // Thinking is OFF. On claude-sonnet-5, omitting `thinking` runs ADAPTIVE
+      // thinking by default — that plus web search blew past the 52s deadline and
+      // 504'd every research call (measured 2026-07-25). Disabling it cut the
+      // research call from ~68s to ~22s. We hand the model explicit per-stage
+      // instructions and JSON schemas, so it doesn't need to deliberate.
+      thinking: { type: 'disabled' },
       system: (stage === 'research' ? RESEARCH_SYSTEM : BASE_SYSTEM) + '\n\nYOUR ONLY TASK FOR THIS CALL:\n' + config.instruction,
       messages: [{ role: 'user', content: JSON.stringify(context) }]
     };
-    if (config.searches) payload.tools = [{ type: 'web_search_20260209', name: 'web_search', max_uses: config.searches }];
+    // Basic web-search variant, NOT web_search_20260209. The _20260209 variant runs
+    // code-execution "dynamic filtering" under the hood, which added ~45s and was
+    // the other half of the timeout. The basic variant returns results directly.
+    if (config.searches) payload.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: config.searches }];
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
