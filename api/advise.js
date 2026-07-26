@@ -48,13 +48,19 @@ const DEPENDENCIES = {
 
 const STAGE_CONFIG = {
   research: {
-    maxTokens: 3600,
+    // 5200, not 3600: the heavy schema below (6 competitors × 6 fields + facts +
+    // pricing + trends + sources) overran 3600 and truncated the JSON mid-array,
+    // which failed validation as "incomplete data" (a 502, not a timeout). 5200 is
+    // a ceiling it doesn't hit — a full pack lands ~3600 out-tokens / ~35s, well
+    // under the 52s deadline (measured 2026-07-26). Trimmed 6-8→6 competitors and
+    // 4-10→4-6 sources to keep both the token and time budgets comfortable.
+    maxTokens: 5200,
     searches: 2,
     instruction: [
       'Do research only. Do not write the report, recommendations, positioning, gaps, or roadmap.',
       'Build a compact factual knowledge base for every later call. Identify the exact company and its market, then research real competitors, pricing, customer type, and current market trends.',
       'Return exactly: {"company":string,"website":string,"industry":string,"customer_type":string,"company_facts":[string],"competitors":[{"name":string,"website":string,"positioning":string,"pricing":string,"customer_type":string,"evidence":string}],"pricing":[string],"market_trends":[string],"sources":[{"title":string,"url":string,"supports":string}]}',
-      'Include 6-8 real competitors and 4-10 useful sources. Use best-effort language instead of invented precision.'
+      'Include exactly 6 real competitors and 4-6 useful sources. Use best-effort language instead of invented precision.'
     ].join('\n')
   },
   subject_positioning: {
