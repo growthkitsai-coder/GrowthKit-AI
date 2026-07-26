@@ -13,7 +13,7 @@ Custom-designed **`/login`** and **`/signup`** (email + password **and** Google 
 - **`auth.js`** — creates the Supabase client; wires each page by `data-auth-page`; email/password sign-up + sign-in; **OAuth via `data-auth-oauth="google|github"`** (generic — any Supabase provider works by adding a button); password reset; remember-me; **redirect-if-already-signed-in** (login/signup bounce to `/four`); and on `/four` the **gate** (redirect to `/login` if not signed in, reveal the app if signed in) + **loads the user's saved reads**.
 - **`advisor.js` / `advisor.css`** — the one-time full-report wizard and specimen-grade renderer. It attaches the Supabase access token to `/api/advise`; the server reserves the user's company before generation and persists the authoritative baseline. Legacy `reads` entries remain viewable.
 - **`product.js`** — loads `/api/account`, switches `/four` between Free locked preview/onboarding, completed-report, and entitled daily states, renders daily briefs, and manages Stripe/Google Analytics/LinkedIn connections. See [`daily-intelligence.md`](daily-intelligence.md) and [`integrations.md`](integrations.md).
-- The `/four` product-status line surfaces safe beta denial diagnostics from `/api/account`: disabled, expired, or signed-in-email mismatch. It never displays or sends the private allowlist to the browser.
+- The `/four` product-status line surfaces safe beta denial diagnostics from `/api/account`. **Updated 2026-07-24:** the reasons are now `beta-pending`, `beta-expired`, `beta-reports-spent`, `beta-revoked`, and `beta-disabled` — the old signed-in-email-mismatch reason is gone because beta access no longer matches on email at all, it keys off an approved `beta_applications` row for the Supabase user id. A signed-in account applies from the `/four` beta card; Avi approves at `/admin.html`. See [`beta.md`](beta.md).
 - **`findings.js`** — renders the shared weekly-move/checklist/founder-introduction action layer and persists generated/custom task state through authenticated `/api/finding-tasks` calls.
 - **`auth-config.js`** — paste `SUPABASE_URL` + `SUPABASE_ANON_KEY` (+ `REDIRECT_AFTER_LOGIN='/four'`). **Until filled, pages show "not configured" and disable the forms.**
 - Supabase SDK per page from `cdn.jsdelivr.net/npm/@supabase/supabase-js@2` (before `auth-config.js`, then `auth.js`, then `advisor.js` on `/four`).
@@ -66,7 +66,24 @@ The `reads` and `profiles` tables are independent; the tool works without `profi
 
 **7. Paste the two values into `auth-config.js`, commit, deploy.** Sign-in + the gated tool are now live.
 
-**8. Configure the server gate.** Add **`SUPABASE_URL`**, **`SUPABASE_ANON_KEY`**, and **`SUPABASE_SERVICE_ROLE_KEY`** as Vercel server env vars. Product APIs fail closed when these are absent; the service-role value must never appear in browser code. Run the workspace migration linked from [`daily-intelligence.md`](daily-intelligence.md). Make sure all values are on the same Vercel project that serves growthkitai.com.
+**8. Configure the server gate.** Add **`SUPABASE_URL`**, **`SUPABASE_ANON_KEY`**, and **`SUPABASE_SERVICE_ROLE_KEY`** as Vercel server env vars. Product APIs fail closed when these are absent; the service-role value must never appear in browser code. Make sure all values are on the same Vercel project that serves growthkitai.com.
+
+**8b. ⚠ RUN EVERY MIGRATION — the product is dead without them.** `reads` + `profiles` above are NOT enough. Supabase → **SQL Editor** → paste and run each of these **in order**:
+
+1. [`202607190001_beta_workspaces_daily_briefs.sql`](../supabase/migrations/202607190001_beta_workspaces_daily_briefs.sql) → `product_workspaces`, `daily_briefs`, `integration_connections`
+2. [`202607190002_finding_tasks.sql`](../supabase/migrations/202607190002_finding_tasks.sql) → `finding_tasks`
+3. [`202607190003_report_pipeline.sql`](../supabase/migrations/202607190003_report_pipeline.sql) → `report_sections`
+4. [`202607240001_beta_applications.sql`](../supabase/migrations/202607240001_beta_applications.sql) → `beta_applications`
+
+All are `create table if not exists`, so re-running is safe. **Symptom when skipped (hit for real on 2026-07-24):** `getWorkspace()` gets PostgREST `PGRST205 "Could not find the table 'public.product_workspaces'"`, so `GET /api/account` returns **503 "Your workspace is not available yet"**, and `/four` shows **"We could not confirm your plan. Please try again."** It looks exactly like an Anthropic/API-key outage but no model call is ever made. **Verify quickly** (service-role key, never commit it):
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" \
+  "$SUPABASE_URL/rest/v1/product_workspaces?select=user_id&limit=1" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+```
+
+`200` = table exists. `404` = migration not run.
 
 ## Flows (auth.js / advisor.js)
 

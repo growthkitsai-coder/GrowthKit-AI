@@ -4,6 +4,18 @@
 
 > **Status: enabled.** `api/advise.js` is live when configured; `GK_ADVISOR_DISABLED=1` remains the immediate cost kill switch. First reports use seven independently persisted calls with a 52-second server deadline, so one slow section can be retried without losing finished work.
 
+> **⚠ Latency gotcha — the research 504 (fixed 2026-07-25).** The research call MUST send `thinking: { type: 'disabled' }` and use the **basic** `web_search_20250305` tool, not `web_search_20260209`. Reason, measured against the live API: on `claude-sonnet-5`, omitting `thinking` runs *adaptive thinking* by default, and `web_search_20260209` runs code-execution "dynamic filtering" under the hood — together the 2-search research call ran ~68s and 504'd at the 52s deadline **every time**, which looked like a broken engine. With both changes it runs ~22s. Don't "upgrade" the tool version or drop the thinking flag without re-checking the deadline. The model still returns good JSON because every stage gets an explicit instruction + schema.
+
+> **⚠ A valid key is not enough — the Anthropic account needs credit.** Confirmed 2026-07-24: the key authenticates fine but every call returns **HTTP 400 `invalid_request_error` — "Your credit balance is too low to access the Anthropic API"**. This is *not* a 401, so it does not look like an auth problem, and `api/advise.js` has no special handling for it: the section simply fails and the user sees a retryable error. Before debugging keys, env vars, or Vercel projects, check the balance at console.anthropic.com → Plans & Billing. Quick test (never commit the key):
+>
+> ```bash
+> curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" \
+>   -H "anthropic-version: 2023-06-01" -H "content-type: application/json" \
+>   -d '{"model":"claude-sonnet-5","max_tokens":8,"messages":[{"role":"user","content":"Say OK"}]}'
+> ```
+>
+> `401 authentication_error` = bad/revoked key. `400` mentioning credit balance = key is fine, account is empty. A normal message body = the engine is good to go.
+
 ## Entitlement boundary
 
 `POST /api/advise` requires Pro, Agentic, or a current beta-Pro grant before it reserves a workspace or spends model tokens. The browser also checks `/api/account` after it has successfully saved onboarding, but that is UX only—the POST gate is authoritative. Free users end on a saved paywall with Upgrade to Pro and Read the specimen actions. `GET /api/advise` requires authentication and product storage, but deliberately does **not** require a current subscription, an Anthropic key, or an enabled engine: a completed report remains readable after cancellation/beta expiry. No POST section or retry is allowed after access ends.

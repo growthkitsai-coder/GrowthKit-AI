@@ -1119,7 +1119,12 @@
       if (running) return;
       try {
         var headers = await apiHeaders();
-        var res = await fetch('/api/advise', { method: 'GET', headers: headers });
+        // A history link is /four?report_id=…; without it we resolve today's
+        // in-progress report (to resume) or the most recent completed one.
+        var wantId = '';
+        try { wantId = new URLSearchParams(window.location.search).get('report_id') || ''; } catch (e) {}
+        var url = '/api/advise' + (wantId ? '?report_id=' + encodeURIComponent(wantId) : '');
+        var res = await fetch(url, { method: 'GET', headers: headers });
         if (!res.ok) return;
         var data = await res.json();
         if (!data.workspace) return;
@@ -1174,9 +1179,16 @@
       if (!actionsEl) return;
       actionsEl.innerHTML = '';
       var mk = function (lbl, cls) { var b = document.createElement('button'); b.type = 'button'; b.className = 'gk-act ' + (cls || ''); b.innerHTML = lbl; actionsEl.appendChild(b); return b; };
-      var daily = mk('Open daily brief', 'gk-act-go');
-      daily.addEventListener('click', function () {
-        if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH({ generateDaily: true, scroll: true });
+      // Daily briefs are retired; the product loop is now "generate another
+      // report" (one per UTC day). New report → back to the wizard; the server
+      // enforces the one-a-day limit if today's is already done.
+      var again = mk('New report', 'gk-act-go');
+      again.addEventListener('click', function () {
+        // Clear any ?report_id= from a history view so the wizard starts clean.
+        try {
+          if (window.location.search) window.history.replaceState(null, '', window.location.pathname);
+        } catch (e) {}
+        restart(true);
       });
       var pdf = mk('Save as PDF');
       pdf.addEventListener('click', function () { window.print(); });

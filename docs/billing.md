@@ -8,11 +8,12 @@ Single home for **paid subscriptions**: the three serverless functions, the Supa
 
 Access to paid product capabilities is decided by `checkAccess()` in [`lib/subscriptions.js`](../lib/subscriptions.js), in this order:
 
-1. **Paid Pro or Agentic subscription** — an `active` or `trialing` row in the `subscriptions` table.
-2. **Explicit open beta** — only when `GK_BETA_ENABLED` is not `0` and `GK_BETA_OPEN=1` exactly.
-3. **Private beta allowlist** — while beta is enabled, a normalized email in the private `GK_BETA_EMAILS` value receives Pro-equivalent access. The parser accepts comma-, semicolon-, or newline-separated values plus a JSON string array, matching the ways a list is commonly pasted into Vercel. It checks the top-level Supabase user email and verified OAuth identity email locations, then trims and lowercases before exact matching. User-editable `user_metadata` is deliberately not trusted for entitlements. It never normalizes `+` aliases or performs partial matching.
+1. **Paid Pro or Agentic subscription** — an `active` or `trialing` row in the `subscriptions` table. Checked **first**, so a paying customer can never be locked out by beta expiry, revocation, or the beta being switched off.
+2. **An approved beta grant** — an approved row in `beta_applications` still inside its 7-day / 7-report window. Keyed on the Supabase **user id**, not an email. Full rules: [`beta.md`](beta.md).
 
-Everything else is the **Free** tier and fails closed with **402** `{ code: "subscription_required" }` on generation, daily-intelligence, and integration endpoints. Free users may save onboarding and see the locked dashboard preview/specimen. Email matching trims and lowercases both sides. `GK_BETA_EXPIRES_AT` optionally sets a global ISO-8601 beta cutoff; invalid or elapsed configured values fail closed. **To halt all beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
+Everything else is the **Free** tier and fails closed with **402** `{ code: "subscription_required" }` on generation, daily-intelligence, and integration endpoints. Free users may save onboarding, see the locked dashboard preview/specimen, and **apply for the beta**. `GK_BETA_EXPIRES_AT` optionally sets a global ISO-8601 cutoff ending every grant at once; invalid or elapsed values fail closed. **To halt all beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
+
+**Beta access moved out of this file on 2026-07-24** — it is no longer an env-var allowlist but an approval workflow backed by the `beta_applications` table, granting 7 days or 7 reports. `GK_BETA_EMAILS` and `GK_BETA_OPEN` were **removed** and are no longer read. See [`beta.md`](beta.md) for the model, the states, and the required deployment steps.
 
 Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: one company, one initial full report, then daily briefs. When access ends, the completed full report remains readable through authenticated GET/report history, but report generation/retries, daily briefs, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
 
@@ -20,7 +21,9 @@ Authenticated `/api/account` responses distinguish `beta-disabled`, `beta-expire
 
 ## Plans
 
-Exactly three public tiers: **Free £0**, **Pro £20/month displayed**, and **Agentic £200/month displayed**. Free is not in Stripe. The current Pro Stripe price charges **£19.99/month**; the site intentionally rounds that to £20 in marketing copy and structured data. Pro defaults to Stripe price `price_1TuYYfIVRk8akpLyNoKcatRw` (override with `STRIPE_PRICE_PRO`). Agentic is not configured in Stripe yet and remains unavailable for checkout until `STRIPE_PRICE_AGENTIC` points to a £200 GBP monthly price. Checkout accepts only the server-side plan keys `pro|agentic` and maps them to those env-controlled prices—arbitrary client price IDs are rejected. Stripe subscription metadata and the webhook preserve the selected plan. Existing active subscribers are sent to the Customer Portal instead of creating a duplicate subscription.
+Three public tiers, but only two are buyable: **Free £0** and **Pro £20/month displayed** are purchasable today; **Agentic is "Coming soon" and displays no price**. Free is not in Stripe. The current Pro Stripe price charges **£19.99/month**; the site intentionally rounds that to £20 in marketing copy and structured data. Pro defaults to Stripe price `price_1TuYYfIVRk8akpLyNoKcatRw` (override with `STRIPE_PRICE_PRO`).
+
+**Agentic (updated 2026-07-24)** is publicly framed as the full product GrowthKit is building toward, with Pro as its first smaller slice. It will be **priced on usage — API/token cost, not a flat monthly subscription** — so no monthly figure may appear anywhere public, and its Product JSON-LD Offer carries no `price` and uses `availability: PreOrder`. Its pricing-page CTA points at `/waitlist`; it no longer carries `data-gk-checkout`. The **server-side Agentic plumbing is deliberately kept dormant** (`api/checkout.js` still returns a clean 503 for `plan=agentic`, `api/stripe-webhook.js` still maps `STRIPE_PRICE_AGENTIC`, `lib/subscriptions.js` still treats `agentic` as a paid plan) so an existing Agentic subscriber would still be honoured and a future switch-on is cheap — but note that usage-based billing will likely need different plumbing than a fixed recurring price. Checkout accepts only the server-side plan keys `pro|agentic` and maps them to those env-controlled prices—arbitrary client price IDs are rejected. Stripe subscription metadata and the webhook preserve the selected plan. Existing active subscribers are sent to the Customer Portal instead of creating a duplicate subscription.
 
 ## Files
 
@@ -68,21 +71,22 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `STRIPE_SECRET_KEY` | Prod (+ Preview) | Stripe API calls (`sk_live_…` / `sk_test_…`) |
 | `STRIPE_WEBHOOK_SECRET` | Prod (+ Preview) | `whsec_…` signing secret from the webhook endpoint |
 | `STRIPE_PRICE_PRO` | Prod (+ Preview) | Pro price id (optional — defaults to the known id) |
-| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic £200 GBP/month price id; currently unset and required before Agentic checkout works |
+| `STRIPE_PRICE_AGENTIC` | Prod (+ Preview) | Agentic price id; **intentionally unset** — Agentic is coming soon and will be usage-based, so no flat monthly price exists to point at. Checkout 503s for `plan=agentic` while unset, which is the desired state |
 | `SUPABASE_URL` | Prod | already set for auth; token verification + PostgREST base |
 | `SUPABASE_ANON_KEY` | Prod | already set; verifies user access tokens |
 | `SUPABASE_SERVICE_ROLE_KEY` | Prod | **NEW** — server-only; lets the webhook write `subscriptions` |
 | `SITE_URL` | Prod | optional canonical origin for redirects (else derived from Host) |
-| `GK_BETA_ENABLED` | Prod | `0` immediately disables all free beta access; otherwise allowlist/open-beta checks may run |
-| `GK_BETA_OPEN` | Prod | `1` explicitly opens free beta to every account; unset/other values fail closed |
-| `GK_BETA_EMAILS` | Prod | private beta emails; comma/newline/semicolon lists or a JSON string array are accepted; normalize, deduplicate, and never commit this value |
+| `GK_ADMIN_USER_IDS` | Prod | **NEW** — Supabase user ids allowed to approve beta applications. Unset = nobody is an admin. See [`beta.md`](beta.md) |
+| `GK_BETA_ENABLED` | Prod | `0` immediately disables all beta access regardless of approvals |
+| ~~`GK_BETA_OPEN`~~ | — | **Removed 2026-07-24** — no longer read by any code |
+| ~~`GK_BETA_EMAILS`~~ | — | **Removed 2026-07-24** — replaced by the `beta_applications` table |
 | `GK_BETA_EXPIRES_AT` | Prod | optional ISO-8601 cutoff for all beta grants; invalid/past values fail closed |
 
 ## Stripe dashboard setup (one-time)
 
-1. **Products + Prices:** keep the current Pro £19.99 GBP monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`); create Agentic at £200 GBP/month and set `STRIPE_PRICE_AGENTIC`.
+1. **Products + Prices:** keep the current Pro £19.99 GBP monthly price (`price_1TuYYfIVRk8akpLyNoKcatRw`, or `STRIPE_PRICE_PRO`). **Do not create a fixed monthly Agentic price** — Agentic is coming soon and will be usage-based (metered on API/token cost), so it needs metered/usage-based Stripe billing rather than a flat recurring price. `STRIPE_PRICE_AGENTIC` stays unset until that model is decided.
 2. **Webhook endpoint:** Developers → Webhooks → Add endpoint → `https://growthkitai.com/api/stripe-webhook`. Select events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`. Copy the **Signing secret** → `STRIPE_WEBHOOK_SECRET`.
-3. **Customer Portal:** activate cancel/update payment method **and plan switching between Pro and Agentic** so existing customers can change tiers without a duplicate subscription.
+3. **Customer Portal:** activate cancel/update payment method. (Pro↔Agentic plan switching is deferred until Agentic's usage-based model exists.)
 4. Set all env vars above, then **redeploy**.
 
 ## Flow

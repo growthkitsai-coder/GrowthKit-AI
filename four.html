@@ -235,6 +235,25 @@
         <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open the full specimen →</a>
       </section>
 
+      <!-- Report history — every past daily report, newest first. Rendered by
+           product.js (renderHistory); each links to /four?report_id=… -->
+      <section class="report-history" data-history style="display:none">
+        <div class="four-eyebrow"><span class="num">/</span>Your reports</div>
+        <div class="report-history-list" data-history-list></div>
+      </section>
+
+      <!-- Beta — apply / pending / live / finished. Rendered by product.js
+           (renderBeta); hidden entirely for paid subscribers. -->
+      <section class="four-beta" data-beta style="display:none">
+        <div class="four-beta-card">
+          <div class="four-beta-head">
+            <span class="four-beta-badge">Beta</span>
+            <h2>One full report a day, <em>free</em>, for a week.</h2>
+          </div>
+          <div data-beta-body></div>
+        </div>
+      </section>
+
       <!-- Go Pro — clearly visible upgrade path -->
       <section class="four-pro" data-four-pro>
         <div class="four-pro-card">
@@ -242,18 +261,18 @@
             <span class="four-pro-badge">Pro</span>
             <h2>Go Pro — <em>continuous</em> market intelligence.</h2>
           </div>
-          <p class="four-pro-lede">Everything in your free read, plus a refreshed deliverable set and always-on monitoring — so you catch market moves as they happen, not a quarter later.</p>
+          <p class="four-pro-lede">Everything in your free read, unredacted — the full deliverable set plus a daily brief on what moved overnight, so you're reading your market on a day's lag, not a quarter's.</p>
           <ul class="four-pro-list">
-            <li>Full deliverable set, refreshed on a schedule</li>
-            <li>Continuous agentic competitor &amp; market monitoring</li>
-            <li>Mid-cycle alerts and plan re-cuts when your market shifts</li>
-            <li>Operator review on every refresh</li>
+            <li>Market map, competitor teardown, gap analysis and 90-day plan — in full</li>
+            <li>Daily intelligence — overnight changes and concrete next moves</li>
+            <li>Read-only data connections for your operating metrics</li>
+            <li>Operator review on the synthesis</li>
           </ul>
           <div class="four-pro-foot">
             <button type="button" class="four-pro-btn" data-gk-checkout>Upgrade to Pro →</button>
             <a class="four-pro-plans" href="/pricing">Compare plans &amp; pricing →</a>
           </div>
-          <p class="four-pro-note">Secure checkout via Stripe · cancel anytime</p>
+          <p class="four-pro-note">Secure checkout via Stripe · cancel anytime · continuous <em>Agentic</em> monitoring is coming soon</p>
         </div>
       </section>
 

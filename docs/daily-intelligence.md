@@ -1,71 +1,68 @@
-# Daily intelligence — one company, one full report, ongoing briefs
+# Daily reports — one full report per day, any company
 
-> Single home for the post-onboarding product loop: workspace locking, the one-full-report rule, daily brief generation/storage, and the GMT cron. Read `CLAUDE.md` first. Connector implementation lives in [`integrations.md`](integrations.md); entitlement lives in [`billing.md`](billing.md).
+> Single home for the post-onboarding product loop: the daily-report model, the one-a-day limit, report history, and the beta report counter. Read `CLAUDE.md` first. Connector implementation lives in [`integrations.md`](integrations.md); entitlement lives in [`billing.md`](billing.md); beta grants in [`beta.md`](beta.md).
+
+> **Rewritten 2026-07-25 (Phase 2).** This replaced the old *one-company / one-report / daily-brief* model. Every account can now generate **one full report per UTC day, on any company they choose**, and browse every past report. The daily-*brief* cron system is **retired** (dormant code, no schedule). The file name is kept so the docs index link stays valid.
 
 ## Product contract
 
-- Every beta, Pro, or Agentic account is tied to **one company**.
-- The first-report pipeline locks the company before research, then checkpoints seven calls independently. The report becomes complete only when all public sections have been assembled; the internal research pack is never part of the visible report.
-- Daily brief GET and POST, the UTC cron, and connected-data APIs all call the same server-side entitlement gate. Free, canceled, past-due, and expired-beta accounts receive no new daily updates and cannot fetch daily history or use integrations. Their completed full report remains readable; this exception applies only to the report, not ongoing intelligence.
-- Failed/stale generations can retry the same company. A completed report cannot be regenerated. Support can reset a mistaken company manually after verifying the request to `info@growthkitai.com` (SQL is at the bottom of the migration). A reset clears the workspace, daily/legacy reads, saved profile, and provider connections so data from the mistaken company cannot leak into the replacement; the user must reconnect providers.
-- Immediately after the full report, `/four` requests the first daily brief. After that, a secured Vercel cron runs at **07:00 UTC/GMT** every day; opening `/four` also fills a missing brief for the current UTC date.
-- A daily brief is a 30-second read: one lead signal, collapsed detail, market/competitor movement, connected own metrics, market signals, three evidence-led findings with concrete moves, one founder to learn from, and one relevant GrowthKit tool prompt. Each new finding includes a persistent three-step checklist, founder-added tasks, and a finding-specific introduction email.
-- The public `specimen.html` demonstrates a compact version of this format directly below physIQal's company snapshot. That card is static and explicitly marked fictional; its sample update, product metrics, and competitor movement are not live or verified claims.
-- If the scan is quiet, the model sets `no_material_change=true` and leads with **"No material change today"**, while still surfacing the strongest defensible observation. It never invents connected metrics.
+- A signed-in account with access (Pro, Agentic, or an active beta grant) can generate **one full report per UTC calendar day**. Each day's report can be a **different company** — there is no company lock.
+- The report is the same seven-call specimen-grade deliverable as before (research → subject/positioning + market map + sources → teardown → gaps → plan). The internal research pack is never returned to the browser.
+- **Every completed report is kept and browsable.** `/four` lists them newest-first; each links to `/four?report_id=…`, which re-renders that report.
+- The one-a-day limit counts **completed** reports for the current UTC date. A report still generating is resumed, not duplicated; a **failed** attempt does not consume the day, so retries are always allowed until one completes.
+- **Beta grants are metered in reports.** A beta account gets **7 reports across 7 days** (whichever runs out first — see [`beta.md`](beta.md)). One report is charged against the grant when it completes; the daily limit still caps them at one a day, so the practical shape is one a day for a week. Pro/Agentic get one a day with no total cap.
+- After access ends (beta expired/spent/revoked, or a lapsed subscription), **completed reports stay readable** but no new report can be generated — the same "your work survives, generation locks" rule as before.
+
+## The daily limit, precisely
+
+`reserveReport(userId, input)` in [`lib/product.js`](../lib/product.js) is the gate, called before any model spend:
+
+| State today (UTC) | Result |
+|---|---|
+| A **completed** report exists | `daily_limit` → `POST /api/advise` returns **429** "Your next one unlocks at 00:00 UTC." |
+| A **generating** report, < 10 min old | Resumed — the same report and its sections continue. |
+| A **generating** report, stale (> 10 min) | That row is reset and reused (its `report_id` sections stay valid). |
+| Only a **failed** report, or none | A fresh `reports` row is created for the chosen company. |
+
+The beta report counter is charged in `api/advise.js` only on the section call that actually completes the report (`completeReport` transitions `generating → completed` exactly once), and only when `access.reason === 'beta-approved'` — a paid generation never touches the grant.
 
 ## Storage
 
-Run all migrations, in order, in the production Supabase SQL editor before deploy:
+Run the migrations in order in the production Supabase SQL editor:
 
-1. [`202607190001_beta_workspaces_daily_briefs.sql`](../supabase/migrations/202607190001_beta_workspaces_daily_briefs.sql)
+1. [`202607190001_beta_workspaces_daily_briefs.sql`](../supabase/migrations/202607190001_beta_workspaces_daily_briefs.sql) — legacy; `product_workspaces` / `daily_briefs` / `integration_connections`
 2. [`202607190002_finding_tasks.sql`](../supabase/migrations/202607190002_finding_tasks.sql)
-3. [`202607190003_report_pipeline.sql`](../supabase/migrations/202607190003_report_pipeline.sql)
+3. [`202607190003_report_pipeline.sql`](../supabase/migrations/202607190003_report_pipeline.sql) — creates the old `report_sections`; superseded by #5
+4. [`202607240001_beta_applications.sql`](../supabase/migrations/202607240001_beta_applications.sql)
+5. [`202607250001_daily_reports.sql`](../supabase/migrations/202607250001_daily_reports.sql) — **`reports`** + **`report_sections` re-keyed by `report_id`**
 
-- `product_workspaces`: one row per user; immutable company identity, report status, completed JSON baseline, profile context, UTC timezone.
-- `daily_briefs`: unique `(user_id, brief_date)`; idempotent generation state and final JSON.
-- `finding_tasks`: generated and founder-added tasks keyed to a full-report gap or dated daily finding. Completion state is separate from immutable report/brief JSON.
-- `report_sections`: server-only stage checkpoints, including the internal research pack; no browser RLS policy.
-- Both expose read-only RLS to the owner. All writes use the server-only Supabase service role.
-- `integration_connections` is created by the same migration but has no browser policy; see integrations.md.
-
-The API reserves a workspace before spending model/search credits. A generation left in `generating` for more than 10 minutes is considered stale and may retry. Workspace retries use the previous `updated_at` as an optimistic lock; daily generation uses insert-only first reservation plus an optimistic stale-retry update. The unique user/date constraint therefore prevents duplicate cron or browser requests from both spending model credits.
+- **`reports`**: one row per generated report — `report_date` (the UTC day), company identity, `status`, the assembled `full_report` JSON, timestamps. Owner-readable via RLS (the deliverable is theirs); all writes are service-role. The one-a-day limit counts completed rows for the current `report_date`.
+- **`report_sections`**: server-only per-report pipeline checkpoints, now keyed `(report_id, section)` so each day's report keeps its own seven checkpoints. **No browser RLS policy** — it holds the internal research pack.
+- **`finding_tasks`**: unchanged; generated + founder-added checklist state, keyed to a report's gaps.
+- **Dormant:** `product_workspaces` and `daily_briefs` still exist and still back the retired `/api/daily-briefs` + `/api/daily-cron` endpoints, but nothing populates or schedules them under the new model.
 
 ## Files and flow
 
 ```
 /four → product.js → GET /api/account
-                  → GET/POST /api/daily-briefs
+          → renders today's one-a-day state, the beta card, and the report history list
+      → advisor.js → GET /api/advise[?report_id=…]
+          → resumes today's in-progress report, or renders the most recent / requested one
       → findings.js → GET/POST/PATCH/DELETE /api/finding-tasks
 
-GET/POST /api/advise
-  verify signed-in user → check paid/beta access → reserve company workspace
-  → research once → generate/checkpoint dependent sections → assemble baseline
-
-GET /api/daily-cron at 07:00 UTC
-  verify Bearer CRON_SECRET → completed workspaces → re-check current access
-  → generate one brief per UTC date
-
-lib/daily.js
-  baseline full report + profile + connected metrics + live web search
-  → compact JSON brief → daily_briefs
-
-lib/findings.js
-  authoritative full report or dated brief → synchronize generated tasks
-  → create/check/delete founder tasks in finding_tasks
+POST /api/advise
+  verify user → check access → (research) reserveReport = one-a-day gate + today's report row
+  → reserve section by report_id → research once → dependent sections → assemble
+  → completeReport → (beta only) beta.consumeReport charges the grant
 ```
 
-`api/daily-cron.js` checks up to 100 completed workspaces concurrently. Current Vercel Hobby cron restrictions allow one invocation per day and may run at any point within the 07:00 hour; function duration is still capped at 60 seconds. At a materially larger active cohort, move fan-out to a durable queue/workflow rather than increasing concurrency indefinitely.
+The seven-stage pipeline, its 52-second per-call deadline, section-only retries, and the scripted loading UI are all unchanged — see [`advisor.md`](advisor.md). Only the reservation/identity layer changed: reports are now many-per-user and keyed by `report_id`, not one-per-user.
 
-## Daily JSON contract
+## Retired: daily briefs
 
-`brief_date`, `no_material_change`, `lead`, `market_competitor_movement`, `own_metrics`, `market_signals`, exactly three `next_moves`, `founder_to_talk_to`, `tool_prompt`, and `sources`. Every `next_moves` item requires `priority`, the specific `finding`, a concrete `action` for this week, `because`, and exactly three checklist tasks. The server rejects incomplete responses and forces the lead headline to "No material change today" when the quiet flag is true. The browser escapes all model strings and only links absolute HTTPS source/profile URLs. Existing stored briefs are not retrofitted; the working-document layer appears only on briefs generated under the new contract.
-
-The founder-introduction CTA is generated locally as a prefilled `mailto:info@growthkitai.com` link containing the company, exact finding, and next move. It does not use the model or spend tokens.
+The old model generated one full report, then short daily *briefs* on that locked company via a 07:00 UTC cron. That is gone: the cron is removed from `vercel.json`, and `lib/daily.js` / `api/daily-cron.js` / `api/daily-briefs.js` are dormant (they read `product_workspaces`, which the new path never fills). The `[data-daily]` panel on `/four` is permanently hidden. The code is left in place rather than deleted so nothing breaks on load; a future "continuous monitoring" feature (Agentic) may revive or replace it.
 
 ## Required environment
 
-- Existing: `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
-- New: `CRON_SECRET` (random 16+ characters; Vercel sends it as `Authorization: Bearer ...`).
-- Optional: `GK_DAILY_MODEL` (defaults to `claude-sonnet-5`).
-
-The daily function uses at most two live web searches and 1,800 output tokens. Connected metrics are gathered before the model call and passed as structured JSON.
+- `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+- `CRON_SECRET` is no longer used by an active schedule (the cron is retired) but the dormant endpoint still checks it if hit directly.
