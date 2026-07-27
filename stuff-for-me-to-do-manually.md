@@ -34,3 +34,4 @@ or be approved**. Paid Pro subscribers are unaffected by this one.
 - [ ] Paste the entire contents of `supabase/migrations/202607240001_beta_applications.sql`.
 - [ ] Run it. It is idempotent (`create table if not exists`), so re-running is safe.
 - [ ] Confirm: **Table Editor** should now list `beta_applications`.
+
