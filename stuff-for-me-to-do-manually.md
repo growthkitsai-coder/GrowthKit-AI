@@ -51,3 +51,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
       - **Not the email.** The check is by user id on purpose: emails can be
         changed, and anyone who can set an email must not be able to become an
         admin. Pasting an email here silently grants nobody anything.
+- [ ] **Vercel → the project serving growthkitai.com → Settings → Environment Variables.**
