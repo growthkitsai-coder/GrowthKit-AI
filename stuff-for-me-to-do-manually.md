@@ -56,3 +56,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
       - Comma-separated if you ever want more than one admin.
 - [ ] **Redeploy.** Vercel does not apply env changes to deployments that already exist.
 
+⚠️ **The two-projects trap.** This account has a second, empty Vercel project
