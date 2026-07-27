@@ -496,9 +496,18 @@
         : '';
       return '<li><span class="daily-priority">0' + esc(m.priority) + '</span><div><strong>' + esc(finding) + '</strong><span>' + esc(m.because) + '</span>' + work + '</div></li>';
     }).join('');
-    var founder = b.founder_to_talk_to || {};
-    var founderUrl = safeUrl(founder.public_url);
-    var tool = b.tool_prompt || {};
+    // Optional blocks — normalizeBrief in lib/daily.js nulls these when the
+    // model omitted them, so draw nothing rather than an empty panel.
+    var founder = b.founder_to_talk_to;
+    var founderUrl = founder ? safeUrl(founder.public_url) : '';
+    var tool = b.tool_prompt;
+    var twoUp = '';
+    if (founder || tool) {
+      twoUp = '<div class="daily-two-up">' +
+        (founder ? '<div><h4>Founder to learn from today</h4><strong>' + esc(founder.name) + (founder.company ? ' · ' + esc(founder.company) : '') + '</strong><p>' + esc(founder.why_today) + '</p>' + (founderUrl ? '<a href="' + esc(founderUrl) + '" target="_blank" rel="noopener">View public profile ↗</a>' : '') + '</div>' : '') +
+        (tool ? '<div><h4>Use GrowthKit next</h4><strong>' + esc(tool.tool) + '</strong><p>' + esc(tool.reason) + '</p><code>' + esc(tool.prompt) + '</code></div>' : '') +
+        '</div>';
+    }
     var sources = (b.sources || []).map(function (s) {
       var url = safeUrl(s.url);
       return url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(s.title || url) + ' ↗</a>' : '';
@@ -512,9 +521,8 @@
         (movement ? '<div class="daily-section"><h4>Market & competitor movement</h4><ul>' + movement + '</ul></div>' : '') +
         (metrics ? '<div class="daily-section"><h4>Your metrics</h4><ul class="daily-metrics">' + metrics + '</ul></div>' : '') +
         (signals ? '<div class="daily-section"><h4>Market signals</h4><ul>' + signals + '</ul></div>' : '') +
-        '<div class="daily-section"><h4>Next 3 moves</h4><ol class="daily-moves">' + moves + '</ol></div>' +
-        '<div class="daily-two-up"><div><h4>Founder to learn from today</h4><strong>' + esc(founder.name) + (founder.company ? ' · ' + esc(founder.company) : '') + '</strong><p>' + esc(founder.why_today) + '</p>' + (founderUrl ? '<a href="' + esc(founderUrl) + '" target="_blank" rel="noopener">View public profile ↗</a>' : '') + '</div>' +
-        '<div><h4>Use GrowthKit next</h4><strong>' + esc(tool.tool) + '</strong><p>' + esc(tool.reason) + '</p><code>' + esc(tool.prompt) + '</code></div></div>' +
+        '<div class="daily-section"><h4>Next ' + (b.next_moves || []).length + ' moves</h4><ol class="daily-moves">' + moves + '</ol></div>' +
+        twoUp +
         (sources ? '<div class="daily-sources"><h4>Sources</h4>' + sources + '</div>' : '') +
       '</details>';
     host.style.display = '';
