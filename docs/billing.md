@@ -16,7 +16,7 @@ Everything else is the **Free** tier and fails closed with **402** `{ code: "sub
 
 `GK_BETA_EMAILS` is the fixed invited-cohort compatibility path; the `beta_applications` workflow is the auditable, revocable 7-day/7-report path for new applicants. `GK_BETA_OPEN` remains removed. See [`beta.md`](beta.md).
 
-Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: one company, one initial full report, then daily briefs. When access ends, the completed full report remains readable through authenticated GET/report history, but report generation/retries, daily briefs, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
+Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: **2 full reports per rolling 7 days** on any company, plus **1 short daily update per UTC day**. When access ends, completed reports and past updates remain readable through authenticated GET/report history, but report generation/retries, daily updates, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
 
 Authenticated `/api/account` responses never return the allowlist. Allowlisted access reports `beta-allowlist`; `/four` shows “Beta access · Pro included” and hides the application card.
 
