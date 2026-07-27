@@ -160,3 +160,4 @@ founder fills it in, hits submit, and gets **"Form is not configured yet"**.
 It is linked as **"Become a client"** from the footer of all 13 marketing pages.
 
 - [ ] Deploy `onboarding-apps-script.gs` as a Google Apps Script **web app**
+      (Deploy → New deployment → Web app → execute as you, access "Anyone").
