@@ -22,3 +22,4 @@ optional; 4 is how you confirm the whole thing actually works.
       - This was left undone deliberately: pushing is opt-in in this repo, so
         that you can bundle commits rather than have each one trigger a deploy.
 
+---
