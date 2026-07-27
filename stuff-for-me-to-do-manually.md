@@ -82,3 +82,4 @@ Use a **second, non-admin account** for the applicant half — your admin accoun
 cannot meaningfully test the applicant view.
 
 - [ ] Open `/beta` **signed out** → the card should offer "Create free account".
+- [ ] Sign in on the test account → the **form** should render (Company / Website / Stage / Goal).
