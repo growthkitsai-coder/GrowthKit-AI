@@ -109,3 +109,4 @@ cannot meaningfully test the applicant view.
 Email/password sign-in started from `/beta` already returns to `/beta`, via the
 `?next=` support added to `auth.js` this session. **Google/GitHub sign-in does
 not** — it deliberately lands on `/four` instead.
+
