@@ -6,3 +6,4 @@
 
 **Written 2026-07-27**, at the end of the Claude Code session that built the
 `/beta` application page and rebuilt the `/admin` approvals console.
+
