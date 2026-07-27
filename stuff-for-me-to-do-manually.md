@@ -49,3 +49,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
 
 - [ ] **Supabase → Authentication → Users → your row → copy the `id`** (a UUID).
       - **Not the email.** The check is by user id on purpose: emails can be
+        changed, and anyone who can set an email must not be able to become an
