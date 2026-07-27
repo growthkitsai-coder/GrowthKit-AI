@@ -402,29 +402,14 @@
       return;
     }
 
-    // beta-not-applied (or anything unrecognised) — offer the application.
+    // beta-not-applied (or anything unrecognised) — send them to /beta, which
+    // is now the single application surface. The form used to be duplicated
+    // here; two copies of it drifted apart and only one asked for the
+    // structured fields the approval console shows.
     body.innerHTML =
       '<p>Beta testers get the full engine for a week — <b>two full reports a week</b> ' +
       'plus a <b>daily update</b> on what moved, up to 7 reports. Applications are approved by hand.</p>' +
-      '<label class="beta-label" for="beta-note">Anything we should know? <span>(optional)</span></label>' +
-      '<textarea id="beta-note" class="beta-note" rows="3" maxlength="1000" ' +
-      'placeholder="What are you building, and which market do you want dissected?"></textarea>' +
-      '<div class="beta-actions"><button type="button" class="beta-btn" data-beta-apply>Apply to be a beta tester →</button></div>';
-  }
-
-  function applyForBeta(button) {
-    var note = qs('#beta-note');
-    var body = qs('[data-beta-body]');
-    button.disabled = true;
-    button.textContent = 'Sending…';
-    api('/api/beta', { method: 'POST', body: { note: note ? note.value : '' } })
-      .then(function () {
-        body.innerHTML = '<p><b>Application received.</b> A founder reviews these by hand — ' +
-          'you\'ll get access the moment it\'s approved.</p>';
-      })
-      .catch(function (err) {
-        body.innerHTML = '<p class="beta-error">' + esc(err.message || 'That did not send. Try again shortly.') + '</p>';
-      });
+      '<div class="beta-actions"><a class="beta-btn" href="/beta">Apply to be a beta tester →</a></div>';
   }
 
   // ── The Plan pane ─────────────────────────────────────────────────────────
@@ -830,16 +815,6 @@
         // Pre-report the panes are one scroll, so take them to the panel.
         var panel = qs('[data-integrations]');
         if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
-
-    // Delegated: the apply button is re-rendered on every renderAccount pass,
-    // so binding it directly would go stale.
-    var betaHost = qs('[data-beta]');
-    if (betaHost) {
-      betaHost.addEventListener('click', function (e) {
-        var button = e.target.closest('[data-beta-apply]');
-        if (button) applyForBeta(button);
       });
     }
 
