@@ -29,6 +29,9 @@
   ::selection { background: var(--accent); color: var(--bg); }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
   .wrap.narrow { max-width: 900px; }
+  /* Once a report exists /four becomes the workspace app shell — it needs the
+     room for the left nav plus a full-width deliverable. */
+  body.is-workspace .wrap.narrow { max-width: 1340px; }
   @media (max-width: 720px) { .wrap { padding: 0 22px; } }
   .auth-top, .four-main { position: relative; z-index: 1; }
   /* Billing bar (populated by billing.js) */
@@ -81,32 +84,62 @@
     <div class="four-checking" data-four-checking>Checking your session…</div>
 
     <div class="four-app" data-four-app style="display:none">
-      <!-- Welcome hero — cycling typewriter greeting -->
-      <section class="four-welcome" aria-labelledby="four-greeting-h">
+
+      <!-- ── Workspace header ────────────────────────────────────────────────
+           Shown only once a full report exists (product.js adds .is-workspace
+           to <body>). Names the company /four is following and carries the two
+           meters: full reports left this week, and today's daily update. -->
+      <header class="four-shell-head" data-workspace-head hidden>
+        <div class="four-shell-id">
+          <div class="four-eyebrow"><span class="num">/</span>Workspace · <span data-workspace-plan>GrowthKit Live</span></div>
+          <h1 data-workspace-company>Your company</h1>
+          <p class="four-shell-meta" data-workspace-meta></p>
+        </div>
+        <div class="four-shell-meters">
+          <div class="four-meter" data-meter-report>
+            <span class="four-meter-label">Full reports</span>
+            <strong data-meter-report-value>—</strong>
+            <small data-meter-report-note></small>
+          </div>
+          <div class="four-meter" data-meter-daily>
+            <span class="four-meter-label">Daily update</span>
+            <strong data-meter-daily-value>—</strong>
+            <small data-meter-daily-note></small>
+          </div>
+        </div>
+      </header>
+
+      <!-- Welcome hero — cycling typewriter greeting. The pre-first-report
+           surface; product.js hides it once the workspace takes over. -->
+      <section class="four-welcome" data-welcome aria-labelledby="four-greeting-h">
         <div class="four-eyebrow"><span class="num">/</span>GrowthKit Live · signed in</div>
         <h1 class="four-greeting" id="four-greeting-h"><span class="four-greeting-text" data-four-greeting>Back to building, Founder.</span><span class="four-caret" aria-hidden="true"></span></h1>
         <p class="four-sub">Your market intelligence workspace.</p>
-        <p class="lede">Your first run creates one full market report and locks this account to that company. After that, GrowthKit watches the market daily and turns what changed into a 30-second brief and three next moves.</p>
+        <p class="lede">Your first run cuts the full deliverable — market map, competitor teardown, gap analysis and a 90-day plan. From then on this page becomes your workspace: the deliverable up front, and a short daily update on what moved in your market, one click away.</p>
         <!-- Billing status + Upgrade/Manage — populated by billing.js. -->
         <div class="four-billing" data-gk-billing></div>
         <div class="four-product-status" data-product-status role="status"></div>
       </section>
 
-      <section class="daily-panel" data-daily style="display:none">
-        <div class="daily-head">
-          <div>
-            <div class="four-eyebrow"><span class="num">/</span>Daily intelligence · GMT</div>
-            <h2>What changed <em>overnight</em>.</h2>
-          </div>
-          <button type="button" class="daily-refresh" data-daily-refresh>Refresh</button>
-        </div>
-        <div class="daily-state" data-daily-state>Preparing your daily brief…</div>
-        <article class="daily-brief" data-daily-brief style="display:none"></article>
-        <div class="daily-history" data-daily-history></div>
-      </section>
+      <!-- ── Workspace navigation ────────────────────────────────────────────
+           Left rail on desktop, fixed bottom tab bar at ≤720px. Hidden until a
+           report exists; product.js owns the active state. -->
+      <nav class="four-nav" data-workspace-nav aria-label="Workspace" hidden>
+        <button type="button" class="four-nav-item is-active" data-pane-link="deliverable"><span class="four-nav-icon" aria-hidden="true">▤</span><span class="four-nav-text">Deliverable</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="daily"><span class="four-nav-icon" aria-hidden="true">◈</span><span class="four-nav-text">Daily</span><span class="four-nav-dot" data-nav-daily-dot hidden></span></button>
+        <button type="button" class="four-nav-item" data-pane-link="plan"><span class="four-nav-icon" aria-hidden="true">✓</span><span class="four-nav-text">Plan</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="connections"><span class="four-nav-icon" aria-hidden="true">⇄</span><span class="four-nav-text">Connections</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="history"><span class="four-nav-icon" aria-hidden="true">≡</span><span class="four-nav-text">History</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="billing"><span class="four-nav-icon" aria-hidden="true">◎</span><span class="four-nav-text">Billing</span></button>
+      </nav>
 
-      <!-- Short guide — two moves to your first report -->
-      <section class="four-guide" aria-label="Getting started">
+      <div class="four-panes" data-panes>
+
+      <!-- ══ Deliverable — the main event ═══════════════════════════════════ -->
+      <div class="four-pane is-active" data-pane="deliverable">
+
+      <!-- Short guide — two moves to your first report. Pre-report only. -->
+      <section class="four-guide" data-guide aria-label="Getting started">
         <ol class="four-guide-steps">
           <li class="four-guide-step">
             <span class="four-guide-n">1</span>
@@ -125,8 +158,8 @@
           <li class="four-guide-step">
             <span class="four-guide-n">3</span>
             <div class="four-guide-body">
-              <h3>Act on it</h3>
-              <p>Market map, competitor teardown, gap analysis and a 90-day plan — saved to your account.</p>
+              <h3>Work it, daily</h3>
+              <p>The deliverable becomes your workspace — plus a one-click daily update on what moved.</p>
             </div>
           </li>
         </ol>
@@ -176,9 +209,12 @@
           </div>
         </div>
       </div>
-      <div class="four-daily-countdown" data-daily-countdown role="status" aria-live="polite" hidden>
+
+      <!-- Full-report allowance readout, under the engine. Counts down to the
+           next slot in the rolling 7-day window. -->
+      <div class="four-allowance" data-allowance role="status" aria-live="polite" hidden>
         <span class="four-countdown-dot" aria-hidden="true"></span>
-        <span data-daily-countdown-label>Daily report ready</span>
+        <span data-allowance-label>Full report ready</span>
       </div>
 
       <section class="locked-dashboard" data-locked-dashboard style="display:none" aria-labelledby="locked-dashboard-title">
@@ -200,6 +236,55 @@
           <a href="/specimen">Read the specimen</a>
         </div>
       </section>
+
+      <!-- A sample deliverable — scroll through the real specimen. Lives in the
+           Deliverable pane as the empty state; product.js hides it once a real
+           report is on the page. -->
+      <section class="four-specimen" id="four-specimen" data-specimen>
+        <div class="four-eyebrow"><span class="num">/</span>A sample deliverable</div>
+        <h2>This is what <em>you'll</em> get.</h2>
+        <p class="four-specimen-sub">A real GrowthKit deliverable — market map, competitor teardown, gap analysis and a 90-day plan. Scroll through it.</p>
+        <div class="four-specimen-frame">
+          <iframe src="/specimen" title="Sample GrowthKit deliverable — scroll to preview" loading="lazy"></iframe>
+          <div class="four-specimen-fade" aria-hidden="true"></div>
+        </div>
+        <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open the full specimen →</a>
+      </section>
+
+      </div><!-- /pane: deliverable -->
+
+      <!-- ══ Daily — the short update, one click ════════════════════════════ -->
+      <div class="four-pane" data-pane="daily">
+        <section class="daily-panel" data-daily>
+          <div class="daily-head">
+            <div>
+              <div class="four-eyebrow"><span class="num">/</span>Daily update · UTC</div>
+              <h2>What changed <em>overnight</em>.</h2>
+              <p class="daily-sub">A 30-second delta against your full report — market and competitor movement, your connected numbers, and three moves to run this week. One a day, on demand.</p>
+            </div>
+            <button type="button" class="daily-generate" data-daily-generate>Generate today's update</button>
+          </div>
+          <div class="daily-state" data-daily-state>Loading your updates…</div>
+          <article class="daily-brief" data-daily-brief style="display:none"></article>
+          <div class="daily-history" data-daily-history></div>
+        </section>
+      </div><!-- /pane: daily -->
+
+      <!-- ══ Plan — the 90-day plan + gap checklists, projected out of the
+           deliverable by product.js so this is the pane founders live in ═══ -->
+      <div class="four-pane" data-pane="plan">
+        <section class="plan-pane" data-plan>
+          <div class="four-eyebrow"><span class="num">/</span>Working plan</div>
+          <h2>The moves, and <em>the checklist</em>.</h2>
+          <p class="plan-sub">Your gap analysis and 90-day plan, lifted out of the report so you can work them. Checklist state saves to your account.</p>
+          <div class="plan-projection" data-plan-projection>
+            <div class="daily-state" data-plan-empty>Your gaps and 90-day plan land here as soon as a report finishes.</div>
+          </div>
+        </section>
+      </div><!-- /pane: plan -->
+
+      <!-- ══ Connections ═══════════════════════════════════════════════════ -->
+      <div class="four-pane" data-pane="connections">
 
       <!-- Integration symbol sprite -->
       <svg class="gkl-sprite" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
@@ -226,71 +311,74 @@
           <div class="daily-state">Checking connections…</div>
         </div>
       </section>
+      </div><!-- /pane: connections -->
 
-      <!-- A sample deliverable — scroll through the real specimen -->
-      <section class="four-specimen" id="four-specimen">
-        <div class="four-eyebrow"><span class="num">/</span>A sample deliverable</div>
-        <h2>This is what <em>you'll</em> get.</h2>
-        <p class="four-specimen-sub">A real GrowthKit deliverable — market map, competitor teardown, gap analysis and a 90-day plan. Scroll through it.</p>
-        <div class="four-specimen-frame">
-          <iframe src="/specimen" title="Sample GrowthKit deliverable — scroll to preview" loading="lazy"></iframe>
-          <div class="four-specimen-fade" aria-hidden="true"></div>
-        </div>
-        <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open the full specimen →</a>
-      </section>
+      <!-- ══ History — every completed report, newest first ═════════════════ -->
+      <div class="four-pane" data-pane="history">
+        <!-- Rendered by product.js (renderHistory); each links to
+             /four?report_id=… which advisor.js re-renders on load. -->
+        <section class="report-history" data-history style="display:none">
+          <div class="four-eyebrow"><span class="num">/</span>Your reports</div>
+          <div class="report-history-list" data-history-list></div>
+        </section>
+        <div class="daily-state" data-history-empty>Completed reports appear here — every one stays readable, even after access ends.</div>
 
-      <!-- Report history — every past daily report, newest first. Rendered by
-           product.js (renderHistory); each links to /four?report_id=… -->
-      <section class="report-history" data-history style="display:none">
-        <div class="four-eyebrow"><span class="num">/</span>Your reports</div>
-        <div class="report-history-list" data-history-list></div>
-      </section>
-
-      <!-- Beta — apply / pending / live / finished. Rendered by product.js
-           (renderBeta); hidden entirely for paid subscribers. -->
-      <section class="four-beta" data-beta style="display:none">
-        <div class="four-beta-card">
-          <div class="four-beta-head">
-            <span class="four-beta-badge">Beta</span>
-            <h2>One full report a day, <em>free</em>, for a week.</h2>
+        <section class="reads" data-reads style="display:none">
+          <div class="reads-head">
+            <div class="four-eyebrow"><span class="num">/</span>Your reads</div>
+            <h2>Saved reads.</h2>
           </div>
-          <div data-beta-body></div>
-        </div>
-      </section>
-
-      <!-- Go Pro — clearly visible upgrade path -->
-      <section class="four-pro" data-four-pro>
-        <div class="four-pro-card">
-          <div class="four-pro-head">
-            <span class="four-pro-badge">Pro</span>
-            <h2>Go Pro — <em>continuous</em> market intelligence.</h2>
+          <div class="reads-empty" data-reads-empty style="display:none">Your saved reads will appear here after your first run.</div>
+          <div class="reads-list" data-reads-list></div>
+          <div class="reads-viewer" data-reads-viewer style="display:none">
+            <div class="gk-advisor is-done"><div class="gk-deliverable" data-reads-viewer-body style="display:block"></div></div>
           </div>
-          <p class="four-pro-lede">Everything in your free read, unredacted — the full deliverable set plus a daily brief on what moved overnight, so you're reading your market on a day's lag, not a quarter's.</p>
-          <ul class="four-pro-list">
-            <li>Market map, competitor teardown, gap analysis and 90-day plan — in full</li>
-            <li>Daily intelligence — overnight changes and concrete next moves</li>
-            <li>Read-only data connections for your operating metrics</li>
-            <li>Operator review on the synthesis</li>
-          </ul>
-          <div class="four-pro-foot">
-            <button type="button" class="four-pro-btn" data-gk-checkout>Upgrade to Pro →</button>
-            <a class="four-pro-plans" href="/pricing">Compare plans &amp; pricing →</a>
-          </div>
-          <p class="four-pro-note">Secure checkout via Stripe · cancel anytime · continuous <em>Agentic</em> monitoring is coming soon</p>
-        </div>
-      </section>
+        </section>
+      </div><!-- /pane: history -->
 
-      <section class="reads" data-reads style="display:none">
-        <div class="reads-head">
-          <div class="four-eyebrow"><span class="num">/</span>Your reads</div>
-          <h2>Saved reads.</h2>
-        </div>
-        <div class="reads-empty" data-reads-empty style="display:none">Your saved reads will appear here after your first run.</div>
-        <div class="reads-list" data-reads-list></div>
-        <div class="reads-viewer" data-reads-viewer style="display:none">
-          <div class="gk-advisor is-done"><div class="gk-deliverable" data-reads-viewer-body style="display:block"></div></div>
-        </div>
-      </section>
+      <!-- ══ Billing — plan state, beta, upgrade ═══════════════════════════ -->
+      <div class="four-pane" data-pane="billing">
+        <!-- In workspace mode the billing bar and status pill move in here from
+             the welcome hero (product.js relocates them). -->
+        <div class="four-billing-slot" data-billing-slot></div>
+
+        <!-- Beta — apply / pending / live / finished. Rendered by product.js
+             (renderBeta); hidden entirely for paid subscribers. -->
+        <section class="four-beta" data-beta style="display:none">
+          <div class="four-beta-card">
+            <div class="four-beta-head">
+              <span class="four-beta-badge">Beta</span>
+              <h2>The full engine, <em>free</em>, for a week.</h2>
+            </div>
+            <div data-beta-body></div>
+          </div>
+        </section>
+
+        <!-- Go Pro — clearly visible upgrade path -->
+        <section class="four-pro" data-four-pro>
+          <div class="four-pro-card">
+            <div class="four-pro-head">
+              <span class="four-pro-badge">Pro</span>
+              <h2>Go Pro — <em>continuous</em> market intelligence.</h2>
+            </div>
+            <p class="four-pro-lede">Everything in your free read, unredacted — two full deliverables a week plus a daily update on what moved, so you're reading your market on a day's lag, not a quarter's.</p>
+            <ul class="four-pro-list">
+              <li>Market map, competitor teardown, gap analysis and 90-day plan — in full</li>
+              <li>Two full reports a week, on any company you choose</li>
+              <li>A one-click daily update on overnight movement and next moves</li>
+              <li>Read-only data connections for your operating metrics</li>
+              <li>Operator review on the synthesis</li>
+            </ul>
+            <div class="four-pro-foot">
+              <button type="button" class="four-pro-btn" data-gk-checkout>Upgrade to Pro →</button>
+              <a class="four-pro-plans" href="/pricing">Compare plans &amp; pricing →</a>
+            </div>
+            <p class="four-pro-note">Secure checkout via Stripe · cancel anytime · continuous <em>Agentic</em> monitoring is coming soon</p>
+          </div>
+        </section>
+      </div><!-- /pane: billing -->
+
+      </div><!-- /panes -->
     </div>
 
   </div>
