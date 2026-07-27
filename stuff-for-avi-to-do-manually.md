@@ -101,3 +101,4 @@ they sorted themselves out.
   missing `/beta` sitemap entry and a footer mismatch, both from the parallel
   session's new page. That session fixed them itself. Green at 19 pages now.
 - **Your git identity.** Switched off `growthkitsai-coder` and onto
+  `avi-aggarwal14`; the stale gh login is logged out and pushes authenticate
