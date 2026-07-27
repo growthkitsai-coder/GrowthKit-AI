@@ -40,3 +40,5 @@ a fallback mono the advance width changes and the labels can collide again.
 - [ ] The gap-box caption sits inside the dashed rectangle, not spilling past it
 
 ### 2b · Specimen overlay on `/four`
+
+- [ ] "Preview the deliverable" opens the overlay
