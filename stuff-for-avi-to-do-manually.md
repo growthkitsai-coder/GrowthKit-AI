@@ -67,3 +67,5 @@ Both landed intact — but that was luck, not safety. `CLAUDE.md` already says o
 agent session at a time, and this is the exact collision that rule exists for.
 
 - [ ] Close the other session before starting the next piece of work
+
+---
