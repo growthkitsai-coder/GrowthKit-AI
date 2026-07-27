@@ -15,6 +15,16 @@
 
   var PANES = ['deliverable', 'daily', 'plan', 'connections', 'history', 'billing'];
 
+  // Connections are announced but not live yet. Until this moment, Connect
+  // answers "coming soon" instead of starting OAuth, and every provider is
+  // listed so founders can see what's coming. Afterwards the real flow takes
+  // over and providers this deployment has no credentials for hide themselves
+  // again — so if the env vars aren't set by then, nothing 503s, it just isn't
+  // offered. Delete this block (and its two callers) once connections are live.
+  var CONNECTIONS_LIVE_AT = Date.UTC(2026, 7, 2); // Sunday 2 August 2026, 00:00 UTC
+  var CONNECTIONS_LIVE_LABEL = 'Sunday 2 August 2026';
+  function connectionsComingSoon() { return Date.now() < CONNECTIONS_LIVE_AT; }
+
   var dailyBusy = false;
   var accountCache = null;
   var dailyRows = null;
@@ -628,23 +638,39 @@
   function renderIntegrations(connections) {
     var host = qs('[data-integrations-list]');
     if (!host) return;
-    var list = usable(connections);
+    var soon = connectionsComingSoon();
+    // Pre-launch, show every provider — the point is to advertise what's coming.
+    var list = soon ? (connections || []) : usable(connections);
     if (!list.length) {
       host.innerHTML = '<div class="daily-state">Data connections are being set up — check back shortly.</div>';
       return;
     }
     host.innerHTML = list.map(function (c) {
+      var state = c.connected ? 'Connected' : (soon ? 'Coming soon' : 'Not connected');
       return '<article class="integration-card" data-provider="' + esc(c.provider) + '">' +
         '<div class="integration-icon"><svg aria-hidden="true"><use href="#' + providerIcons[c.provider] + '"></use></svg></div>' +
-        '<div class="integration-body"><div class="integration-title"><h3>' + esc(providerNames[c.provider]) + '</h3><span class="integration-state ' + (c.connected ? 'is-connected' : '') + '">' + (c.connected ? 'Connected' : 'Not connected') + '</span></div><p>' + esc(providerCopy[c.provider]) + '</p>' + integrationConfig(c) + '</div>' +
+        '<div class="integration-body"><div class="integration-title"><h3>' + esc(providerNames[c.provider]) + '</h3><span class="integration-state ' + (c.connected ? 'is-connected' : (soon ? 'is-soon' : '')) + '">' + esc(state) + '</span></div><p>' + esc(providerCopy[c.provider]) + '</p>' + integrationConfig(c) +
+        '<p class="integration-note" data-integration-note role="status"></p></div>' +
         '<button type="button" class="integration-action" data-integration-action="' + (c.connected ? 'disconnect' : 'connect') + '" data-provider="' + esc(c.provider) + '">' + (c.connected ? 'Disconnect' : 'Connect') + '</button>' +
       '</article>';
     }).join('');
 
     host.querySelectorAll('[data-integration-action]').forEach(function (button) {
       button.addEventListener('click', function () {
+        var action = button.getAttribute('data-integration-action');
+        // Disconnect keeps working throughout — an existing connection must
+        // always be removable, launch date or not.
+        if (soon && action === 'connect') {
+          var note = qs('[data-integration-note]', button.closest('.integration-card'));
+          if (note) {
+            note.textContent = 'Connections go live ' + CONNECTIONS_LIVE_LABEL +
+              '. Nothing to do yet — we\'ll switch it on for you.';
+            note.classList.add('is-visible');
+          }
+          return;
+        }
         button.disabled = true;
-        api('/api/integrations', { method: 'POST', body: { action: button.getAttribute('data-integration-action'), provider: button.getAttribute('data-provider') } })
+        api('/api/integrations', { method: 'POST', body: { action: action, provider: button.getAttribute('data-provider') } })
           .then(function (data) { if (data.url) location.href = data.url; else loadIntegrations(); })
           .catch(function (err) { alert(err.message || 'Connection failed.'); button.disabled = false; });
       });
@@ -676,21 +702,30 @@
     var host = qs('[data-connect-nudge]');
     if (!host) return;
     var access = (accountCache && accountCache.access) || {};
-    var list = usable(connections);
+    var soon = connectionsComingSoon();
+    var list = soon ? (connections || []) : usable(connections);
     var missing = list.filter(function (c) { return !c.connected; });
     // Connections are a paid feature, so there is nothing to nudge a free
     // account toward here — the Pro card already makes that case.
     if (!access.allowed || !list.length || !missing.length) { host.hidden = true; return; }
 
+    var names = missing.map(function (c) { return providerNames[c.provider] || c.provider; });
+    var joined = names.length > 1
+      ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+      : names[0];
+    var headline = qs('[data-connect-headline]', host);
     var note = qs('[data-connect-note]', host);
+    var cta = qs('[data-connect-cta]', host);
+    if (headline) {
+      headline.textContent = soon
+        ? 'Data connections land ' + CONNECTIONS_LIVE_LABEL + '.'
+        : 'Add your connections for sharper output.';
+    }
     if (note) {
-      var names = missing.map(function (c) { return providerNames[c.provider] || c.provider; });
-      var joined = names.length > 1
-        ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
-        : names[0];
       note.textContent = joined + (names.length > 1 ? ' feed' : ' feeds') +
         ' your real numbers into every report and daily update.';
     }
+    if (cta) cta.textContent = soon ? 'See what\'s coming →' : 'Add connections →';
     host.hidden = false;
   }
 
