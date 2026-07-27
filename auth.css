@@ -545,7 +545,9 @@ html.gk-specimen-open, html.gk-specimen-open body { overflow: hidden; }
 .beta-note { width: 100%; font-family: 'Inter', sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--ink); background: var(--bg); border: 1px solid var(--line-2); border-radius: 10px; padding: 12px 14px; resize: vertical; margin-bottom: 18px; }
 .beta-note:focus { outline: none; border-color: var(--accent); }
 .beta-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-.beta-btn { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 13px 28px; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+/* Also used on an <a> (the "apply" action now links to /beta), hence the
+   explicit inline-block + text-decoration reset a <button> would get free. */
+.beta-btn { display: inline-block; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 13px 28px; cursor: pointer; transition: background .2s ease, transform .2s ease; }
 .beta-btn:hover { background: var(--ink); transform: translateY(-1px); }
 .beta-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
 
