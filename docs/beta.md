@@ -6,7 +6,7 @@
 
 ## The model, in one paragraph
 
-An exact normalized verified email in the private `GK_BETA_EMAILS` Vercel value receives unrestricted Pro-equivalent beta access. Everyone else may create a Free account and **apply**. Applying grants **nothing** — it writes a `pending` row. **Avi approves by hand** in `/admin.html`; approval starts a window that ends after **7 days or 7 full reports, whichever comes first**. When it ends, the account drops back to Free and must pay for Pro. There is no open-beta flag.
+An exact normalized verified email in the private `GK_BETA_EMAILS` Vercel value receives unrestricted Pro-equivalent beta access. Everyone else may create a Free account and **apply**. Applying grants **nothing** — it writes a `pending` row. **Avi approves by hand** in `/admin.html`; approval starts a window that ends after **7 days or 7 full reports, whichever comes first**. Since 2026-07-27 the full-report cadence is **2 per rolling 7 days**, so in practice a beta week yields **2 full reports** — the 7-report ceiling is now the looser of the two bounds. **Short daily updates never charge the grant** (see [`daily-intelligence.md`](daily-intelligence.md)), so a beta tester also gets one a day. When it ends, the account drops back to Free and must pay for Pro. There is no open-beta flag.
 
 ## Why both paths exist
 
