@@ -185,3 +185,57 @@ test('a provider error carries the provider reason (an empty balance reads as 40
   assert.equal(result.code, 'generation_failed');
   assert.match(result.detail, /credit balance is too low/);
 });
+
+// ── normalizeBrief: repair a near-miss instead of losing the whole call ──────
+// A strict all-or-nothing contract meant one missing optional block threw away a
+// paid model call and showed "response was incomplete" (2026-07-27).
+
+const { normalizeBrief } = require('../lib/daily');
+
+test('a brief missing the optional founder and tool blocks is still accepted', function () {
+  const result = normalizeBrief({
+    lead: { headline: 'Rival cut prices', detail: 'd', why_it_matters: 'w' },
+    market_competitor_movement: [], own_metrics: [], market_signals: [],
+    next_moves: [1, 2, 3].map(function (p) {
+      return { priority: p, finding: 'f' + p, action: 'a', because: 'b', checklist: ['x', 'y', 'z'] };
+    }),
+    sources: []
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.brief.founder_to_talk_to, null);
+  assert.equal(result.brief.tool_prompt, null);
+  assert.deepEqual(result.missing, ['founder_to_talk_to', 'tool_prompt']);
+});
+
+test('two good moves are kept rather than rejected for not being three', function () {
+  const result = normalizeBrief({
+    lead: { headline: 'Signal' },
+    next_moves: [
+      { priority: 1, finding: 'f1', action: 'a', because: 'b', checklist: ['x', 'y', 'z'] },
+      { priority: 2, finding: 'f2', action: 'a', because: 'b' }
+    ]
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.brief.next_moves.length, 2);
+  assert.deepEqual(result.brief.next_moves[0].checklist, ['x', 'y', 'z']);
+  assert.deepEqual(result.brief.next_moves[1].checklist, []); // short list dropped, move kept
+  assert.ok(result.missing.indexOf('next_moves(2/3)') !== -1);
+});
+
+test('a brief with no headline or no usable move is still rejected', function () {
+  assert.equal(normalizeBrief({ next_moves: [{ finding: 'f', action: 'a' }] }).ok, false);
+  assert.deepEqual(normalizeBrief({ lead: { headline: 'h' }, next_moves: [] }).missing, ['next_moves']);
+  assert.equal(normalizeBrief(null).ok, false);
+});
+
+test('normalizeBrief never lets a non-array section reach the renderer', function () {
+  const result = normalizeBrief({
+    lead: { headline: 'h' },
+    market_competitor_movement: 'not an array',
+    next_moves: [{ finding: 'f', action: 'a', because: 'b', checklist: ['x', 'y', 'z'] }]
+  });
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.brief.market_competitor_movement, []);
+  assert.deepEqual(result.brief.own_metrics, []);
+  assert.deepEqual(result.brief.sources, []);
+});
