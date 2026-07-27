@@ -35,3 +35,4 @@ or be approved**. Paid Pro subscribers are unaffected by this one.
 - [ ] Run it. It is idempotent (`create table if not exists`), so re-running is safe.
 - [ ] Confirm: **Table Editor** should now list `beta_applications`.
 
+⚠️ Separate but related: `202607250001_daily_reports.sql` is a **different**
