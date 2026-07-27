@@ -30,3 +30,4 @@ Without this the `beta_applications` table does not exist, so `checkAccess()`
 returns `beta-unavailable`, `POST /api/beta` answers 503, and **nobody can apply
 or be approved**. Paid Pro subscribers are unaffected by this one.
 
+- [ ] Open **Supabase → your project → SQL Editor**.
