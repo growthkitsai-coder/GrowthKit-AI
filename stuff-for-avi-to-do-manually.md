@@ -22,3 +22,5 @@ commit in this repo's history had used that address before today.
 
 **If it's wrong:** commits show a plain name with no avatar and never reach your
 contribution graph. The history itself is fine — only the link to you is missing.
+
+---
