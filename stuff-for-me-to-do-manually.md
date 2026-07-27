@@ -102,3 +102,4 @@ cannot meaningfully test the applicant view.
 | Step 2 done but still "not an admin" | You set it on the empty duplicate Vercel project |
 | Ditto, and the project is right | You pasted your email instead of your user id |
 
+---
