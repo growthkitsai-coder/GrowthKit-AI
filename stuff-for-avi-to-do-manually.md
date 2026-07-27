@@ -64,3 +64,4 @@ half-finished files into its own commits** with `git add -A`: `25c41bf "my voice
 took `specimen.html`, and `8e92b85 "lol"` took `auth.css`.
 
 Both landed intact — but that was luck, not safety. `CLAUDE.md` already says one
+agent session at a time, and this is the exact collision that rule exists for.
