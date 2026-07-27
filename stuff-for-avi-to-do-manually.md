@@ -65,3 +65,5 @@ took `specimen.html`, and `8e92b85 "lol"` took `auth.css`.
 
 Both landed intact — but that was luck, not safety. `CLAUDE.md` already says one
 agent session at a time, and this is the exact collision that rule exists for.
+
+- [ ] Close the other session before starting the next piece of work
