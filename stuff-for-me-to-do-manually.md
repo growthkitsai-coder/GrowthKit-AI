@@ -126,3 +126,4 @@ so it stays pinned to a URL known to be allowlisted.
 
 - [ ] **Hard-refresh (Ctrl+Shift+R)** when checking the hero and problem-morph
       changes. That CSS is inline in `index.html`, so it only arrives with a
+      fresh copy of the HTML — a soft reload can show you the old spacing.
