@@ -175,25 +175,30 @@
 .four-head h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(34px, 5.4vw, 60px); line-height: 1.0; letter-spacing: -0.025em; margin: 0 0 16px; color: var(--ink); }
 .four-head h1 em { font-style: italic; color: var(--accent); }
 .four-head .lede { font-size: 16px; line-height: 1.55; color: var(--ink-2); margin: 0 auto; max-width: 52ch; }
-.four-app > .gk-advisor {
+/* The engine breaks out of the narrow reading column. It sits one level deeper
+   now that /four is paned (.four-panes > .four-pane > .gk-advisor); the
+   workspace section below cancels the breakout once the shell takes over. */
+.four-pane > .gk-advisor {
   width: min(1380px, calc(100vw - 48px));
   max-width: none;
   margin-left: 50%;
   transform: translateX(-50%);
 }
-.four-daily-countdown {
+/* Full-report allowance readout under the engine — counts down to the next slot
+   in the rolling 7-day window (2 full reports). */
+.four-allowance {
   width: min(1380px, calc(100vw - 48px)); margin: 14px 0 0 50%;
   transform: translateX(-50%); display: flex; align-items: center; justify-content: center; gap: 10px;
   min-height: 44px; padding: 10px 18px; border: 1px solid var(--line); border-radius: 9px;
   background: var(--bg-2); color: var(--ink-2);
   font: 11px 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .07em; text-transform: uppercase;
 }
-.four-daily-countdown[hidden] { display: none; }
+.four-allowance[hidden] { display: none; }
 .four-countdown-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(31,71,50,.12); }
-.four-daily-countdown.is-counting [data-daily-countdown-label] { color: var(--accent); }
-:root[data-theme="dark"] .four-daily-countdown { background: rgba(62,245,159,.035); border-color: var(--deep-3); color: rgba(143,255,201,.62); }
+.four-allowance.is-counting [data-allowance-label] { color: var(--accent); }
+:root[data-theme="dark"] .four-allowance { background: rgba(62,245,159,.035); border-color: var(--deep-3); color: rgba(143,255,201,.62); }
 :root[data-theme="dark"] .four-countdown-dot { background: var(--neon); box-shadow: 0 0 0 3px rgba(62,245,159,.14), 0 0 12px rgba(62,245,159,.65); }
-:root[data-theme="dark"] .four-daily-countdown.is-counting [data-daily-countdown-label] { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,.3); }
+:root[data-theme="dark"] .four-allowance.is-counting [data-allowance-label] { color: var(--neon); text-shadow: 0 0 10px rgba(62,245,159,.3); }
 
 .reads { max-width: 820px; margin: 46px auto 0; }
 .reads-head { text-align: center; margin-bottom: 20px; }
@@ -430,7 +435,7 @@
   .daily-brief, .daily-head { padding-left: 20px; padding-right: 20px; }
   .daily-brief-meta { align-items: flex-start; flex-direction: column; }
   .finding-founder { align-items: flex-start; flex-direction: column; }
-  .four-app > .gk-advisor, .four-daily-countdown { width: calc(100vw - 24px); }
+  .four-pane > .gk-advisor, .four-allowance { width: calc(100vw - 24px); }
 }
 
 @media print {
@@ -568,4 +573,164 @@
 @media (prefers-reduced-motion: reduce) {
   .four-caret { animation: none; }
   .four-cta-go:hover, .four-pro-btn:hover { transform: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   /four WORKSPACE — the app shell (Phase 3, 2026-07-27)
+   ─────────────────────────────────────────────────────────────────────────
+   Everything here is scoped to body.is-workspace, which product.js sets only
+   once a completed full report exists. Without that class /four renders as the
+   pre-first-report marketing scroll it always has: panes stack, nav is hidden.
+   Desktop is a left rail + one visible pane; ≤720px the rail becomes a fixed
+   bottom tab bar. The Deliverable pane is the prime focus — the daily update,
+   plan, connections, history and billing all live one tap away.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Pre-workspace: every pane is just a section in the scroll. */
+.four-pane { display: block; }
+.four-nav[hidden], .four-shell-head[hidden] { display: none; }
+
+/* ── Workspace header — the company /four is following ── */
+.four-shell-head {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; flex-wrap: wrap;
+  padding: 0 0 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line);
+}
+.four-shell-id { min-width: 0; }
+.four-shell-head h1 {
+  margin: 6px 0 6px; font-family: 'Instrument Serif', serif; font-weight: 400;
+  font-size: clamp(30px, 4.4vw, 50px); line-height: 1.02; letter-spacing: -0.025em; color: var(--ink);
+}
+.four-shell-meta { margin: 0; font: 12px 'JetBrains Mono', ui-monospace, monospace; color: var(--muted); }
+.four-shell-meta a { color: var(--accent); border-bottom: 1px solid transparent; }
+.four-shell-meta a:hover { border-color: var(--accent); }
+.four-shell-meters { display: flex; gap: 12px; flex-wrap: wrap; }
+.four-meter {
+  min-width: 158px; padding: 12px 16px 13px; border: 1px solid var(--line-2); border-radius: 11px;
+  background: var(--paper); display: grid; gap: 3px;
+}
+.four-meter-label { font: 10px 'JetBrains Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.four-meter strong { font: 400 26px/1.05 'Instrument Serif', serif; color: var(--ink); }
+.four-meter small { font-size: 11.5px; line-height: 1.4; color: var(--muted); }
+.four-meter.is-ready strong { color: var(--accent); }
+
+/* ── Left rail ── */
+body.is-workspace .four-panes { min-width: 0; }
+body.is-workspace .four-app {
+  display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 34px;
+  grid-template-areas: "head head" "nav panes"; align-items: start;
+}
+body.is-workspace .four-shell-head { grid-area: head; }
+body.is-workspace .four-nav { grid-area: nav; }
+body.is-workspace .four-panes { grid-area: panes; }
+body.is-workspace .four-welcome { display: none; }
+
+.four-nav { display: grid; gap: 2px; position: sticky; top: 22px; }
+.four-nav-item {
+  position: relative;
+  display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+  padding: 10px 13px; border: 1px solid transparent; border-radius: 9px;
+  background: transparent; color: var(--muted); cursor: pointer;
+  font: 500 14px 'Inter', sans-serif; transition: color .18s ease, background .18s ease, border-color .18s ease;
+}
+.four-nav-item:hover { color: var(--ink); background: var(--bg-2); }
+.four-nav-item.is-active { color: var(--accent); background: var(--paper); border-color: var(--line-2); font-weight: 600; }
+.four-nav-icon { flex: none; width: 18px; font-size: 13px; text-align: center; opacity: .75; }
+.four-nav-text { flex: 1 1 auto; min-width: 0; }
+.four-nav-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.four-nav-dot[hidden] { display: none; }
+
+/* ── Panes — one at a time in workspace mode ── */
+body.is-workspace .four-pane { display: none; }
+body.is-workspace .four-pane.is-active { display: block; animation: fourPaneIn .22s ease both; }
+@keyframes fourPaneIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+/* Inside the shell the engine no longer breaks out of the column — the grid
+   already gives it the full width. */
+body.is-workspace .four-pane > .gk-advisor,
+body.is-workspace .four-allowance { width: 100%; margin-left: 0; transform: none; }
+body.is-workspace .daily-panel,
+body.is-workspace .integrations-panel,
+body.is-workspace .report-history,
+body.is-workspace .four-beta,
+body.is-workspace .four-pro,
+body.is-workspace .plan-pane { max-width: none; margin-top: 0; }
+body.is-workspace .four-billing { justify-content: flex-start; margin: 0 0 26px; }
+body.is-workspace .four-product-status { margin-bottom: 26px; }
+
+/* ── Daily pane ── */
+.daily-sub { margin: 10px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); max-width: 56ch; }
+.daily-generate {
+  flex: none; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent); color: var(--bg);
+  font: 600 13px 'Inter', sans-serif; padding: 11px 20px; cursor: pointer;
+  transition: background .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.daily-generate:hover:not(:disabled) { background: var(--ink); transform: translateY(-1px); box-shadow: 0 14px 34px -18px rgba(31,71,50,.5); }
+.daily-generate:disabled { opacity: .45; cursor: default; }
+.daily-generate.is-busy { opacity: .8; cursor: progress; }
+
+/* ── Plan pane ── */
+.plan-pane > h2 {
+  margin: 6px 0 8px; font-family: 'Instrument Serif', serif; font-weight: 400;
+  font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -0.02em; color: var(--ink);
+}
+.plan-pane > h2 em { font-style: italic; color: var(--accent); }
+.plan-sub { margin: 0 0 26px; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); max-width: 60ch; }
+/* The projection holds real .gk-dv-sec nodes moved out of the deliverable, so it
+   inherits the report's own styling — it only needs the surrounding frame. */
+.plan-projection { display: grid; gap: 26px; }
+.plan-projection .gk-dv-sec { margin: 0; }
+
+.four-billing-slot:empty { display: none; }
+
+/* ── Dark — neon console ── */
+:root[data-theme="dark"] .four-shell-head { border-color: var(--deep-3); }
+:root[data-theme="dark"] .four-shell-head h1 { color: #ECFBF3; }
+:root[data-theme="dark"] .four-shell-meta a { color: var(--neon); }
+:root[data-theme="dark"] .four-meter { background: rgba(255,255,255,.02); border-color: var(--deep-3); }
+:root[data-theme="dark"] .four-meter strong { color: #ECFBF3; }
+:root[data-theme="dark"] .four-meter.is-ready strong { color: var(--neon); text-shadow: 0 0 16px rgba(62,245,159,.35); }
+:root[data-theme="dark"] .four-nav-item:hover { background: rgba(255,255,255,.03); color: #ECFBF3; }
+:root[data-theme="dark"] .four-nav-item.is-active { color: var(--neon); background: rgba(62,245,159,.05); border-color: var(--deep-3); }
+:root[data-theme="dark"] .four-nav-dot { background: var(--neon); box-shadow: 0 0 10px rgba(62,245,159,.7); }
+:root[data-theme="dark"] .daily-generate { background: var(--neon); color: #04110A; border-color: var(--neon); box-shadow: 0 0 24px -6px rgba(62,245,159,.6); }
+:root[data-theme="dark"] .daily-generate:hover:not(:disabled) { background: var(--neon-2); }
+:root[data-theme="dark"] .plan-pane > h2 { color: #ECFBF3; }
+:root[data-theme="dark"] .plan-pane > h2 em { color: var(--neon); text-shadow: 0 0 18px rgba(62,245,159,.4); }
+
+/* ── Mobile: the rail becomes a bottom tab bar ── */
+@media (max-width: 720px) {
+  body.is-workspace .four-app { display: block; }
+  body.is-workspace { padding-bottom: 74px; }
+  .four-shell-head { display: block; padding-bottom: 18px; margin-bottom: 20px; }
+  .four-shell-meters { margin-top: 16px; }
+  .four-meter { flex: 1 1 140px; min-width: 0; }
+  body.is-workspace .four-nav {
+    position: fixed; inset: auto 0 0 0; top: auto; z-index: 40;
+    display: flex; gap: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: var(--paper); border-top: 1px solid var(--line-2);
+    box-shadow: 0 -14px 34px -28px rgba(31,71,50,.6);
+  }
+  .four-nav-item {
+    flex: 1 1 0; min-width: 0; flex-direction: column; gap: 3px; align-items: center;
+    padding: 7px 2px; border-radius: 8px; font-size: 10px; font-weight: 600;
+    letter-spacing: .02em; text-align: center;
+  }
+  .four-nav-item.is-active { background: var(--bg-2); border-color: transparent; }
+  .four-nav-icon { width: auto; font-size: 15px; opacity: .9; }
+  .four-nav-text { flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .four-nav-dot { position: absolute; top: 5px; right: 50%; margin-right: -13px; }
+  .daily-head { display: block; }
+  .daily-generate { margin-top: 16px; width: 100%; }
+  :root[data-theme="dark"] body.is-workspace .four-nav { background: var(--deep-1); border-color: var(--deep-3); }
+  :root[data-theme="dark"] .four-nav-item.is-active { background: rgba(62,245,159,.07); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-workspace .four-pane.is-active { animation: none; }
+  .daily-generate:hover:not(:disabled) { transform: none; }
+}
+
+@media print {
+  .four-nav, .four-shell-meters, .daily-generate { display: none !important; }
+  body.is-workspace .four-pane { display: block !important; }
 }
