@@ -18,3 +18,4 @@ commit in this repo's history had used that address before today.
 - [ ] Open <https://github.com/settings/emails> and confirm it's listed and verified
 - [ ] If it isn't, verify it — or switch to the noreply form instead:
       `git config --global user.email "<id>+avi-aggarwal14@users.noreply.github.com"`
+- [ ] Open any commit from today on github.com and check your avatar appears
