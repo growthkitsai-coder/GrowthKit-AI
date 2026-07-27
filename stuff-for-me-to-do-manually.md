@@ -139,3 +139,4 @@ so it stays pinned to a URL known to be allowlisted.
 
 Listed here only so it does not get lost. This is a code fix, not a dashboard one.
 
+- [ ] **The "Upgrade to Pro" button on `/four` does nothing when clicked.**
