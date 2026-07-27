@@ -19,3 +19,5 @@ commit in this repo's history had used that address before today.
 - [ ] If it isn't, verify it — or switch to the noreply form instead:
       `git config --global user.email "<id>+avi-aggarwal14@users.noreply.github.com"`
 - [ ] Open any commit from today on github.com and check your avatar appears
+
+**If it's wrong:** commits show a plain name with no avatar and never reach your
