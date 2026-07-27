@@ -308,7 +308,10 @@
     renderBeta(access, account);
     renderHistory(reports);
     renderDailyGate(account);
+    // loadIntegrations re-renders the nudge from the live list; without access
+    // it never runs, so clear it here in case access lapsed mid-session.
     if (access.allowed) loadIntegrations();
+    else { var nudge = qs('[data-connect-nudge]'); if (nudge) nudge.hidden = true; }
     if (isWorkspace && dailyRows === null && activePane === 'daily') loadDaily();
     projectPlan();
   }
@@ -654,9 +657,37 @@
     });
   }
 
+  /**
+   * The standing "add your connections" nudge under the panes. Driven by the
+   * live connection list, and hidden once all three providers are connected —
+   * a prompt to connect what you already connected is just noise.
+   */
+  function renderConnectNudge(connections) {
+    var host = qs('[data-connect-nudge]');
+    if (!host) return;
+    var access = (accountCache && accountCache.access) || {};
+    var list = connections || [];
+    var missing = list.filter(function (c) { return !c.connected; });
+    // Connections are a paid feature, so there is nothing to nudge a free
+    // account toward here — the Pro card already makes that case.
+    if (!access.allowed || !list.length || !missing.length) { host.hidden = true; return; }
+
+    var note = qs('[data-connect-note]', host);
+    if (note) {
+      var names = missing.map(function (c) { return providerNames[c.provider] || c.provider; });
+      var joined = names.length > 1
+        ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+        : names[0];
+      note.textContent = joined + (names.length > 1 ? ' feed' : ' feeds') +
+        ' your real numbers into every report and daily update.';
+    }
+    host.hidden = false;
+  }
+
   function loadIntegrations() {
     api('/api/integrations', { method: 'GET' }).then(function (data) {
       renderIntegrations(data.connections || []);
+      renderConnectNudge(data.connections || []);
     }).catch(function (err) {
       var host = qs('[data-integrations-list]');
       if (host) host.innerHTML = '<div class="daily-state">' + esc(err.message || 'Connections are unavailable.') + '</div>';
@@ -685,6 +716,16 @@
 
     var generate = qs('[data-daily-generate]');
     if (generate) generate.addEventListener('click', generateDaily);
+
+    var connectCta = qs('[data-connect-cta]');
+    if (connectCta) {
+      connectCta.addEventListener('click', function () {
+        if (isWorkspace) { setPane('connections'); return; }
+        // Pre-report the panes are one scroll, so take them to the panel.
+        var panel = qs('[data-integrations]');
+        if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
 
     // Delegated: the apply button is re-rendered on every renderAccount pass,
     // so binding it directly would go stale.
