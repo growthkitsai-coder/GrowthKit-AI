@@ -43,3 +43,4 @@ generation is also failing, check `memory.md` — that one has its own open item
 
 ## 2. Set `GK_ADMIN_USER_IDS` in Vercel — 🔴 BLOCKING
 
+The admin check **fails closed**: an unset variable means nobody is an admin. So
