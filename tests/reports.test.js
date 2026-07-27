@@ -28,19 +28,71 @@ function todayUtc() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// ── reserveReport: the one-report-per-UTC-day gate ──────────────────────────
+function daysAgo(n) {
+  return new Date(Date.now() - n * 24 * 60 * 60 * 1000).toISOString();
+}
+function completedRow(id, company, completedAt) {
+  return { id, status: 'completed', company_name: company, company_key: company.toLowerCase(), completed_at: completedAt, created_at: completedAt };
+}
 
-test('a completed report today blocks a second one (daily_limit)', async function () {
+// ── allowanceFrom: the rolling 2-per-7-days window ──────────────────────────
+
+test('allowance counts completed reports and reports the next unlock', function () {
+  const rows = [completedRow('r2', 'Acme', daysAgo(1)), completedRow('r1', 'Acme', daysAgo(5))];
+  const a = product.allowanceFrom(rows);
+  assert.equal(a.used, 2);
+  assert.equal(a.limit, 2);
+  assert.equal(a.remaining, 0);
+  assert.equal(a.window_days, 7);
+  // The OLDER of the two leaves the window first: 5 days ago + 7 days.
+  const expected = new Date(new Date(daysAgo(5)).getTime() + 7 * 24 * 3600 * 1000).getTime();
+  assert.ok(Math.abs(new Date(a.next_available_at).getTime() - expected) < 2000);
+});
+
+test('a failed or generating report does not consume an allowance slot', function () {
+  const a = product.allowanceFrom([
+    completedRow('r1', 'Acme', daysAgo(2)),
+    { id: 'r2', status: 'failed', created_at: daysAgo(1) },
+    { id: 'r3', status: 'generating', created_at: daysAgo(0) }
+  ]);
+  assert.equal(a.used, 1);
+  assert.equal(a.remaining, 1);
+  assert.equal(a.next_available_at, null);
+});
+
+// ── reserveReport: the rolling-window gate ─────────────────────────────────
+
+test('two completed reports in the window block a third (weekly_limit)', async function () {
   reset();
   global.fetch = async function (url) {
     if (String(url).indexOf('/reports?') !== -1) {
-      return ok([{ id: 'r1', status: 'completed', report_date: todayUtc(), company_name: 'Acme' }]);
+      return ok([completedRow('r2', 'Acme', daysAgo(1)), completedRow('r1', 'Acme', daysAgo(4))]);
     }
     return ok([]);
   };
   const r = await product.reserveReport('user-1', { company: 'Beta Co' });
   assert.equal(r.ok, false);
-  assert.equal(r.code, 'daily_limit');
+  assert.equal(r.code, 'weekly_limit');
+  assert.equal(r.allowance.remaining, 0);
+  assert.ok(r.allowance.next_available_at);
+});
+
+test('one completed report in the window still allows a second, on any company', async function () {
+  reset();
+  global.fetch = async function (url, opts) {
+    const u = String(url);
+    if (u.indexOf('/reports?') !== -1 && !(opts && opts.method)) {
+      return ok([completedRow('r1', 'Acme', daysAgo(2))]);
+    }
+    if (u.indexOf('/rest/v1/reports') !== -1 && (opts && opts.method) === 'POST') {
+      return ok([Object.assign({ id: 'r-new' }, JSON.parse(opts.body)[0])]);
+    }
+    return ok([]);
+  };
+  const r = await product.reserveReport('user-1', { company: 'Different Co' });
+  assert.equal(r.ok, true);
+  assert.equal(r.code, 'reserved');
+  assert.equal(r.report.company_name, 'Different Co');
 });
 
 test('a recent in-progress report is resumed, not duplicated', async function () {
@@ -49,7 +101,7 @@ test('a recent in-progress report is resumed, not duplicated', async function ()
   global.fetch = async function (url, opts) {
     if ((opts && opts.method) === 'POST') posted = true;
     if (String(url).indexOf('/reports?') !== -1) {
-      return ok([{ id: 'r1', status: 'generating', started_at: new Date().toISOString(), report_date: todayUtc(), company_name: 'Acme' }]);
+      return ok([{ id: 'r1', status: 'generating', started_at: new Date().toISOString(), report_date: todayUtc(), company_name: 'Acme', company_key: 'acme' }]);
     }
     return ok([]);
   };
@@ -60,11 +112,55 @@ test('a recent in-progress report is resumed, not duplicated', async function ()
   assert.equal(posted, false); // no new row created
 });
 
-test('no report today creates a fresh one for the chosen company', async function () {
+test('resuming is allowed even with the window spent — it was never charged', async function () {
+  reset();
+  global.fetch = async function (url) {
+    if (String(url).indexOf('/reports?') !== -1) {
+      return ok([
+        { id: 'r3', status: 'generating', started_at: new Date().toISOString(), company_name: 'Acme', company_key: 'acme' },
+        completedRow('r2', 'Acme', daysAgo(1)),
+        completedRow('r1', 'Acme', daysAgo(3))
+      ]);
+    }
+    return ok([]);
+  };
+  const r = await product.reserveReport('user-1', { company: 'Acme' });
+  assert.equal(r.ok, true);
+  assert.equal(r.code, 'resumed');
+  assert.equal(r.report.id, 'r3');
+});
+
+test('a stale report for a different company is abandoned, not reused', async function () {
+  reset();
+  let failedStale = false;
+  let insertedCompany = null;
+  global.fetch = async function (url, opts) {
+    const u = String(url);
+    const method = opts && opts.method;
+    if (method === 'PATCH' && u.indexOf('status=eq.generating') !== -1) { failedStale = true; return ok([]); }
+    if (u.indexOf('/reports?') !== -1 && !method) {
+      // Stale: started 20 minutes ago, well past the 10-minute resume window.
+      return ok([{ id: 'r1', status: 'generating', started_at: new Date(Date.now() - 20 * 60 * 1000).toISOString(), company_name: 'Old Co', company_key: 'old co' }]);
+    }
+    if (u.indexOf('/rest/v1/reports') !== -1 && method === 'POST') {
+      const body = JSON.parse(opts.body)[0];
+      insertedCompany = body.company_name;
+      return ok([Object.assign({ id: 'r-new' }, body)]);
+    }
+    return ok([]);
+  };
+  const r = await product.reserveReport('user-1', { company: 'New Co' });
+  assert.equal(failedStale, true);          // the old row was failed, freeing its sections
+  assert.equal(r.ok, true);
+  assert.equal(r.code, 'reserved');
+  assert.equal(insertedCompany, 'New Co');  // a fresh report_id, not the stale one
+});
+
+test('a fresh account creates a report for the chosen company', async function () {
   reset();
   global.fetch = async function (url, opts) {
     const u = String(url);
-    if (u.indexOf('/reports?') !== -1) return ok([]); // none today
+    if (u.indexOf('/reports?') !== -1 && !(opts && opts.method)) return ok([]);
     if (u.indexOf('/rest/v1/reports') !== -1 && (opts && opts.method) === 'POST') {
       const body = JSON.parse(opts.body)[0];
       return ok([Object.assign({ id: 'r-new' }, body)]);
