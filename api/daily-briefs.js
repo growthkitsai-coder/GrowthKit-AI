@@ -1,7 +1,13 @@
 'use strict';
 
+// The DAILY UPDATE — the short, one-click market delta shown in the /four Daily
+// pane. One per UTC day, cut against the founder's most recent completed full
+// report (the company the workspace is following). Same access gate as the full
+// report, but deliberately metered on its own: it NEVER charges the beta report
+// grant, which only full reports consume. See docs/daily-intelligence.md.
+
 const { verifyUserToken, bearer, checkAccess } = require('../lib/subscriptions');
-const { getWorkspace, listDailyBriefs } = require('../lib/product');
+const { configured, getLatestCompletedReport, listDailyBriefs } = require('../lib/product');
 const { generateDailyBrief } = require('../lib/daily');
 
 module.exports = async function handler(req, res) {
@@ -10,30 +16,42 @@ module.exports = async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed.' });
     return;
   }
+  if (!configured()) {
+    res.status(503).json({ error: 'Daily updates are not configured.' });
+    return;
+  }
   const user = await verifyUserToken(bearer(req));
   if (!user) {
     res.status(401).json({ error: 'Please sign in again.' });
     return;
   }
-  const access = await checkAccess(user);
-  if (!access.allowed) {
-    res.status(402).json({ error: 'Upgrade to Pro to receive daily briefs.', code: 'subscription_required' });
-    return;
-  }
-  const workspaceResult = await getWorkspace(user.id);
-  const workspace = workspaceResult.workspace;
-  if (!workspace || workspace.full_report_status !== 'completed') {
-    res.status(409).json({ error: 'Generate your first full report before daily briefs begin.', code: 'full_report_required' });
-    return;
-  }
+
+  // Reading past updates survives access ending, like completed reports do.
   if (req.method === 'GET') {
     res.status(200).json({ briefs: await listDailyBriefs(user.id, 14) });
     return;
   }
-  const result = await generateDailyBrief(user, workspace);
+
+  const access = await checkAccess(user);
+  if (!access.allowed) {
+    res.status(402).json({ error: 'Upgrade to Pro to generate daily updates.', code: 'subscription_required', reason: access.reason });
+    return;
+  }
+  const report = await getLatestCompletedReport(user.id);
+  if (!report) {
+    res.status(409).json({ error: 'Generate your full report first — the daily update is a delta against it.', code: 'full_report_required' });
+    return;
+  }
+
+  const result = await generateDailyBrief(user, report);
   if (!result.ok) {
     const status = result.code === 'generating' ? 202 : 502;
-    res.status(status).json({ error: result.code === 'generating' ? 'Today\'s brief is already being prepared.' : 'Could not prepare today\'s brief.', code: result.code });
+    res.status(status).json({
+      error: result.code === 'generating'
+        ? 'Today\'s update is already being prepared.'
+        : 'Could not prepare today\'s update.',
+      code: result.code
+    });
     return;
   }
   res.status(200).json({ brief: result.row, existing: result.existing });
