@@ -133,3 +133,4 @@ so it stays pinned to a URL known to be allowlisted.
       Every file survived intact this time, but that is luck, not design — it is
       the exact collision `CLAUDE.md` warns about. Commit between tool switches.
 
+---
