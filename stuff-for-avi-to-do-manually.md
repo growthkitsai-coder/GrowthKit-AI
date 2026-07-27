@@ -76,3 +76,4 @@ Nothing from this session has been pushed. Pushing `main` auto-deploys to
 growthkitai.com, and CI does **not** gate deploys — a red check still ships.
 
 - [ ] Review what's queued: `git log --oneline origin/main..main`
+- [ ] Run `node scripts/check-site.mjs` one more time — it was green at 19 pages
