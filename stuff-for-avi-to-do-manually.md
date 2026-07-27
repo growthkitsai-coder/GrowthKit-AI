@@ -49,3 +49,5 @@ a fallback mono the advance width changes and the labels can collide again.
 - [ ] Dark mode: the overlay chrome and backdrop look right
 
 ### 2c · The new `/four` top-bar nav
+
+- [ ] The five links sit sensibly beside your email and Sign out
