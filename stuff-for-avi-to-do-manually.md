@@ -114,3 +114,16 @@ they sorted themselves out.
 - **Your git identity.** Switched off `growthkitsai-coder` and onto
   `avi-aggarwal14`; the stale gh login is logged out and pushes authenticate
   correctly. **Only the email-verification bit in §1 is still outstanding.**
+
+---
+
+## Note — there are two of these files
+
+The parallel session wrote **`stuff-for-me-to-do-manually.md`** covering its own
+work: the Supabase `beta_applications` migration and `GK_ADMIN_USER_IDS` in
+Vercel (both marked 🔴 blocking — the beta flow is dead until they're done), an
+end-to-end beta test, a broken "Upgrade to Pro" button on `/four`, and the empty
+`SCRIPT_URL` that kills the "Become a client" form.
+
+**Nothing in it overlaps this file**, so read both. If you'd rather have one
+list, say so and I'll merge them.
