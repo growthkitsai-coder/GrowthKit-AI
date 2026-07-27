@@ -42,7 +42,8 @@
     { "source": "/four", "destination": "/four.html" }
   ],
   "functions": {
-    "api/advise.js": { "maxDuration": 60 }
+    "api/advise.js": { "maxDuration": 60 },
+    "api/daily-briefs.js": { "maxDuration": 60 }
   },
   "headers": [
     {
