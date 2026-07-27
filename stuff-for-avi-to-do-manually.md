@@ -42,3 +42,4 @@ a fallback mono the advance width changes and the labels can collide again.
 ### 2b · Specimen overlay on `/four`
 
 - [ ] "Preview the deliverable" opens the overlay
+- [ ] It closes three ways: the ✕, clicking the backdrop, and Escape
