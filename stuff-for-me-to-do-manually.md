@@ -46,3 +46,4 @@ generation is also failing, check `memory.md` — that one has its own open item
 The admin check **fails closed**: an unset variable means nobody is an admin. So
 until this is set, `/admin` shows "This account is not an admin" to everyone —
 including you — and `GET /api/admin-beta` answers 404 to every caller.
+
