@@ -54,6 +54,17 @@ When a newly generated report reaches `capital_metrics`, `api/advise.js` calls `
 
 The snapshot is bounded to 20 seconds so one slow provider cannot hold the serverless request open. Per-provider errors render as “Needs attention”; a whole-snapshot timeout renders a retry/reconnect message; only an actual empty configuration renders “No data connections were configured.” Historical reports retain the values captured at generation time and are not refreshed on view.
 
+## Pre-launch: "coming soon" until Sunday 2 August 2026
+
+Connections are announced but **not live**. `product.js` holds `CONNECTIONS_LIVE_AT` (`Date.UTC(2026, 7, 2)`) and `CONNECTIONS_LIVE_LABEL`. While `connectionsComingSoon()` is true:
+
+- All three providers are listed regardless of `configured` — the point is to advertise what's coming — and each card's state chip reads **Coming soon**.
+- **Connect** does not start OAuth. It writes "Connections go live Sunday 2 August 2026. Nothing to do yet — we'll switch it on for you." into that card's `[data-integration-note]`.
+- **Disconnect still works.** An existing connection must always be removable, launch date or not.
+- The standing nudge swaps its headline to the launch date and its CTA to "See what's coming →".
+
+**It flips itself.** After that instant the real OAuth flow takes over and the `configured` filter below re-applies, so a provider whose env vars are still missing is simply not offered rather than 503-ing. Once connections are genuinely live, delete the constants and their two callers in `product.js` (`renderIntegrations`, `renderConnectNudge`).
+
 ## Unconfigured providers are hidden
 
 `publicConnections()` marks each provider `configured` from `providerConfigured()` — whether this deployment actually holds its OAuth credentials. `/four` renders only configured providers, so nobody clicks **Connect** and hits a 503; the connections nudge counts only those too. An **already connected** provider always reports `configured: true`, so an existing connection stays manageable and disconnectable even if a credential is later removed. This is what lets LinkedIn's code ship while its scopes await approval.
