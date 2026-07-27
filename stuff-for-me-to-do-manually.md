@@ -111,3 +111,4 @@ Email/password sign-in started from `/beta` already returns to `/beta`, via the
 not** — it deliberately lands on `/four` instead.
 
 That is not an oversight. OAuth `redirectTo` URLs must be registered in Supabase
+→ Authentication → URL Configuration → Redirect URLs. Routing OAuth through an
