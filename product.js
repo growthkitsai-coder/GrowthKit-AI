@@ -750,7 +750,68 @@
     });
   }
 
+  /* ── Specimen preview ──────────────────────────────────────────────────────
+   * The sample deliverable opens full-screen rather than sitting on the page in
+   * a 560px scroll box. That box captured the wheel whenever the cursor crossed
+   * it mid-scroll, and it loaded /specimen without ?embed=1 so the specimen's
+   * own topbar rendered inside the frame. The overlay's iframe stays src-less
+   * until the first open, so /four never pays for a second page load nobody
+   * asked for.
+   */
+  var specimenReturnFocus = null;
+
+  function specimenOpen() {
+    var overlay = qs('[data-specimen-overlay]');
+    var frame = qs('[data-specimen-frame]');
+    if (!overlay || !frame) return;
+    if (!frame.getAttribute('src')) frame.setAttribute('src', '/specimen?embed=1');
+    specimenReturnFocus = document.activeElement;
+    overlay.hidden = false;
+    document.documentElement.classList.add('gk-specimen-open');
+    var close = qs('.four-specimen-close', overlay);
+    if (close) close.focus();
+  }
+
+  function specimenClose() {
+    var overlay = qs('[data-specimen-overlay]');
+    if (!overlay || overlay.hidden) return;
+    overlay.hidden = true;
+    document.documentElement.classList.remove('gk-specimen-open');
+    if (specimenReturnFocus && specimenReturnFocus.focus) specimenReturnFocus.focus();
+    specimenReturnFocus = null;
+  }
+
+  function initSpecimen() {
+    var overlay = qs('[data-specimen-overlay]');
+    if (!overlay) return;
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest) return;
+      if (e.target.closest('[data-specimen-open]')) { e.preventDefault(); specimenOpen(); return; }
+      if (e.target.closest('[data-specimen-dismiss]')) specimenClose();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') specimenClose();
+    });
+
+    // Escape pressed while focus is inside the iframe never reaches this
+    // document, so the key has to be wired up in there too. Same-origin, but
+    // guarded — if it ever isn't, the close button and backdrop still work.
+    var frame = qs('[data-specimen-frame]');
+    if (frame) {
+      frame.addEventListener('load', function () {
+        try {
+          frame.contentDocument.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') specimenClose();
+          });
+        } catch (err) { /* cross-origin: close button and backdrop still close it */ }
+      });
+    }
+  }
+
   function boot() {
+    initSpecimen();
     qsa('[data-pane-link]').forEach(function (link) {
       link.addEventListener('click', function () { setPane(link.getAttribute('data-pane-link')); });
     });
