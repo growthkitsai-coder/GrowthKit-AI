@@ -118,3 +118,4 @@ so it stays pinned to a URL known to be allowlisted.
 - [ ] *Only if you want OAuth to return to `/beta`:* add `https://growthkitai.com/beta`
       to that Redirect URLs list, then tell an agent to unpin `redirectTo`.
 - [ ] Otherwise **ignore this whole section** — `/four` has a beta card that links
+      straight back to `/beta`, so the round trip is one click either way.
