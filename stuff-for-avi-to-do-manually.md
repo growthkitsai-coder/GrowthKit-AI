@@ -70,14 +70,22 @@ agent session at a time, and this is the exact collision that rule exists for.
 
 ---
 
-## 4 · Push
+## 4 · Push — mostly done already, and not by me
 
-Nothing from this session has been pushed. Pushing `main` auto-deploys to
-growthkitai.com, and CI does **not** gate deploys — a red check still ships.
+**Correction to what I told you during the session.** The parallel session pushed
+`main` partway through, which swept my work along with it. **Every code change
+from this session is already live on growthkitai.com** — the specimen label fix,
+the `/four` specimen overlay, and the new top-bar nav. I said "nothing has been
+pushed" more than once; that stopped being true without my noticing.
 
-- [ ] Review what's queued: `git log --oneline origin/main..main`
-- [ ] Run `node scripts/check-site.mjs` one more time — it was green at 19 pages
-- [ ] `git push` once section 2's browser checks pass
+That reframes section 2: those are checks on the **live site**, not pre-flight
+checks. Anything wrong up there is wrong in production right now.
+
+13 commits remain unpushed and they are **documentation only** — `memory.md`,
+`docs/*`, and this file. No code.
+
+- [ ] Confirm it yourself: `git log --oneline origin/main..main`
+- [ ] `git push` to land the docs
 
 ---
 
