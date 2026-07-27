@@ -21,6 +21,27 @@
 .auth-top .back:hover .arr { transform: translateX(-3px); }
 .auth-top-end { display: flex; align-items: center; gap: 16px; }
 
+/* Site nav inside the gated top bar. Only /four carries the markup — the other
+   auth pages keep their "← Back to site" link — but the rules live here because
+   auth.css is the shared stylesheet for all four.
+
+   Deliberately NOT scoped to `.auth-top`. theme.css styles the Beta pill at
+   `.nav-links a.nav-beta`, specificity (0,2,1); a `.auth-top .nav-links a` rule
+   would tie at (0,2,1) and, since auth.css loads AFTER theme.css, win the
+   cascade and strip the Beta link's accent colour. Unscoped `.nav-links a` is
+   (0,1,1), so the theme.css rule keeps winning. Copied from the public pages'
+   inline topbar CSS — keep in sync if that changes. */
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a { position: relative; padding: 4px 0; font-size: 14px; color: var(--ink-2); transition: color .2s ease; }
+.nav-links a:hover { color: var(--accent); }
+.nav-links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left center; transition: transform .35s cubic-bezier(.16,1,.3,1); }
+.nav-links a:hover::after { transform: scaleX(1); }
+/* 720px, not auth.css's usual 680px — matches where the public topbars drop
+   their nav, so the site behaves identically at every width. */
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+}
+
 /* Centered stage */
 .auth-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 56px 22px 72px; position: relative; z-index: 1; }
 
