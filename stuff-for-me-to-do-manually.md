@@ -129,3 +129,4 @@ so it stays pinned to a URL known to be allowlisted.
       fresh copy of the HTML — a soft reload can show you the old spacing.
 - [ ] **Run one agent session at a time.** A parallel session (Codex, most likely)
       ran `git add -A` three separate times during this session and swept my
+      half-finished files into its own commits (`8e92b85 "lol"` is one of them).
