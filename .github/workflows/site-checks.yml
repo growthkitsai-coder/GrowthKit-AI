@@ -2,7 +2,10 @@
 # Job 1 runs scripts/check-site.mjs (cross-page consistency: placeholder links,
 # sitemap↔vercel.json parity, SEO heads, footer sync, logo.html isolation,
 # internal links, SCRIPT_URL sync).
-# Job 2 runs lychee against external URLs only (jsDelivr pins, Google Fonts,
+# Job 2 runs the unit tests — access control, beta grants, report allowances,
+# findings. These are the rules that decide who gets paid product for free, so
+# a silent regression there is the most expensive kind this repo can ship.
+# Job 3 runs lychee against external URLs only (jsDelivr pins, Google Fonts,
 # LinkedIn, Apps Script) — internal links are already covered by job 1.
 # The weekly cron catches external links that die between pushes.
 #
@@ -28,6 +31,19 @@ jobs:
         with:
           node-version: 20
       - run: node scripts/check-site.mjs
+
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # `npm ci` needs the lockfile only; the single dependency (stripe) is
+      # required by lib/subscriptions.js, which the access tests load.
+      - run: npm ci
+      - run: npm test
 
   links:
     name: External links (lychee)
