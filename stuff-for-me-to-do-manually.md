@@ -15,3 +15,4 @@ optional; 4 is how you confirm the whole thing actually works.
 ## 0. Push — nothing below is live until you do
 
 - [ ] **`git push`**
+      - As of writing there are **42 commits sitting unpushed** on `main`.
