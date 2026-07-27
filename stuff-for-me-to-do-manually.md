@@ -89,3 +89,4 @@ cannot meaningfully test the applicant view.
         with the goal underneath as a quote. If you see one raw blob of text
         instead, the note packing and the parser have drifted apart.
 - [ ] Approve it → the row moves to **Active** with a `0 / 7` reports bar and `7d left`.
+- [ ] Back on the test account, `/beta` should now read "You're in".
