@@ -71,11 +71,16 @@ Connections are announced but **not live**. `product.js` holds `CONNECTIONS_LIVE
 
 ## Shared setup
 
-**The apex host is canonical and `vercel.json` redirects `www` → `growthkitai.com` (added 2026-07-27).** OAuth callbacks must match the registered `redirect_uri` byte-for-byte, and `siteUrl()` falls back to the apex when `SITE_URL` is unset — so a consent flow started on `www` could never return. Keep that redirect first in the list, and keep `SITE_URL` on the apex.
+**Settle the host before connections go live.** OAuth callbacks must match the registered `redirect_uri` byte-for-byte. Today the site serves on **`www.growthkitai.com`** (the primary domain in the Vercel project, which 301s the apex → `www`), while `siteUrl()` falls back to the **apex** when `SITE_URL` is unset — so a consent started on `www` would never return. Two ways to fix it, both dashboard work:
 
-Provider callback URL for all three integrations:
+- **Make the apex primary** in Vercel → Domains, then set `SITE_URL=https://growthkitai.com` and register the apex callback. Matches every canonical/OG/sitemap URL in the repo.
+- **Keep `www`**, set `SITE_URL=https://www.growthkitai.com`, register the `www` callback — and expect to update the repo's canonical/OG/sitemap URLs to match.
 
-`https://growthkitai.com/api/integration-callback`
+**Do not attempt this with a `vercel.json` redirect** — one pointing against the domain-level redirect took the site down with an infinite loop on 2026-07-27. See [`infrastructure.md`](infrastructure.md).
+
+Provider callback URL for all three integrations (host per the decision above):
+
+`https://<host>/api/integration-callback`
 
 Also set:
 
