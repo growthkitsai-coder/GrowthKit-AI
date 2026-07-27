@@ -88,3 +88,100 @@ test('daily contract rejects a move without a three-step checklist', function ()
   brief.next_moves[1].checklist = ['Only one'];
   assert.equal(validBrief(brief), false);
 });
+
+// ── Daily update: failures must name themselves ─────────────────────────────
+// One opaque "Could not prepare today's update" for three different causes made
+// this undiagnosable in production (2026-07-27). Each mode now reports a code
+// and a detail.
+
+const { generateDailyBrief } = require('../lib/daily');
+
+const DAILY_REPORT = {
+  id: 'rep-1', company_name: 'Northwind Labs', website: 'https://northwindlabs.com',
+  competitors: 'a, b', profile_text: 'seed b2b', report_date: '2026-07-26',
+  full_report: { subject: { name: 'Northwind Labs' } }
+};
+
+function dailyFetch(options) {
+  const state = {};
+  return async function (url, init) {
+    const u = String(url);
+    const method = (init && init.method) || 'GET';
+    if (u.indexOf('anthropic.com') !== -1) {
+      if (options.modelStatus) {
+        return { ok: false, status: options.modelStatus, json: async () => ({ error: { message: options.modelMessage } }) };
+      }
+      return { ok: true, status: 200, json: async () => ({ content: [{ type: 'text', text: JSON.stringify(options.brief) }] }) };
+    }
+    if (u.indexOf('/integration_connections') !== -1) return { ok: true, status: 200, json: async () => [] };
+    if (u.indexOf('/daily_briefs') !== -1) {
+      if (method === 'GET') return { ok: true, status: 200, json: async () => (state.row ? [state.row] : []) };
+      if (method === 'POST') {
+        if (options.missingColumns) {
+          return { ok: false, status: 400, json: async () => ({ code: '42703', message: 'column "report_id" of relation "daily_briefs" does not exist' }) };
+        }
+        state.row = Object.assign({ id: 'b1' }, JSON.parse(init.body)[0]);
+        return { ok: true, status: 201, json: async () => [state.row] };
+      }
+      if (method === 'PATCH') {
+        state.row = Object.assign({}, state.row, JSON.parse(init.body));
+        return { ok: true, status: 200, json: async () => [state.row] };
+      }
+    }
+    return { ok: true, status: 200, json: async () => [] };
+  };
+}
+
+function dailyEnv() {
+  process.env.SUPABASE_URL = 'https://example.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role';
+  process.env.ANTHROPIC_API_KEY = 'sk-test';
+}
+test.afterEach(function () {
+  delete process.env.SUPABASE_URL;
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+  delete global.fetch;
+});
+
+const GOOD_BRIEF = {
+  no_material_change: false,
+  lead: { headline: 'Rival cut prices', detail: 'd', why_it_matters: 'w' },
+  market_competitor_movement: [], own_metrics: [], market_signals: [],
+  next_moves: [1, 2, 3].map(function (p) {
+    return { priority: p, finding: 'f' + p, action: 'a', because: 'b', checklist: ['x', 'y', 'z'] };
+  }),
+  founder_to_talk_to: { name: 'n', company: 'c', why_today: 'w', public_url: null },
+  tool_prompt: { tool: 't', reason: 'r', prompt: 'p' },
+  sources: [{ title: 's', url: 'https://example.com' }]
+};
+
+test('a daily update is stamped with the report and company it was cut against', async function () {
+  dailyEnv();
+  global.fetch = dailyFetch({ brief: GOOD_BRIEF });
+  const result = await generateDailyBrief({ id: 'user-1' }, DAILY_REPORT);
+  assert.equal(result.ok, true);
+  assert.equal(result.row.status, 'completed');
+  assert.equal(result.row.report_id, 'rep-1');
+  assert.equal(result.row.company_name, 'Northwind Labs');
+  assert.equal(result.row.company_key, 'northwind labs');
+});
+
+test('an unrun migration reports the missing column, not a generic failure', async function () {
+  dailyEnv();
+  global.fetch = dailyFetch({ brief: GOOD_BRIEF, missingColumns: true });
+  const result = await generateDailyBrief({ id: 'user-1' }, DAILY_REPORT);
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'unavailable');
+  assert.match(result.detail, /42703/);
+  assert.match(result.detail, /report_id/);
+});
+
+test('a provider error carries the provider reason (an empty balance reads as 400)', async function () {
+  dailyEnv();
+  global.fetch = dailyFetch({ brief: GOOD_BRIEF, modelStatus: 400, modelMessage: 'credit balance is too low' });
+  const result = await generateDailyBrief({ id: 'user-1' }, DAILY_REPORT);
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'generation_failed');
+  assert.match(result.detail, /credit balance is too low/);
+});
