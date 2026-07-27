@@ -107,3 +107,4 @@ cannot meaningfully test the applicant view.
 ## 5. Supabase redirect allowlist — optional, only if it bothers you
 
 Email/password sign-in started from `/beta` already returns to `/beta`, via the
+`?next=` support added to `auth.js` this session. **Google/GitHub sign-in does
