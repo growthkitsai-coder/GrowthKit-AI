@@ -30,6 +30,9 @@ contribution graph. The history itself is fine — only the link to you is missi
 I verified all three statically — geometry, selectors, syntax, the site checker —
 but never opened a browser. Below is only what static checks genuinely cannot see.
 
+⚠️ **All three are already deployed** (see §4), so check them on the live site.
+These are not pre-flight checks any more.
+
 ### 2a · Positioning map on `/specimen` (section 03)
 
 I moved four labels off neighbouring dots and computed every bounding box to
