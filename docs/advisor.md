@@ -8,7 +8,9 @@
 
 GrowthKit Live is behind login at `/four`. The 13-step adaptive wizard captures the founder profile; fast-track can start from only a company name. `POST /api/advise` requires Pro, Agentic, or a current beta grant before it reserves a report or spends model tokens. `GET /api/advise` deliberately remains available to the report owner after access ends, so completed work is still readable.
 
-Eligible accounts can generate one full report per UTC day on any company. Reports are immutable once assembled, appear newest-first in history, and reopen with `/four?report_id=…`. Expansion fields introduced on 2026-07-26 are **new-report only**: legacy completed reports mark the three new stages `not_applicable` and retain their original layout.
+Eligible accounts can generate **two full reports per rolling 7 days**, on any company each time — the cap is enforced by `reserveReport` and returns HTTP 429 with code `weekly_limit` and the unlock date. The short **daily update** is a separate, cheaper loop metered at one per UTC day; see [`daily-intelligence.md`](daily-intelligence.md). Reports are immutable once assembled, appear newest-first in history, and reopen with `/four?report_id=…`. Expansion fields introduced on 2026-07-26 are **new-report only**: legacy completed reports mark the three new stages `not_applicable` and retain their original layout.
+
+Once a report completes, `/four` becomes a workspace shell. `renderPipeline` and `renderInto` dispatch `gk:deliverable-rendered` on `document` after every render so the workspace can project the gap-analysis and 90-day-plan sections into its Plan pane; the deliverable re-renders on each pipeline tick, so that projection is re-applied every time rather than done once.
 
 The generated report contains:
 
@@ -46,14 +48,14 @@ all ten complete ── reports.full_report (report_version: 2)
 The three expansion stages—`opportunity`, `strategy_timing`, and `capital_metrics`—are exactly three additional Anthropic calls. They are split rather than folded into an existing prompt so each can be retried without repaying successful work.
 
 - `api/advise.js` validates access, stage dependencies, and each JSON contract; reserves/checkpoints one stage; omits the internal research pack from browser state; and assembles `reports.full_report` only after all ten stages complete.
-- `advisor.js` schedules dependency-ready stages, resumes interrupted reports, polls in-progress work, and renders section-local failures with retry controls. Desktop uses sticky report navigation; mobile uses a horizontally scrolling section navigator.
+- `advisor.js` schedules dependency-ready stages, resumes interrupted reports, polls in-progress work, and renders section-local failures with retry controls. Desktop uses sticky report navigation; mobile uses a horizontally scrolling section navigator. In workspace mode `product.js` intercepts the report nav's Gaps and 90-day-plan links and switches to the Plan pane instead of scrolling.
 - `advisor.css` owns report layout and visual components, including sizing and segment cards, evidence line charts, GTM/window cards, funding radar/lists, and connected metric cards.
 - `lib/integrations.js` collects first-party provider values. The model never receives, estimates, or rewrites those values.
 - `findings.js` plus `/api/finding-tasks` owns persistent generated/custom checklist state and founder-introduction actions.
 
 ## Storage and migration
 
-- `reports`: one row per daily report, including company identity, UTC `report_date`, status, final `full_report`, and timestamps.
+- `reports`: one row per full report, including company identity, UTC `report_date`, status, final `full_report`, and timestamps. The 2-per-rolling-7-days cap is enforced in code, not schema.
 - `report_sections`: server-only checkpoint rows keyed by `(report_id, section)`. It contains the internal research pack and has no browser read policy.
 - `profiles`: saved wizard answers.
 - `finding_tasks`: persistent checklist state.
