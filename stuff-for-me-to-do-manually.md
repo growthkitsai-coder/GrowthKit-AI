@@ -54,3 +54,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
 - [ ] **Vercel → the project serving growthkitai.com → Settings → Environment Variables.**
 - [ ] Add `GK_ADMIN_USER_IDS` = that UUID, scoped to **Production**.
       - Comma-separated if you ever want more than one admin.
+- [ ] **Redeploy.** Vercel does not apply env changes to deployments that already exist.
