@@ -239,3 +239,47 @@ test('normalizeBrief never lets a non-array section reach the renderer', functio
   assert.deepEqual(result.brief.own_metrics, []);
   assert.deepEqual(result.brief.sources, []);
 });
+
+// ── Text-block joining: the citation-split bug ──────────────────────────────
+// With web search on, Claude splits its answer across several `text` blocks at
+// citation boundaries. lib/daily.js joined them with '\n', which injected a
+// literal newline into whatever JSON string the boundary landed in — an
+// unescaped control character, so JSON.parse threw and the update failed with
+// "did not return readable JSON" (2026-07-27). api/advise.js always joined ''.
+
+const { joinText } = require('../lib/daily');
+
+test('an answer split mid-string across blocks still parses', function () {
+  const payload = '{"lead":{"headline":"Competitor cut prices","detail":"They moved to $19"}}';
+  // Split inside the "Competitor cut prices" string, as a citation boundary does.
+  const blocks = [
+    { type: 'text', text: payload.slice(0, 40) },
+    { type: 'text', text: payload.slice(40) }
+  ];
+  assert.ok(payload.slice(0, 40).indexOf('Competitor') !== -1); // boundary really is mid-string
+  const parsed = extractJson(joinText(blocks));
+  assert.ok(parsed, 'blocks joined with "" must parse');
+  assert.equal(parsed.lead.headline, 'Competitor cut prices');
+
+  // The old behaviour, kept as the regression guard.
+  assert.equal(extractJson(blocks.map(function (b) { return b.text; }).join('\n')), null);
+});
+
+test('joinText ignores tool-use and search-result blocks', function () {
+  const parsed = extractJson(joinText([
+    { type: 'text', text: 'Let me check the market. ' },
+    { type: 'server_tool_use', name: 'web_search', input: { query: 'x' } },
+    { type: 'web_search_tool_result', content: [{ title: 'ignored {not json}' }] },
+    { type: 'text', text: '{"lead":{"headline":"Signal"}}' }
+  ]));
+  assert.equal(parsed.lead.headline, 'Signal');
+});
+
+test('a preamble containing braces does not strand the parse', function () {
+  const parsed = extractJson('Here is the shape {like this} you asked for: {"lead":{"headline":"Real"}}');
+  assert.equal(parsed.lead.headline, 'Real');
+});
+
+test('fenced JSON still parses', function () {
+  assert.equal(extractJson('```json\n{"lead":{"headline":"Fenced"}}\n```').lead.headline, 'Fenced');
+});
