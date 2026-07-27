@@ -164,3 +164,4 @@ It is linked as **"Become a client"** from the footer of all 13 marketing pages.
 - [ ] Paste the resulting `/exec` URL into `SCRIPT_URL` in `onboarding.html`.
       - Note this is a **separate** script from the waitlist one, which does work.
       - Gotcha: this form's honeypot field is `fax`, not `company`. See
+        `docs/forms-and-data.md` before touching the script.
