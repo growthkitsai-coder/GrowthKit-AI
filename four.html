@@ -125,12 +125,15 @@
            Left rail on desktop, fixed bottom tab bar at ≤720px. Hidden until a
            report exists; product.js owns the active state. -->
       <nav class="four-nav" data-workspace-nav aria-label="Workspace" hidden>
-        <button type="button" class="four-nav-item is-active" data-pane-link="deliverable"><span class="four-nav-icon" aria-hidden="true">▤</span><span class="four-nav-text">Deliverable</span></button>
-        <button type="button" class="four-nav-item" data-pane-link="daily"><span class="four-nav-icon" aria-hidden="true">◈</span><span class="four-nav-text">Daily</span><span class="four-nav-dot" data-nav-daily-dot hidden></span></button>
-        <button type="button" class="four-nav-item" data-pane-link="plan"><span class="four-nav-icon" aria-hidden="true">✓</span><span class="four-nav-text">Plan</span></button>
-        <button type="button" class="four-nav-item" data-pane-link="connections"><span class="four-nav-icon" aria-hidden="true">⇄</span><span class="four-nav-text">Connections</span></button>
-        <button type="button" class="four-nav-item" data-pane-link="history"><span class="four-nav-icon" aria-hidden="true">≡</span><span class="four-nav-text">History</span></button>
-        <button type="button" class="four-nav-item" data-pane-link="billing"><span class="four-nav-icon" aria-hidden="true">◎</span><span class="four-nav-text">Billing</span></button>
+        <!-- data-short is the label the bottom tab bar shows at ≤720px, where
+             "Deliverable" and "Connections" don't fit. aria-label carries the
+             full name in both layouts. -->
+        <button type="button" class="four-nav-item is-active" data-pane-link="deliverable" data-short="Report" aria-label="Deliverable"><span class="four-nav-icon" aria-hidden="true">▤</span><span class="four-nav-text">Deliverable</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="daily" data-short="Daily" aria-label="Daily update"><span class="four-nav-icon" aria-hidden="true">◈</span><span class="four-nav-text">Daily</span><span class="four-nav-dot" data-nav-daily-dot hidden></span></button>
+        <button type="button" class="four-nav-item" data-pane-link="plan" data-short="Plan" aria-label="Working plan"><span class="four-nav-icon" aria-hidden="true">✓</span><span class="four-nav-text">Plan</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="connections" data-short="Data" aria-label="Connections"><span class="four-nav-icon" aria-hidden="true">⇄</span><span class="four-nav-text">Connections</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="history" data-short="History" aria-label="Report history"><span class="four-nav-icon" aria-hidden="true">≡</span><span class="four-nav-text">History</span></button>
+        <button type="button" class="four-nav-item" data-pane-link="billing" data-short="Billing" aria-label="Billing"><span class="four-nav-icon" aria-hidden="true">◎</span><span class="four-nav-text">Billing</span></button>
       </nav>
 
       <div class="four-panes" data-panes>
