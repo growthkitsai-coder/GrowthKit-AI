@@ -52,3 +52,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
         changed, and anyone who can set an email must not be able to become an
         admin. Pasting an email here silently grants nobody anything.
 - [ ] **Vercel → the project serving growthkitai.com → Settings → Environment Variables.**
+- [ ] Add `GK_ADMIN_USER_IDS` = that UUID, scoped to **Production**.
