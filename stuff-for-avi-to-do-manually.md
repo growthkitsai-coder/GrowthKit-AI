@@ -47,3 +47,5 @@ a fallback mono the advance width changes and the labels can collide again.
       because key events don't bubble out of an iframe
 - [ ] The page behind it doesn't scroll while it's open
 - [ ] Dark mode: the overlay chrome and backdrop look right
+
+### 2c · The new `/four` top-bar nav
