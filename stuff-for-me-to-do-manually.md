@@ -66,3 +66,4 @@ See `docs/infrastructure.md` for the full write-up of that incident.
 
 ## 3. `GK_BETA_EMAILS` — optional
 
+Only needed if you want a **fixed invited cohort** to get Pro-equivalent access
