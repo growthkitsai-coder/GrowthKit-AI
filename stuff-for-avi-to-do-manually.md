@@ -56,3 +56,5 @@ a fallback mono the advance width changes and the labels can collide again.
 - [ ] The Beta link keeps its accent colour and live dot — a CSS specificity tie can strip it
 
 ---
+
+## 3 · Shut down the parallel agent session
