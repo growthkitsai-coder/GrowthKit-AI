@@ -158,3 +158,4 @@ Listed here only so it does not get lost. This is a code fix, not a dashboard on
 `onboarding.html` has `var SCRIPT_URL = '';` — empty. So the form renders, a
 founder fills it in, hits submit, and gets **"Form is not configured yet"**.
 It is linked as **"Become a client"** from the footer of all 13 marketing pages.
+
