@@ -13,7 +13,13 @@
       "Bash(git -C \"d:/GrowthKit AI\" add theme.css index.html)",
       "Bash(git -C \"d:/GrowthKit AI\" diff --stat theme.css index.html)",
       "Bash(git -C \"d:/GrowthKit AI\" status --short)",
-      "Bash(git -C \"d:/GrowthKit AI\" add 404.html careers.html contact.html index.html methodology.html theme.js waitlist.html)"
+      "Bash(git -C \"d:/GrowthKit AI\" add 404.html careers.html contact.html index.html methodology.html theme.js waitlist.html)",
+      "PowerShell(git add \"stuff-for-avi-to-do-manually.md\")",
+      "PowerShell(git commit -q -m \"todo: start the manual-actions file\")",
+      "PowerShell(git commit -q -m \"todo: intro line\")",
+      "PowerShell(git commit -q -m \"todo: why these need a human\")",
+      "PowerShell(git commit -q -m \"todo: none of it is confirmed done\")",
+      "PowerShell(git commit -q -m \"todo: rule under the intro\")"
     ]
   }
 }

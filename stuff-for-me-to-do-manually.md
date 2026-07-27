@@ -105,3 +105,4 @@ cannot meaningfully test the applicant view.
 ---
 
 ## 5. Supabase redirect allowlist — optional, only if it bothers you
+
