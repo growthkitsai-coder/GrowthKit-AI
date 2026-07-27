@@ -1122,6 +1122,17 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /**
+   * Vercel Analytics, same shape as waitlist.html's waitlist_signup/_error and
+   * onboarding's _submitted/_error. Never send what the applicant typed —
+   * company, website and goal are their words and this is a public funnel
+   * metric. `stage` is a fixed enum from the <select>, so it is safe and is the
+   * one field actually worth segmenting on.
+   */
+  function track(name, data) {
+    try { if (window.va) window.va('event', { name: name, data: data || {} }); } catch (_) {}
+  }
+
   function client() { return (window.GKAuth && window.GKAuth.client) || null; }
 
   function token() {
@@ -1340,10 +1351,14 @@
       }).then(function (r) {
         return r.json().catch(function () { return {}; }).then(function (data) {
           if (!r.ok) throw new Error(data && data.error);
+          // `already_applied` is a success server-side (re-applying is a no-op),
+          // so report it separately or it inflates the real application count.
+          track(data && data.code === 'already_applied' ? 'beta_reapplied' : 'beta_applied', { stage: stage });
           statePending();
         });
       });
     }).catch(function (err) {
+      track('beta_error', { message: String((err && err.message) || err).slice(0, 120) });
       btn.disabled = false;
       btn.innerHTML = 'Apply for the beta <span class="arr">&rarr;</span>';
       var p = document.createElement('p');
@@ -1356,10 +1371,20 @@
   // ── Boot ─────────────────────────────────────────────────────────────────
 
   function boot() {
-    if (!window.GKAuth || !window.GKAuth.configured) { stateNotConfigured(); return; }
+    if (!window.GKAuth || !window.GKAuth.configured) {
+      track('beta_card_state', { state: 'unconfigured' });
+      stateNotConfigured();
+      return;
+    }
 
     token().then(function (tok) {
-      if (!tok) { stateSignedOut(); return; }
+      if (!tok) {
+        // The single most useful number on this page: how many people read the
+        // pitch without an account. It is the gap between traffic and applications.
+        track('beta_card_state', { state: 'signed-out' });
+        stateSignedOut();
+        return;
+      }
       return fetch('/api/beta', { headers: { authorization: 'Bearer ' + tok } })
         .then(function (r) {
           return r.json().catch(function () { return {}; }).then(function (data) {
@@ -1367,6 +1392,10 @@
             if (!r.ok) { stateError(data && data.error); return; }
 
             var b = (data && data.beta) || {};
+            // The server's own reason string is the cleanest funnel label there
+            // is — it already distinguishes not-applied / pending / approved /
+            // spent / revoked, and it cannot drift from what the card renders.
+            track('beta_card_state', { state: b.reason || 'unknown' });
             switch (b.reason) {
               case 'beta-approved':       stateApproved(b); break;
               case 'beta-pending':        statePending(); break;
