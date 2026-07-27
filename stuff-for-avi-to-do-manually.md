@@ -45,3 +45,4 @@ a fallback mono the advance width changes and the labels can collide again.
 - [ ] It closes three ways: the ✕, clicking the backdrop, and Escape
 - [ ] Escape works with the cursor **inside** the specimen — that path is wired separately,
       because key events don't bubble out of an iframe
+- [ ] The page behind it doesn't scroll while it's open
