@@ -91,3 +91,5 @@ drift across the 13 subpages is invisible to CI. That's how the dead
       comparison logic already; it just needs porting in. Say the word.
 
 ---
+
+## Raised during the session, already resolved — no action needed
