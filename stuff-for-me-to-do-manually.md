@@ -14,3 +14,4 @@ optional; 4 is how you confirm the whole thing actually works.
 
 ## 0. Push — nothing below is live until you do
 
+- [ ] **`git push`**
