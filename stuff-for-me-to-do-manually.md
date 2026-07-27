@@ -80,3 +80,4 @@ without applying at all. Everyone else goes through `/beta` and your approval.
 
 Use a **second, non-admin account** for the applicant half — your admin account
 cannot meaningfully test the applicant view.
+
