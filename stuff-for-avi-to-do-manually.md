@@ -80,3 +80,5 @@ growthkitai.com, and CI does **not** gate deploys — a red check still ships.
 - [ ] `git push` once section 2's browser checks pass
 
 ---
+
+## 5 · A question you never answered
