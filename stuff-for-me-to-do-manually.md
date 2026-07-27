@@ -153,3 +153,4 @@ Listed here only so it does not get lost. This is a code fix, not a dashboard on
 
 ---
 
+## 8. The "Become a client" form is dead on the live site
