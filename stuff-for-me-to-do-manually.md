@@ -91,3 +91,4 @@ cannot meaningfully test the applicant view.
 - [ ] Approve it → the row moves to **Active** with a `0 / 7` reports bar and `7d left`.
 - [ ] Back on the test account, `/beta` should now read "You're in".
 - [ ] `/four` on that account should agree — the beta card shows the live grant.
+
