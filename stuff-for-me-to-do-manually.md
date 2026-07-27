@@ -31,3 +31,4 @@ returns `beta-unavailable`, `POST /api/beta` answers 503, and **nobody can apply
 or be approved**. Paid Pro subscribers are unaffected by this one.
 
 - [ ] Open **Supabase → your project → SQL Editor**.
+- [ ] Paste the entire contents of `supabase/migrations/202607240001_beta_applications.sql`.
