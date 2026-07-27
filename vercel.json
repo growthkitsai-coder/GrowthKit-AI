@@ -4,7 +4,6 @@
   "trailingSlash": false,
   "redirects": [
     {
-      "//": "www → apex. The whole site already declares the apex canonical, and OAuth callbacks must match the registered redirect_uri byte-for-byte — serving both hosts meant a consent started on www could never come back. Keep this first.",
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.growthkitai.com" }],
       "destination": "https://growthkitai.com/:path*",
