@@ -681,6 +681,8 @@ body.is-workspace .four-product-status { margin-bottom: 26px; }
 .plan-projection .gk-dv-sec { margin: 0; }
 
 .four-billing-slot:empty { display: none; }
+.report-history-item.is-current { border-color: var(--accent); background: var(--bg-2); }
+:root[data-theme="dark"] .report-history-item.is-current { border-color: var(--neon); background: rgba(62,245,159,.05); }
 
 /* ── Dark — neon console ── */
 :root[data-theme="dark"] .four-shell-head { border-color: var(--deep-3); }
