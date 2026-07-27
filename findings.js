@@ -138,7 +138,7 @@
       setMessage(node, 'Adding...');
       api('/api/finding-tasks', {
         method: 'POST',
-        body: { scope: context.scope, date: context.date || null, finding_key: findingKey, label: label }
+        body: { scope: context.scope, date: context.date || null, report_id: context.reportId || null, finding_key: findingKey, label: label }
       }).then(function (data) {
         tasks.push(data.task);
         input.value = '';
@@ -156,6 +156,9 @@
     if (!nodes.length) return Promise.resolve(false);
     var query = '?scope=' + encodeURIComponent(context.scope);
     if (context.date) query += '&date=' + encodeURIComponent(context.date);
+    // Checklist state is per-report, so a history view edits its own report's
+    // tasks rather than the newest report's. Omitted → the latest completed one.
+    if (context.reportId) query += '&report_id=' + encodeURIComponent(context.reportId);
     return api('/api/finding-tasks' + query, { method: 'GET' }).then(function (data) {
       var rows = data.tasks || [];
       nodes.forEach(function (node) {
