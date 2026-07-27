@@ -16,3 +16,4 @@ I could not check this for you: the `gh` token lacks the `user` scope, and no
 commit in this repo's history had used that address before today.
 
 - [ ] Open <https://github.com/settings/emails> and confirm it's listed and verified
+- [ ] If it isn't, verify it — or switch to the noreply form instead:
