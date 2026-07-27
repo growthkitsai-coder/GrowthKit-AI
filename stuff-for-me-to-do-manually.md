@@ -10,17 +10,23 @@
 **Section order matters** — do 0 before 1, and 1 before 2. Sections 3 and 5 are
 optional; 4 is how you confirm the whole thing actually works.
 
+**Start at section 1** — section 0 turned out to be done already (see below).
+Sections 1 and 2 are about five minutes of dashboard work between them, and
+nothing else in the beta flow functions until both are finished.
+
 ---
 
-## 0. Push — nothing below is live until you do
+## 0. Push — ✅ ALREADY DONE (2026-07-27)
 
-- [ ] **`git push`**
-      - As of writing there are **42 commits sitting unpushed** on `main`.
-      - Pushing to `main` auto-deploys to growthkitai.com.
-      - Until you do, `/beta` and `/admin` do not exist in production at all,
-        and steps 1 and 2 below have nothing to act on.
-      - This was left undone deliberately: pushing is opt-in in this repo, so
-        that you can bundle commits rather than have each one trigger a deploy.
+- [x] **`git push`** — done, though not by me.
+      - When this file was first written there were 42 commits unpushed. The
+        **parallel agent session pushed** shortly afterwards, which swept this
+        session's work along with it.
+      - Verified on `origin/main`: `beta.html`, both `vercel.json` rules, the
+        sitemap entry, the rebuilt `admin.html`, and the index hero/morph fixes.
+      - **`https://growthkitai.com/beta` is live** and serving the real page.
+      - So steps 1 and 2 below now have something to act on — they are the only
+        things standing between you and a working beta.
 
 ---
 
