@@ -52,3 +52,4 @@ a fallback mono the advance width changes and the labels can collide again.
 
 - [ ] The five links sit sensibly beside your email and Sign out
 - [ ] Drag the window through ~900px → 720px; that bar now carries more than it was built for
+- [ ] Under 720px the nav disappears and the account controls stay
