@@ -141,3 +141,4 @@ Listed here only so it does not get lost. This is a code fix, not a dashboard on
 
 - [ ] **The "Upgrade to Pro" button on `/four` does nothing when clicked.**
       `product.js` calls `window.GKBilling.wire(...)`, but `billing.js` only ever
+      exposed `{checkout, portal}` — so an `&&` guard swallows it silently.
