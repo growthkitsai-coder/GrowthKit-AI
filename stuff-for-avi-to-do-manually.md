@@ -86,3 +86,5 @@ growthkitai.com, and CI does **not** gate deploys — a red check still ships.
 `scripts/check-site.mjs` enforces **footer** grids but not **topbars**, so nav
 drift across the 13 subpages is invisible to CI. That's how the dead
 "Customers → `/#proof`" link survived on four pages for weeks.
+
+- [ ] Decide whether to add a topbar-parity check to the checker. I wrote the
