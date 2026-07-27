@@ -1183,7 +1183,15 @@
       if (deliverableEl) {
         deliverableEl.innerHTML = renderDeliverable(lastJson || {}, pipelineState);
         bindReportControls();
-        if (window.GKFindings && lastJson && lastJson.gaps) window.GKFindings.hydrate(deliverableEl, { scope: 'full_report' });
+        // Pass the report id: checklist state is keyed per report, so viewing an
+        // older report from history must edit that report's tasks, not the
+        // newest one's.
+        if (window.GKFindings && lastJson && lastJson.gaps) {
+          window.GKFindings.hydrate(deliverableEl, {
+            scope: 'full_report',
+            reportId: (pipelineState && pipelineState.workspace && pipelineState.workspace.report_id) || null
+          });
+        }
         announceRender(deliverableEl);
       }
     }
