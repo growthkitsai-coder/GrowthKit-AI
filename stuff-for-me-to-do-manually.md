@@ -64,3 +64,4 @@ See `docs/infrastructure.md` for the full write-up of that incident.
 
 ---
 
+## 3. `GK_BETA_EMAILS` — optional
