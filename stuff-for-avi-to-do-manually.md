@@ -31,3 +31,5 @@ I verified all three statically — geometry, selectors, syntax, the site checke
 but never opened a browser. Below is only what static checks genuinely cannot see.
 
 ### 2a · Positioning map on `/specimen` (section 03)
+
+I moved four labels off neighbouring dots and computed every bounding box to
