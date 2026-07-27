@@ -467,9 +467,9 @@ module.exports = async function handler(req, res) {
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (await isRateLimited(ip)) { res.status(429).json({ error: 'Too many section attempts. Give it a couple of minutes and try again.' }); return; }
 
-  // Resolve the report this call operates on. Research reserves today's report
-  // (and enforces the one-a-day limit); later stages attach to the report that
-  // research already opened today.
+  // Resolve the report this call operates on. Research reserves the report (and
+  // enforces the 2-per-rolling-7-days cap); later stages attach to the report
+  // research already opened.
   let report;
   if (stage === 'research') {
     const input = {
@@ -480,10 +480,17 @@ module.exports = async function handler(req, res) {
     };
     const reserved = await reserveReport(user.id, input);
     if (!reserved.ok) {
-      if (reserved.code === 'daily_limit') {
+      if (reserved.code === 'weekly_limit') {
+        const allowance = reserved.allowance || {};
+        const unlocks = allowance.next_available_at
+          ? new Date(allowance.next_available_at).toISOString().slice(0, 10)
+          : null;
         res.status(429).json({
-          error: "You've generated today's report. Your next one unlocks at 00:00 UTC.",
-          code: 'daily_limit'
+          error: "You've used both full reports for this week." +
+            (unlocks ? ' Your next one unlocks on ' + unlocks + '.' : '') +
+            ' Daily updates keep running in the meantime.',
+          code: 'weekly_limit',
+          allowance: allowance
         });
         return;
       }
