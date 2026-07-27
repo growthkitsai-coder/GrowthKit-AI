@@ -37,3 +37,4 @@ or be approved**. Paid Pro subscribers are unaffected by this one.
 
 ⚠️ Separate but related: `202607250001_daily_reports.sql` is a **different**
 outstanding migration (it powers report generation, not beta access). If report
+generation is also failing, check `memory.md` — that one has its own open item.
