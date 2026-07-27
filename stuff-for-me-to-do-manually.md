@@ -4,3 +4,4 @@
 > Supabase project, the Vercel project settings, or a `git push`. None of it can
 > be done from inside the repo, which is why it is all still outstanding.
 
+**Written 2026-07-27**, at the end of the Claude Code session that built the
