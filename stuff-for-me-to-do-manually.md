@@ -93,3 +93,4 @@ cannot meaningfully test the applicant view.
 - [ ] `/four` on that account should agree — the beta card shows the live grant.
 
 **If something is wrong, the symptom tells you which step you missed:**
+
