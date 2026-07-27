@@ -116,3 +116,4 @@ arbitrary `?next=` path would break sign-in the moment that path is not listed,
 so it stays pinned to a URL known to be allowlisted.
 
 - [ ] *Only if you want OAuth to return to `/beta`:* add `https://growthkitai.com/beta`
+      to that Redirect URLs list, then tell an agent to unpin `redirectTo`.
