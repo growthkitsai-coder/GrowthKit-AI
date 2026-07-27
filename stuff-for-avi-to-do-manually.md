@@ -95,3 +95,4 @@ drift across the 13 subpages is invisible to CI. That's how the dead
 ## Raised during the session, already resolved — no action needed
 
 Listed so you don't go chasing them: I flagged both and never heard back, but
+they sorted themselves out.
