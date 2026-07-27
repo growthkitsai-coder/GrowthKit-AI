@@ -5,3 +5,5 @@
 > lives outside this repo. **None of it is confirmed done.**
 
 ---
+
+## 1 · Verify your commit email on GitHub
