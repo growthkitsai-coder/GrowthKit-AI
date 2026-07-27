@@ -10,3 +10,4 @@
 
 Commits are now authored as `avi-aggarwal14`. For GitHub to *link* them to your
 profile — avatar, contribution graph — the address now in `git config user.email`
+must be added and **verified** under Settings → Emails on that account.
