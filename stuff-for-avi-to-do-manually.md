@@ -74,3 +74,5 @@ agent session at a time, and this is the exact collision that rule exists for.
 
 Nothing from this session has been pushed. Pushing `main` auto-deploys to
 growthkitai.com, and CI does **not** gate deploys — a red check still ships.
+
+- [ ] Review what's queued: `git log --oneline origin/main..main`
