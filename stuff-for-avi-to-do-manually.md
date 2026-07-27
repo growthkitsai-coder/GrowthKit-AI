@@ -33,3 +33,4 @@ but never opened a browser. Below is only what static checks genuinely cannot se
 ### 2a · Positioning map on `/specimen` (section 03)
 
 I moved four labels off neighbouring dots and computed every bounding box to
+confirm zero overlaps. That model assumes **JetBrains Mono actually loaded** — on
