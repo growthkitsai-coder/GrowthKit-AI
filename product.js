@@ -620,10 +620,20 @@
     return '';
   }
 
+  /** Providers this deployment actually has credentials for. */
+  function usable(connections) {
+    return (connections || []).filter(function (c) { return c.configured !== false; });
+  }
+
   function renderIntegrations(connections) {
     var host = qs('[data-integrations-list]');
     if (!host) return;
-    host.innerHTML = (connections || []).map(function (c) {
+    var list = usable(connections);
+    if (!list.length) {
+      host.innerHTML = '<div class="daily-state">Data connections are being set up — check back shortly.</div>';
+      return;
+    }
+    host.innerHTML = list.map(function (c) {
       return '<article class="integration-card" data-provider="' + esc(c.provider) + '">' +
         '<div class="integration-icon"><svg aria-hidden="true"><use href="#' + providerIcons[c.provider] + '"></use></svg></div>' +
         '<div class="integration-body"><div class="integration-title"><h3>' + esc(providerNames[c.provider]) + '</h3><span class="integration-state ' + (c.connected ? 'is-connected' : '') + '">' + (c.connected ? 'Connected' : 'Not connected') + '</span></div><p>' + esc(providerCopy[c.provider]) + '</p>' + integrationConfig(c) + '</div>' +
@@ -666,7 +676,7 @@
     var host = qs('[data-connect-nudge]');
     if (!host) return;
     var access = (accountCache && accountCache.access) || {};
-    var list = connections || [];
+    var list = usable(connections);
     var missing = list.filter(function (c) { return !c.connected; });
     // Connections are a paid feature, so there is nothing to nudge a free
     // account toward here — the Pro card already makes that case.
