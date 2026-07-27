@@ -95,3 +95,4 @@ cannot meaningfully test the applicant view.
 **If something is wrong, the symptom tells you which step you missed:**
 
 | What you see | What it means |
+|---|---|
