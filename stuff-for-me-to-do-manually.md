@@ -7,3 +7,4 @@
 **Written 2026-07-27**, at the end of the Claude Code session that built the
 `/beta` application page and rebuilt the `/admin` approvals console.
 
+**Section order matters** — do 0 before 1, and 1 before 2. Sections 3 and 5 are
