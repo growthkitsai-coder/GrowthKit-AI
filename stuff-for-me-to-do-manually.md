@@ -78,3 +78,4 @@ without applying at all. Everyone else goes through `/beta` and your approval.
 
 ## 4. Verify it actually works, end to end
 
+Use a **second, non-admin account** for the applicant half — your admin account
