@@ -37,3 +37,4 @@ confirm zero overlaps. That model assumes **JetBrains Mono actually loaded** —
 a fallback mono the advance width changes and the labels can collide again.
 
 - [ ] Scroll to "Competitor positioning" — no text sitting on a dot, light **and** dark
+- [ ] The gap-box caption sits inside the dashed rectangle, not spilling past it
