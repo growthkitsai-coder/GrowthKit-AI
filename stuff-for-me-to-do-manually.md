@@ -69,3 +69,4 @@ See `docs/infrastructure.md` for the full write-up of that incident.
 Only needed if you want a **fixed invited cohort** to get Pro-equivalent access
 without applying at all. Everyone else goes through `/beta` and your approval.
 
+- [ ] Vercel → same project → add `GK_BETA_EMAILS` (Production), then redeploy.
