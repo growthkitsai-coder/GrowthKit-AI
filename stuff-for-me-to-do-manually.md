@@ -128,3 +128,4 @@ so it stays pinned to a URL known to be allowlisted.
       changes. That CSS is inline in `index.html`, so it only arrives with a
       fresh copy of the HTML — a soft reload can show you the old spacing.
 - [ ] **Run one agent session at a time.** A parallel session (Codex, most likely)
+      ran `git add -A` three separate times during this session and swept my
