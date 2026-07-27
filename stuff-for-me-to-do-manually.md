@@ -36,3 +36,4 @@ or be approved**. Paid Pro subscribers are unaffected by this one.
 - [ ] Confirm: **Table Editor** should now list `beta_applications`.
 
 ⚠️ Separate but related: `202607250001_daily_reports.sql` is a **different**
+outstanding migration (it powers report generation, not beta access). If report
