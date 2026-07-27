@@ -114,3 +114,4 @@ That is not an oversight. OAuth `redirectTo` URLs must be registered in Supabase
 → Authentication → URL Configuration → Redirect URLs. Routing OAuth through an
 arbitrary `?next=` path would break sign-in the moment that path is not listed,
 so it stays pinned to a URL known to be allowlisted.
+
