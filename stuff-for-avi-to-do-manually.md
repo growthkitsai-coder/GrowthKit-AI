@@ -43,3 +43,4 @@ a fallback mono the advance width changes and the labels can collide again.
 
 - [ ] "Preview the deliverable" opens the overlay
 - [ ] It closes three ways: the ✕, clicking the backdrop, and Escape
+- [ ] Escape works with the cursor **inside** the specimen — that path is wired separately,
