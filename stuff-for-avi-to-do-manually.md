@@ -60,3 +60,4 @@ a fallback mono the advance width changes and the labels can collide again.
 ## 3 · Shut down the parallel agent session
 
 A second agent committed repeatedly throughout this session and **twice swept my
+half-finished files into its own commits** with `git add -A`: `25c41bf "my voice"`
