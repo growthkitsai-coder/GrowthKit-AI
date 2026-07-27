@@ -86,3 +86,4 @@ cannot meaningfully test the applicant view.
 - [ ] Submit it → the card should flip to "Your application is in".
 - [ ] Open `/admin` as your **admin** account → the application appears under **Pending**.
       - Its Company / Site / Stage should be **parsed out onto their own line**,
+        with the goal underneath as a quote. If you see one raw blob of text
