@@ -99,3 +99,4 @@ they sorted themselves out.
 
 - **`beta.html` footer divergence.** The checker went red mid-session over a
   missing `/beta` sitemap entry and a footer mismatch, both from the parallel
+  session's new page. That session fixed them itself. Green at 19 pages now.
