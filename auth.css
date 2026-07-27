@@ -719,7 +719,9 @@ body.is-workspace .four-product-status { margin-bottom: 26px; }
   }
   .four-nav-item.is-active { background: var(--bg-2); border-color: transparent; }
   .four-nav-icon { width: auto; font-size: 15px; opacity: .9; }
-  .four-nav-text { flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  /* Swap in the short label — "Deliverable"/"Connections" don't fit six-up. */
+  .four-nav-text { display: none; }
+  .four-nav-item::after { content: attr(data-short); white-space: nowrap; }
   .four-nav-dot { position: absolute; top: 5px; right: 50%; margin-right: -13px; }
   .daily-head { display: block; }
   .daily-generate { margin-top: 16px; width: 100%; }
