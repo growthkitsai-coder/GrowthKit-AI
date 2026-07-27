@@ -472,11 +472,43 @@
 .four-specimen h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -0.02em; margin: 4px 0 8px; color: var(--ink); }
 .four-specimen h2 em { font-style: italic; color: var(--accent); }
 .four-specimen-sub { font-size: 14.5px; line-height: 1.55; color: var(--ink-2); max-width: 56ch; margin: 0 auto 22px; }
-.four-specimen-frame { position: relative; height: 560px; border: 1px solid var(--line-2); border-radius: 16px; overflow: hidden; background: var(--paper); box-shadow: 0 30px 70px -50px rgba(31,71,50,0.45); }
-.four-specimen-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
-.four-specimen-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; pointer-events: none; background: linear-gradient(to top, var(--bg), rgba(250,248,244,0)); }
-.four-specimen-open { display: inline-block; margin-top: 18px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--accent); border-bottom: 1px solid transparent; transition: border-color .2s ease; }
+/* The card. Replaced a 560px iframe that trapped the wheel mid-scroll — the
+   specimen now opens full-screen, where scrolling it is intentional. */
+.four-specimen-card { display: flex; align-items: center; justify-content: space-between; gap: 28px; text-align: left; padding: 26px 28px; border: 1px solid var(--line-2); border-radius: 16px; background: linear-gradient(180deg, var(--paper), var(--bg-2)); box-shadow: 0 30px 70px -52px rgba(31,71,50,0.45); }
+.four-specimen-meta { min-width: 0; }
+.four-specimen-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.four-specimen-meta h3 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(20px, 2.4vw, 26px); letter-spacing: -0.02em; margin: 0 0 6px; color: var(--ink); }
+.four-specimen-meta h3 em { font-style: italic; color: var(--accent); }
+.four-specimen-meta p { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 0; max-width: 52ch; }
+.four-specimen-actions { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 10px; text-align: center; }
+.four-specimen-btn { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 10px; padding: 12px 22px; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+.four-specimen-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -16px rgba(31,71,50,0.55); }
+.four-specimen-open { display: inline-block; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--accent); border-bottom: 1px solid transparent; transition: border-color .2s ease; }
 .four-specimen-open:hover { border-color: var(--accent); }
+
+/* The full-screen overlay. [hidden] needs an explicit rule — display:flex would
+   otherwise beat the attribute and the modal would sit open on every load. */
+.four-specimen-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: clamp(10px, 3vw, 40px); animation: gk-spec-fade .22s ease; }
+.four-specimen-overlay[hidden] { display: none; }
+.four-specimen-backdrop { position: absolute; inset: 0; background: rgba(20,19,15,0.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.four-specimen-modal { position: relative; display: flex; flex-direction: column; width: min(1180px, 100%); height: min(90vh, 940px); border: 1px solid var(--line-2); border-radius: 16px; overflow: hidden; background: var(--paper); box-shadow: 0 40px 90px -40px rgba(20,19,15,0.5); animation: gk-spec-rise .26s cubic-bezier(.16,1,.3,1); }
+.four-specimen-bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 11px 14px 11px 18px; border-bottom: 1px solid var(--line-2); background: var(--bg-2); }
+.four-specimen-bartitle { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.four-specimen-bartitle .num { color: var(--accent); margin-right: 6px; }
+.four-specimen-baractions { flex: none; display: flex; align-items: center; gap: 14px; }
+.four-specimen-baractions a { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--accent); }
+.four-specimen-close { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; font-size: 14px; line-height: 1; color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: 8px; cursor: pointer; transition: color .18s ease, border-color .18s ease; }
+.four-specimen-close:hover { color: var(--ink); border-color: var(--ink-2); }
+.four-specimen-modal iframe { flex: 1 1 auto; width: 100%; border: 0; display: block; background: var(--bg); }
+/* Scroll lock while the overlay is up — otherwise the page scrolls behind it. */
+html.gk-specimen-open, html.gk-specimen-open body { overflow: hidden; }
+
+@keyframes gk-spec-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gk-spec-rise { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .four-specimen-overlay, .four-specimen-modal { animation: none; }
+  .four-specimen-btn:hover { transform: none; }
+}
 
 /* ── Go Pro card (clearly visible upgrade) ── */
 .four-pro { max-width: 900px; margin: 52px auto 0; }
@@ -531,7 +563,9 @@
 @media (max-width: 720px) {
   .four-guide-steps { grid-template-columns: 1fr; }
   .four-pro-list { grid-template-columns: 1fr; }
-  .four-specimen-frame { height: 460px; }
+  .four-specimen-card { flex-direction: column; align-items: stretch; gap: 20px; padding: 22px; }
+  .four-specimen-modal { height: 100%; border-radius: 12px; }
+  .four-specimen-baractions a { display: none; }
   .four-pro-card { padding: 26px 22px 24px; }
 }
 
