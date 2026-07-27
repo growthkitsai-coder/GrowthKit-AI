@@ -85,3 +85,4 @@ cannot meaningfully test the applicant view.
 - [ ] Sign in on the test account → the **form** should render (Company / Website / Stage / Goal).
 - [ ] Submit it → the card should flip to "Your application is in".
 - [ ] Open `/admin` as your **admin** account → the application appears under **Pending**.
+      - Its Company / Site / Stage should be **parsed out onto their own line**,
