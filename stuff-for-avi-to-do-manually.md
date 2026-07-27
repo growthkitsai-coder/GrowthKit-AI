@@ -26,3 +26,5 @@ contribution graph. The history itself is fine — only the link to you is missi
 ---
 
 ## 2 · Eyeball this session's three UI changes in a browser
+
+I verified all three statically — geometry, selectors, syntax, the site checker —
