@@ -88,3 +88,4 @@ drift across the 13 subpages is invisible to CI. That's how the dead
 "Customers → `/#proof`" link survived on four pages for weeks.
 
 - [ ] Decide whether to add a topbar-parity check to the checker. I wrote the
+      comparison logic already; it just needs porting in. Say the word.
