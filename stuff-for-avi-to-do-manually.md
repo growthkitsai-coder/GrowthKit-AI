@@ -29,3 +29,5 @@ contribution graph. The history itself is fine — only the link to you is missi
 
 I verified all three statically — geometry, selectors, syntax, the site checker —
 but never opened a browser. Below is only what static checks genuinely cannot see.
+
+### 2a · Positioning map on `/specimen` (section 03)
