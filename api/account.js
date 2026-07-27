@@ -1,11 +1,20 @@
 'use strict';
 
+// Drives the /four workspace. Two independently metered loops:
+//   • the FULL report  — the main deliverable, 2 per rolling 7 days
+//   • the DAILY update — a short market delta, 1 per UTC day
+// The workspace follows the founder's most recent completed report; generating
+// on a new company simply moves it. See docs/daily-intelligence.md.
+
 const { verifyUserToken, bearer, checkAccess } = require('../lib/subscriptions');
 const {
   configured,
-  getActiveReport,
-  listReportsToday,
-  listReports
+  listReportsInWindow,
+  allowanceFrom,
+  getLatestCompletedReport,
+  listReports,
+  getDailyBrief,
+  utcDate
 } = require('../lib/product');
 
 module.exports = async function handler(req, res) {
@@ -26,15 +35,17 @@ module.exports = async function handler(req, res) {
 
   const access = await checkAccess(user);
 
-  // Today's state drives the "generate" affordance: one COMPLETED report per UTC
-  // day. A still-generating report means resume; a completed one means the day
-  // is used; a failed-only day still allows a fresh attempt.
-  const todays = await listReportsToday(user.id);
-  const completedToday = todays.find(function (r) { return r.status === 'completed'; }) || null;
-  const active = await getActiveReport(user.id);
+  const windowRows = await listReportsInWindow(user.id);
+  const allowance = allowanceFrom(windowRows);
+  const active = windowRows.find(function (r) { return r.status === 'generating'; }) || null;
+  const latest = await getLatestCompletedReport(user.id);
   const history = await listReports(user.id, 30);
+  const todaysUpdate = latest ? await getDailyBrief(user.id, utcDate()) : null;
 
-  const canGenerateToday = Boolean(access.allowed && !completedToday);
+  // An unfinished report is always resumable — it has not been charged against
+  // the window yet — so the affordance stays open while one is generating.
+  const canGenerateReport = Boolean(access.allowed && (active || allowance.remaining > 0));
+  const updateStatus = todaysUpdate ? todaysUpdate.status : 'none';
 
   res.status(200).json({
     access: {
@@ -45,14 +56,35 @@ module.exports = async function handler(req, res) {
       expires_at: access.expires_at || null
     },
     beta: access.beta || null,
-    can_generate_today: canGenerateToday,
-    today: {
-      // 'completed' (day used) | 'generating' (resume) | 'none' (ready) —
-      // a failed-only day reports 'none' so the founder can try again.
-      status: completedToday ? 'completed' : (active ? 'generating' : 'none'),
-      report_id: (completedToday && completedToday.id) || (active && active.id) || null,
-      company_name: (completedToday && completedToday.company_name) || (active && active.company_name) || null
+
+    // The company the workspace is following: the most recent completed report.
+    company: latest ? {
+      report_id: latest.id,
+      company_name: latest.company_name,
+      website: latest.website || null,
+      report_date: latest.report_date,
+      completed_at: latest.completed_at
+    } : null,
+
+    // The main deliverable: 2 per rolling 7 days.
+    full_report: {
+      allowance: allowance,
+      can_generate: canGenerateReport,
+      // 'generating' → resume the pipeline; 'ready' → a slot is open;
+      // 'spent' → the window is used up (next_available_at says when).
+      status: active ? 'generating' : (allowance.remaining > 0 ? 'ready' : 'spent'),
+      active_report_id: active ? active.id : null
     },
+
+    // The side loop: one short update a day, never charged to a beta grant.
+    daily: {
+      // 'locked' until a full report exists — the update is a delta against it.
+      status: latest ? updateStatus : 'locked',
+      can_generate: Boolean(access.allowed && latest && updateStatus !== 'completed' && updateStatus !== 'generating'),
+      date: utcDate(),
+      brief_id: todaysUpdate ? todaysUpdate.id : null
+    },
+
     reports: history.map(function (r) {
       return {
         id: r.id,
