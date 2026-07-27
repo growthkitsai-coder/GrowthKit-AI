@@ -54,7 +54,13 @@ When a newly generated report reaches `capital_metrics`, `api/advise.js` calls `
 
 The snapshot is bounded to 20 seconds so one slow provider cannot hold the serverless request open. Per-provider errors render as “Needs attention”; a whole-snapshot timeout renders a retry/reconnect message; only an actual empty configuration renders “No data connections were configured.” Historical reports retain the values captured at generation time and are not refreshed on view.
 
+## Unconfigured providers are hidden
+
+`publicConnections()` marks each provider `configured` from `providerConfigured()` — whether this deployment actually holds its OAuth credentials. `/four` renders only configured providers, so nobody clicks **Connect** and hits a 503; the connections nudge counts only those too. An **already connected** provider always reports `configured: true`, so an existing connection stays manageable and disconnectable even if a credential is later removed. This is what lets LinkedIn's code ship while its scopes await approval.
+
 ## Shared setup
+
+**The apex host is canonical and `vercel.json` redirects `www` → `growthkitai.com` (added 2026-07-27).** OAuth callbacks must match the registered `redirect_uri` byte-for-byte, and `siteUrl()` falls back to the apex when `SITE_URL` is unset — so a consent flow started on `www` could never return. Keep that redirect first in the list, and keep `SITE_URL` on the apex.
 
 Provider callback URL for all three integrations:
 
