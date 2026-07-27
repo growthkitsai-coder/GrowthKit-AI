@@ -158,7 +158,10 @@
 
   /* === Hero === */
   .hero {
-    padding: 80px 0 64px;
+    /* Scales with viewport HEIGHT, not width: the hero is a fixed-height box
+       (min-height below), so on a short laptop screen a flat 80px top pad was
+       pushing the CTA row below the fold. Tall screens still get the full 80px. */
+    padding: clamp(28px, 5vh, 80px) 0 64px;
     min-height: calc(100vh - 64px);
     position: relative;
     overflow: hidden;
@@ -333,7 +336,9 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 36px;
+    /* Same reasoning as the hero's top padding — gives back a little more
+       vertical room on short screens without touching the desktop look. */
+    margin-bottom: clamp(20px, 3.5vh, 36px);
   }
   .hero-top .pill {
     display: inline-flex;
