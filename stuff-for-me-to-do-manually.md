@@ -87,3 +87,4 @@ cannot meaningfully test the applicant view.
 - [ ] Open `/admin` as your **admin** account → the application appears under **Pending**.
       - Its Company / Site / Stage should be **parsed out onto their own line**,
         with the goal underneath as a quote. If you see one raw blob of text
+        instead, the note packing and the parser have drifted apart.
