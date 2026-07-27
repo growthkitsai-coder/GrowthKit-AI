@@ -47,7 +47,9 @@ The beta report counter is charged in `api/advise.js` only on the section call t
 
 - Input: the company identity plus `baseline_full_report` from the most recent completed `reports` row, `baseline_report_date`, and `collectMetrics(user.id)` from every configured connection.
 - The system prompt frames it explicitly as a **delta against the baseline** — never a restatement of it.
-- Output schema (validated by `validBrief`): `lead`, `market_competitor_movement`, `own_metrics`, `market_signals`, exactly three `next_moves` each with a three-step checklist, `founder_to_talk_to`, `tool_prompt`, `sources`. Thin days set `no_material_change: true` rather than inventing movement.
+- `max_tokens: 4000`. **Do not lower it** — at 1800 the full schema did not fit, so responses truncated mid-JSON and failed validation wholesale. A `stop_reason` of `max_tokens` is now detected and reported as its own retryable error.
+- Output schema: `lead`, `market_competitor_movement`, `own_metrics`, `market_signals`, three `next_moves` each with a three-step checklist, `founder_to_talk_to`, `tool_prompt`, `sources`. Thin days set `no_material_change: true` rather than inventing movement.
+- **The pipeline gates on `normalizeBrief`, not `validBrief`.** `validBrief` remains the full contract the prompt asks for and is what the tests document, but failing the whole call over one missing optional block threw away a paid model call. `normalizeBrief` hard-requires only what the renderer cannot do without — `lead.headline` and at least one usable move — and repairs the rest: non-array sections become `[]`, moves cap at three, a move whose checklist isn't exactly three steps keeps the move and drops the checklist, and `founder_to_talk_to` / `tool_prompt` become `null` so `renderBrief` omits that panel instead of drawing an empty one. Anything repaired is logged as `[daily] brief accepted with gaps: …` so schema drift stays visible.
 - Connected metric values are used exactly as supplied — the model never invents or rewrites a revenue, churn, traffic or follower number.
 - **`api/daily-briefs.js` needs `maxDuration: 60` in `vercel.json`**, alongside `api/advise.js`. Vercel's default is **10 seconds**, which a Sonnet call with two web searches never fits inside; without it every generation dies mid-flight. The model call itself aborts at 52s so the failure is recorded and retryable rather than the function being killed mid-write.
 
@@ -59,7 +61,7 @@ The beta report counter is charged in `api/advise.js` only on the section call t
 |---|---|---|
 | 503 | `not_configured` | `ANTHROPIC_API_KEY` is absent |
 | 503 | `unavailable` | The `daily_briefs` write was refused — `detail` carries the PostgREST reason. **`42703 column "report_id" … does not exist` means migration `202607270001` has not been run.** |
-| 502 | `generation_failed` | The model call failed; `detail` is the provider's own message. A valid key with an empty Anthropic balance reads here as `400 … credit balance is too low` |
+| 502 | `generation_failed` | The model call failed; `detail` is the provider's own message. A valid key with an empty Anthropic balance reads here as `400 … credit balance is too low`; a truncated response reads as "ran out of output room"; an unusable one names the missing field |
 | 202 | `generating` | An attempt from the last 10 minutes is still running |
 | 409 | `full_report_required` | No completed report to diff against |
 
@@ -133,3 +135,9 @@ The pre-2026-07-25 model generated one full report, then short daily briefs on a
 
 - `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 - `CRON_SECRET` is no longer used by an active schedule but the dormant endpoint still checks it if hit directly.
+
+## Finding checklists and the report they belong to
+
+`finding_tasks` state is keyed `(source_type, source_id)`. For `full_report`, **`source_id` is the report's own id** — each report carries its own checklist. `findings.js` sends `report_id` on GET and POST, `advisor.js` supplies it from `pipelineState.workspace.report_id`, and omitting it falls back to the latest completed report.
+
+> **Fixed 2026-07-27.** `resolveSource('full_report', …)` used to read `product_workspaces`, which nothing has populated since the 2026-07-25 report-model change. Every full-report checklist had been answering **404 `source_not_found`** since then; it surfaced as `GET /api/finding-tasks?scope=full_report 404` in the console. It now reads `reports`. The old `source_id` was per-account, so under the multi-report model every report would also have shared one set of tasks.
