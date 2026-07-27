@@ -132,3 +132,4 @@ so it stays pinned to a URL known to be allowlisted.
       half-finished files into its own commits (`8e92b85 "lol"` is one of them).
       Every file survived intact this time, but that is luck, not design — it is
       the exact collision `CLAUDE.md` warns about. Commit between tool switches.
+
