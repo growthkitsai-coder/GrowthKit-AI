@@ -110,3 +110,4 @@ Email/password sign-in started from `/beta` already returns to `/beta`, via the
 `?next=` support added to `auth.js` this session. **Google/GitHub sign-in does
 not** — it deliberately lands on `/four` instead.
 
+That is not an oversight. OAuth `redirectTo` URLs must be registered in Supabase
