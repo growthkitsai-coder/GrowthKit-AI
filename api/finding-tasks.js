@@ -39,9 +39,10 @@ module.exports = async function handler(req, res) {
   const payload = body(req);
   let result;
   if (req.method === 'GET') {
-    result = await loadTasks(user.id, req.query && req.query.scope, req.query && req.query.date);
+    const query = req.query || {};
+    result = await loadTasks(user.id, query.scope, query.date, query.report_id);
   } else if (req.method === 'POST') {
-    result = await createCustomTask(user.id, payload.scope, payload.date, payload.finding_key, payload.label);
+    result = await createCustomTask(user.id, payload.scope, payload.date, payload.finding_key, payload.label, payload.report_id);
   } else if (req.method === 'PATCH') {
     result = await setTaskCompleted(user.id, payload.id, payload.completed);
   } else {
