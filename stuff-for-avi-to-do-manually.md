@@ -14,3 +14,5 @@ must be added and **verified** under Settings → Emails on that account.
 
 I could not check this for you: the `gh` token lacks the `user` scope, and no
 commit in this repo's history had used that address before today.
+
+- [ ] Open <https://github.com/settings/emails> and confirm it's listed and verified
