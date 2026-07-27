@@ -19,3 +19,4 @@ optional; 4 is how you confirm the whole thing actually works.
       - Pushing to `main` auto-deploys to growthkitai.com.
       - Until you do, `/beta` and `/admin` do not exist in production at all,
         and steps 1 and 2 below have nothing to act on.
+      - This was left undone deliberately: pushing is opt-in in this repo, so
