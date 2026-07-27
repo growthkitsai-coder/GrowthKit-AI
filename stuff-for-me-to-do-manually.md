@@ -60,3 +60,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
 with no domains attached. `ANTHROPIC_API_KEY` was once added to that one instead
 of the live one, and the engine 503'd for days before anyone spotted it. Confirm
 the project you are editing has **growthkitai.com attached** before saving.
+See `docs/infrastructure.md` for the full write-up of that incident.
