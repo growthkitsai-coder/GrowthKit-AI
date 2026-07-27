@@ -125,3 +125,4 @@ so it stays pinned to a URL known to be allowlisted.
 ## 6. Small things I mentioned in passing
 
 - [ ] **Hard-refresh (Ctrl+Shift+R)** when checking the hero and problem-morph
+      changes. That CSS is inline in `index.html`, so it only arrives with a
