@@ -92,3 +92,4 @@ cannot meaningfully test the applicant view.
 - [ ] Back on the test account, `/beta` should now read "You're in".
 - [ ] `/four` on that account should agree — the beta card shows the live grant.
 
+**If something is wrong, the symptom tells you which step you missed:**
