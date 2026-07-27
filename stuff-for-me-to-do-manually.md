@@ -88,3 +88,4 @@ cannot meaningfully test the applicant view.
       - Its Company / Site / Stage should be **parsed out onto their own line**,
         with the goal underneath as a quote. If you see one raw blob of text
         instead, the note packing and the parser have drifted apart.
+- [ ] Approve it → the row moves to **Active** with a `0 / 7` reports bar and `7d left`.
