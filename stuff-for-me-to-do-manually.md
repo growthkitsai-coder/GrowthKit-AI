@@ -98,3 +98,4 @@ cannot meaningfully test the applicant view.
 |---|---|
 | `/beta` says "Applications are paused" | Step 1 not done — the table is missing |
 | `/admin` says "This account is not an admin" | Step 2 not done, or not redeployed after |
+| `/beta` or `/admin` 404s entirely | Step 0 not done — never pushed |
