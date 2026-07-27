@@ -102,3 +102,4 @@ they sorted themselves out.
   session's new page. That session fixed them itself. Green at 19 pages now.
 - **Your git identity.** Switched off `growthkitsai-coder` and onto
   `avi-aggarwal14`; the stale gh login is logged out and pushes authenticate
+  correctly. **Only the email-verification bit in §1 is still outstanding.**
