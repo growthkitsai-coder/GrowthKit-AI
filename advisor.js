@@ -634,6 +634,18 @@
     return h + '</div>';
   }
 
+  /**
+   * Tell the page a deliverable just (re)rendered. The /four workspace listens
+   * for this to project the gap-analysis and 90-day-plan sections into its Plan
+   * pane — the deliverable is re-rendered on every pipeline tick, so the
+   * projection has to be re-applied each time rather than done once.
+   */
+  function announceRender(container) {
+    try {
+      document.dispatchEvent(new CustomEvent('gk:deliverable-rendered', { detail: { container: container } }));
+    } catch (e) { /* older browsers: the workspace falls back to its own polling */ }
+  }
+
   // ── Init one engine instance ──
   function init(root) {
     if (root.__gkInit) return; root.__gkInit = true;
@@ -1172,6 +1184,7 @@
         deliverableEl.innerHTML = renderDeliverable(lastJson || {}, pipelineState);
         bindReportControls();
         if (window.GKFindings && lastJson && lastJson.gaps) window.GKFindings.hydrate(deliverableEl, { scope: 'full_report' });
+        announceRender(deliverableEl);
       }
     }
 
@@ -1202,7 +1215,10 @@
         saveRead(company, answers.competitors || '', '', lastJson);
         if (window.va) window.va('event', { name: 'advisor_complete', data: { surface: full ? 'page' : 'home', mode: 'pipeline', vendors: (lastJson.market_map && lastJson.market_map.vendors || []).length } });
       }
-      if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH({ generateDaily: true });
+      // Refresh the workspace so it picks up the new company, the spent report
+      // slot, and the now-unlocked Daily pane. The daily update is generated on
+      // demand from that pane — never automatically, it costs a model call.
+      if (typeof window.GK_PRODUCT_REFRESH === 'function') window.GK_PRODUCT_REFRESH();
     }
 
     function schedulePipeline() {
@@ -1412,6 +1428,7 @@
     if (obj && obj.subject) {
       container.innerHTML = renderDeliverable(obj);
       if (window.GKFindings) window.GKFindings.hydrate(container, { scope: 'full_report' });
+      announceRender(container);
       return true;
     }
     container.innerHTML = renderLegacy(raw || '');
