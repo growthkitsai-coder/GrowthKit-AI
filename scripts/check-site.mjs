@@ -86,8 +86,10 @@ for (const p of sitemapPaths) {
   if (redirectMap.get(`${p}.html`) !== p) fail(`vercel.json: missing/wrong redirect ${p}.html → ${p} (page is in sitemap)`);
 }
 for (const [source, dest] of rewriteMap) {
-  // noindex pages get a clean URL but stay out of the sitemap on purpose
-  if (!sitemapPaths.includes(source) && !NO_SITEMAP.includes(dest.replace(/^\//, ''))) {
+  // noindex pages (and internal ones like admin.html) get a clean URL but stay
+  // out of the sitemap on purpose
+  const destFile = dest.replace(/^\//, '');
+  if (!sitemapPaths.includes(source) && !NO_SITEMAP.includes(destFile) && !INTERNAL_PAGES.includes(destFile)) {
     fail(`sitemap.xml: missing ${source} (has a vercel.json rewrite)`);
   }
   if (!existsSync(join(ROOT, dest))) fail(`vercel.json: rewrite ${source} → ${dest}, but ${dest} does not exist`);
