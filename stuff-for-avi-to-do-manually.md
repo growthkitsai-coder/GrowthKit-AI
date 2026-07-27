@@ -61,3 +61,4 @@ a fallback mono the advance width changes and the labels can collide again.
 
 A second agent committed repeatedly throughout this session and **twice swept my
 half-finished files into its own commits** with `git add -A`: `25c41bf "my voice"`
+took `specimen.html`, and `8e92b85 "lol"` took `auth.css`.
