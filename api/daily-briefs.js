@@ -45,11 +45,27 @@ module.exports = async function handler(req, res) {
 
   const result = await generateDailyBrief(user, report);
   if (!result.ok) {
-    const status = result.code === 'generating' ? 202 : 502;
-    res.status(status).json({
-      error: result.code === 'generating'
-        ? 'Today\'s update is already being prepared.'
-        : 'Could not prepare today\'s update.',
+    // One opaque message for three very different failures made this
+    // undiagnosable in production. Say which one it is.
+    if (result.code === 'generating') {
+      res.status(202).json({ error: 'Today\'s update is already being prepared.', code: 'generating' });
+      return;
+    }
+    console.error('[daily-briefs] %s: %s', result.code, result.detail || '(no detail)');
+    if (result.code === 'not_configured') {
+      res.status(503).json({ error: 'The daily-update engine is not configured yet.', code: result.code });
+      return;
+    }
+    if (result.code === 'unavailable') {
+      res.status(503).json({
+        error: 'Daily-update storage rejected the write. If this is a fresh deploy, run migration 202607270001_workspace_daily_updates.sql.',
+        code: result.code,
+        detail: result.detail || null
+      });
+      return;
+    }
+    res.status(502).json({
+      error: result.detail || 'Could not prepare today\'s update.',
       code: result.code
     });
     return;
