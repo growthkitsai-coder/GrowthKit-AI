@@ -13,3 +13,4 @@ profile — avatar, contribution graph — the address now in `git config user.e
 must be added and **verified** under Settings → Emails on that account.
 
 I could not check this for you: the `gh` token lacks the `user` scope, and no
+commit in this repo's history had used that address before today.
