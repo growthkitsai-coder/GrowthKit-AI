@@ -49,6 +49,19 @@ The beta report counter is charged in `api/advise.js` only on the section call t
 - The system prompt frames it explicitly as a **delta against the baseline** — never a restatement of it.
 - Output schema (validated by `validBrief`): `lead`, `market_competitor_movement`, `own_metrics`, `market_signals`, exactly three `next_moves` each with a three-step checklist, `founder_to_talk_to`, `tool_prompt`, `sources`. Thin days set `no_material_change: true` rather than inventing movement.
 - Connected metric values are used exactly as supplied — the model never invents or rewrites a revenue, churn, traffic or follower number.
+- **`api/daily-briefs.js` needs `maxDuration: 60` in `vercel.json`**, alongside `api/advise.js`. Vercel's default is **10 seconds**, which a Sonnet call with two web searches never fits inside; without it every generation dies mid-flight. The model call itself aborts at 52s so the failure is recorded and retryable rather than the function being killed mid-write.
+
+### When it says it could not prepare the update
+
+`POST /api/daily-briefs` answers with a distinct status and `code` per cause — never one generic message. Check the Vercel function log, which prints `[daily-briefs] <code>: <detail>`.
+
+| Response | `code` | Cause |
+|---|---|---|
+| 503 | `not_configured` | `ANTHROPIC_API_KEY` is absent |
+| 503 | `unavailable` | The `daily_briefs` write was refused — `detail` carries the PostgREST reason. **`42703 column "report_id" … does not exist` means migration `202607270001` has not been run.** |
+| 502 | `generation_failed` | The model call failed; `detail` is the provider's own message. A valid key with an empty Anthropic balance reads here as `400 … credit balance is too low` |
+| 202 | `generating` | An attempt from the last 10 minutes is still running |
+| 409 | `full_report_required` | No completed report to diff against |
 
 ## `/four` — the workspace
 
