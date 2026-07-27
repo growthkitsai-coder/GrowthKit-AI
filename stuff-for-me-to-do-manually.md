@@ -96,3 +96,4 @@ cannot meaningfully test the applicant view.
 
 | What you see | What it means |
 |---|---|
+| `/beta` says "Applications are paused" | Step 1 not done — the table is missing |
