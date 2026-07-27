@@ -27,3 +27,4 @@ optional; 4 is how you confirm the whole thing actually works.
 ## 1. Run the Supabase migration — 🔴 BLOCKING
 
 Without this the `beta_applications` table does not exist, so `checkAccess()`
+returns `beta-unavailable`, `POST /api/beta` answers 503, and **nobody can apply
