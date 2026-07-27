@@ -39,3 +39,4 @@ or be approved**. Paid Pro subscribers are unaffected by this one.
 outstanding migration (it powers report generation, not beta access). If report
 generation is also failing, check `memory.md` — that one has its own open item.
 
+---
