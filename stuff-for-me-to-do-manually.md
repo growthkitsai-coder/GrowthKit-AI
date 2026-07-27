@@ -134,3 +134,4 @@ so it stays pinned to a URL known to be allowlisted.
       the exact collision `CLAUDE.md` warns about. Commit between tool switches.
 
 ---
+
