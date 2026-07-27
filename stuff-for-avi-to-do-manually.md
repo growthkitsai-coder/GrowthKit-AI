@@ -96,3 +96,5 @@ drift across the 13 subpages is invisible to CI. That's how the dead
 
 Listed so you don't go chasing them: I flagged both and never heard back, but
 they sorted themselves out.
+
+- **`beta.html` footer divergence.** The checker went red mid-session over a
