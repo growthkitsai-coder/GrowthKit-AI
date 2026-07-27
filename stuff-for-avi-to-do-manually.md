@@ -82,3 +82,5 @@ growthkitai.com, and CI does **not** gate deploys — a red check still ships.
 ---
 
 ## 5 · A question you never answered
+
+`scripts/check-site.mjs` enforces **footer** grids but not **topbars**, so nav
