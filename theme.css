@@ -21,6 +21,30 @@
 :root[data-theme="dark"] .nav-login:hover { color: var(--neon); text-shadow: 0 0 12px rgba(62,245,159,0.4); }
 @media (max-width: 560px) { .nav-login { display: none; } }
 
+/* Beta nav link — the private beta is what we're shipping right now, so it
+   carries a live dot rather than sitting flush with the other nav items.
+   Shared here (like .nav-login above) instead of being duplicated into the
+   inline <style> of every page that has a topbar. */
+.nav-links a.nav-beta { color: var(--accent); font-weight: 500; white-space: nowrap; }
+.nav-links a.nav-beta .live {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 7px;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(31,71,50,0.12);
+}
+.nav-links a[aria-current="page"]::after { transform: scaleX(1); }
+:root[data-theme="dark"] .nav-links a.nav-beta { color: var(--neon-2); }
+:root[data-theme="dark"] .nav-links a.nav-beta .live {
+  background: var(--neon);
+  box-shadow:
+    0 0 0 3px rgba(62,245,159,0.16),
+    0 0 14px rgba(62,245,159,0.75);
+  animation: dkPulse 2.6s ease-in-out infinite;
+}
+
 /* ── Toggle button ──────────────────────────────────────────── */
 .theme-toggle {
   position: relative;
@@ -635,7 +659,8 @@
   :root[data-theme="dark"] .dk-scan { display: none; }
   :root[data-theme="dark"] .topbar .brand > span:last-child::after,
   :root[data-theme="dark"] .foot-bar div:first-child::before,
-  :root[data-theme="dark"] .foot-bar div:last-child::after {
+  :root[data-theme="dark"] .foot-bar div:last-child::after,
+  :root[data-theme="dark"] .nav-links a.nav-beta .live {
     animation: none;
   }
   :root[data-theme="dark"] .closing::after { display: none; }
