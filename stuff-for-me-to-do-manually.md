@@ -72,3 +72,4 @@ without applying at all. Everyone else goes through `/beta` and your approval.
 - [ ] Vercel → same project → add `GK_BETA_EMAILS` (Production), then redeploy.
 - [ ] Format: comma-, semicolon-, or newline-separated, or a JSON string array.
       - Matching is exact on the **verified** email, lowercased and trimmed.
+- [ ] **Never put this list in git.** This repo is public — it lives only in Vercel.
