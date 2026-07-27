@@ -57,3 +57,4 @@ including you — and `GET /api/admin-beta` answers 404 to every caller.
 - [ ] **Redeploy.** Vercel does not apply env changes to deployments that already exist.
 
 ⚠️ **The two-projects trap.** This account has a second, empty Vercel project
+with no domains attached. `ANTHROPIC_API_KEY` was once added to that one instead
