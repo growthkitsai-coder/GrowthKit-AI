@@ -143,3 +143,4 @@ Listed here only so it does not get lost. This is a code fix, not a dashboard on
       `product.js` calls `window.GKBilling.wire(...)`, but `billing.js` only ever
       exposed `{checkout, portal}` — so an `&&` guard swallows it silently.
       The fix is to export the existing private `wire` function from `billing.js`.
+      Left alone this session because a parallel agent was editing both files.
