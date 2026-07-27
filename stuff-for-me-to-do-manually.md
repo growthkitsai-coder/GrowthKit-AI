@@ -161,3 +161,4 @@ It is linked as **"Become a client"** from the footer of all 13 marketing pages.
 
 - [ ] Deploy `onboarding-apps-script.gs` as a Google Apps Script **web app**
       (Deploy → New deployment → Web app → execute as you, access "Anyone").
+- [ ] Paste the resulting `/exec` URL into `SCRIPT_URL` in `onboarding.html`.
