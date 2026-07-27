@@ -44,6 +44,26 @@ const publicPages = allPages.filter((f) => !INTERNAL_PAGES.includes(f));
 const html = Object.fromEntries(allPages.map((f) => [f, read(f)]));
 
 const vercel = JSON.parse(read('vercel.json'));
+
+// vercel.json is strict JSON validated against Vercel's own schema, which
+// rejects unknown properties on a rule. There is no comment syntax — a "//" key
+// parses fine locally and then fails the BUILD with "should NOT have additional
+// property". Explanations belong in docs/infrastructure.md, not in the file.
+const ALLOWED_RULE_KEYS = {
+  redirects: ['source', 'destination', 'permanent', 'statusCode', 'has', 'missing'],
+  rewrites: ['source', 'destination', 'has', 'missing'],
+  headers: ['source', 'headers', 'has', 'missing']
+};
+for (const [section, allowed] of Object.entries(ALLOWED_RULE_KEYS)) {
+  (vercel[section] || []).forEach((rule, i) => {
+    for (const key of Object.keys(rule)) {
+      if (!allowed.includes(key)) {
+        fail(`vercel.json: ${section}[${i}] has unsupported property "${key}" — Vercel's schema rejects it at build time (no comments allowed; document it in docs/infrastructure.md)`);
+      }
+    }
+  });
+}
+
 const rewriteMap = new Map(vercel.rewrites.map((r) => [r.source, r.destination]));
 const redirectMap = new Map(vercel.redirects.map((r) => [r.source, r.destination]));
 const sitemap = read('sitemap.xml');
