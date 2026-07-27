@@ -29,3 +29,4 @@ optional; 4 is how you confirm the whole thing actually works.
 Without this the `beta_applications` table does not exist, so `checkAccess()`
 returns `beta-unavailable`, `POST /api/beta` answers 503, and **nobody can apply
 or be approved**. Paid Pro subscribers are unaffected by this one.
+
