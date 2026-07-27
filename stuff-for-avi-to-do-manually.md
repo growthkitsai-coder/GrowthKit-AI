@@ -35,3 +35,5 @@ but never opened a browser. Below is only what static checks genuinely cannot se
 I moved four labels off neighbouring dots and computed every bounding box to
 confirm zero overlaps. That model assumes **JetBrains Mono actually loaded** — on
 a fallback mono the advance width changes and the labels can collide again.
+
+- [ ] Scroll to "Competitor positioning" — no text sitting on a dot, light **and** dark
