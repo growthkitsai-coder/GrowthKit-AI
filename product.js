@@ -402,10 +402,14 @@
       return;
     }
 
-    // beta-not-applied (or anything unrecognised) — offer the application.
+    // beta-not-applied (or anything unrecognised) — send them to /beta, which
+    // is now the single application surface. The form used to be duplicated
+    // here; two copies of it drifted apart and only one asked for the
+    // structured fields the approval console shows.
     body.innerHTML =
       '<p>Beta testers get the full engine for a week, <b>two full reports a week</b> ' +
       'plus a <b>daily update</b> on what moved, up to 7 reports. Applications are approved by hand.</p>' +
+<<<<<<< HEAD
       '<label class="beta-label" for="beta-note">Anything we should know? <span>(optional)</span></label>' +
       '<textarea id="beta-note" class="beta-note" rows="3" maxlength="1000" ' +
       'placeholder="What are you building, and which market do you want dissected?"></textarea>' +
@@ -425,6 +429,9 @@
       .catch(function (err) {
         body.innerHTML = '<p class="beta-error">' + esc(err.message || 'That did not send. Try again shortly.') + '</p>';
       });
+=======
+      '<div class="beta-actions"><a class="beta-btn" href="/beta">Apply to be a beta tester →</a></div>';
+>>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
   }
 
   // ── The Plan pane ─────────────────────────────────────────────────────────
@@ -752,7 +759,68 @@
     });
   }
 
+  /* ── Specimen preview ──────────────────────────────────────────────────────
+   * The sample deliverable opens full-screen rather than sitting on the page in
+   * a 560px scroll box. That box captured the wheel whenever the cursor crossed
+   * it mid-scroll, and it loaded /specimen without ?embed=1 so the specimen's
+   * own topbar rendered inside the frame. The overlay's iframe stays src-less
+   * until the first open, so /four never pays for a second page load nobody
+   * asked for.
+   */
+  var specimenReturnFocus = null;
+
+  function specimenOpen() {
+    var overlay = qs('[data-specimen-overlay]');
+    var frame = qs('[data-specimen-frame]');
+    if (!overlay || !frame) return;
+    if (!frame.getAttribute('src')) frame.setAttribute('src', '/specimen?embed=1');
+    specimenReturnFocus = document.activeElement;
+    overlay.hidden = false;
+    document.documentElement.classList.add('gk-specimen-open');
+    var close = qs('.four-specimen-close', overlay);
+    if (close) close.focus();
+  }
+
+  function specimenClose() {
+    var overlay = qs('[data-specimen-overlay]');
+    if (!overlay || overlay.hidden) return;
+    overlay.hidden = true;
+    document.documentElement.classList.remove('gk-specimen-open');
+    if (specimenReturnFocus && specimenReturnFocus.focus) specimenReturnFocus.focus();
+    specimenReturnFocus = null;
+  }
+
+  function initSpecimen() {
+    var overlay = qs('[data-specimen-overlay]');
+    if (!overlay) return;
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest) return;
+      if (e.target.closest('[data-specimen-open]')) { e.preventDefault(); specimenOpen(); return; }
+      if (e.target.closest('[data-specimen-dismiss]')) specimenClose();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') specimenClose();
+    });
+
+    // Escape pressed while focus is inside the iframe never reaches this
+    // document, so the key has to be wired up in there too. Same-origin, but
+    // guarded — if it ever isn't, the close button and backdrop still work.
+    var frame = qs('[data-specimen-frame]');
+    if (frame) {
+      frame.addEventListener('load', function () {
+        try {
+          frame.contentDocument.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') specimenClose();
+          });
+        } catch (err) { /* cross-origin: close button and backdrop still close it */ }
+      });
+    }
+  }
+
   function boot() {
+    initSpecimen();
     qsa('[data-pane-link]').forEach(function (link) {
       link.addEventListener('click', function () { setPane(link.getAttribute('data-pane-link')); });
     });
@@ -771,16 +839,6 @@
         // Pre-report the panes are one scroll, so take them to the panel.
         var panel = qs('[data-integrations]');
         if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
-
-    // Delegated: the apply button is re-rendered on every renderAccount pass,
-    // so binding it directly would go stale.
-    var betaHost = qs('[data-beta]');
-    if (betaHost) {
-      betaHost.addEventListener('click', function (e) {
-        var button = e.target.closest('[data-beta-apply]');
-        if (button) applyForBeta(button);
       });
     }
 

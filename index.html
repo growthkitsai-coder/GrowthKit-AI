@@ -158,7 +158,10 @@
 
   /* === Hero === */
   .hero {
-    padding: 80px 0 64px;
+    /* Scales with viewport HEIGHT, not width: the hero is a fixed-height box
+       (min-height below), so on a short laptop screen a flat 80px top pad was
+       pushing the CTA row below the fold. Tall screens still get the full 80px. */
+    padding: clamp(28px, 5vh, 80px) 0 64px;
     min-height: calc(100vh - 64px);
     position: relative;
     overflow: hidden;
@@ -333,7 +336,9 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 36px;
+    /* Same reasoning as the hero's top padding — gives back a little more
+       vertical room on short screens without touching the desktop look. */
+    margin-bottom: clamp(20px, 3.5vh, 36px);
   }
   .hero-top .pill {
     display: inline-flex;
@@ -556,12 +561,33 @@
     border-bottom: 1px solid var(--line);
     background: var(--bg);
   }
+  /* ─────────────────────────────────────────────────────────────
+     Sizing inside the pinned morph is capped by viewport HEIGHT as well
+     as width — `min(Xvw, Yvh)` inside each clamp.
+
+     Why: this wrap is exactly 100vh with `overflow: hidden`, and the pin
+     means scrolling advances the animation rather than revealing more of
+     a stage. So anything taller than the wrap is not "below the fold" —
+     it is permanently unreachable. Width-only clamps sized the type off
+     a wide viewport and then clipped it on a short one, which silently
+     ate the intro lede on laptop screens.
+
+     The vh term only binds on short viewports; each clamp still reaches
+     its original maximum once the window is tall enough (~1160px for the
+     headline, ~1170px for the card title). Between roughly 900–1160px
+     tall the type is a few percent smaller than before — deliberate, and
+     the cost of the whole stage being reachable.
+
+     If you edit copy in here, re-check the tallest stage against the
+     shortest viewport you support: 100vh minus this padding is a HARD
+     ceiling, not a soft one.
+     ───────────────────────────────────────────────────────────── */
   .problem-pinwrap {
     position: relative;
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding: 96px 0;
+    padding: clamp(44px, 8vh, 96px) 0;
     overflow: hidden;
   }
   .problem-canvas {
@@ -585,7 +611,7 @@
   .stage-intro {
     display: grid;
     grid-template-columns: 1fr;
-    gap: clamp(20px, 2.4vw, 36px);
+    gap: clamp(14px, min(2.4vw, 3vh), 36px);
     max-width: 1180px;
     margin: 0 auto;
   }
@@ -594,7 +620,7 @@
   .stage-intro .problem-headline {
     font-family: 'Instrument Serif', serif;
     font-weight: 400;
-    font-size: clamp(48px, 7.6vw, 116px);
+    font-size: clamp(40px, min(7.6vw, 10vh), 116px);
     line-height: 0.98;
     letter-spacing: -0.025em;
     margin: 0;
@@ -621,7 +647,7 @@
   .stage-intro.in .problem-headline .strike::after { transform: scaleX(1); }
   .stage-intro .problem-lede {
     font-family: 'Inter', sans-serif;
-    font-size: clamp(17px, 1.4vw, 22px);
+    font-size: clamp(16px, min(1.4vw, 2.2vh), 22px);
     line-height: 1.5;
     color: var(--ink-2);
     max-width: 64ch;
@@ -646,7 +672,7 @@
     position: relative;
     display: grid;
     grid-template-columns: 1fr;
-    gap: clamp(18px, 2vw, 28px);
+    gap: clamp(12px, min(2vw, 2.6vh), 28px);
     max-width: 1180px;
     margin: 0 auto;
     padding: 0;
@@ -658,7 +684,7 @@
     font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-weight: 400;
-    font-size: clamp(240px, 32vw, 460px);
+    font-size: clamp(180px, min(32vw, 42vh), 460px);
     line-height: 0.82;
     color: var(--accent);
     opacity: 0.085;
@@ -696,7 +722,7 @@
     z-index: 1;
     font-family: 'Instrument Serif', serif;
     font-weight: 400;
-    font-size: clamp(60px, 10vw, 152px);
+    font-size: clamp(48px, min(10vw, 13vh), 152px);
     line-height: 0.96;
     letter-spacing: -0.032em;
     margin: 0;
@@ -864,7 +890,7 @@
     position: relative;
     z-index: 1;
     font-family: 'Inter', sans-serif;
-    font-size: clamp(18px, 1.55vw, 24px);
+    font-size: clamp(16px, min(1.55vw, 2.4vh), 24px);
     line-height: 1.5;
     color: var(--ink-2);
     max-width: 56ch;
@@ -875,7 +901,7 @@
     z-index: 1;
     font-family: 'Instrument Serif', serif;
     font-style: italic;
-    font-size: clamp(16px, 1.2vw, 20px);
+    font-size: clamp(15px, min(1.2vw, 2vh), 20px);
     line-height: 1.4;
     color: var(--muted);
     max-width: 56ch;
@@ -2177,7 +2203,11 @@
       <a href="#engine">Product</a>
       <a href="#process">How it works</a>
       <a href="#faq">FAQ</a>
+<<<<<<< HEAD
       <a href="/blog">Blog</a>
+=======
+      <a href="/beta" class="nav-beta"><span class="live" aria-hidden="true"></span>Beta</a>
+>>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
     </nav>
     <div class="topbar-end">
       <a href="/login" class="nav-login">Log in</a>
@@ -2707,8 +2737,16 @@
       <div class="reveal">
         <div class="eyebrow"><span class="num">05</span>Get started</div>
         <h2>Treat market research like the rest of your <em>engineering</em>.</h2>
+<<<<<<< HEAD
         <p>Consulting‑grade market intelligence and competitor analysis, without paying consulting prices. Create an account to map your market and outflank your rivals with GrowthKit AI.</p>
         <a href="/signup" class="btn-primary btn">
+=======
+        <p>Consulting‑grade market intelligence and competitor analysis — without paying consulting prices. Create an account to map your market and outflank your rivals with GrowthKit AI. We're in <b>private beta</b> right now — a week of the full engine, free, if you're accepted.</p>
+        <a href="/beta" class="btn-primary btn">
+          Apply for the beta <span class="arr">→</span>
+        </a>
+        <a href="/signup" class="btn-secondary btn">
+>>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
           Sign up <span class="arr">→</span>
         </a>
         <a href="/login" class="btn-secondary btn">
@@ -2748,6 +2786,7 @@
           <li><a href="/onboarding">Become a client</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="/waitlist">Join waitlist</a></li>
+          <li><a href="/beta">Apply for beta</a></li>
         </ul>
       </div>
       <div>

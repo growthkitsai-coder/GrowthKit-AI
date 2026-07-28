@@ -2,18 +2,25 @@
   GrowthKit AI — INTERNAL beta approvals console.
 
   ⚠ INTERNAL PAGE. Like logo.html it is deliberately:
-      • absent from sitemap.xml, vercel.json, and every nav/footer
+      • absent from sitemap.xml and every nav/footer
       • listed in INTERNAL_PAGES in scripts/check-site.mjs (so the SEO/footer
         checks skip it — it is not a public page and has no canonical/OG tags)
-      • noindex, nofollow
+      • noindex, nofollow — reinforced by an X-Robots-Tag header on /admin(.*)
+        in vercel.json, because a meta tag alone does not cover the clean URL
 
-  Security note: hiding the URL is NOT the security model. Authorisation is
-  enforced server-side in api/admin-beta.js against GK_ADMIN_USER_IDS, which
-  matches Supabase user ids. Anyone can open this page; without an admin
-  account the API answers 404 and the page shows nothing.
+  It DOES have a clean URL (/admin → /admin.html) purely so it is typable.
+  A clean URL is not exposure: hiding the path was never the security model.
+  Authorisation is enforced server-side in api/admin-beta.js against
+  GK_ADMIN_USER_IDS, which matches Supabase user IDS (never emails). Anyone may
+  open this page; without an admin account the API answers 404 and it shows
+  nothing.
 
   Displays applicant EMAIL ADDRESSES (PII) — never screenshot into a public
   channel, never paste rows into a .md file. This repo is public.
+
+  Rows are fetched once (status=all) and filtered/sorted/searched in the
+  browser, so the status counts are honest and switching tabs costs no request.
+  See docs/beta.md.
 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,7 +55,7 @@
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
 
   h1 {
     font-family: 'Instrument Serif', serif;
@@ -58,10 +65,11 @@
     margin: 0 0 6px;
   }
   h1 em { font-style: italic; color: var(--accent); }
-  .sub { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 26px; max-width: 70ch; }
 
-  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 22px; }
-  .bar button, .bar a {
+  /* ── Controls ─────────────────────────────────────────────────────────── */
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .bar button, .bar a, .bar select {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.08em;
@@ -73,8 +81,75 @@
     color: var(--ink-2);
     cursor: pointer;
     text-decoration: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
   .bar button.on { border-color: var(--accent); color: var(--accent); }
+  .bar .count {
+    font-size: 10px;
+    opacity: 0.75;
+    margin-left: 7px;
+  }
+  .bar .spacer { flex: 1; }
+  .bar select { padding-right: 30px; background-image: none; }
+
+  .search {
+    flex: 1;
+    min-width: 220px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0;
+    padding: 9px 15px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+  }
+  .search:focus { outline: none; border-color: var(--accent); }
+
+  /* ── Bulk action strip ────────────────────────────────────────────────── */
+  .bulk {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    font-size: 13.5px;
+  }
+  .bulk.show { display: flex; }
+  .bulk b { font-weight: 600; }
+  .bulk .spacer { flex: 1; }
+  .bulk button {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #FAF8F4;
+    cursor: pointer;
+  }
+  .bulk button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+  .bulk button:disabled { opacity: 0.5; cursor: default; }
+  :root[data-theme="dark"] .bulk button { color: #05140C; }
+  :root[data-theme="dark"] .bulk button.ghost { color: var(--muted); }
+
+  .selectall {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    cursor: pointer;
+  }
 
   .msg {
     padding: 14px 16px;
@@ -86,33 +161,58 @@
   }
   .msg.bad { border-color: #c0392b; color: #c0392b; border-style: solid; }
 
+  /* ── Rows ─────────────────────────────────────────────────────────────── */
   .row {
     border: 1px solid var(--line);
     border-radius: 12px;
     padding: 16px 18px;
     margin-bottom: 12px;
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 14px;
-    align-items: center;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: start;
   }
+  .row.sel { border-color: var(--accent); }
+  .row input[type="checkbox"] { margin-top: 5px; width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
   .who { min-width: 0; }
   .email { font-weight: 600; font-size: 15px; word-break: break-all; }
   .meta {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--muted);
-    margin-top: 5px;
+    margin-top: 6px;
     line-height: 1.7;
   }
-  .note {
+
+  /* Structured application fields, parsed back out of the packed note. */
+  .fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 10px;
     font-size: 13px;
+  }
+  .fields div { color: var(--ink-2); }
+  .fields span.k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 6px;
+  }
+  .fields a { color: var(--accent); }
+  .note {
+    font-size: 13.5px;
     color: var(--ink-2);
-    margin-top: 8px;
+    margin-top: 10px;
     padding-left: 12px;
     border-left: 2px solid var(--line);
-    font-style: italic;
+    line-height: 1.6;
+    white-space: pre-wrap;
   }
+  .note.empty { color: var(--muted); font-style: italic; }
+
   .tag {
     display: inline-block;
     font-family: 'JetBrains Mono', monospace;
@@ -128,7 +228,27 @@
   .tag.pending { color: #b8860b; }
   .tag.dead { color: var(--muted); }
 
-  .acts { display: flex; gap: 8px; flex-shrink: 0; }
+  /* Grant readout — how much of the window is actually left. */
+  .grant { margin-top: 12px; max-width: 420px; }
+  .grant-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .grant-line b { color: var(--accent); font-weight: 500; }
+  .grant-line.warn b { color: #b8860b; }
+  .bar-track { height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; margin-bottom: 9px; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .bar-fill.warn { background: #b8860b; }
+  :root[data-theme="dark"] .bar-fill { background: var(--neon); }
+
+  .acts { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
   .acts button {
     font-size: 13px;
     font-weight: 500;
@@ -138,28 +258,62 @@
     background: var(--accent);
     color: #FAF8F4;
     cursor: pointer;
+    white-space: nowrap;
   }
   .acts button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
   .acts button:disabled { opacity: 0.5; cursor: default; }
 
   :root[data-theme="dark"] .tag.live { color: var(--neon); }
   :root[data-theme="dark"] .acts button { color: #05140C; }
+  :root[data-theme="dark"] .acts button.ghost { color: var(--muted); }
 
-  @media (max-width: 640px) {
-    .row { grid-template-columns: 1fr; }
-    .acts { justify-content: flex-start; }
+  @media (max-width: 720px) {
+    .row { grid-template-columns: auto 1fr; }
+    .acts { grid-column: 1 / -1; flex-direction: row; }
   }
 </style>
 
 <div class="wrap">
   <h1>Beta <em>approvals</em></h1>
+<<<<<<< HEAD
   <p class="sub">Approving starts a 7-day window that also ends after 7 full reports, whichever comes first.</p>
+=======
+  <p class="sub">
+    Approving starts a 7-day window that also ends after 7 full reports — whichever comes first.
+    Full-report cadence is 2 per rolling 7 days, so a beta week is realistically 2 reports; daily
+    updates never touch the counter. Re-approving restarts the window and resets the count.
+  </p>
+>>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
 
   <div class="bar">
-    <button data-filter="pending" class="on">Pending</button>
-    <button data-filter="approved">Approved</button>
-    <button data-filter="">All</button>
+    <button data-filter="pending" class="on">Pending <span class="count" data-c="pending"></span></button>
+    <button data-filter="active">Active <span class="count" data-c="active"></span></button>
+    <button data-filter="approved">Approved <span class="count" data-c="approved"></span></button>
+    <button data-filter="finished">Finished <span class="count" data-c="finished"></span></button>
+    <button data-filter="">All <span class="count" data-c="all"></span></button>
+    <span class="spacer"></span>
     <a href="/four">← Back to the app</a>
+  </div>
+
+  <div class="bar">
+    <input class="search" id="q" type="search" placeholder="Search email, company, or note…" autocomplete="off">
+    <select id="sort" aria-label="Sort order">
+      <option value="applied-desc">Newest applied</option>
+      <option value="applied-asc">Oldest applied</option>
+      <option value="expiring">Expiring soonest</option>
+      <option value="reports">Most reports used</option>
+      <option value="email">Email A–Z</option>
+    </select>
+    <button id="refresh">Refresh</button>
+  </div>
+
+  <label class="selectall"><input type="checkbox" id="all"> Select all shown</label>
+
+  <div class="bulk" id="bulk">
+    <span><b id="bulkn">0</b> selected</span>
+    <span class="spacer"></span>
+    <button class="ghost" id="clearsel">Clear</button>
+    <button id="bulkapprove">Approve selected</button>
   </div>
 
   <div id="msg" class="msg">Checking your account…</div>
@@ -176,8 +330,16 @@
   var cfg = window.GK_AUTH_CONFIG || {};
   var msg = document.getElementById('msg');
   var list = document.getElementById('list');
+  var bulk = document.getElementById('bulk');
+  var bulkN = document.getElementById('bulkn');
+  var qEl = document.getElementById('q');
+  var sortEl = document.getElementById('sort');
+  var allEl = document.getElementById('all');
+
   var filter = 'pending';
   var client = null;
+  var rows = [];              // every application, fetched once
+  var selected = Object.create(null);
 
   function say(text, bad) {
     msg.textContent = text;
@@ -196,6 +358,199 @@
     var d = new Date(iso);
     return isNaN(d.getTime()) ? '—' : d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
   }
+
+  function hoursLeft(iso) {
+    if (!iso) return null;
+    var ms = Date.parse(iso);
+    if (isNaN(ms)) return null;
+    return (ms - Date.now()) / 3600000;
+  }
+
+  /**
+   * /beta packs its structured answers into the single `note` column the API
+   * accepts. Pull them back apart for display. Older free-text applications
+   * (and anything that does not match) fall through to the raw note, so no
+   * historical row becomes unreadable.
+   */
+  function parseNote(note) {
+    if (!note) return null;
+    var out = {};
+    var current = null;
+    var found = false;
+    String(note).split(/\r?\n/).forEach(function (line) {
+      var m = line.match(/^(Company|Website|Stage|Goal):\s*([\s\S]*)$/);
+      if (m) { current = m[1]; out[current] = m[2]; found = true; }
+      else if (current) { out[current] += '\n' + line; }
+    });
+    return found ? out : null;
+  }
+
+  /**
+   * Applicants type this field, so it is untrusted. Only http(s) or a bare
+   * domain becomes a link — javascript:, data: and friends render as plain text.
+   */
+  function safeUrl(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s) return '';
+    if (/^https?:\/\/[^\s]+$/i.test(s)) return s;
+    if (/^[\w-]+(\.[\w-]+)+(\/[^\s]*)?$/.test(s)) return 'https://' + s;
+    return '';
+  }
+
+  // ── Derived state ────────────────────────────────────────────────────────
+
+  function isFinished(a) {
+    return !a.active_now && a.status !== 'pending';
+  }
+
+  function counts() {
+    var c = { pending: 0, active: 0, approved: 0, finished: 0, all: rows.length };
+    rows.forEach(function (a) {
+      if (a.status === 'pending') c.pending++;
+      if (a.active_now) c.active++;
+      if (a.status === 'approved') c.approved++;
+      if (isFinished(a)) c.finished++;
+    });
+    Object.keys(c).forEach(function (k) {
+      var el = document.querySelector('[data-c="' + k + '"]');
+      if (el) el.textContent = c[k];
+    });
+  }
+
+  function visible() {
+    var q = (qEl.value || '').trim().toLowerCase();
+    var out = rows.filter(function (a) {
+      if (filter === 'pending' && a.status !== 'pending') return false;
+      if (filter === 'active' && !a.active_now) return false;
+      if (filter === 'approved' && a.status !== 'approved') return false;
+      if (filter === 'finished' && !isFinished(a)) return false;
+      if (q) {
+        var hay = (a.email + ' ' + (a.note || '')).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    var mode = sortEl.value;
+    out.sort(function (x, y) {
+      if (mode === 'applied-asc') return Date.parse(x.applied_at || 0) - Date.parse(y.applied_at || 0);
+      if (mode === 'email') return String(x.email).localeCompare(String(y.email));
+      if (mode === 'reports') return (y.reports_used || 0) - (x.reports_used || 0);
+      if (mode === 'expiring') {
+        // Rows with no expiry sort last rather than at the top as NaN.
+        var a = Date.parse(x.expires_at || '') || Infinity;
+        var b = Date.parse(y.expires_at || '') || Infinity;
+        return a - b;
+      }
+      return Date.parse(y.applied_at || 0) - Date.parse(x.applied_at || 0);
+    });
+    return out;
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────
+
+  function grantHtml(a) {
+    if (a.status !== 'approved' && !a.active_now) return '';
+    var limit = a.reports_limit || 0;
+    var used = a.reports_used || 0;
+    var pctReports = limit ? Math.min(100, (used / limit) * 100) : 0;
+    var hrs = hoursLeft(a.expires_at);
+    var daysTxt = hrs === null ? '—'
+      : (hrs <= 0 ? 'expired'
+        : (hrs < 48 ? Math.ceil(hrs) + 'h left' : Math.ceil(hrs / 24) + 'd left'));
+    var lowTime = hrs !== null && hrs > 0 && hrs < 48;
+    var lowReports = limit && (limit - used) <= 2;
+
+    return '' +
+      '<div class="grant">' +
+        '<div class="grant-line' + (lowReports ? ' warn' : '') + '">' +
+          '<span>reports</span><span><b>' + esc(used) + '</b> / ' + esc(limit) + '</span>' +
+        '</div>' +
+        '<div class="bar-track"><div class="bar-fill' + (lowReports ? ' warn' : '') +
+          '" style="width:' + pctReports.toFixed(0) + '%"></div></div>' +
+        '<div class="grant-line' + (lowTime ? ' warn' : '') + '">' +
+          '<span>window</span><span><b>' + esc(daysTxt) + '</b></span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function fieldsHtml(a) {
+    var f = parseNote(a.note);
+    if (!f) {
+      return a.note
+        ? '<div class="note">' + esc(a.note) + '</div>'
+        : '<div class="note empty">No note supplied.</div>';
+    }
+    var bits = [];
+    if (f.Company) bits.push('<div><span class="k">Company</span>' + esc(f.Company.trim()) + '</div>');
+    if (f.Website) {
+      var u = safeUrl(f.Website);
+      bits.push('<div><span class="k">Site</span>' + (u
+        ? '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(f.Website.trim()) + '</a>'
+        : esc(f.Website.trim())) + '</div>');
+    }
+    if (f.Stage) bits.push('<div><span class="k">Stage</span>' + esc(f.Stage.trim()) + '</div>');
+
+    return (bits.length ? '<div class="fields">' + bits.join('') + '</div>' : '') +
+      (f.Goal && f.Goal.trim()
+        ? '<div class="note">' + esc(f.Goal.trim()) + '</div>'
+        : '<div class="note empty">No goal supplied.</div>');
+  }
+
+  function render() {
+    var shown = visible();
+    counts();
+
+    if (!shown.length) {
+      list.innerHTML = '';
+      allEl.checked = false;
+      say('No applications match this view.');
+      updateBulk();
+      return;
+    }
+    say('');
+
+    list.innerHTML = shown.map(function (a) {
+      var cls = a.active_now ? 'live' : (a.status === 'pending' ? 'pending' : 'dead');
+      var label = a.active_now ? 'active' : String(a.live_reason || a.status).replace(/^beta-/, '');
+      var id = esc(a.user_id);
+      var checked = selected[a.user_id] ? ' checked' : '';
+
+      return '' +
+        '<div class="row' + (selected[a.user_id] ? ' sel' : '') + '" data-row="' + id + '">' +
+          '<input type="checkbox" data-sel="' + id + '"' + checked + ' aria-label="Select ' + esc(a.email) + '">' +
+          '<div class="who">' +
+            '<div class="email"><span class="tag ' + cls + '">' + esc(label) + '</span>' + esc(a.email) + '</div>' +
+            '<div class="meta">' +
+              'applied ' + esc(when(a.applied_at)) +
+              (a.approved_at ? ' · approved ' + esc(when(a.approved_at)) : '') +
+              (a.expires_at ? ' · expires ' + esc(when(a.expires_at)) : '') +
+            '</div>' +
+            fieldsHtml(a) +
+            grantHtml(a) +
+          '</div>' +
+          '<div class="acts">' +
+            '<button data-act="approve" data-id="' + id + '">' +
+              (a.status === 'approved' ? 'Re-approve' : 'Approve') +
+            '</button>' +
+            (a.status === 'approved'
+              ? '<button class="ghost" data-act="revoke" data-id="' + id + '">Revoke</button>'
+              : '') +
+          '</div>' +
+        '</div>';
+    }).join('');
+
+    allEl.checked = shown.every(function (a) { return selected[a.user_id]; });
+    updateBulk();
+  }
+
+  function updateBulk() {
+    var n = Object.keys(selected).length;
+    bulkN.textContent = n;
+    bulk.classList.toggle('show', n > 0);
+  }
+
+  // ── Network ──────────────────────────────────────────────────────────────
 
   async function token() {
     if (!client) return '';
@@ -217,60 +572,50 @@
     return { status: r.status, body: body };
   }
 
-  function render(rows) {
-    if (!rows.length) {
-      list.innerHTML = '';
-      say('No applications' + (filter ? ' with status “' + filter + '”' : '') + ' yet.');
-      return;
-    }
-    say('');
-    list.innerHTML = rows.map(function (a) {
-      var cls = a.active_now ? 'live' : (a.status === 'pending' ? 'pending' : 'dead');
-      var label = a.active_now ? 'active' : a.live_reason.replace(/^beta-/, '');
-      return '' +
-        '<div class="row">' +
-          '<div class="who">' +
-            '<div class="email"><span class="tag ' + cls + '">' + esc(label) + '</span>' + esc(a.email) + '</div>' +
-            '<div class="meta">' +
-              'applied ' + esc(when(a.applied_at)) +
-              (a.approved_at ? ' · approved ' + esc(when(a.approved_at)) : '') +
-              (a.expires_at ? ' · expires ' + esc(when(a.expires_at)) : '') +
-              ' · reports ' + esc(a.reports_used) + '/' + esc(a.reports_limit) +
-            '</div>' +
-            (a.note ? '<div class="note">' + esc(a.note) + '</div>' : '') +
-          '</div>' +
-          '<div class="acts">' +
-            '<button data-act="approve" data-id="' + esc(a.user_id) + '">' +
-              (a.status === 'approved' ? 'Re-approve' : 'Approve') +
-            '</button>' +
-            (a.status === 'approved'
-              ? '<button class="ghost" data-act="revoke" data-id="' + esc(a.user_id) + '">Revoke</button>'
-              : '') +
-          '</div>' +
-        '</div>';
-    }).join('');
-  }
-
   async function load() {
     say('Loading…');
-    var r = await call('/api/admin-beta?status=' + encodeURIComponent(filter));
+    // Fetch every row once; all filtering happens in the browser so the tab
+    // counts are real rather than "however many the current filter returned".
+    var r = await call('/api/admin-beta?limit=500');
     if (r.status === 401) { say('Sign in with your admin account first — open /login, then come back.', true); return; }
     // 404 is what a non-admin sees; the endpoint deliberately does not confirm it exists.
     if (r.status === 404) { say('This account is not an admin.', true); return; }
     if (r.status !== 200 || !r.body) { say('Could not load applications.', true); return; }
-    render(r.body.applications || []);
+    rows = r.body.applications || [];
+    // Drop selections for rows that no longer exist.
+    Object.keys(selected).forEach(function (id) {
+      if (!rows.some(function (a) { return a.user_id === id; })) delete selected[id];
+    });
+    render();
   }
+
+  async function act(userId, action) {
+    return call('/api/admin-beta', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: userId, action: action })
+    });
+  }
+
+  // ── Events ───────────────────────────────────────────────────────────────
+
+  list.addEventListener('change', function (e) {
+    var box = e.target.closest('input[data-sel]');
+    if (!box) return;
+    var id = box.getAttribute('data-sel');
+    if (box.checked) selected[id] = true; else delete selected[id];
+    var row = list.querySelector('[data-row="' + CSS.escape(id) + '"]');
+    if (row) row.classList.toggle('sel', box.checked);
+    allEl.checked = visible().every(function (a) { return selected[a.user_id]; });
+    updateBulk();
+  });
 
   list.addEventListener('click', async function (e) {
     var btn = e.target.closest('button[data-act]');
     if (!btn) return;
-    var act = btn.getAttribute('data-act');
-    if (act === 'revoke' && !confirm('Revoke beta access for this account? It stops immediately.')) return;
+    var action = btn.getAttribute('data-act');
+    if (action === 'revoke' && !confirm('Revoke beta access for this account? It stops immediately.')) return;
     btn.disabled = true;
-    var r = await call('/api/admin-beta', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: btn.getAttribute('data-id'), action: act })
-    });
+    var r = await act(btn.getAttribute('data-id'), action);
     if (r.status !== 200) {
       say((r.body && r.body.error) || 'That did not work.', true);
       btn.disabled = false;
@@ -279,6 +624,47 @@
     load();
   });
 
+  allEl.addEventListener('change', function () {
+    var shown = visible();
+    shown.forEach(function (a) {
+      if (allEl.checked) selected[a.user_id] = true; else delete selected[a.user_id];
+    });
+    render();
+  });
+
+  document.getElementById('clearsel').addEventListener('click', function () {
+    selected = Object.create(null);
+    render();
+  });
+
+  document.getElementById('bulkapprove').addEventListener('click', async function () {
+    var ids = Object.keys(selected);
+    if (!ids.length) return;
+    // Bulk approval hands out product access, so it always confirms with a count
+    // — re-approving an active grant silently restarts its window.
+    if (!confirm('Approve ' + ids.length + ' application' + (ids.length === 1 ? '' : 's') +
+      '? Each gets 7 days / 7 reports starting now.')) return;
+
+    var btn = this;
+    btn.disabled = true;
+    var done = 0, failed = 0;
+    for (var i = 0; i < ids.length; i++) {
+      var r = await act(ids[i], 'approve');
+      if (r.status === 200) done++; else failed++;
+      btn.textContent = 'Approving… ' + (done + failed) + '/' + ids.length;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Approve selected';
+    selected = Object.create(null);
+    await load();
+    if (failed) say(done + ' approved, ' + failed + ' failed.', true);
+  });
+
+  document.getElementById('refresh').addEventListener('click', load);
+
+  qEl.addEventListener('input', render);
+  sortEl.addEventListener('change', render);
+
   Array.prototype.forEach.call(document.querySelectorAll('.bar button[data-filter]'), function (b) {
     b.addEventListener('click', function () {
       Array.prototype.forEach.call(document.querySelectorAll('.bar button[data-filter]'), function (o) {
@@ -286,7 +672,7 @@
       });
       b.classList.add('on');
       filter = b.getAttribute('data-filter');
-      load();
+      render();
     });
   });
 

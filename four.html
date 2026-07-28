@@ -67,6 +67,18 @@
       </span>
       <span>GrowthKit AI</span>
     </a>
+    <!-- The same nav grid every public subpage carries, verbatim. /four had no
+         route back into the site at all — login/signup/reset at least have a
+         "← Back to site" link, this page had only the logo. Stays visible in
+         workspace mode; hidden under 720px like the public topbars. If the
+         canonical grid changes, change it here too (see docs/pages.md). -->
+    <nav class="nav-links">
+      <a href="/#engine">Product</a>
+      <a href="/#process">How it works</a>
+      <a href="/methodology">Methodology</a>
+      <a href="/beta" class="nav-beta"><span class="live" aria-hidden="true"></span>Beta</a>
+      <a href="/contact">Contact</a>
+    </nav>
     <div class="auth-top-end">
       <span class="four-user"><span class="dot" aria-hidden="true"></span><span data-auth-email>…</span></span>
       <button class="four-signout" type="button" data-auth-signout>Sign out</button>
@@ -240,18 +252,39 @@
         </div>
       </section>
 
-      <!-- A sample deliverable — scroll through the real specimen. Lives in the
-           Deliverable pane as the empty state; product.js hides it once a real
-           report is on the page. -->
+      <!-- A sample deliverable. Lives in the Deliverable pane as the empty state;
+           product.js hides it once a real report is on the page.
+
+           This used to be an always-on 560px <iframe src="/specimen">. Two
+           problems: it loaded the specimen WITHOUT ?embed=1, so the specimen's
+           own topbar rendered inside the frame (a second Log in / Join waitlist,
+           wrapping badly at 900px), and a scrollable page inside a short box
+           captures the wheel — the outer page stopped dead mid-scroll. It is now
+           a card that opens the specimen full-screen, where scrolling it is the
+           point. The overlay's iframe carries no src until first open, so the
+           second page load only happens on request. -->
       <section class="four-specimen" id="four-specimen" data-specimen>
         <div class="four-eyebrow"><span class="num">/</span>A sample deliverable</div>
         <h2>This is what <em>you'll</em> get.</h2>
+<<<<<<< HEAD
         <p class="four-specimen-sub">A real GrowthKit deliverable, market map, competitor teardown, gap analysis and a 90-day plan. Scroll through it.</p>
         <div class="four-specimen-frame">
           <iframe src="/specimen" title="Sample GrowthKit deliverable, scroll to preview" loading="lazy"></iframe>
           <div class="four-specimen-fade" aria-hidden="true"></div>
+=======
+        <p class="four-specimen-sub">A real GrowthKit deliverable — market map, competitor teardown, gap analysis and a 90-day plan.</p>
+        <div class="four-specimen-card">
+          <div class="four-specimen-meta">
+            <span class="four-specimen-tag">Specimen №02</span>
+            <h3>physIQal <em>performance</em></h3>
+            <p>18 sections — positioning scatter, TAM/SAM/SOM, competitor teardown, gap analysis and a 14-play 90-day plan.</p>
+          </div>
+          <div class="four-specimen-actions">
+            <button type="button" class="four-specimen-btn" data-specimen-open>Preview the deliverable</button>
+            <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open in a new tab →</a>
+          </div>
+>>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
         </div>
-        <a class="four-specimen-open" href="/specimen" target="_blank" rel="noopener">Open the full specimen →</a>
       </section>
 
       </div><!-- /pane: deliverable -->
@@ -397,6 +430,23 @@
 
   </div>
 </main>
+
+<!-- Specimen overlay. Sits outside <main> so no ancestor transform/filter can
+     break its position:fixed, and so pane switching can't hide it. src is set
+     by product.js on first open (?embed=1 hides the specimen's own topbar). -->
+<div class="four-specimen-overlay" data-specimen-overlay hidden>
+  <div class="four-specimen-backdrop" data-specimen-dismiss></div>
+  <div class="four-specimen-modal" role="dialog" aria-modal="true" aria-label="Sample GrowthKit deliverable — physIQal performance">
+    <header class="four-specimen-bar">
+      <span class="four-specimen-bartitle"><span class="num">/</span>Specimen №02 — physIQal performance</span>
+      <span class="four-specimen-baractions">
+        <a href="/specimen" target="_blank" rel="noopener">Open in a new tab →</a>
+        <button type="button" class="four-specimen-close" data-specimen-dismiss aria-label="Close the specimen preview">✕</button>
+      </span>
+    </header>
+    <iframe title="Sample GrowthKit deliverable — physIQal performance" data-specimen-frame></iframe>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth-config.js"></script>

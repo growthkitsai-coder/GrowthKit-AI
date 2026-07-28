@@ -130,5 +130,11 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  window.GKBilling = { checkout: checkout, portal: portal };
+  // `wire` is exported because anything rendered AFTER init() — the beta card in
+  // product.js is the live example — never gets bound otherwise: init() sweeps
+  // the document once, at load. product.js has always called GKBilling.wire(),
+  // but it was not on this object, so an `&&` guard swallowed the call and the
+  // "Upgrade to Pro" button on /four silently did nothing. Re-wiring is safe:
+  // `wire` marks each element with `__gkw` and skips anything already bound.
+  window.GKBilling = { checkout: checkout, portal: portal, wire: wire };
 })();

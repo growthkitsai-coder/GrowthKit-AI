@@ -23,7 +23,9 @@
     { "source": "/login.html", "destination": "/login", "permanent": true },
     { "source": "/signup.html", "destination": "/signup", "permanent": true },
     { "source": "/reset.html", "destination": "/reset", "permanent": true },
-    { "source": "/four.html", "destination": "/four", "permanent": true }
+    { "source": "/four.html", "destination": "/four", "permanent": true },
+    { "source": "/beta.html", "destination": "/beta", "permanent": true },
+    { "source": "/admin.html", "destination": "/admin", "permanent": true }
   ],
   "rewrites": [
     { "source": "/privacy", "destination": "/privacy.html" },
@@ -43,7 +45,9 @@
     { "source": "/login", "destination": "/login.html" },
     { "source": "/signup", "destination": "/signup.html" },
     { "source": "/reset", "destination": "/reset.html" },
-    { "source": "/four", "destination": "/four.html" }
+    { "source": "/four", "destination": "/four.html" },
+    { "source": "/beta", "destination": "/beta.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ],
   "functions": {
     "api/advise.js": { "maxDuration": 60 },
@@ -58,6 +62,12 @@
     },
     {
       "source": "/deliverables/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/admin(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]

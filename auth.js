@@ -9,14 +9,44 @@
               in; reveals the tool + the user's saved read history when signed in.
    OAuth buttons use data-auth-oauth="google|azure". Setup + provider steps and
    the `reads` table SQL are in docs/auth.md.
+
+   ?next=/path sends the user back where they came from after an email/password
+   sign-in (used by /beta). OAuth and email-confirmation links ignore it — those
+   URLs must be registered in Supabase's redirect allowlist. See safeNext().
    ────────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
 
   var cfg = window.GK_AUTH_CONFIG || {};
   var lib = window.supabase;
-  var REDIRECT = cfg.REDIRECT_AFTER_LOGIN || '/four';
+  var HOME = cfg.REDIRECT_AFTER_LOGIN || '/four';
   var origin = location.origin;
+
+  /**
+   * Where to land after signing in. Pages that need the user to come BACK to
+   * them (e.g. /beta's "create a free account to apply") link to
+   * /login?next=%2Fbeta — without this the visitor was silently dumped on /four.
+   *
+   * Only same-origin ROOT-RELATIVE paths are honoured. A bare "/" prefix is not
+   * enough on its own: "//evil.com" is protocol-relative and "/\evil.com" is
+   * normalised to the same thing by several browsers, so both are rejected.
+   * Anything that fails the test falls back to HOME rather than erroring.
+   */
+  function safeNext() {
+    try {
+      var raw = new URLSearchParams(location.search).get('next');
+      if (!raw) return '';
+      if (raw.charAt(0) !== '/') return '';
+      if (raw.charAt(1) === '/' || raw.charAt(1) === '\\') return '';
+      if (raw.length > 512) return '';
+      return raw;
+    } catch (e) { return ''; }
+  }
+
+  // In-page redirect target (honours ?next=). NOT used for OAuth redirectTo or
+  // emailRedirectTo — those URLs must appear in Supabase's allowed redirect
+  // list, so they stay pinned to the configured default.
+  var REDIRECT = safeNext() || HOME;
   var configured = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && lib && lib.createClient);
 
   // "Remember me": localStorage (persist) vs sessionStorage (until close).
@@ -53,7 +83,7 @@
       btn.addEventListener('click', function () {
         if (!configured) return notConfigured();
         clearAlert(); busy(btn, true, 'Redirecting…');
-        var opts = { redirectTo: origin + REDIRECT };
+        var opts = { redirectTo: origin + HOME };
         if (provider === 'azure') opts.scopes = 'email openid profile';
         client.auth.signInWithOAuth({ provider: provider, options: opts })
           .then(function (r) { if (r && r.error) { showAlert(r.error.message, 'error'); busy(btn, false); } });
@@ -91,7 +121,7 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showAlert('Enter a valid email address.', 'error');
       if (password.length < 8) return showAlert('Use a password of at least 8 characters.', 'error');
       var btn = $('.auth-submit', form); busy(btn, true, 'Creating account…');
-      client.auth.signUp({ email: email, password: password, options: { emailRedirectTo: origin + REDIRECT } }).then(function (r) {
+      client.auth.signUp({ email: email, password: password, options: { emailRedirectTo: origin + HOME } }).then(function (r) {
         if (r.error) { showAlert(friendly(r.error), 'error'); busy(btn, false); return; }
         if (r.data && r.data.session) { location.href = REDIRECT; return; }
         form.style.display = 'none';
