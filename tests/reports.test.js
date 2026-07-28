@@ -112,7 +112,7 @@ test('a recent in-progress report is resumed, not duplicated', async function ()
   assert.equal(posted, false); // no new row created
 });
 
-test('resuming is allowed even with the window spent — it was never charged', async function () {
+test('resuming is allowed even with the window spent, it was never charged', async function () {
   reset();
   global.fetch = async function (url) {
     if (String(url).indexOf('/reports?') !== -1) {
