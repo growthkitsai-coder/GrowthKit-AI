@@ -61,7 +61,7 @@ module.exports = async function handler(req, res) {
   // meaningless — checkAccess prefers the subscription anyway.
   const access = await checkAccess(user);
   if (access.allowed && access.reason === 'subscription') {
-    res.status(409).json({ error: 'You already have a paid subscription — the beta is for accounts without one.' });
+    res.status(409).json({ error: 'You already have a paid subscription, the beta is for accounts without one.' });
     return;
   }
 
