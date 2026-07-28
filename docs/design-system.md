@@ -31,7 +31,7 @@ Neon tokens (defined in `theme.css` dark block):
 
 ## Copy voice
 
-Confident, operator-grade, no fluff. Em-dashes for asides. Italic `<em>` inside headings is *the* signature pattern — "Markets, <em>dissected</em>", "Talk to a <em>founder</em>, not a form". Avoid corporate-speak. "A founder, not a form, will reply" recurs.
+Confident, operator-grade, no fluff. **No em dashes (rule changed 2026-07-28, Avi's call; they were the old house style for asides).** Every em dash has been stripped from site copy: page text, attribute copy (`title`, `alt`, `aria-label`, `content`), JSON-LD strings, `<title>` tags, and user-facing strings in `product.js` / `advisor.js` / `auth.js` / `billing.js` / `admin.html` / the `api/` + `lib/` error messages. Recast asides as commas, colons, or two sentences; definition-style list items (`<b>Market map</b>: every player positioned`) take a colon; titles use ` · ` (`Pricing · GrowthKit AI`). **Code comments were left alone** (not copy), and a lone `—` used as a *symbol* stays: empty comparison-table cells in `/specimen` and the demo deliverable, unset meter values in `/four`, the `/status` `— : —` stamp, `deliverables/template.html` placeholders. Italic `<em>` inside headings is *the* signature pattern — "Markets, <em>dissected</em>", "Talk to a <em>founder</em>, not a form". Avoid corporate-speak. "A founder, not a form, will reply" recurs.
 
 ## Neon-console architecture
 
