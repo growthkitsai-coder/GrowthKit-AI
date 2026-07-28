@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" sizes="256x256" href="/logo-mark-256.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png">
 <link rel="apple-touch-icon" sizes="512x512" href="/logo-mark-512.png">
-<title>Security — GrowthKit AI</title>
+<title>Security · GrowthKit AI</title>
 <meta name="description" content="How GrowthKit AI protects founder data: minimal collection, encryption in transit, a deliberately small attack surface, and a straight answer about what we don't claim yet.">
 <meta name="theme-color" content="#1F4732">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
@@ -17,18 +17,18 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GrowthKit AI">
-<meta property="og:title" content="Security — GrowthKit AI">
-<meta property="og:description" content="Minimal collection, encryption in transit, a deliberately small attack surface — and a straight answer about what we don't claim yet.">
+<meta property="og:title" content="Security · GrowthKit AI">
+<meta property="og:description" content="Minimal collection, encryption in transit, a deliberately small attack surface, and a straight answer about what we don't claim yet.">
 <meta property="og:url" content="https://growthkitai.com/security">
 <meta property="og:image" content="https://growthkitai.com/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="GrowthKit AI — Markets, dissected — not guessed.">
+<meta property="og:image:alt" content="GrowthKit AI · Markets, dissected, not guessed.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Security — GrowthKit AI">
+<meta name="twitter:title" content="Security · GrowthKit AI">
 <meta name="twitter:description" content="How GrowthKit AI protects founder data.">
 <meta name="twitter:image" content="https://growthkitai.com/og-card.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://growthkitai.com/security#webpage","url":"https://growthkitai.com/security","name":"Security — GrowthKit AI","isPartOf":{"@id":"https://growthkitai.com/#site"},"inLanguage":"en","description":"How GrowthKit AI protects founder data.","breadcrumb":{"@id":"https://growthkitai.com/security#breadcrumb"}},{"@type":"BreadcrumbList","@id":"https://growthkitai.com/security#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://growthkitai.com/"},{"@type":"ListItem","position":2,"name":"Security","item":"https://growthkitai.com/security"}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://growthkitai.com/security#webpage","url":"https://growthkitai.com/security","name":"Security · GrowthKit AI","isPartOf":{"@id":"https://growthkitai.com/#site"},"inLanguage":"en","description":"How GrowthKit AI protects founder data.","breadcrumb":{"@id":"https://growthkitai.com/security#breadcrumb"}},{"@type":"BreadcrumbList","@id":"https://growthkitai.com/security#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://growthkitai.com/"},{"@type":"ListItem","position":2,"name":"Security","item":"https://growthkitai.com/security"}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
@@ -761,7 +761,7 @@
         <div class="eyebrow"><span class="num">/</span>Security</div>
         <h1>Security by <em>subtraction</em>.</h1>
         <p class="lede">
-          Founders hand us strategy-sensitive context — what you're building, where you're weak, which market you're about to attack. The fastest way to protect data is to hold less of it, on fewer systems, with fewer hands. That's the whole architecture. Here's how it works in practice.
+          Founders hand us strategy-sensitive context, what you're building, where you're weak, which market you're about to attack. The fastest way to protect data is to hold less of it, on fewer systems, with fewer hands. That's the whole architecture. Here's how it works in practice.
         </p>
       </div>
     </div>
@@ -776,31 +776,31 @@
           <h2>Four rules we <em>don't</em> bend.</h2>
         </div>
         <p class="lede reveal">
-          No security page survives contact with a clever attacker — posture does. These four rules decide every infrastructure choice we make, including the boring ones.
+          No security page survives contact with a clever attacker, posture does. These four rules decide every infrastructure choice we make, including the boring ones.
         </p>
       </div>
 
       <div class="posture-grid stagger">
         <div class="posture-card reveal">
-          <div class="label">01 — Minimal collection</div>
+          <div class="label">01, Minimal collection</div>
           <h3>We collect the <em>minimum</em>.</h3>
           <p>The public waitlist asks for a name, a work email, and whether you want updates. The signed-in product stores the company context, reports, briefs, and checklist progress needed to provide it. No phone numbers, no hidden enrichment, and nothing is collected silently.</p>
         </div>
 
         <div class="posture-card reveal">
-          <div class="label">02 — Encryption in transit</div>
+          <div class="label">02, Encryption in transit</div>
           <h3>Everything travels <em>encrypted</em>.</h3>
-          <p>The site is HTTPS-only with HSTS preload — browsers refuse to ever load it insecurely. Form submissions travel over TLS end to end. There is no HTTP fallback, no mixed content, no exceptions.</p>
+          <p>The site is HTTPS-only with HSTS preload, browsers refuse to ever load it insecurely. Form submissions travel over TLS end to end. There is no HTTP fallback, no mixed content, no exceptions.</p>
         </div>
 
         <div class="posture-card reveal">
-          <div class="label">03 — Small vendor surface</div>
+          <div class="label">03, Small vendor surface</div>
           <h3>Few vendors, <em>named</em> ones.</h3>
           <p>Vercel hosts the site and functions. Supabase runs login and stores account, report, checklist, and encrypted integration data. Stripe processes subscriptions and can provide connected account metrics; Google Analytics and LinkedIn can provide connected metrics. Anthropic processes report inputs and connected summaries. Google Workspace holds mail and waitlist data; fonts and scripts load from Google Fonts and jsDelivr.</p>
         </div>
 
         <div class="posture-card reveal">
-          <div class="label">04 — Founder-only access</div>
+          <div class="label">04, Founder-only access</div>
           <h3>Access stops at the <em>founding team</em>.</h3>
           <p>Customer data is accessible to the founding team only, behind multi-factor authentication. No contractors with standing access, no shared logins, no analytics vendor with a copy of your brief.</p>
         </div>
@@ -825,14 +825,14 @@
         <div class="arch-copy reveal">
           <p><strong>Managed identity and storage.</strong> Supabase manages account authentication and the Postgres database. Row-level security limits browser reads to the signed-in owner; server writes use a service credential that is never exposed to the browser.</p>
           <p><strong>Encrypted connected credentials.</strong> OAuth access and refresh tokens are encrypted with AES-256-GCM before database storage. The browser receives connection status and selected account metadata, never token ciphertext or server secrets.</p>
-          <p><strong>Payments handled by Stripe.</strong> We never see or store card numbers. Subscription payments run through Stripe, a PCI-DSS Level 1 processor — your card details go to Stripe, never to us. We store only your subscription status (which plan, and whether it's active).</p>
+          <p><strong>Payments handled by Stripe.</strong> We never see or store card numbers. Subscription payments run through Stripe, a PCI-DSS Level 1 processor, your card details go to Stripe, never to us. We store only your subscription status (which plan, and whether it's active).</p>
           <p><strong>Minimal browser storage.</strong> The browser stores the theme preference and the Supabase session needed to keep you signed in. Product data is fetched only after authentication.</p>
           <p class="note">Check our homework: run <code>curl -I https://growthkitai.com</code> and compare against the readout.</p>
         </div>
 
         <div class="term reveal" style="--reveal-delay: 150ms;">
           <div class="term-head">
-            <span><span class="num">/</span>response headers — live config</span>
+            <span><span class="num">/</span>response headers, live config</span>
             <span>vercel edge</span>
           </div>
           <div class="term-body">
@@ -858,15 +858,15 @@
           <h2>Every byte we hold, <em>itemised</em>.</h2>
         </div>
         <p class="lede reveal">
-          This is the complete list. If a category isn't here, we don't have it. Deletion is one email away — see our <a href="/privacy" style="text-decoration: underline;">privacy policy</a> for the formal version.
+          This is the complete list. If a category isn't here, we don't have it. Deletion is one email away, see our <a href="/privacy" style="text-decoration: underline;">privacy policy</a> for the formal version.
         </p>
       </div>
 
       <div class="inv-list">
         <div class="inv-row reveal">
           <div class="what">Waitlist <em>signups</em><small>name · work email · updates pref</small></div>
-          <p><span class="k">Where it lives</span>An access-controlled Google Workspace spreadsheet — the single system of record. No copies on the web host, in the codebase, or anywhere else.</p>
-          <p><span class="k">How long</span>Until launch communications wrap up, or until you ask us to remove you — whichever comes first.</p>
+          <p><span class="k">Where it lives</span>An access-controlled Google Workspace spreadsheet, the single system of record. No copies on the web host, in the codebase, or anywhere else.</p>
+          <p><span class="k">How long</span>Until launch communications wrap up, or until you ask us to remove you, whichever comes first.</p>
         </div>
 
         <div class="inv-row reveal">
@@ -889,7 +889,7 @@
 
         <div class="inv-row reveal">
           <div class="what">Site <em>analytics</em><small>aggregate only</small></div>
-          <p><span class="k">Where it lives</span>Vercel Web Analytics — page views, referrers, and configured product events. No ad pixels or cross-site advertising profiles.</p>
+          <p><span class="k">Where it lives</span>Vercel Web Analytics, page views, referrers, and configured product events. No ad pixels or cross-site advertising profiles.</p>
           <p><span class="k">How long</span>Per Vercel's retention. It contains nothing that identifies you personally.</p>
         </div>
       </div>
@@ -902,7 +902,7 @@
       <div class="disc-grid">
         <div class="disc-side reveal">
           <div class="eyebrow"><span class="num">04</span>Found something?</div>
-          <h2>Tell us. We'll act like it <em>matters</em> — because it does.</h2>
+          <h2>Tell us. We'll act like it <em>matters</em>, because it does.</h2>
           <p>
             Good-faith security research is welcome. Don't access data that isn't yours, don't degrade the service for others, and give us reasonable time to fix what you find before going public. Do that, and we'll work with you, not against you.
           </p>
@@ -910,22 +910,22 @@
 
         <div class="disc-steps stagger">
           <a class="disc-step is-link reveal" href="mailto:info@growthkitai.com?subject=Security%20%E2%80%94%20GrowthKit%20AI">
-            <div class="label">01 — Report</div>
+            <div class="label">01, Report</div>
             <h3>Email the <em>founders</em> directly.</h3>
-            <p class="target">info@growthkitai.com · subject: "Security — GrowthKit AI"</p>
-            <p>Include what you found, where, and how to reproduce it. Screenshots and request traces help. The report goes straight to the people who can fix it — there is no triage queue.</p>
+            <p class="target">info@growthkitai.com · subject: "Security · GrowthKit AI"</p>
+            <p>Include what you found, where, and how to reproduce it. Screenshots and request traces help. The report goes straight to the people who can fix it, there is no triage queue.</p>
           </a>
 
           <div class="disc-step reveal">
-            <div class="label">02 — Acknowledgement</div>
+            <div class="label">02, Acknowledgement</div>
             <h3>A reply within <em>two business days</em>.</h3>
-            <p>You'll hear back from a founder — not an autoresponder — with our read on severity and what happens next. We'll keep you posted through the fix.</p>
+            <p>You'll hear back from a founder, not an autoresponder, with our read on severity and what happens next. We'll keep you posted through the fix.</p>
           </div>
 
           <div class="disc-step reveal">
-            <div class="label">03 — Credit</div>
+            <div class="label">03, Credit</div>
             <h3>No bounty yet. <em>Credit</em>, always.</h3>
-            <p>We're a private beta and don't run a paid bounty program yet. Valid reports get a named thank-you here on this page (if you want one) and our genuine gratitude — which, at this stage, includes the founders owing you a drink.</p>
+            <p>We're a private beta and don't run a paid bounty program yet. Valid reports get a named thank-you here on this page (if you want one) and our genuine gratitude, which, at this stage, includes the founders owing you a drink.</p>
           </div>
         </div>
       </div>
@@ -939,10 +939,10 @@
         <div class="eyebrow"><span class="num">05</span>The fine print, in plain sight</div>
         <h2>What we <em>don't</em> claim.</h2>
         <p>
-          We are not SOC 2 or ISO 27001 certified. Certifications audit organisations at a scale we haven't reached — they're on the roadmap as the product matures, and we'd rather tell you that here than imply otherwise with a wall of badge icons.
+          We are not SOC 2 or ISO 27001 certified. Certifications audit organisations at a scale we haven't reached, they're on the roadmap as the product matures, and we'd rather tell you that here than imply otherwise with a wall of badge icons.
         </p>
         <p>
-          We're also in private beta, which means the engine's infrastructure is still evolving. The commitments on this page are the constants. If your security questionnaire needs more than what's written here, email us — a founder will answer it honestly, including the parts where the honest answer is "not yet."
+          We're also in private beta, which means the engine's infrastructure is still evolving. The commitments on this page are the constants. If your security questionnaire needs more than what's written here, email us, a founder will answer it honestly, including the parts where the honest answer is "not yet."
         </p>
       </div>
     </div>
@@ -954,7 +954,7 @@
       <div class="meta-strip reveal">
         <div class="cell">
           <div class="k">Report a vulnerability</div>
-          <div class="v"><em>info@growthkitai.com</em><small>subject: Security — GrowthKit AI</small></div>
+          <div class="v"><em>info@growthkitai.com</em><small>subject: Security · GrowthKit AI</small></div>
         </div>
         <div class="cell">
           <div class="k">Acknowledgement</div>
