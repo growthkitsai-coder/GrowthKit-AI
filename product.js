@@ -526,11 +526,13 @@
       return url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(s.title || url) + ' ↗</a>' : '';
     }).join('');
 
-    host.innerHTML = '<div class="daily-brief-meta"><span>' + esc(row.brief_date || b.brief_date) + ' · UTC' + (company ? ' · ' + esc(company) : '') + '</span><span class="daily-signal ' + (noChange ? 'is-quiet' : '') + '">' + (noChange ? 'No material change today' : 'Material change detected') + '</span></div>' +
-      '<h3>' + esc(lead.headline || (noChange ? 'No material change today' : 'Today’s market signal')) + '</h3>' +
+    // Quiet day: draw no status chip and no filler headline at all — never the
+    // words "no material change". Blank beats telling a founder nothing moved.
+    host.innerHTML = '<div class="daily-brief-meta"><span>' + esc(row.brief_date || b.brief_date) + ' · UTC' + (company ? ' · ' + esc(company) : '') + '</span>' + (noChange ? '' : '<span class="daily-signal">Material change detected</span>') + '</div>' +
+      '<h3>' + esc(lead.headline || (noChange ? '' : 'Today’s market signal')) + '</h3>' +
       '<p class="daily-lead">' + esc(lead.detail) + '</p>' +
       '<p class="daily-why">' + esc(lead.why_it_matters) + '</p>' +
-      '<details><summary>See the full 30-second update</summary>' +
+      '<details class="daily-full"><summary class="daily-full-cta">See the full 30-second update</summary>' +
         (movement ? '<div class="daily-section"><h4>Market & competitor movement</h4><ul>' + movement + '</ul></div>' : '') +
         (metrics ? '<div class="daily-section"><h4>Your metrics</h4><ul class="daily-metrics">' + metrics + '</ul></div>' : '') +
         (signals ? '<div class="daily-section"><h4>Market signals</h4><ul>' + signals + '</ul></div>' : '') +
