@@ -14,7 +14,7 @@ Access to paid product capabilities is decided by `checkAccess()` in [`lib/subsc
 
 Everything else is the **Free** tier and fails closed with **402** `{ code: "subscription_required" }` on generation, daily-intelligence, and integration endpoints. Free users may save onboarding, see the locked dashboard preview/specimen, and **apply for the beta**. `GK_BETA_EXPIRES_AT` optionally sets a global ISO-8601 cutoff ending every grant at once; invalid or elapsed values fail closed. **To halt all beta access immediately:** set `GK_BETA_ENABLED=0` and redeploy. Paid subscriptions continue to work.
 
-`GK_BETA_EMAILS` is the fixed invited-cohort compatibility path; the `beta_applications` workflow is the auditable, revocable 7-day/7-report path for new applicants. `GK_BETA_OPEN` remains removed. See [`beta.md`](beta.md).
+`GK_BETA_EMAILS` is the fixed invited-cohort compatibility path; the `beta_applications` workflow is the auditable, revocable 7-day/7-report path for new applicants. **`GK_BETA_OPEN` is NOT removed** — this line said it was until 2026-07-27 and was wrong. `=1` lets every signed-in account through with no application at all. See [`beta.md`](beta.md).
 
 Beta grants report as plan `pro` with a beta reason; beta is not a fourth tier. Pro, Agentic, and beta accounts share the same current product limits: **2 full reports per rolling 7 days** on any company, plus **1 short daily update per UTC day**. When access ends, completed reports and past updates remain readable through authenticated GET/report history, but report generation/retries, daily updates, and integrations stop. See [`daily-intelligence.md`](daily-intelligence.md).
 
@@ -79,7 +79,7 @@ The `service_role` key bypasses RLS, so the webhook can upsert any user's row wi
 | `SITE_URL` | Prod | optional canonical origin for redirects (else derived from Host) |
 | `GK_ADMIN_USER_IDS` | Prod | **NEW** — Supabase user ids allowed to approve beta applications. Unset = nobody is an admin. See [`beta.md`](beta.md) |
 | `GK_BETA_ENABLED` | Prod | `0` immediately disables all beta access regardless of approvals |
-| ~~`GK_BETA_OPEN`~~ | — | **Removed 2026-07-24** — no longer read by any code |
+| `GK_BETA_OPEN` | Prod | **⚠ Still read** (`lib/subscriptions.js:242`). `=1` grants every signed-in account Pro-equivalent access, bypassing the application/approval flow entirely. Removed 2026-07-24, restored 2026-07-26. |
 | `GK_BETA_EMAILS` | Prod | Private fixed-cohort allowlist; exact normalized verified-email matching; grants unrestricted Pro-equivalent beta access |
 | `GK_BETA_EXPIRES_AT` | Prod | optional ISO-8601 cutoff for all beta grants; invalid/past values fail closed |
 
