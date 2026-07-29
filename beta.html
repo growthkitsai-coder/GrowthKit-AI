@@ -1291,13 +1291,26 @@
   }
 
   function stateAlreadyIn(reason) {
-    chip(reason === 'subscription' ? 'pro active' : 'access active');
-    var what = reason === 'subscription' ? 'a paid Pro subscription' : 'full access on this account';
+    var what, chipText;
+    if (reason === 'subscription') {
+      chipText = 'pro active';
+      what = 'a paid Pro subscription';
+    } else if (reason === 'beta-open') {
+      // GK_BETA_OPEN=1 — the beta is open to every signed-in account, so there
+      // is genuinely nothing to apply for. Say so plainly rather than showing a
+      // form that would do nothing.
+      chipText = 'beta open';
+      what = 'access already — the beta is open to every account right now';
+    } else {
+      chipText = 'access active';
+      what = 'full access on this account';
+    }
+    chip(chipText);
     body.innerHTML =
       '<div class="state">' +
         '<span class="state-mark" aria-hidden="true">/</span>' +
         '<h3>You already have <em>the product</em>.</h3>' +
-        '<p>This account has ' + esc(what) + ', so there is nothing to apply for — the beta is the smaller deal.</p>' +
+        '<p>This account has ' + esc(what) + ', so there is nothing to apply for.</p>' +
         '<div class="actions"><a href="/four" class="btn-primary">Open your workspace <span class="arr">&rarr;</span></a></div>' +
       '</div>';
   }
@@ -1390,6 +1403,19 @@
           return r.json().catch(function () { return {}; }).then(function (data) {
             if (r.status === 503) { stateNotConfigured(); return; }
             if (!r.ok) { stateError(data && data.error); return; }
+
+            // Access is checked BEFORE the application row. Subscribers,
+            // privately allowlisted emails, and open-beta accounts have full
+            // access with no row, so the row would report 'beta-not-applied'
+            // and we would offer them a form for something they already have.
+            // 'beta-approved' is excluded — that comes from a row and gets the
+            // grant readout below.
+            var acc = (data && data.access) || {};
+            if (acc.allowed && acc.reason && acc.reason !== 'beta-approved') {
+              track('beta_card_state', { state: acc.reason });
+              stateAlreadyIn(acc.reason);
+              return;
+            }
 
             var b = (data && data.beta) || {};
             // The server's own reason string is the cleanest funnel label there
