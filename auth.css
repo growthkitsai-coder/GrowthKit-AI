@@ -745,7 +745,42 @@ body.is-workspace .plan-pane { max-width: none; margin-top: 0; }
 body.is-workspace .four-billing { justify-content: flex-start; margin: 0 0 26px; }
 body.is-workspace .four-product-status { margin-bottom: 26px; }
 
+/* ── Deliverable + daily rail ──
+   In workspace mode the Deliverable pane splits: the report keeps the weight
+   on the left, the daily update sits in a sticky rail on the right. Pre-report
+   the aside is empty and hidden, so the marketing scroll is untouched. */
+.deliverable-side[hidden] { display: none; }
+body.is-workspace .deliverable-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) 344px; gap: 30px; align-items: start;
+  grid-template-areas: "main side";
+}
+body.is-workspace .deliverable-main { grid-area: main; min-width: 0; }
+body.is-workspace .deliverable-side {
+  grid-area: side; min-width: 0; position: sticky; top: 22px;
+  max-height: calc(100vh - 44px); overflow: auto; overscroll-behavior: contain;
+  padding: 18px 18px 20px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--paper);
+}
+body.is-workspace .deliverable-side .daily-head { display: block; }
+body.is-workspace .deliverable-side .daily-head h2 { font-size: clamp(24px, 3vw, 30px); margin: 6px 0 0; }
+body.is-workspace .deliverable-side .daily-sub { font-size: 12.5px; max-width: none; }
+body.is-workspace .deliverable-side .daily-generate { width: 100%; margin-top: 16px; }
+body.is-workspace .deliverable-side .daily-brief { margin-top: 18px; }
+:root[data-theme="dark"] body.is-workspace .deliverable-side {
+  background: var(--deep-1); border-color: var(--deep-3);
+}
+
+/* Under 1100px the rail stops being a rail: it stacks ABOVE the report, so the
+   update is still the first thing a founder sees. */
+@media (max-width: 1100px) {
+  body.is-workspace .deliverable-grid {
+    grid-template-columns: minmax(0, 1fr); grid-template-areas: "side" "main"; gap: 26px;
+  }
+  body.is-workspace .deliverable-side { position: static; max-height: none; overflow: visible; }
+}
+
 /* ── Daily pane ── */
+.daily-archive[hidden] { display: none; }
+.daily-archive > h2 { margin: 6px 0 0; }
 .daily-sub { margin: 10px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); max-width: 56ch; }
 .daily-generate {
   flex: none; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent); color: var(--bg);
