@@ -55,3 +55,5 @@ Every page duplicates head/topbar/footer by hand, so cross-page consistency drif
 4. `scripts/check-site.mjs` exception lists if it's a special page (no footer / not in sitemap / internal).
 5. Docs: `docs/pages.md` (description) + anything else the page touches, + a memory.md change-log entry.
 6. `node scripts/check-site.mjs` green before commit.
+
+**Pages in subdirectories** (currently only `blog/competitor-analysis.html`, added 2026-07-28): the checker walks the repo **root** only, so a nested page gets no placeholder / SEO-head / footer / internal-link enforcement. Its `vercel.json` rewrite is still validated (the rewrite target must exist on disk), and its sitemap entry still needs the matching rewrite + `.html` redirect pair. Two things to remember by hand: use **root-relative** `/theme.css` and `/theme.js` (root pages link them relatively), and re-copy the topbar/footer into it whenever the shared chrome changes.

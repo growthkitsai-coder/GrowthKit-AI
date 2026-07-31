@@ -322,6 +322,26 @@
 .daily-why { margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
 .daily-brief details { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 18px; }
 .daily-brief summary { cursor: pointer; font: 600 13px 'Inter', sans-serif; color: var(--accent); }
+/* The full-update disclosure is the main action inside a brief — make it read as
+   a glowing green button, not a text link. */
+.daily-brief summary.daily-full-cta {
+  list-style: none; display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 999px; border: 1px solid #14B87A;
+  background: #14B87A; color: #06251A; font-size: 14px; letter-spacing: .01em;
+  box-shadow: 0 0 0 rgba(20, 184, 122, .5); animation: dailyCtaGlow 2.4s ease-in-out infinite;
+  transition: transform .18s ease, background .18s ease;
+}
+.daily-brief summary.daily-full-cta::-webkit-details-marker { display: none; }
+.daily-brief summary.daily-full-cta::after { content: '↓'; font-size: 12px; transition: transform .18s ease; }
+.daily-full[open] > summary.daily-full-cta::after { transform: rotate(180deg); }
+.daily-brief summary.daily-full-cta:hover { background: #17D48C; transform: translateY(-1px); }
+@keyframes dailyCtaGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 122, .45), 0 0 18px rgba(20, 184, 122, .35); }
+  50% { box-shadow: 0 0 0 6px rgba(20, 184, 122, 0), 0 0 30px rgba(20, 184, 122, .6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-brief summary.daily-full-cta { animation: none; box-shadow: 0 0 20px rgba(20, 184, 122, .45); }
+}
 .daily-section { padding: 24px 0; border-bottom: 1px solid var(--line); }
 .daily-section h4, .daily-two-up h4, .daily-sources h4 { margin: 0 0 14px; font: 11px 'JetBrains Mono', monospace; text-transform: uppercase; color: var(--muted); }
 .daily-section ul, .daily-section ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
@@ -420,6 +440,7 @@
 :root[data-theme="dark"] .daily-panel, :root[data-theme="dark"] .integration-card { background: rgba(255,255,255,.02); border-color: var(--deep-3); }
 :root[data-theme="dark"] .daily-head, :root[data-theme="dark"] .daily-section, :root[data-theme="dark"] .daily-brief details { border-color: var(--deep-3); }
 :root[data-theme="dark"] .daily-head h2 em, :root[data-theme="dark"] .integrations-head h2 em, :root[data-theme="dark"] .daily-signal, :root[data-theme="dark"] .daily-section li a, :root[data-theme="dark"] .daily-two-up a, :root[data-theme="dark"] .daily-sources a { color: var(--neon); }
+:root[data-theme="dark"] .daily-brief summary.daily-full-cta { border-color: var(--neon, #2BE38B); background: var(--neon, #2BE38B); color: #04180F; }
 :root[data-theme="dark"] .daily-brief h3, :root[data-theme="dark"] .daily-section li strong, :root[data-theme="dark"] .daily-two-up strong, :root[data-theme="dark"] .integration-title h3 { color: #ECFBF3; }
 :root[data-theme="dark"] .daily-metrics li { background: rgba(62,245,159,.04); }
 :root[data-theme="dark"] .daily-metrics .daily-metric, :root[data-theme="dark"] .daily-priority, :root[data-theme="dark"] .daily-two-up code, :root[data-theme="dark"] .integration-icon, :root[data-theme="dark"] .integration-state.is-connected { color: var(--neon); }

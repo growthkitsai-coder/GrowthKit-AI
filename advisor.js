@@ -61,8 +61,8 @@
     { v: 'other', l: 'Other', d: 'Tell us in a word' }
   ];
   var STAGE_OPTS = [
-    { v: 'idea', l: 'Just an idea', d: 'Pre-build — validating the concept' },
-    { v: 'prelaunch', l: 'Pre-launch', d: 'Still building — not live yet' },
+    { v: 'idea', l: 'Just an idea', d: 'Pre-build, validating the concept' },
+    { v: 'prelaunch', l: 'Pre-launch', d: 'Still building, not live yet' },
     { v: 'early_users', l: 'Pre-revenue, early users', d: 'Live with users, not charging yet' },
     { v: 'early_rev', l: 'Early revenue', d: 'First paying customers' },
     { v: 'growing', l: 'Growing', d: 'Revenue climbing, repeatable' },
@@ -81,7 +81,7 @@
     hardware:    { title: 'How do you sell it?',             opts: [ { v: 'dtc', l: 'Direct-to-consumer' }, { v: 'retail', l: 'Retail / distribution' }, { v: 'b2b', l: 'B2B / wholesale' }, { v: 'hybrid', l: 'Hybrid' }, { v: 'subscription', l: 'Hardware + subscription' }, { v: 'other', l: 'Other' } ] },
     other:       { title: 'How do you make money?',          opts: [ { v: 'sub', l: 'Subscription' }, { v: 'transactional', l: 'Transactional / per-use' }, { v: 'onetime', l: 'One-time sales' }, { v: 'unsure', l: 'Not sure yet' }, { v: 'other', l: 'Other' } ] }
   };
-  var CHANNELS = { title: 'Which channels are you using today?', sub: 'Multi-select — even “nothing yet” is a useful signal.', opts: [
+  var CHANNELS = { title: 'Which channels are you using today?', sub: 'Multi-select, even “nothing yet” is a useful signal.', opts: [
     { v: 'seo', l: 'SEO / content' }, { v: 'paid', l: 'Paid ads' }, { v: 'outbound', l: 'Outbound / sales' }, { v: 'social', l: 'Social / community' },
     { v: 'referral', l: 'Referrals / word of mouth' }, { v: 'partner', l: 'Partnerships' }, { v: 'marketplace', l: 'Marketplaces / app stores' }, { v: 'email', l: 'Email / lifecycle' },
     { v: 'events', l: 'Events / webinars' }, { v: 'influencer', l: 'Influencers / creators' }, { v: 'pr', l: 'PR / press' }, { v: 'none', l: 'Nothing yet' }, { v: 'other', l: 'Other' } ] };
@@ -93,7 +93,7 @@
     background: [ { v: 'technical', l: 'Technical' }, { v: 'nontechnical', l: 'Non-technical' }, { v: 'repeat', l: 'Repeat founder' }, { v: 'firsttime', l: 'First-time founder' }, { v: 'domain', l: 'Domain expert' }, { v: 'industry', l: 'Industry insider' }, { v: 'sales', l: 'Sales / GTM' }, { v: 'design', l: 'Design / product' }, { v: 'other', l: 'Other' } ],
     hours:      [ { v: 'ft', l: 'Full-time' }, { v: 'pt', l: 'Part-time' }, { v: 'nights', l: 'Nights & weekends' }, { v: 'side', l: 'Side project for now' }, { v: 'other', l: 'Other' } ],
     access:     [ { v: 'web', l: 'Web app' }, { v: 'mobile', l: 'Mobile app' }, { v: 'desktop', l: 'Desktop app' }, { v: 'api', l: 'API' }, { v: 'extension', l: 'Browser extension' }, { v: 'physical', l: 'Physical product' }, { v: 'multiple', l: 'Multiple' }, { v: 'other', l: 'Other' } ],
-    convos:     [ { v: 'many', l: 'Yes — many' }, { v: 'few', l: 'A few' }, { v: 'ongoing', l: 'Constantly — it’s a habit' }, { v: 'notyet', l: 'Not yet' }, { v: 'other', l: 'Other' } ],
+    convos:     [ { v: 'many', l: 'Yes, many' }, { v: 'few', l: 'A few' }, { v: 'ongoing', l: 'Constantly, it’s a habit' }, { v: 'notyet', l: 'Not yet' }, { v: 'other', l: 'Other' } ],
     pricing:    [ { v: 'sub', l: 'Subscription' }, { v: 'seat', l: 'Per-seat' }, { v: 'usage', l: 'Usage-based' }, { v: 'tiered', l: 'Tiered plans' }, { v: 'onetime', l: 'One-time' }, { v: 'freemium', l: 'Freemium' }, { v: 'commission', l: 'Commission / take-rate' }, { v: 'free', l: 'Free for now' }, { v: 'notset', l: 'Not set yet' }, { v: 'other', l: 'Other' } ],
     funding:    [ { v: 'boot', l: 'Bootstrapped' }, { v: 'angel', l: 'Angel / friends & family' }, { v: 'preseed', l: 'Pre-seed' }, { v: 'seed', l: 'Seed' }, { v: 'seriesa', l: 'Series A' }, { v: 'seriesb', l: 'Series B+' }, { v: 'grant', l: 'Grant / accelerator' }, { v: 'raising', l: 'Raising now' }, { v: 'other', l: 'Other' } ],
     want_vc:    [ { v: 'yes', l: 'Yes' }, { v: 'no', l: 'No' }, { v: 'maybe', l: 'Maybe later' }, { v: 'raised', l: 'Already raised' }, { v: 'other', l: 'Other' } ]
@@ -106,7 +106,7 @@
     { id: 'company', kind: 'text' },
     { id: 'industry', kind: 'single', title: 'What industry are you in?', sub: 'This tunes every question that follows.', options: INDUSTRY_OPTS, slabel: 'Industry' },
     { id: 'stage', kind: 'single', title: 'What stage is the product?', sub: 'So the plan matches where you actually are.', options: STAGE_OPTS, slabel: 'Stage' },
-    { id: 'nutshell', kind: 'group', title: 'Your startup in a nutshell', sub: 'The essentials — a line or two each is plenty.', fields: [
+    { id: 'nutshell', kind: 'group', title: 'Your startup in a nutshell', sub: 'The essentials, a line or two each is plenty.', fields: [
       { k: 'one_sentence', l: 'Your startup in one sentence', type: 'text', ph: 'What you do, in a line' },
       { k: 'problem', l: 'What problem are you solving?', type: 'textarea', ph: 'The pain you remove' },
       { k: 'how_long', l: 'How long have you been working on it?', type: 'single', options: OPT.how_long }
@@ -124,9 +124,9 @@
     { id: 'customers', kind: 'group', title: 'Your customers', fields: [
       { k: 'ideal_customer', l: 'Describe your ideal customer', type: 'textarea', ph: 'Who they are, what they need' },
       { k: 'customer_convos', l: 'Have you talked to customers?', type: 'single', options: OPT.convos },
-      { k: 'convos_detail', l: 'If so — how many, and what did they say?', type: 'textarea', ph: 'The signal you heard' }
+      { k: 'convos_detail', l: 'If so, how many, and what did they say?', type: 'textarea', ph: 'The signal you heard' }
     ] },
-    { id: 'traction', kind: 'group', title: 'Traction', sub: 'Rough numbers are fine — skip what you do not have yet.', fields: [
+    { id: 'traction', kind: 'group', title: 'Traction', sub: 'Rough numbers are fine, skip what you do not have yet.', fields: [
       { k: 'users_signups', l: 'Users / signups', type: 'text', ph: 'e.g. 1,200 signups' },
       { k: 'mrr_arr', l: 'MRR and ARR', type: 'text', ph: 'e.g. $4k MRR' },
       { k: 'paying', l: 'Paying customers?', type: 'text', ph: 'e.g. 38' },
@@ -137,7 +137,7 @@
       { k: 'competitors', l: 'Your top 3 competitors', type: 'textarea', ph: 'e.g. ServiceTitan, Housecall Pro, FieldEdge' },
       { k: 'market_leader', l: 'Who is the market leader?', type: 'text', ph: 'e.g. ServiceTitan' }
     ] },
-    { id: 'model', kind: 'single', title: function (a) { return modelCfg(a).title; }, sub: 'Pick the closest — it sharpens the competitor cut.', options: function (a) { return modelCfg(a).opts; }, slabel: 'Business model / motion' },
+    { id: 'model', kind: 'single', title: function (a) { return modelCfg(a).title; }, sub: 'Pick the closest, it sharpens the competitor cut.', options: function (a) { return modelCfg(a).opts; }, slabel: 'Business model / motion' },
     { id: 'pricing', kind: 'group', title: 'Pricing & funding', fields: [
       { k: 'pricing_model', l: 'Pricing model', type: 'single', options: OPT.pricing },
       { k: 'raised_funding', l: 'Have you raised funding?', type: 'single', options: OPT.funding },
@@ -454,7 +454,7 @@
       + '<h2>' + esc(subjectName) + '</h2>'
       + (subject.one_liner ? '<p class="gk-dv-oneliner">' + esc(subject.one_liner) + '</p>' : '')
       + '</div>'
-      + '<div class="gk-dv-badge" title="Generated from live web research — check key numbers before acting.">AI research draft — verify key numbers</div>'
+      + '<div class="gk-dv-badge" title="Generated from live web research, check key numbers before acting.">AI research draft, verify key numbers</div>'
       + '</div>';
 
     // 01 Subject brief + positioning
@@ -722,7 +722,7 @@
         + '<input id="gk-company" class="gk-input" data-gk-input="company" maxlength="160" placeholder="e.g. Jobber" autocomplete="off" value="' + esc(answers.company || '') + '">'
         + '</div>'
         + '<div class="gk-field-group" style="margin-bottom:0;">'
-        + '<label class="gk-label" for="gk-website">Website <span class="gk-opt">— optional, pins down which company</span></label>'
+        + '<label class="gk-label" for="gk-website">Website <span class="gk-opt">(optional, pins down which company)</span></label>'
         + '<input id="gk-website" class="gk-input" data-gk-input="website" maxlength="300" placeholder="e.g. getjobber.com" autocomplete="off" value="' + esc(answers.website || '') + '">'
         + '</div>'
         + '<button type="button" class="gk-fasttrack" data-gk-fasttrack>In a hurry? Fast-track with just your company name <span class="gk-arr">→</span></button>';

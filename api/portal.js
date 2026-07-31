@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
 
   const sub = await getSubscription(user.id);
   if (!sub || !sub.stripe_customer_id) {
-    res.status(400).json({ error: 'No billing account yet — subscribe first.' });
+    res.status(400).json({ error: 'No billing account yet, subscribe first.' });
     return;
   }
 

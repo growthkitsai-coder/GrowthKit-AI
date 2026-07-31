@@ -178,7 +178,7 @@
         reportNote.textContent = 'Pro or a beta grant generates reports';
       } else if (full.status === 'generating') {
         reportValue.textContent = 'Running';
-        reportNote.textContent = 'A report is generating — open the Deliverable pane';
+        reportNote.textContent = 'A report is generating, open the Deliverable pane';
       } else {
         reportValue.textContent = remaining + ' of ' + limit;
         reportNote.textContent = remaining > 0
@@ -294,7 +294,7 @@
     status.innerHTML += '<span class="status-company">' +
       (allowance.remaining > 0
         ? esc(allowance.remaining) + ' of ' + esc(allowance.limit) + ' full reports left this week'
-        : 'Weekly reports used — daily updates keep running') +
+        : 'Weekly reports used, daily updates keep running') +
       '</span>';
   }
 
@@ -377,12 +377,12 @@
         esc(b.reports_remaining) + ' of ' + esc(b.reports_limit) + ' full reports left' +
         (untilText ? ', until <b>' + esc(untilText) + '</b>' : '') +
         '. Two full reports a week is the cadence, and daily updates are free of the counter. ' +
-        'Whichever runs out first ends the beta — then it\'s Pro at £20/month.</p>';
+        'Whichever runs out first ends the beta, then it\'s Pro at £20/month.</p>';
       return;
     }
 
     if (reason === 'beta-pending') {
-      body.innerHTML = '<p>Your application is in. A founder reviews these by hand — ' +
+      body.innerHTML = '<p>Your application is in. A founder reviews these by hand, ' +
         'you\'ll get access the moment it\'s approved.</p>';
       return;
     }
@@ -407,9 +407,30 @@
     // here; two copies of it drifted apart and only one asked for the
     // structured fields the approval console shows.
     body.innerHTML =
-      '<p>Beta testers get the full engine for a week — <b>two full reports a week</b> ' +
+      '<p>Beta testers get the full engine for a week, <b>two full reports a week</b> ' +
       'plus a <b>daily update</b> on what moved, up to 7 reports. Applications are approved by hand.</p>' +
+      '<label class="beta-label" for="beta-note">Anything we should know? <span>(optional)</span></label>' +
+      '<textarea id="beta-note" class="beta-note" rows="3" maxlength="1000" ' +
+      'placeholder="What are you building, and which market do you want dissected?"></textarea>' +
+      '<div class="beta-actions"><button type="button" class="beta-btn" data-beta-apply>Apply to be a beta tester →</button></div>';
+  }
+
+  function applyForBeta(button) {
+    var note = qs('#beta-note');
+    var body = qs('[data-beta-body]');
+    button.disabled = true;
+    button.textContent = 'Sending…';
+    api('/api/beta', { method: 'POST', body: { note: note ? note.value : '' } })
+      .then(function () {
+        body.innerHTML = '<p><b>Application received.</b> A founder reviews these by hand, ' +
+          'you\'ll get access the moment it\'s approved.</p>';
+      })
+      .catch(function (err) {
+        body.innerHTML = '<p class="beta-error">' + esc(err.message || 'That did not send. Try again shortly.') + '</p>';
+      });
+=======
       '<div class="beta-actions"><a class="beta-btn" href="/beta">Apply to be a beta tester →</a></div>';
+
   }
 
   // ── The Plan pane ─────────────────────────────────────────────────────────
@@ -448,7 +469,7 @@
       button.textContent = 'Generate today\'s update';
       if (state && !(brief && brief.innerHTML)) {
         state.style.display = '';
-        state.textContent = 'The daily update is a delta against your full report — cut that first and this unlocks.';
+        state.textContent = 'The daily update is a delta against your full report, cut that first and this unlocks.';
       }
       return;
     }
@@ -511,11 +532,13 @@
       return url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(s.title || url) + ' ↗</a>' : '';
     }).join('');
 
-    host.innerHTML = '<div class="daily-brief-meta"><span>' + esc(row.brief_date || b.brief_date) + ' · UTC' + (company ? ' · ' + esc(company) : '') + '</span><span class="daily-signal ' + (noChange ? 'is-quiet' : '') + '">' + (noChange ? 'No material change today' : 'Material change detected') + '</span></div>' +
-      '<h3>' + esc(lead.headline || (noChange ? 'No material change today' : 'Today’s market signal')) + '</h3>' +
+    // Quiet day: draw no status chip and no filler headline at all — never the
+    // words "no material change". Blank beats telling a founder nothing moved.
+    host.innerHTML = '<div class="daily-brief-meta"><span>' + esc(row.brief_date || b.brief_date) + ' · UTC' + (company ? ' · ' + esc(company) : '') + '</span>' + (noChange ? '' : '<span class="daily-signal">Material change detected</span>') + '</div>' +
+      '<h3>' + esc(lead.headline || (noChange ? '' : 'Today’s market signal')) + '</h3>' +
       '<p class="daily-lead">' + esc(lead.detail) + '</p>' +
       '<p class="daily-why">' + esc(lead.why_it_matters) + '</p>' +
-      '<details><summary>See the full 30-second update</summary>' +
+      '<details class="daily-full"><summary class="daily-full-cta">See the full 30-second update</summary>' +
         (movement ? '<div class="daily-section"><h4>Market & competitor movement</h4><ul>' + movement + '</ul></div>' : '') +
         (metrics ? '<div class="daily-section"><h4>Your metrics</h4><ul class="daily-metrics">' + metrics + '</ul></div>' : '') +
         (signals ? '<div class="daily-section"><h4>Market signals</h4><ul>' + signals + '</ul></div>' : '') +
@@ -551,7 +574,7 @@
     if (state) { state.style.display = ''; state.textContent = 'Scanning the market and your connected metrics…'; }
     api('/api/daily-briefs', { method: 'POST', body: {} }).then(function (data) {
       if (data.__status === 202) {
-        if (state) state.textContent = 'Today\'s update is already being prepared — check back in a moment.';
+        if (state) state.textContent = 'Today\'s update is already being prepared, check back in a moment.';
         return;
       }
       if (data.brief) renderBrief(data.brief);
@@ -575,7 +598,7 @@
         var locked = accountCache && accountCache.daily && accountCache.daily.status === 'locked';
         if (state && !locked) {
           state.style.display = '';
-          state.textContent = 'No update yet. Generate today\'s in one click — it takes about half a minute.';
+          state.textContent = 'No update yet. Generate today\'s in one click, it takes about half a minute.';
         }
       }
       renderDailyHistory(dailyRows);
@@ -627,7 +650,7 @@
     // Pre-launch, show every provider — the point is to advertise what's coming.
     var list = soon ? (connections || []) : usable(connections);
     if (!list.length) {
-      host.innerHTML = '<div class="daily-state">Data connections are being set up — check back shortly.</div>';
+      host.innerHTML = '<div class="daily-state">Data connections are being set up, check back shortly.</div>';
       return;
     }
     host.innerHTML = list.map(function (c) {
@@ -649,7 +672,7 @@
           var note = qs('[data-integration-note]', button.closest('.integration-card'));
           if (note) {
             note.textContent = 'Connections go live ' + CONNECTIONS_LIVE_LABEL +
-              '. Nothing to do yet — we\'ll switch it on for you.';
+              '. Nothing to do yet, we\'ll switch it on for you.';
             note.classList.add('is-visible');
           }
           return;

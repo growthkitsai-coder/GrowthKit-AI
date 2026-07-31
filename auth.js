@@ -72,7 +72,7 @@
     else { if (btn.dataset._l != null) btn.textContent = btn.dataset._l; btn.disabled = false; }
   }
   function notConfigured() {
-    showAlert('Sign-in isn’t configured yet — add your Supabase keys in auth-config.js. (See docs/auth.md.)', 'error');
+    showAlert('Sign-in isn’t configured yet, add your Supabase keys in auth-config.js. (See docs/auth.md.)', 'error');
     $$('[data-auth-form] button, [data-auth-form] input, [data-auth-oauth], [data-auth-reset-request] button, [data-auth-reset-request] input, [data-auth-reset-new] button, [data-auth-reset-new] input').forEach(function (n) { n.disabled = true; });
   }
 
@@ -161,7 +161,7 @@
       var btn = $('.auth-submit', newForm); busy(btn, true, 'Updating…');
       client.auth.updateUser({ password: pw }).then(function (r) {
         if (r.error) { showAlert(friendly(r.error), 'error'); busy(btn, false); return; }
-        showAlert('Password updated — taking you in…', 'success');
+        showAlert('Password updated, taking you in…', 'success');
         setTimeout(function () { location.href = REDIRECT; }, 900);
       });
     });
@@ -174,7 +174,7 @@
     var signout = $('[data-auth-signout]');
 
     if (!configured) {
-      if (checking) checking.innerHTML = 'Sign-in isn’t configured yet — add your Supabase keys in <span class="mono">auth-config.js</span> (see docs/auth.md). The tool will unlock once auth is live.';
+      if (checking) checking.innerHTML = 'Sign-in isn’t configured yet, add your Supabase keys in <span class="mono">auth-config.js</span> (see docs/auth.md). The tool will unlock once auth is live.';
       return;
     }
 
@@ -252,10 +252,10 @@
   }
 
   function friendly(err) {
-    var m = (err && err.message) || 'Something went wrong — please try again.';
+    var m = (err && err.message) || 'Something went wrong, please try again.';
     if (/invalid login credentials/i.test(m)) return 'That email and password don’t match. Try again or reset your password.';
-    if (/email not confirmed/i.test(m)) return 'Please confirm your email first — check your inbox for the link.';
-    if (/user already registered/i.test(m)) return 'An account with that email already exists — try logging in.';
+    if (/email not confirmed/i.test(m)) return 'Please confirm your email first, check your inbox for the link.';
+    if (/user already registered/i.test(m)) return 'An account with that email already exists, try logging in.';
     return m;
   }
 

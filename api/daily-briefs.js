@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
   }
   const report = await getLatestCompletedReport(user.id);
   if (!report) {
-    res.status(409).json({ error: 'Generate your full report first — the daily update is a delta against it.', code: 'full_report_required' });
+    res.status(409).json({ error: 'Generate your full report first, the daily update is a delta against it.', code: 'full_report_required' });
     return;
   }
 
