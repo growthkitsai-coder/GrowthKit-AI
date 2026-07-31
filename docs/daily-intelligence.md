@@ -78,14 +78,15 @@ Before the first completed report `/four` is the marketing scroll it has always 
 │ Full reports: "1 of 2 left this week"   Daily update: "Ready" │
 └──────────────────────────────────────────────────────────────┘
   nav rail            panes (one visible at a time)
-  ├ Deliverable  →  the engine + the rendered report   ← prime focus
-  ├ Daily        →  one-click update, plus past updates
+  ├ Deliverable  →  report (main) + sticky daily rail   ← prime focus
+  ├ Daily        →  the archive of past updates
   ├ Plan         →  gap analysis + 90-day plan, projected out of the report
   ├ Connections  →  Stripe / GA4 / LinkedIn
   ├ History      →  every completed report
   └ Billing      →  plan pill, beta card, Pro upgrade
 ```
 
+- **The daily update lives beside the deliverable (2026-07-31).** The Deliverable pane is a two-column grid: `.deliverable-main` holds the engine and the rendered report, and `aside.deliverable-side` is a **344px sticky rail** (own scroll, `overscroll-behavior: contain`) holding the generate button, today's state, and the latest brief. `applyMode()` **moves** `[data-daily-live]` out of the Daily pane into the rail when the workspace turns on — moved, not cloned, for the same reason as the Plan projection (`findings.js` listeners). Because the rail is always on screen, `loadDaily()` now runs as soon as the workspace exists rather than on first visit to the Daily pane. **The Daily pane is now the archive**: its history buttons render the chosen brief into the rail and switch to the Deliverable pane. **At ≤1100px the rail stacks above the report**, not below.
 - At **≤720px** the rail becomes a fixed bottom tab bar using each item's `data-short` label; `aria-label` carries the full name in both layouts.
 - Panes deep-link by hash (`/four#daily`); `?report_id=…` still opens a past report in the Deliverable pane.
 - **The Plan pane is a projection, not a copy.** `product.js` *moves* the `#gk-report-gaps` and `#gk-report-plan` nodes out of the rendered deliverable on every `gk:deliverable-rendered` event (dispatched by `advisor.js`). They are moved rather than cloned because `findings.js` has already bound checklist listeners to those nodes and cloning would duplicate finding keys. The report's own section nav links for those two stages are intercepted and switch panes instead of scrolling into a hidden pane.
