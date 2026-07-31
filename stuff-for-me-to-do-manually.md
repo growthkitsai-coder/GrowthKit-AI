@@ -61,6 +61,36 @@ See `docs/infrastructure.md` for the full write-up of that incident.
 
 ---
 
+## 2b. Check whether `GK_BETA_OPEN` is set — it makes `/beta` pointless
+
+**This is why your test run walked straight into the product with no application.**
+
+`GK_BETA_OPEN=1` grants **every signed-in account** Pro-equivalent access, with no
+application and no approval (`lib/subscriptions.js:242`). If it is set, the whole
+`/beta` → apply → approve flow is decoration.
+
+Three doc entries claimed this variable had been "removed, no longer read" — they
+were wrong and are now corrected. It was removed 2026-07-24 and **restored
+2026-07-26**, apparently at your request.
+
+- [ ] **Vercel → Settings → Environment Variables → look for `GK_BETA_OPEN`.**
+- [ ] Decide which beta you actually want:
+      - **Open beta** — leave it at `1`. Anyone who signs up gets in. `/beta` will
+        now correctly tell them they already have access rather than showing a
+        form. §1 and §2 stop being urgent.
+      - **Approval-gated beta** — **delete the variable (or set it to anything
+        other than `1`) and redeploy.** Then §1–§3 matter and the flow works as
+        designed.
+- [ ] Either way, also check whether your own email sits in `GK_BETA_EMAILS` —
+      that grants *you specifically* access and would mask the difference while
+      testing.
+
+**How to tell them apart without opening Vercel:** sign up with a brand-new email
+that is definitely not on the allowlist. If it walks straight in → `GK_BETA_OPEN=1`.
+If it is blocked → the allowlist was letting *your* account through.
+
+---
+
 ## 3. Verify the beta works, end to end
 
 Do this straight after §1 and §2. Use a **second, non-admin account** for the

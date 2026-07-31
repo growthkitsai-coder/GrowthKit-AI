@@ -18,7 +18,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-<<<<<<< HEAD
     <loc>https://growthkitai.com/blog</loc>
     <lastmod>2026-07-28</lastmod>
     <changefreq>weekly</changefreq>
@@ -29,12 +28,11 @@
     <lastmod>2026-07-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-=======
     <loc>https://growthkitai.com/beta</loc>
     <lastmod>2026-07-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
->>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
+
   </url>
   <url>
     <loc>https://growthkitai.com/careers</loc>

@@ -11,6 +11,7 @@ const KEYS = [
   'GK_BETA_ENABLED',
   'GK_BETA_EMAILS',
   'GK_BETA_EXPIRES_AT',
+  'GK_BETA_OPEN',
   'GK_ADMIN_USER_IDS',
   'STRIPE_PRICE_PRO',
   'STRIPE_PRICE_AGENTIC'
@@ -107,6 +108,54 @@ test('beta kill switch and global cutoff also apply to the private allowlist', a
   delete process.env.GK_BETA_ENABLED;
   process.env.GK_BETA_EXPIRES_AT = '2000-01-01T00:00:00.000Z';
   const expired = await checkAccess({ id: 'user-1', email: 'founder@example.com' });
+  assert.equal(expired.allowed, false);
+  assert.equal(expired.reason, 'beta-expired');
+});
+
+// ── Open beta (GK_BETA_OPEN) ─────────────────────────────────────────────────
+// This flag was removed on 2026-07-24, restored on 2026-07-26, and had NO test
+// coverage until 2026-07-27 — while three doc entries still claimed it was gone.
+// It silently turns the entire application/approval flow into decoration, so it
+// is now pinned down by tests: if someone removes it again, these fail loudly.
+
+test('GK_BETA_OPEN=1 lets any signed-in account through with no application', async function () {
+  mockDb({});
+  process.env.GK_BETA_OPEN = '1';
+  const access = await checkAccess({ id: 'user-1', email: 'nobody@example.com' });
+  assert.equal(access.allowed, true);
+  assert.equal(access.reason, 'beta-open');
+  assert.equal(access.plan, 'pro');
+});
+
+test('open beta requires a signed-in user id, not merely the flag', async function () {
+  mockDb({});
+  process.env.GK_BETA_OPEN = '1';
+  const access = await checkAccess({ email: 'nobody@example.com' });
+  assert.equal(access.allowed, false);
+  assert.notEqual(access.reason, 'beta-open');
+});
+
+test('only the exact string "1" opens the beta', async function () {
+  mockDb({});
+  for (const value of ['0', 'true', 'yes', '']) {
+    process.env.GK_BETA_OPEN = value;
+    const access = await checkAccess({ id: 'user-1', email: 'nobody@example.com' });
+    assert.equal(access.allowed, false, 'GK_BETA_OPEN=' + JSON.stringify(value) + ' must not grant access');
+  }
+});
+
+test('the kill switch and global cutoff both override open beta', async function () {
+  mockDb({});
+  process.env.GK_BETA_OPEN = '1';
+
+  process.env.GK_BETA_ENABLED = '0';
+  const disabled = await checkAccess({ id: 'user-1', email: 'nobody@example.com' });
+  assert.equal(disabled.allowed, false);
+  assert.equal(disabled.reason, 'beta-disabled');
+
+  delete process.env.GK_BETA_ENABLED;
+  process.env.GK_BETA_EXPIRES_AT = '2000-01-01T00:00:00.000Z';
+  const expired = await checkAccess({ id: 'user-1', email: 'nobody@example.com' });
   assert.equal(expired.allowed, false);
   assert.equal(expired.reason, 'beta-expired');
 });

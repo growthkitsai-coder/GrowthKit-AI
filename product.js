@@ -409,7 +409,6 @@
     body.innerHTML =
       '<p>Beta testers get the full engine for a week, <b>two full reports a week</b> ' +
       'plus a <b>daily update</b> on what moved, up to 7 reports. Applications are approved by hand.</p>' +
-<<<<<<< HEAD
       '<label class="beta-label" for="beta-note">Anything we should know? <span>(optional)</span></label>' +
       '<textarea id="beta-note" class="beta-note" rows="3" maxlength="1000" ' +
       'placeholder="What are you building, and which market do you want dissected?"></textarea>' +
@@ -431,7 +430,7 @@
       });
 =======
       '<div class="beta-actions"><a class="beta-btn" href="/beta">Apply to be a beta tester →</a></div>';
->>>>>>> 27b0853acde0f13ef152ffade1db007ba2d73121
+
   }
 
   // ── The Plan pane ─────────────────────────────────────────────────────────

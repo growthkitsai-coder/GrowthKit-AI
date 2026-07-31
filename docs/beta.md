@@ -54,6 +54,7 @@ The card renders whatever `GET /api/beta` reports, never a browser-side guess:
 | Reason | Allowed | Meaning |
 |---|---|---|
 | `beta-allowlist` | ✓ | Exact verified email is privately allowlisted. Reports as plan `pro`, status `beta_allowlist`; no seven-report counter. |
+| `beta-open` | ✓ | **`GK_BETA_OPEN=1` — any signed-in account, no application, no approval.** See the env-var table below; this bypasses the whole approval flow. |
 | `beta-not-applied` | ✗ | No row. Show the apply form. |
 | `beta-pending` | ✗ | Applied, waiting on Avi. |
 | `beta-approved` | ✓ | Inside the window, reports remaining. Reports as plan `pro`, status `beta`. |
@@ -103,7 +104,7 @@ It fetches **every** application once (`GET /api/admin-beta?limit=500`) and does
 | `GK_BETA_ENABLED` | Prod | `0` instantly disables all beta access regardless of approvals. |
 | `GK_BETA_EXPIRES_AT` | Prod | Optional ISO-8601 cutoff ending every grant at once. Invalid or past values fail closed. |
 | `GK_BETA_EMAILS` | Prod | Private fixed-cohort allowlist; exact normalized verified-email matching. Grants unrestricted Pro-equivalent beta access. |
-| ~~`GK_BETA_OPEN`~~ | — | **Removed 2026-07-24.** No longer read. |
+| `GK_BETA_OPEN` | Prod | **⚠ LIVE AGAIN — this doc was wrong.** `=1` grants **every signed-in account** Pro-equivalent access with **no application and no approval** (`reason: 'beta-open'`). Removed 2026-07-24, **restored 2026-07-26** per Avi, and read today at `lib/subscriptions.js:242`. Three doc entries still claimed "no longer read" until 2026-07-27. **If it is set, `/beta` is decorative** — nobody needs to apply. Unset it to return to approval-gated beta. It is checked *after* the allowlist and *before* the database grant, and `GK_BETA_ENABLED=0` still overrides it. **Not covered by any test.** |
 
 ## Phase 2 — BUILT 2026-07-25
 

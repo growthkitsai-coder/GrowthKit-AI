@@ -38,12 +38,32 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // Access is resolved FIRST and returned alongside the application row.
+    //
+    // The row alone cannot answer "should this person see an application form?".
+    // A paying subscriber, a privately allowlisted email, and an open-beta
+    // account (GK_BETA_OPEN=1) all have full access with no row at all, so
+    // publicView() reports them as 'beta-not-applied' and /beta would offer them
+    // a form for something they already have. `beta-approved` is excluded
+    // because that one DOES come from a row and has a grant readout to show.
+    const access = await checkAccess(user);
+    const bypass = access.allowed && access.reason !== 'beta-approved';
+
     const found = await beta.getApplication(user.id);
-    if (!found.ok) {
+    // Someone who already has access must not be told "applications are paused"
+    // merely because the applications table is unreachable — their access does
+    // not depend on it.
+    if (!found.ok && !bypass) {
       res.status(503).json({ error: 'Beta status is unavailable right now.' });
       return;
     }
-    res.status(200).json({ beta: beta.publicView(found.application) });
+
+    res.status(200).json({
+      beta: beta.publicView(found.ok ? found.application : null),
+      // Why they have access, not just that they do. The browser can already
+      // learn this from /api/account, so this exposes nothing new.
+      access: { allowed: Boolean(access.allowed), reason: access.reason }
+    });
     return;
   }
 
