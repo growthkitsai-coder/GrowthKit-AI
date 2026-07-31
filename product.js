@@ -138,6 +138,17 @@
       return;
     }
 
+    // The daily update rides beside the deliverable, not off in its own tab.
+    // Moved, not cloned: findings.js has already bound listeners to these nodes.
+    var side = qs('[data-daily-side]');
+    var live = qs('[data-daily-live]');
+    if (side && live && live.parentNode !== side) {
+      side.appendChild(live);
+      side.hidden = false;
+    }
+    var archive = qs('[data-daily-archive]');
+    if (archive) archive.hidden = false;
+
     var access = (account && account.access) || {};
     var nameEl = qs('[data-workspace-company]');
     var metaEl = qs('[data-workspace-meta]');
@@ -322,7 +333,9 @@
     // it never runs, so clear it here in case access lapsed mid-session.
     if (access.allowed) loadIntegrations();
     else { var nudge = qs('[data-connect-nudge]'); if (nudge) nudge.hidden = true; }
-    if (isWorkspace && dailyRows === null && activePane === 'daily') loadDaily();
+    // The rail is on screen the moment the workspace exists, so the update
+    // loads with it rather than waiting for the Daily pane to be opened.
+    if (isWorkspace && dailyRows === null) loadDaily();
     projectPlan();
   }
 
@@ -409,28 +422,7 @@
     body.innerHTML =
       '<p>Beta testers get the full engine for a week, <b>two full reports a week</b> ' +
       'plus a <b>daily update</b> on what moved, up to 7 reports. Applications are approved by hand.</p>' +
-      '<label class="beta-label" for="beta-note">Anything we should know? <span>(optional)</span></label>' +
-      '<textarea id="beta-note" class="beta-note" rows="3" maxlength="1000" ' +
-      'placeholder="What are you building, and which market do you want dissected?"></textarea>' +
-      '<div class="beta-actions"><button type="button" class="beta-btn" data-beta-apply>Apply to be a beta tester →</button></div>';
-  }
-
-  function applyForBeta(button) {
-    var note = qs('#beta-note');
-    var body = qs('[data-beta-body]');
-    button.disabled = true;
-    button.textContent = 'Sending…';
-    api('/api/beta', { method: 'POST', body: { note: note ? note.value : '' } })
-      .then(function () {
-        body.innerHTML = '<p><b>Application received.</b> A founder reviews these by hand, ' +
-          'you\'ll get access the moment it\'s approved.</p>';
-      })
-      .catch(function (err) {
-        body.innerHTML = '<p class="beta-error">' + esc(err.message || 'That did not send. Try again shortly.') + '</p>';
-      });
-=======
       '<div class="beta-actions"><a class="beta-btn" href="/beta">Apply to be a beta tester →</a></div>';
-
   }
 
   // ── The Plan pane ─────────────────────────────────────────────────────────
@@ -560,7 +552,11 @@
       button.type = 'button';
       button.textContent = row.brief_date;
       button.title = row.company_name ? row.brief_date + ' · ' + row.company_name : row.brief_date;
-      button.addEventListener('click', function () { renderBrief(row); });
+      button.addEventListener('click', function () {
+        renderBrief(row);
+        // The brief renders in the rail beside the deliverable — go where it is.
+        if (isWorkspace) setPane('deliverable');
+      });
       host.appendChild(button);
     });
   }
