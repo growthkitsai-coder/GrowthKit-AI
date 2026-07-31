@@ -138,17 +138,6 @@
       return;
     }
 
-    // The daily update rides beside the deliverable, not off in its own tab.
-    // Moved, not cloned: findings.js has already bound listeners to these nodes.
-    var side = qs('[data-daily-side]');
-    var live = qs('[data-daily-live]');
-    if (side && live && live.parentNode !== side) {
-      side.appendChild(live);
-      side.hidden = false;
-    }
-    var archive = qs('[data-daily-archive]');
-    if (archive) archive.hidden = false;
-
     var access = (account && account.access) || {};
     var nameEl = qs('[data-workspace-company]');
     var metaEl = qs('[data-workspace-meta]');
@@ -333,9 +322,7 @@
     // it never runs, so clear it here in case access lapsed mid-session.
     if (access.allowed) loadIntegrations();
     else { var nudge = qs('[data-connect-nudge]'); if (nudge) nudge.hidden = true; }
-    // The rail is on screen the moment the workspace exists, so the update
-    // loads with it rather than waiting for the Daily pane to be opened.
-    if (isWorkspace && dailyRows === null) loadDaily();
+    if (isWorkspace && dailyRows === null && activePane === 'daily') loadDaily();
     projectPlan();
   }
 
@@ -552,11 +539,7 @@
       button.type = 'button';
       button.textContent = row.brief_date;
       button.title = row.company_name ? row.brief_date + ' · ' + row.company_name : row.brief_date;
-      button.addEventListener('click', function () {
-        renderBrief(row);
-        // The brief renders in the rail beside the deliverable — go where it is.
-        if (isWorkspace) setPane('deliverable');
-      });
+      button.addEventListener('click', function () { renderBrief(row); });
       host.appendChild(button);
     });
   }
