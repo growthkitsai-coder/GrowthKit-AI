@@ -47,6 +47,16 @@ Every page duplicates head/topbar/footer by hand, so cross-page consistency drif
 - Never commit `.env.local` (holds `VERCEL_OIDC_TOKEN`), `.vercel/`, `.env`/`.env.*`, or anything with credentials — all gitignored.
 - Topbar / footer / `<head>` blocks are duplicated on every page — chrome changes mean editing **all** HTML files (see docs/pages.md for the canonical nav + footer grids).
 
+## Agent tooling — MCP servers (added 2026-08-04)
+
+`.mcp.json` at the repo root holds **project-scoped** MCP servers. It is committed, so every agent that opens this repo inherits it (Claude Code prompts for approval on first load; a running session only picks up changes after a restart).
+
+- **Registered today:** `shadcn` → `npx shadcn@latest mcp`. It gives agents component search + code examples from the shadcn/ui registry.
+- **⚠ You cannot actually install shadcn components into this repo.** shadcn/ui ships React + Tailwind sources; GrowthKit is plain static HTML with per-page inline CSS and no build step. Treat the server as a **reference/design lookup only** — never run `npx shadcn add <component>` here, it will scaffold a React project structure that does not belong.
+- **`shadcn` is deliberately NOT a devDependency.** `npx shadcn@latest mcp init` adds it to `package.json` (a ~4,100-line `package-lock.json` diff) but the MCP server does not need it — `.mcp.json` invokes `npx shadcn@latest`, which resolves from the registry regardless of `node_modules`. Vercel installs from `package.json`/`package-lock.json` on every deploy, so keeping it out preserves the repo's **one runtime dependency** (`stripe`) and keeps builds lean. If a future `shadcn` CLI run re-adds it, `git checkout -- package.json package-lock.json`.
+- **Credentialed servers never go in `.mcp.json`.** This repo is public. Register those per-user with `claude mcp add` (default scope is *local*, stored in `~/.claude.json`, untracked) and reference the secret as a `${VAR}` placeholder so the key lives only in the environment and never in a config file. Registered this way on 2026-08-04: **21st.dev** (`https://21st.dev/api/mcp`, header `x-api-key: ${API_KEY_21ST}`).
+- **Worktree gotcha:** local scope keys off the *current directory*, so `claude mcp add` run inside `.claude/worktrees/<name>` registers only for that throwaway path. Use `--scope user` for anything you want to survive the worktree.
+
 ## New-page checklist (the checker enforces 1–3)
 
 1. `vercel.json` — add to both `rewrites` AND `redirects`.
