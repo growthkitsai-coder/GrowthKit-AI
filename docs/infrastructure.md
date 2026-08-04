@@ -47,6 +47,31 @@ Every page duplicates head/topbar/footer by hand, so cross-page consistency drif
 - Never commit `.env.local` (holds `VERCEL_OIDC_TOKEN`), `.vercel/`, `.env`/`.env.*`, or anything with credentials — all gitignored.
 - Topbar / footer / `<head>` blocks are duplicated on every page — chrome changes mean editing **all** HTML files (see docs/pages.md for the canonical nav + footer grids).
 
+## Agent tooling — MCP servers (added 2026-08-04)
+
+`.mcp.json` at the repo root holds **project-scoped** MCP servers. It is committed, so every agent that opens this repo inherits it (Claude Code prompts for approval on first load; a running session only picks up changes after a restart).
+
+- **Registered:** `shadcn` → `npx shadcn@latest mcp`. It exposes component search + source + examples from shadcn-compatible registries. **Working** (verified 2026-08-04).
+- **`components.json` at the repo root is what makes it work — do not delete it.** Every shadcn MCP tool refuses to run without that file; before it existed, `get_project_registries` returned an empty list and nothing could be searched, not even shadcn's own registry. **It is deliberately 5 lines** (`$schema` + a `registries` map) and nothing else. `npx shadcn@latest init` would write a much larger one **and scaffold React/Tailwind project structure that must never land here** — never run `init`. The minimal file is enough because `@shadcn` is built in; only third-party registries need declaring:
+  ```json
+  { "$schema": "https://ui.shadcn.com/schema.json",
+    "registries": { "@react-bits": "https://reactbits.dev/r/{name}.json" } }
+  ```
+- **Registries available:** `@shadcn` (built in) and `@react-bits`. **React Bits ships every component in 4 variants** — `-JS-TW`, `-TS-TW`, `-JS-CSS`, `-TS-CSS`. **Always look at `-JS-CSS`** (plain JavaScript + plain CSS): it is the only variant that is not TypeScript or Tailwind, so it is by far the cheapest to hand-port into this repo. Example: `@react-bits/CircularText-JS-CSS`.
+- **21st.dev has no shadcn registry** (`https://21st.dev/r/{name}.json` 404s), so it cannot be added to `components.json`. Its only access path is its own authenticated MCP server, below.
+- Cosmetic upstream bug: search results print `Add command: [object Promise]`. Ignore it — the add command is exactly what you must not run here anyway.
+- **⚠ You cannot actually install shadcn components into this repo.** shadcn/ui ships React + Tailwind sources; GrowthKit is plain static HTML with per-page inline CSS and no build step. Treat the server as a **reference/design lookup only** — never run `npx shadcn add <component>` here, it will scaffold a React project structure that does not belong.
+- **`shadcn` is deliberately NOT a devDependency.** `npx shadcn@latest mcp init` adds it to `package.json` (a ~4,100-line `package-lock.json` diff) but the MCP server does not need it — `.mcp.json` invokes `npx shadcn@latest`, which resolves from the registry regardless of `node_modules`. Vercel installs from `package.json`/`package-lock.json` on every deploy, so keeping it out preserves the repo's **one runtime dependency** (`stripe`) and keeps builds lean. If a future `shadcn` CLI run re-adds it, `git checkout -- package.json package-lock.json`.
+- **Credentialed servers never go in `.mcp.json`.** This repo is public. Register those per-user with `claude mcp add` (default scope is *local*, stored in `~/.claude.json`, untracked) and reference the secret as a `${VAR}` placeholder so the key lives only in the environment and never in a config file. Registered this way on 2026-08-04: **21st.dev** (`https://21st.dev/api/mcp`, header `x-api-key: ${API_KEY_21ST}`).
+- **Authenticating 21st.dev** (it stays dead until this is done): grab a key at **<https://21st.dev/settings/api-keys>**, export it as **`API_KEY_21ST`** (their own documented variable name, which is why the placeholder uses it), then re-register at **user** scope so it is not trapped in a worktree:
+  ```
+  claude mcp add --scope user --transport http 21st https://21st.dev/api/mcp --header 'x-api-key: ${API_KEY_21ST}'
+  ```
+  **Single-quote the header** so the shell does not expand `${API_KEY_21ST}` — the literal placeholder must reach the config file; Claude Code resolves it from the environment at server launch. The variable must be set in the environment Claude Code *starts from*, so set it permanently (`setx API_KEY_21ST "…"` on Windows) and restart, not just in one shell. Old `magic.21st.dev` console keys were all reset and no longer work anywhere. Free tier is search-only with 2 installs/day; AI generation needs credits.
+- **Worktree gotcha:** local scope keys off the *current directory*, so `claude mcp add` run inside `.claude/worktrees/<name>` registers only for that throwaway path. Use `--scope user` for anything you want to survive the worktree.
+- **🚨 Nothing from any registry can be installed into this repo — the servers are lookup tools, not install tools.** shadcn/ui, React Bits and 21st.dev all ship **React** components. GrowthKit is plain static HTML with per-page inline CSS and **no build step**, so `npx shadcn add …` and the MCP "add" commands must never be run here. The precedent is already in the tree: React Bits' `<Threads />` became `threads.js` by **hand-porting to vanilla WebGL 1** (fragment shader kept verbatim, the ogl wrapper dropped). Read a component's source, take the idea/shader/CSS, and **write the vanilla equivalent yourself**. Note most React Bits components also carry a `motion@^12` dependency that this repo does not have and should not gain.
+- **Config files at the repo root are not publicly served.** Verified on production: `/package.json`, `/vercel.json` and `/.mcp.json` all resolve to **404**, so `components.json` is not exposed either. None of them contain secrets regardless.
+
 ## New-page checklist (the checker enforces 1–3)
 
 1. `vercel.json` — add to both `rewrites` AND `redirects`.
